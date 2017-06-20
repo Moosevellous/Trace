@@ -12,7 +12,6 @@ Public PROJECTNO As String
 Public PROJECTNAME As String
 Public PROJECTINFODIRECTORY As String
 Public FANTECH_SILENCERS As String
-Public TEST_var As String
 
 ''''''''''''''''''''''
 'END GLOBAL VARIABLES'
