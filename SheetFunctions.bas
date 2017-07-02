@@ -335,7 +335,7 @@ InputFormula = Selection.Formula
 ExPos = InStr(1, InputFormula, "!", vbTextCompare)
 AposPos = InStr(1, InputFormula, "'", vbTextCompare)
 PurgeStr = Mid(InputFormula, AposPos, ExPos - AposPos + 1)
-Debug.Print PurgeStr
+'Debug.Print PurgeStr
 Cells.Replace What:=PurgeStr, Replacement:="", LookAt:=xlPart, _
     SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
 msg = MsgBox("Reference string " & Chr(10) & PurgeStr & Chr(10) & "has been removed.", vbOKOnly, "THE PURGE!")

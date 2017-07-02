@@ -26,17 +26,17 @@ CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
             Range(Cells(rw, 2), Cells(rw, 15)).Font.ColorIndex = 0
             Range(Cells(rw, 2), Cells(rw, 15)).Interior.ColorIndex = 0 'no colour
             Range(Cells(rw, 14), Cells(rw, 15)).Merge
-            Cells(rw, 14).Validation.Delete
-            Cells(rw, 15).Validation.Delete
-            Range(Cells(rw, 3), Cells(rw, 13)).FormatConditions.Delete
+            Cells(rw, 14).Validation.Delete 'for dropdown boxes
+            Cells(rw, 15).Validation.Delete 'for dropdown boxes
+            Range(Cells(rw, 3), Cells(rw, 13)).FormatConditions.Delete 'removes heatmap
             Cells(rw, 14).NumberFormat = "General"
             ElseIf Left(SheetType, 2) = "TO" Then
             Range(Cells(rw, 5), Cells(rw, 27)).ClearContents
             Range(Cells(rw, 2), Cells(rw, 27)).Font.ColorIndex = 0
             Range(Cells(rw, 2), Cells(rw, 27)).Interior.ColorIndex = 0 'no colour
-            Cells(rw, 26).Validation.Delete
-            Cells(rw, 27).Validation.Delete
-            Range(Cells(rw, 3), Cells(rw, 27)).FormatConditions.Delete
+            Cells(rw, 26).Validation.Delete 'for dropdown boxes
+            Cells(rw, 27).Validation.Delete 'for dropdown boxes
+            Range(Cells(rw, 3), Cells(rw, 27)).FormatConditions.Delete 'removes heatmap
             Cells(rw, 26).NumberFormat = "General"
             End If
         Next rw

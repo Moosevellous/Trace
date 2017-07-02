@@ -969,18 +969,19 @@ Call ParameterUnmerge(Selection.Row, SheetType)
     
 End Sub
 
-Sub FantechSilencer(SheetType As String)
+Sub Silencer(SheetType As String)
 
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
 'send to public variable
 SolverRow = Selection.Row
 msg = MsgBox("This tool is in beta and may not function as intended.", vbOKOnly, "WARNING!")
-frmFantechSilencer.Show
+frmSilencer.Show
 
 If btnOkPressed = False Then End
 
     If Left(SheetType, 3) = "OCT" Then 'oct or OCT
+    Cells(SolverRow, 5).ClearContents 'clear 31.5Hz octave band
         For Col = 0 To 7 '8 columns
         Cells(SolverRow, 6 + Col).Value = SilencerIL(Col)
         Next Col
@@ -989,8 +990,7 @@ If btnOkPressed = False Then End
     Else
     SheetTypeUnknownError
     End If
-Cells(Selection.Row, 2).Value = "FANTECH " & SilencerModel
-
+Cells(Selection.Row, 2).Value = "Silencer Model: " & SilencerModel
 
 End Sub
 

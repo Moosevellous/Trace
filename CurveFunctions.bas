@@ -310,14 +310,14 @@ SumDeficiencies = 0
         Next y
         
     CurveIndex = Lnw_ThOct(7) '500 Hz band (zero index)
-    Debug.Print "Lnw: " & CurveIndex
+    'Debug.Print "Lnw: " & CurveIndex
     
     SumDeficiencies = 0 'reset at each evaluation
 
         For x = 0 To 15
         CheckDef = DataTable(x + 1) - Lnw_ThOct(x) 'VBA and it's stupid 1 indexing
             If CheckDef > 0 Then 'only positive values are deficient
-            Debug.Print CheckDef
+            'Debug.Print CheckDef
             Deficiencies(x) = CheckDef
             Else
             Deficiencies(x) = 0

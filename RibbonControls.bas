@@ -160,10 +160,10 @@ On Error Resume Next
 DirRevSum (ActiveSheet.Range("TYPECODE").Value)
 End Sub
 
-Sub btnFantechSilencer(control As IRibbonControl)
+Sub btnSilencer(control As IRibbonControl)
 On Error Resume Next
 'msg = MsgBox("Feature does not exist yet - please try again later", vbOKOnly, "You wanna build it? Go right ahead.")
-FantechSilencer (ActiveSheet.Range("TYPECODE").Value)
+Silencer (ActiveSheet.Range("TYPECODE").Value)
 End Sub
 
 
