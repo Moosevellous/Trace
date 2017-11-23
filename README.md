@@ -5,9 +5,9 @@ Trace is a custom designed Add-In for Excel to assist in the calculation of nois
 
 ### 2. Installation (.xlam file) ### 
 To install in Excel go to `File>Options>Add-ins.` Then click on `Go…`
-Then browse to where the NoiseCalc folder has been saved, eg.
-Z:\Specialists\Acoustics\1 - Technical Library\Excel Add-in\NoiseCalc
-And add the file `NoiseCalc.xlam`
+Then browse to where the Trace folder has been saved, eg.
+C:\Users\PersonX\Documents\Trace
+And add the file `Trace.xlam`
 
 **Optional - Central Locations**
 For business groups, the toolkit may be placed centrally on the network with all users pointing to it. If this is the case, then when prompted as follows:
