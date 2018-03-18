@@ -183,7 +183,7 @@ Function RwCurve(CurveNo As Variant, fstr As String) 'Optional Mode As String)
 
 '''''''''''''''''''''''''''''''
 'REFERENCE CURVES FROM ISO717.1
-Rw_oct = Array(36, 45, 52, 55, 56) 'From 125 Hz to 2000 Hz
+Rw_Oct = Array(36, 45, 52, 55, 56) 'From 125 Hz to 2000 Hz
 Rw_ThOct = Array(33, 36, 39, 42, 45, 48, 51, 52, 53, 54, 55, 56, 56, 56, 56, 56) 'From 100 Hz to 3150 Hz, Rw52 curve
 Ctr_oct = Array(-14, -10, -7, -4, -6)
 Ctr_ThOct = Array(-20, -20, -18, -16, -15, -14, -13, -12, -11, -9, -8, -9, -10, -11, -13, -15)
@@ -243,37 +243,64 @@ Ctr_ThOct = Array(-20, -20, -18, -16, -15, -14, -13, -12, -11, -9, -8, -9, -10, 
 
 End Function
 
-Function RwRate(DataTable As Variant)  'Optional Mode As String)
+Function RwRate(DataTable As Variant, Optional Mode As String) 'optional
 
 Dim CurveIndex As Integer
 Dim SumDeficiencies As Double
 
 Rw_ThOct = Array(-9, -6, -3, 0, 3, 6, 9, 10, 11, 12, 13, 14, 14, 14, 14, 14) 'From 100 Hz to 3150 Hz, Rw10 curve
+Rw_Oct = Array(-6, 3, 10, 13, 14) 'From 125 Hz to 2kHz octave bands, Rw10 curve
 Deficiencies = Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) 'empty array for deficiences
 SumDeficiencies = 0
 CurveIndex = Rw_ThOct(7) '500 Hz band
 
-    While SumDeficiencies < 32
+    If Mode = "oct" Then
+        While SumDeficiencies < 10
+            For y = 0 To 4
+            Rw_Oct(y) = Rw_Oct(y) + 1
+            Next y
+            
+            CurveIndex = CurveIndex + 1
+        
+            SumDeficiencies = 0 'reset at each evaluation
+            
+            For x = 0 To 4
+            CheckDef = Rw_Oct(x) - DataTable(x + 1) ' VBA and it's stupid 1 indexing
+                If CheckDef > 0 Then 'only positive values are deficient
+                Deficiencies(x) = CheckDef
+                Else
+                Deficiencies(x) = 0
+                End If
+            SumDeficiencies = SumDeficiencies + Deficiencies(x)
+            Next x
+    '    Debug.Print "SUM DEFICIENCIES= " & SumDeficiencies
+    '    Debug.Print "Rw = " & CurveIndex
+        Wend
+    Else
+        While SumDeficiencies < 32
+        
+            'index Rw curves
+            For y = 0 To 15
+            Rw_ThOct(y) = Rw_ThOct(y) + 1
+            Next y
+            
+            CurveIndex = CurveIndex + 1
+        
+        SumDeficiencies = 0 'reset at each evaluation
     
-        'index Rw curve
-        For y = 0 To 15
-        Rw_ThOct(y) = Rw_ThOct(y) + 1
-        Next y
-        CurveIndex = CurveIndex + 1
-    
-    SumDeficiencies = 0 'reset at each evaluation
-        For x = 0 To 15
-        CheckDef = Rw_ThOct(x) - DataTable(x + 1) ' VBA and it's stupid 1 indexing
-            If CheckDef > 0 Then 'only positive values are deficient
-            Deficiencies(x) = CheckDef
-            Else
-            Deficiencies(x) = 0
-            End If
-        SumDeficiencies = SumDeficiencies + Deficiencies(x)
-        Next x
-'    Debug.Print "SUM DEFICIENCIES= " & SumDeficiencies
-'    Debug.Print "Rw = " & CurveIndex
-    Wend
+            For x = 0 To 15
+            CheckDef = Rw_ThOct(x) - DataTable(x + 1) ' VBA and it's stupid 1 indexing
+                If CheckDef > 0 Then 'only positive values are deficient
+                Deficiencies(x) = CheckDef
+                Else
+                Deficiencies(x) = 0
+                End If
+            SumDeficiencies = SumDeficiencies + Deficiencies(x)
+            Next x
+    '    Debug.Print "SUM DEFICIENCIES= " & SumDeficiencies
+    '    Debug.Print "Rw = " & CurveIndex
+        Wend
+    End If 'end of Mode switch
 
 RwRate = CurveIndex - 1
 
@@ -292,6 +319,74 @@ A = Round(-10 * Application.WorksheetFunction.Log10(PartialSum), 0)
 CtrRate = A - rw
 End Function
 
+Function LnwCurve(CurveNo As Variant, fstr As String) 'Optional Mode As String)
+
+'If Mode <> "Oct" Or Mode <> "ThirdOct" Then
+'    RwCurve = "ERROR!"
+'    Exit Function
+'End If
+
+'''''''''''''''''''''''''''''''
+'REFERENCE CURVES FROM ISO717.2
+'Lnw_Oct = Array(67, 67, 65, 62, 49)
+Lnw_ThOct = Array(62, 62, 62, 62, 62, 62, 61, 60, 59, 58, 57, 54, 51, 48, 45, 42) 'From 100 Hz to 3150 Hz, Lnw60 curve
+'Ci_oct = Array(-14, -10, -7, -4, -6)
+'Ci_ThOct = Array(-20, -20, -18, -16, -15,-14, -13, -12, -11, -9, -8, -9, -10, -11, -13, -15)
+''''''''''''''''''''''''''''''''
+
+    If fstr = "" Then
+    freq = 31.5
+    Else
+    freq = freqStr2Num(fstr)
+    End If
+    
+IStart = 999 'for error checking
+    
+    Select Case freq
+        Case 100
+            IStart = 0
+        Case 125
+            IStart = 1
+        Case 160
+            IStart = 2
+        Case 200
+            IStart = 3
+        Case 250
+            IStart = 4
+        Case 315
+            IStart = 5
+        Case 400
+            IStart = 6
+        Case 500
+            IStart = 7
+        Case 630
+            IStart = 8
+        Case 800
+            IStart = 9
+        Case 1000
+            IStart = 10
+        Case 1250
+            IStart = 11
+        Case 1600
+            IStart = 12
+        Case 2000
+            IStart = 13
+        Case 2500
+            IStart = 14
+        Case 3150
+            IStart = 15
+    End Select
+        
+    If IStart = 999 Then ' no matching band
+        LnwCurve = "-"
+        Exit Function
+    End If
+        
+LnwCurve = Lnw_ThOct(IStart) + CurveNo - 60
+
+End Function
+
+
 Function LnwRate(DataTable As Variant)
 
 Dim CurveIndex As Integer
@@ -299,10 +394,11 @@ Dim SumDeficiencies As Double
 
 'Lnw for third octaves between 100 and 3150Hz
 Lnw_ThOct = Array(90, 90, 90, 90, 90, 90, 89, 88, 87, 86, 85, 82, 79, 76, 73, 70) 'Lnw88 Reference curve, from ISO717-2
+Lnw_Oct = Array(90, 90, 88, 85, 72)
 Deficiencies = Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) 'empty array for deficiences
 SumDeficiencies = 0
 
-    While SumDeficiencies < CDbl(32)
+    While SumDeficiencies < 32
     
         'index Lnw Curve
         For y = 0 To 15
@@ -316,7 +412,7 @@ SumDeficiencies = 0
 
         For x = 0 To 15
         CheckDef = DataTable(x + 1) - Lnw_ThOct(x) 'VBA and it's stupid 1 indexing
-            If CheckDef > 0 Then 'only positive values are deficient
+            If CheckDef > 0 Then 'only positive values are 'deficient' i.e. too loud
             'Debug.Print CheckDef
             Deficiencies(x) = CheckDef
             Else
@@ -324,9 +420,28 @@ SumDeficiencies = 0
             End If
         SumDeficiencies = SumDeficiencies + Deficiencies(x)
         Next x
-    'Debug.Print SumDeficiencies
+    'Debug.Print "Deficiencies: " & SumDeficiencies
     Wend
 LnwRate = CurveIndex + 1
+End Function
+
+Function CiRate(DataTable As Variant, Lnw As Integer)
+Dim LnSum As Double
+Dim PartialSum As Double
+Dim i As Integer
+
+
+
+'PartialSum = 0
+'    For i = 0 To DataTable.Count
+'    Debug.Print "No of elements="; DataTable.Count
+'    PartialSum = PartialSum + (10 ^ ((DataTable(i + 1)) / 10)) ' VBA and it's stupid 1 indexing
+'    Next i
+'LnSum = Round(10 * Application.WorksheetFunction.Log10(PartialSum), 0)
+'Debug.Print "LnSum:"; LnSum; "- 15 -"; Lnw
+
+'LnSum = SPLSUM(DataTable)
+CiRate = Round(LnSum, 0) - 15 - Lnw
 End Function
 
 '''''''''''''''''''
@@ -379,16 +494,24 @@ End Sub
 
 Sub PutRw(SheetType As String)
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
-Cells(Selection.Row, 2).Value = "Rw Curve"
-Call ParameterUnmerge(Selection.Row, SheetType)
-If Left(SheetType, 3) = "OCT" Then
-'TODO Octave version
-ElseIf Left(SheetType, 2) = "TO" Then
-Cells(Selection.Row, 5).Value = "=RwCurve($Z" & Selection.Row & "," & Cells(6, 5).Address(True, False) & ")"
-Cells(Selection.Row, 26).Value = "=RwRate(" & Range(Cells(Selection.Row - 1, 8), Cells(Selection.Row - 1, 23)).Address(False, False) & ")" '100 hz to 5kHz
-Cells(Selection.Row, 26).NumberFormat = """Rw ""0"
-Cells(Selection.Row, 27).Value = "=CtrRate(" & Range(Cells(Selection.Row - 1, 8), Cells(Selection.Row - 1, 23)).Address(False, False) & "," & Cells(Selection.Row, 26).Address(False, False) & ")" '100 hz to 5kHz
-End If
-ExtendFunction (SheetType)
+
+    If Left(SheetType, 3) = "OCT" Then
+    Call ParameterMerge(Selection.Row, SheetType)
+    'Cells(Selection.Row, 5).Value = "=RwCurve($Z" & Selection.Row & "," & Cells(6, 5).Address(True, False) & ")"
+    Cells(Selection.Row, 14).Value = "=RwRate(" & Range(Cells(Selection.Row, 7), Cells(Selection.Row, 11)).Address(False, False) & ",""oct"")" '125 hz to 2kHz
+    Cells(Selection.Row, 14).NumberFormat = """Rw ""0"
+    'Cells(Selection.Row, 27).Value = "=CtrRate(" & Range(Cells(Selection.Row - 1, 8), Cells(Selection.Row - 1, 23)).Address(False, False) & "," & Cells(Selection.Row, 26).Address(False, False) & ")" '125 hz to 2kHz
+    'ExtendFunction (SheetType)
+    ElseIf Left(SheetType, 2) = "TO" Then
+    Cells(Selection.Row, 2).Value = "Rw Curve"
+    Call ParameterUnmerge(Selection.Row, SheetType)
+    Cells(Selection.Row, 5).Value = "=RwCurve($Z" & Selection.Row & "," & Cells(6, 5).Address(True, False) & ")"
+    Cells(Selection.Row, 26).Value = "=RwRate(" & Range(Cells(Selection.Row - 1, 8), Cells(Selection.Row - 1, 23)).Address(False, False) & ")" '100 hz to 5kHz
+    Cells(Selection.Row, 26).NumberFormat = """Rw ""0"
+    Cells(Selection.Row, 27).Value = "=CtrRate(" & Range(Cells(Selection.Row - 1, 8), Cells(Selection.Row - 1, 23)).Address(False, False) & "," & Cells(Selection.Row, 26).Address(False, False) & ")" '100 hz to 5kHz
+    ExtendFunction (SheetType)
+    End If
+
 End Sub
+
 

@@ -12,6 +12,10 @@ Public PROJECTNO As String
 Public PROJECTNAME As String
 Public PROJECTINFODIRECTORY As String
 Public FANTECH_SILENCERS As String
+Public fmtREFERENCE As Long
+Public fmtUSERINPUT As Long
+Public fmrFINALRESULT  As Long
+
 
 ''''''''''''''''''''''
 'END GLOBAL VARIABLES'
@@ -23,7 +27,7 @@ Dim RootPath  As String
 
 On Error Resume Next
 
-Debug.Print "No of addins: " & Application.AddIns.Count
+'Debug.Print "No of addins: " & Application.AddIns.Count
 
 '    For Each ad In Application.AddIns
 '    Debug.Print ad.Name
@@ -33,16 +37,22 @@ Debug.Print "No of addins: " & Application.AddIns.Count
 '    Next ad
 
     If Application.AddIns.Count = 0 Then 'catches the error
-    RootPath = "Z:\Specialists\Acoustics\1 - Technical Library\Excel Add-in\NoiseCalc" 'hard coded location of AddIn
+    RootPath = "N:\Property\Specialist Services\Acoustics\1 - Technical Library\Excel Add-in\Trace" 'hard coded location of AddIn as a fallback
     Else
-    RootPath = Application.AddIns("NoiseCalc").Path
+    RootPath = Application.AddIns("Trace").Path
     End If
 
 'Debug.Print RootPath
+
 TEMPLATELOCATION = RootPath & "\Template Sheets\Blank Calculation Sheet.xlsm"
 STANDARDCALCLOCATION = RootPath & "\Standard Calc Sheets"
 ASHRAE_DUCT_TXT = RootPath & "\ASHRAE DATA\ASHRAE_DUCTS.txt"
 ASHRAE_FLEX = RootPath & "\ASHRAE DATA\ASHRAE_FLEX.txt"
 ASHRAE_REGEN = RootPath & "\ASHRAE DATA\ASHRAE_REGEN.txt"
-FANTECH_SILENCERS = RootPath & "\FantechSilencers.txt"
+FANTECH_SILENCERS = RootPath & "\Silencers.txt"
+
+'Colours
+fmtREFERENCE = RGB(255, 0, 0)
+fmtUSERINPUT = RGB(251, 251, 143)
+fmrFINALRESULT = RGB(146, 205, 220)
 End Sub

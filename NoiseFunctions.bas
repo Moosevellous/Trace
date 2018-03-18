@@ -18,6 +18,7 @@ Public elbowVanes As String
 Public SilencerModel As String
 Public SilencerIL() As Double
 Public SilLength As Double
+Public SilFA As Double
 Public SolverRow As Integer
 
 ''''''''''
@@ -641,17 +642,18 @@ End Function
 'BELOW HERE BE SUBS
 '''''''''''''''''''
 Sub Distance(SheetType As String)
-
+Dim ParamCol1 As Integer
+Dim ParamCol2 As Integer
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
-Cells(Selection.Row, 2).Value = "Distance Attenuation"
+Cells(Selection.Row, 2).Value = "Distance Attenuation - point"
     If Left(SheetType, 3) = "OCT" Then
     Cells(Selection.Row, 5).Value = "=10*LOG($O" & Selection.Row & "/(4*PI()*$N" & Selection.Row & "^2))"
-    paramcol1 = 14
+    ParamCol1 = 14
     ParamCol2 = 15
     ElseIf Left(SheetType, 2) = "TO" Then
     Cells(Selection.Row, 5).Value = "=10*LOG($AA" & Selection.Row & "/(4*PI()*$Z" & Selection.Row & "^2))"
-    paramcol1 = 26
+    ParamCol1 = 26
     ParamCol2 = 27
     End If
 
@@ -661,9 +663,52 @@ UserInputFormat_ParamCol (SheetType)
 
 Call ParameterUnmerge(Selection.Row, SheetType)
 
-Cells(Selection.Row, paramcol1) = 10
-Cells(Selection.Row, ParamCol2) = 2
-Cells(Selection.Row, paramcol1).NumberFormat = "0 ""m"""
+Cells(Selection.Row, ParamCol1) = 10 'default to 10 metres
+Cells(Selection.Row, ParamCol2) = 2 'default to half spherical
+Cells(Selection.Row, ParamCol1).NumberFormat = "0 ""m"""
+Cells(Selection.Row, ParamCol2).NumberFormat = "Q=0"
+
+    With Cells(Selection.Row, ParamCol2).Validation
+        .Delete
+        .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
+        xlBetween, Formula1:="1,2,4,8"
+        .IgnoreBlank = True
+        .InCellDropdown = True
+        .InputTitle = ""
+        .ErrorTitle = ""
+        .InputMessage = ""
+        .ErrorMessage = ""
+        .ShowInput = True
+        .ShowError = True
+    End With
+    
+End Sub
+
+Sub DistanceLine(SheetType As String)
+Dim ParamCol1 As Integer
+Dim ParamCol2 As Integer
+CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
+
+Cells(Selection.Row, 2).Value = "Distance Attenuation - line"
+    If Left(SheetType, 3) = "OCT" Then
+    Cells(Selection.Row, 5).Value = "=10*LOG($O" & Selection.Row & "/(2*PI()*$N" & Selection.Row & "))"
+    ParamCol1 = 14
+    ParamCol2 = 15
+    ElseIf Left(SheetType, 2) = "TO" Then
+    Cells(Selection.Row, 5).Value = "=10*LOG($AA" & Selection.Row & "/(2*PI()*$Z" & Selection.Row & "))"
+    ParamCol1 = 26
+    ParamCol2 = 27
+    End If
+
+ExtendFunction (SheetType)
+
+UserInputFormat_ParamCol (SheetType)
+
+Call ParameterUnmerge(Selection.Row, SheetType)
+
+Cells(Selection.Row, ParamCol1) = 10 'default to 10 metres
+Cells(Selection.Row, ParamCol2) = 2 'default to half cylindrical
+Cells(Selection.Row, ParamCol1).NumberFormat = "0 ""m"""
 Cells(Selection.Row, ParamCol2).NumberFormat = "Q=0"
 
     With Cells(Selection.Row, ParamCol2).Validation
@@ -683,54 +728,60 @@ Cells(Selection.Row, ParamCol2).NumberFormat = "Q=0"
 End Sub
 
 Sub AirAbsorption(SheetType As String)
-
+Dim ParamCol1 As Integer
+Dim ParamCol2 As Integer
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
 Cells(Selection.Row, 2).Value = "Air Absorption"
 If Left(SheetType, 3) = "OCT" Then
 Cells(Selection.Row, 5).Value = "=AirAbsorb(E$6,$N" & Selection.Row & ",$O" & Selection.Row & ")"
-paramcol1 = 14
+ParamCol1 = 14
 ParamCol2 = 15
 ElseIf Left(SheetType, 2) = "TO" Then
 Cells(Selection.Row, 5).Value = "=AirAbsorb(E$6,$Z" & Selection.Row & ",$AA" & Selection.Row & ")"
-paramcol1 = 26
+ParamCol1 = 26
 ParamCol2 = 27
 End If
 ExtendFunction (SheetType)
 UserInputFormat_ParamCol (SheetType)
 Call ParameterUnmerge(Selection.Row, SheetType)
-Cells(Selection.Row, paramcol1) = 150
+Cells(Selection.Row, ParamCol1) = 150
 Cells(Selection.Row, ParamCol2) = 20
-Cells(Selection.Row, paramcol1).NumberFormat = "0 ""m"""
+Cells(Selection.Row, ParamCol1).NumberFormat = "0 ""m"""
 Cells(Selection.Row, ParamCol2).NumberFormat = "0""" & Chr(176) & "C"""
 End Sub
 
 Sub DuctAttenuation(SheetType As String)
-
+Dim ParamCol1 As Integer
+Dim ParamCol2 As Integer
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
 Cells(Selection.Row, 2).Value = "Duct Attenuation"
 
     If Left(SheetType, 3) = "OCT" Then
     Cells(Selection.Row, 5).Value = "=DuctAtten(E$6,$N" & Selection.Row & ")"
-    paramcol1 = 14
+    ParamCol1 = 14
     ParamCol2 = 15
     
     ElseIf Left(SheetType, 2) = "TO" Then
     Cells(Selection.Row, 5).Value = "=DuctAtten(E$6,$Z" & Selection.Row & ")"
-    paramcol1 = 26
+    ParamCol1 = 26
     ParamCol2 = 27
     End If
 
 ExtendFunction (SheetType)
-Cells(Selection.Row, paramcol1) = 1
+Cells(Selection.Row, ParamCol1) = 1
 Cells(Selection.Row, ParamCol2) = 20
-Cells(Selection.Row, paramcol1).NumberFormat = "0 ""m"""
+Cells(Selection.Row, ParamCol1).NumberFormat = "0 ""m"""
 Cells(Selection.Row, ParamCol2).NumberFormat = "0""" & Chr(176) & "C"""
 UserInputFormat_ParamCol (SheetType)
 End Sub
 
 Sub ASHRAE_DUCT(SheetType As String)
+
+Dim ParamCol1 As Integer
+Dim ParamCol2 As Integer
+
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
 frmDuctAtten.Show
@@ -744,23 +795,23 @@ Cells(Selection.Row, 2).Value = "Duct Attenuation-ASHRAE"
     If Left(SheetType, 3) = "OCT" Then
     Cells(Selection.Row, 5).Value = "=GetASHRAE(E$6," & ductL & ", " & ductW & ",$N" & Selection.Row & ",$O" & Selection.Row & ")"
     'GetASHRAE(Freq As String, L As Integer, W As Integer, DuctType As String)
-    paramcol1 = 14
+    ParamCol1 = 14
     ParamCol2 = 15
     ElseIf Left(SheetType, 2) = "TO" Then
     Cells(Selection.Row, 5).Value = "=GetASHRAE(E$6,$Z" & Selection.Row & ",$AA" & Selection.Row & ")"
-    paramcol1 = 26
+    ParamCol1 = 26
     ParamCol2 = 27
     End If
     
 ExtendFunction (SheetType)
 UserInputFormat_ParamCol (SheetType)
 Call ParameterUnmerge(Selection.Row, SheetType)
-Cells(Selection.Row, paramcol1) = ductShape 'from public variable
+Cells(Selection.Row, ParamCol1) = ductShape 'from public variable
 Cells(Selection.Row, ParamCol2) = 1
-Cells(Selection.Row, paramcol1).NumberFormat = xlGeneral
+Cells(Selection.Row, ParamCol1).NumberFormat = xlGeneral
 Cells(Selection.Row, ParamCol2).NumberFormat = "0.0 ""m"""
 
-With Cells(Selection.Row, paramcol1).Validation
+With Cells(Selection.Row, ParamCol1).Validation
     .Delete
     .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
     xlBetween, Formula1:="0 R,0 C,25 R,50 R,25 C,50 C"
@@ -777,11 +828,15 @@ End With
 End Sub
 
 Sub FlexDuct(SheetType As String)
+
+Dim ParamCol1 As Integer
+Dim ParamCol2 As Integer
+
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 Cells(Selection.Row, 2).Value = "Flex Duct-ASHRAE"
     If Left(SheetType, 3) = "OCT" Then
     Cells(Selection.Row, 5).Value = "=GetFlexDuct(E$6,$N" & Selection.Row & ",$O" & Selection.Row & ")"
-    paramcol1 = 14
+    ParamCol1 = 14
     ParamCol2 = 15
     ElseIf Left(SheetType, 2) = "TO" Then
 '    Cells(Selection.Row, 5).Value = "=GetASHRAE(E$6,$Z" & Selection.Row & ",$AA" & Selection.Row & ")"
@@ -792,12 +847,12 @@ Cells(Selection.Row, 2).Value = "Flex Duct-ASHRAE"
 ExtendFunction (SheetType)
 UserInputFormat_ParamCol (SheetType)
 Call ParameterUnmerge(Selection.Row, SheetType)
-Cells(Selection.Row, paramcol1) = 200
+Cells(Selection.Row, ParamCol1) = 200
 Cells(Selection.Row, ParamCol2) = 0.9
-Cells(Selection.Row, paramcol1).NumberFormat = "0 Ø"
+Cells(Selection.Row, ParamCol1).NumberFormat = "0 Ø"
 Cells(Selection.Row, ParamCol2).NumberFormat = "0.0 ""m"""
 
-With Cells(Selection.Row, paramcol1).Validation
+With Cells(Selection.Row, ParamCol1).Validation
     .Delete
     .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
     xlBetween, Formula1:="100,125,150,175,200,225,250,300,350,400"
@@ -846,6 +901,7 @@ UserInputFormat_ParamCol (SheetType)
 End Sub
 
 Sub DuctSplit(SheetType As String)
+
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
 frmDuctAreas.Show
@@ -857,7 +913,8 @@ frmDuctAreas.Show
 Call ParameterUnmerge(Selection.Row, SheetType)
 
     If Left(SheetType, 3) = "OCT" Then 'oct or OCT
-    Cells(Selection.Row, 5).Value = "=10*LOG($O" & Selection.Row & "/$N" & Selection.Row & ")"
+    'Debug.Print "=10*LOG($O" & Selection.Row & "/($O" & Selection.Row & "+$N" & Selection.Row & "))"
+    Cells(Selection.Row, 5).Value = "=10*LOG($O" & Selection.Row & "/($O" & Selection.Row & "+$N" & Selection.Row & "))"
     Cells(Selection.Row, 14) = ductA1
     Cells(Selection.Row, 14).NumberFormat = "0.0""m" & Chr(178) & """"
     Cells(Selection.Row, 15) = ductA2
@@ -871,20 +928,21 @@ Call ParameterUnmerge(Selection.Row, SheetType)
     Else
     SheetTypeUnknownError
     End If
-Cells(Selection.Row, 2).Value = "Duct Split: 10LOG(A2/A1)"
+Cells(Selection.Row, 2).Value = "Duct Split: 10LOG(A2/(A1+A2))"
 ExtendFunction (SheetType)
 UserInputFormat_ParamCol (SheetType)
 End Sub
 
 Sub ERLoss(SheetType As String)
-
+Dim ParamCol1 As Integer
+Dim ParamCol2 As Integer
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
 Cells(Selection.Row, 2).Value = "End Reflection Loss"
 Call ParameterUnmerge(Selection.Row, SheetType)
     If Left(SheetType, 3) = "OCT" Then 'oct or OCT
     Cells(Selection.Row, 5).Value = "=GetERL($N" & Selection.Row & "," & Cells(6, 5).Address(True, False) & ",$O" & Selection.Row & ")"
-    paramcol1 = 14
+    ParamCol1 = 14
     ParamCol2 = 15
 '    ElseIf Left(SheetType, 2) = "TO" Then 'TO or TOA
 '    Cells(Selection.Row, 5).Value = "=GetERL($Z" & Selection.Row & "," & Cells(6, 5).Address(True, False) & ",$AA" & Selection.Row & ")"
@@ -894,15 +952,20 @@ Call ParameterUnmerge(Selection.Row, SheetType)
     SheetTypeUnknownError
     End If
     
-Cells(Selection.Row, paramcol1) = "Flush"
-Cells(Selection.Row, paramcol1).NumberFormat = xlGeneral
-Cells(Selection.Row, ParamCol2) = "=0.5*0.5"
+Cells(Selection.Row, ParamCol1) = "Flush"
+Cells(Selection.Row, ParamCol1).NumberFormat = xlGeneral
+'Debug.Print Cells(Selection.Row - 1, 10).Formula
+    If InStr(1, Cells(Selection.Row - 1, 10).Formula, "GetASHRAE", vbTextCompare) > 0 Then
+    Cells(Selection.Row, ParamCol2) = GetDuctArea(Cells(Selection.Row - 1, 10).Formula) '1kHz band formula
+    Else
+    Cells(Selection.Row, ParamCol2) = "=0.5*0.5"
+    End If
 Cells(Selection.Row, ParamCol2).NumberFormat = "0.0""m" & Chr(178) & """"
     
 ExtendFunction (SheetType)
 UserInputFormat_ParamCol (SheetType)
 
-With Cells(Selection.Row, paramcol1).Validation
+With Cells(Selection.Row, ParamCol1).Validation
     .Delete
     .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
     xlBetween, Formula1:="Flush,Free"
@@ -917,6 +980,15 @@ With Cells(Selection.Row, paramcol1).Validation
 End With
 End Sub
 
+Function GetDuctArea(inputStr As String)
+Dim splitStr() As String
+Dim L As Double
+Dim W As Double
+splitStr = Split(inputStr, ",", Len(inputStr), vbTextCompare)
+L = CDbl(splitStr(1))
+W = CDbl(splitStr(2))
+GetDuctArea = (L / 1000) * (W / 1000) 'because millimetres
+End Function
 
 Sub ElbowLoss(SheetType As String)
 Dim ParamCol As Integer
@@ -971,10 +1043,15 @@ End Sub
 
 Sub Silencer(SheetType As String)
 
+Dim CheckRng As Range
+
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
 'send to public variable
 SolverRow = Selection.Row
+
+Set CheckRng = Cells(SolverRow, 14)
+
 msg = MsgBox("This tool is in beta and may not function as intended.", vbOKOnly, "WARNING!")
 frmSilencer.Show
 
@@ -987,6 +1064,12 @@ If btnOkPressed = False Then End
         Next Col
         Cells(SolverRow, 14).Value = SilLength
         Cells(SolverRow, 14).NumberFormat = "0 ""mm"""
+            If CheckRng.Comment Is Nothing Then
+            Else
+            CheckRng.Comment.Delete
+            End If
+            CheckRng.AddComment "Free Area: " & CStr(SilFA) & "%"
+        
     Else
     SheetTypeUnknownError
     End If
@@ -1143,6 +1226,8 @@ End Sub
 
 
 Sub RegenNoise(SheetType As String)
+Dim ParamCol1 As Integer
+Dim ParamCol2 As Integer
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
 frmRegenNoise.Show
@@ -1153,7 +1238,7 @@ frmRegenNoise.Show
 
     If Left(SheetType, 3) = "OCT" Then
     Cells(Selection.Row, 5).Value = "=GetRegenNoise(E$6,$N" & Selection.Row & ",$O" & Selection.Row & ",""" & regenNoiseElement & """)"
-    paramcol1 = 14
+    ParamCol1 = 14
     ParamCol2 = 15
     ElseIf Left(SheetType, 2) = "TO" Then
 '    Cells(Selection.Row, 5).Value = "=GetASHRAE(E$6,$Z" & Selection.Row & ",$AA" & Selection.Row & ")"
@@ -1167,19 +1252,19 @@ Call ParameterUnmerge(Selection.Row, SheetType)
 
     Select Case regenNoiseElement
     Case Is = "Elbow"
-    Cells(Selection.Row, paramcol1) = "Vanes"
+    Cells(Selection.Row, ParamCol1) = "Vanes"
     Cells(Selection.Row, ParamCol2) = "15"
     Case Is = "Transition"
-    Cells(Selection.Row, paramcol1) = "Gradual"
+    Cells(Selection.Row, ParamCol1) = "Gradual"
     Cells(Selection.Row, ParamCol2) = "15"
     Case Is = "Damper"
-    Cells(Selection.Row, paramcol1) = ""
+    Cells(Selection.Row, ParamCol1) = ""
     Cells(Selection.Row, ParamCol2) = "11"
     End Select
-Cells(Selection.Row, paramcol1).NumberFormat = "General"
+Cells(Selection.Row, ParamCol1).NumberFormat = "General"
 Cells(Selection.Row, ParamCol2).NumberFormat = "0""m/s"""
 
-With Cells(Selection.Row, paramcol1).Validation
+With Cells(Selection.Row, ParamCol1).Validation
     .Delete
         Select Case regenNoiseElement
         Case Is = "Elbow"
@@ -1231,6 +1316,7 @@ Dim isSpace As Boolean
 Dim StartRw As Integer
 Dim endrw As Integer
 Dim ScanCol As Integer
+Dim TopOfSheet As Boolean
 
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
@@ -1268,10 +1354,14 @@ ScanCol = Selection.Column
     While Cells(StartRw, ScanCol).Value <> ""
     StartRw = StartRw - 1
         If StartRw < 7 Then
-        msg = MsgBox("AutoSum Error", vbOKOnly, "ERROR")
-        End
+        TopOfSheet = True
+        'msg = MsgBox("AutoSum Error", vbOKOnly, "ERROR")
+        'End
         End If
     Wend
+    
+If TopOfSheet = True Then StartRw = 7
+
 endrw = Selection.Row - 1 'for reveberant sum
 
 'distance correction

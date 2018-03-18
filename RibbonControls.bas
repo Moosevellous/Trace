@@ -77,6 +77,11 @@ On Error Resume Next
 TenLogN (ActiveSheet.Range("TYPECODE").Value)
 End Sub
 
+Sub btnTenLogOneOnT(control As IRibbonControl)
+On Error Resume Next
+TenLogOneOnT (ActiveSheet.Range("TYPECODE").Value)
+End Sub
+
 Sub btnOneThirdsToOctave(control As IRibbonControl)
 On Error Resume Next
 OneThirdsToOctave (ActiveSheet.Range("TYPECODE").Value)
@@ -87,6 +92,10 @@ On Error Resume Next
 ConvertToAWeight (ActiveSheet.Range("TYPECODE").Value)
 End Sub
 
+Sub btnRowReference(control As IRibbonControl)
+On Error Resume Next
+RowReference (ActiveSheet.Range("TYPECODE").Value)
+End Sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 'NOISE FUNCTIONS
@@ -99,6 +108,11 @@ End Sub
 Sub btnDistance(control As IRibbonControl)
 On Error Resume Next
 Distance (ActiveSheet.Range("TYPECODE").Value)
+End Sub
+
+Sub btnDistanceLine(control As IRibbonControl)
+On Error Resume Next
+DistanceLine (ActiveSheet.Range("TYPECODE").Value)
 End Sub
 
 Sub btnAreaCorrection(control As IRibbonControl)
@@ -184,6 +198,7 @@ On Error Resume Next
 PutRw (ActiveSheet.Range("TYPECODE").Value)
 End Sub
 
+
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 'SHEET FUNCTIONS
 Sub btnHeaderBlock(control As IRibbonControl)
@@ -216,6 +231,7 @@ Sub btnFixReferences(control As IRibbonControl)
 On Error Resume Next
 FixReferences (ActiveSheet.Range("TYPECODE").Value)
 End Sub
+
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 

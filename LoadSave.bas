@@ -158,6 +158,7 @@ NumSheets = ActiveWorkbook.Sheets.Count
 
 Application.StatusBar = "Generating list of templates..."
 Set fso = CreateObject("Scripting.FileSystemObject")
+Debug.Print STANDARDCALCLOCATION
 Set ScanFolder = fso.GetFolder(STANDARDCALCLOCATION)
 
     If frmStandardCalc.cBoxSelectTemplate.ListCount <= 0 Then

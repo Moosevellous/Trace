@@ -25,9 +25,10 @@ CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
             Range(Cells(rw, 5), Cells(rw, 15)).ClearContents
             Range(Cells(rw, 2), Cells(rw, 15)).Font.ColorIndex = 0
             Range(Cells(rw, 2), Cells(rw, 15)).Interior.ColorIndex = 0 'no colour
-            Range(Cells(rw, 14), Cells(rw, 15)).Merge
             Cells(rw, 14).Validation.Delete 'for dropdown boxes
             Cells(rw, 15).Validation.Delete 'for dropdown boxes
+            Range(Cells(rw, 14), Cells(rw, 15)).Merge
+            Cells(rw, 14).ClearComments
             Range(Cells(rw, 3), Cells(rw, 13)).FormatConditions.Delete 'removes heatmap
             Cells(rw, 14).NumberFormat = "General"
             ElseIf Left(SheetType, 2) = "TO" Then
@@ -36,6 +37,8 @@ CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
             Range(Cells(rw, 2), Cells(rw, 27)).Interior.ColorIndex = 0 'no colour
             Cells(rw, 26).Validation.Delete 'for dropdown boxes
             Cells(rw, 27).Validation.Delete 'for dropdown boxes
+            Range(Cells(rw, 26), Cells(rw, 27)).Merge
+            Cells(rw, 26).ClearComments
             Range(Cells(rw, 3), Cells(rw, 27)).FormatConditions.Delete 'removes heatmap
             Cells(rw, 26).NumberFormat = "General"
             End If
@@ -281,6 +284,28 @@ Application.CutCopyMode = False
 
 End Sub
 
+Sub RowReference(SheetType As String)
+CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
+
+frmRowReference.Show
+
+    If btnOkPressed = False Then
+    End
+    End If
+
+SplitAddr = Split(UserSelectedAddress, "$", Len(UserSelectedAddress), vbTextCompare)
+    
+sheetName = SplitAddr(LBound(SplitAddr)) 'sheet is the first element
+rw = CInt(SplitAddr(UBound(SplitAddr))) 'row is the last element
+
+Call ParameterMerge(Selection.Row, SheetType)
+
+Cells(Selection.Row, 2).Value = "Reference to: " & Cells(rw, 2).Value
+Cells(Selection.Row, 5).Value = "=" & sheetName & "E$" & rw
+ExtendFunction (SheetType)
+FormatAs_CellReference (SheetType)
+End Sub
+
 Sub SingleCorrection(SheetType As String)
 Dim Col As Integer
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
@@ -360,6 +385,30 @@ Cells(Selection.Row, 2).Value = "Multiple sources: 10log(n)"
     Call ParameterMerge(Selection.Row, SheetType)
     Cells(Selection.Row, 26) = 2
     Cells(Selection.Row, 26).NumberFormat = """n = ""0"
+    
+    Else
+    SheetTypeUnknownError
+    End If
+    
+ExtendFunction (SheetType)
+UserInputFormat_ParamCol (SheetType)
+End Sub
+
+Sub TenLogOneOnT(SheetType As String)
+CheckRow (Selection.Row)
+Cells(Selection.Row, 2).Value = "Time Correction: 10log(1/t)"
+
+    If Left(SheetType, 3) = "OCT" Then 'oct or OCT
+    Cells(Selection.Row, 5).Value = "=10*LOG(1/" & Cells(Selection.Row, 14).Address(False, True) & ")"
+    Call ParameterMerge(Selection.Row, SheetType)
+    Cells(Selection.Row, 14) = 2
+    Cells(Selection.Row, 14).NumberFormat = """n = 1/""0"
+    
+    ElseIf Left(SheetType, 2) = "TO" Then 'TO or TOA
+    Cells(Selection.Row, 5).Value = "=10*LOG(1/" & Cells(Selection.Row, 26).Address(False, True) & ")"
+    Call ParameterMerge(Selection.Row, SheetType)
+    Cells(Selection.Row, 26) = 2
+    Cells(Selection.Row, 26).NumberFormat = """n = 1/""0"
     
     Else
     SheetTypeUnknownError
