@@ -1,8 +1,10 @@
-<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui">
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui" >
+<!--Note this line is different between versions-->
+<!-- Alternative line: <customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui" > -->
 	<ribbon>
 		<tabs>
-			<tab id="customTab" label="NoiseCalc V1.14" insertAfterMso="TabView">
-<!--VERSION CREATED 20170702-->
+			<tab id="customTab" label="Trace V1.16" insertAfterMso="TabView">
+<!--VERSION CREATED 20171115-->
 
 				<group id="Main" label="Load" insertAfterMso="GroupEditingExcel">
 					<button id="btnLoad" label="New Tab" size="normal" onAction="btnLoad" imageMso="LocalShareNotebook" />
@@ -19,11 +21,13 @@
 					<button id="btnClearRow" label="Clear" size="normal" onAction="btnClearRw" imageMso="DeleteRows" />
 					<button id="btnMoveUp" label="Move Up" size="normal" onAction="btnMoveUp" imageMso="_3DPerspectiveIncrease" />					
 					<button id="btnMoveDown" label="Move Down" size="normal" onAction="btnMoveDown" imageMso="_3DPerspectiveDecrease" />
+					<button id="btnRowReference" label="Row Reference" size="normal" onAction="btnRowReference" imageMso="ReviewReviewingPane" />
 					<button id="btnFlipSign" label="Flip Sign" size="normal" onAction="btnFlipSign" imageMso="GroupAppointmentMoreOptions" />
 					<button id="btnSingleCorrection" label="Single Correction" size="normal" onAction="btnSingleCorrection" imageMso="PlusSign" />
 					<button id="btnAutoSum" label="Auto Sum" size="normal" onAction="btnAutoSum" imageMso="AutoSum" />
 					<button id="btnManual_ExtendFunction" label="Extend Function" size="normal" onAction="btnManual_ExtendFunction" imageMso="RightArrow2" />
 					<button id="btnTenLogN" label="10Log(n)" size="normal" onAction="btnTenLogN" imageMso="N" />
+					<button id="btnTenLogOneOnT" label="10Log(1/t)" size="normal" onAction="btnTenLogOneOnT" imageMso="T" />
 						<menu id="Convert" label="Convert" imageMso="ConferenceMeetNow">
 						<button id="btnOneThirdsToOctave" label="1/3 to 1/1" onAction="btnOneThirdsToOctave" imageMso="OrganizationChartInsert" />
 						<button id="btnConvertAWeight" label="A-Weight Spectrum" onAction="btnConvertAWeight" imageMso="A" />
@@ -32,7 +36,10 @@
 
 				<group id="NoiseFuncs" label="Noise Functions" insertAfterMso="GroupEditingExcel">
 					<button id="btnAirAbsorption" label="AirAbsorb" size="normal" onAction="btnAirAbsorption" imageMso="ColorBlue" />
-					<button id="btnDistance" label="Distance Atten." size="normal" onAction="btnDistance" imageMso="DiagramChangeToTargetClassic" />
+						<menu id="Distance" label="Distance" imageMso="DiagramChangeToTargetClassic">
+						<button id="btnDistance" label="Point (spherical)" onAction="btnDistance" imageMso="DiagramChangeToTargetClassic" />
+						<button id="btnDistanceLine" label="Line (Cylindrical)" onAction="btnDistanceLine" imageMso="Drawing1GalleryContrast" />
+						</menu>
 					<button id="btnAreaCorrection" label="Area" size="normal" onAction="btnAreaCorrection" imageMso="BlackAndWhiteBlackWithWhiteFill" />
 						<menu id="Mech_Elements" label="Mech Elements" imageMso="ColorMenu">
 						<button id="btnASHRAE_DUCT" label="ASHRAE Duct" onAction="btnASHRAE_DUCT" imageMso="_3DSurfaceWireFrameClassic" />
@@ -42,7 +49,7 @@
 						<button id="btnElbow" label="Elbow" onAction="btnElbow" imageMso="CollapseSearchPane" />
 						<button id="btnDuctSplit" label="Duct Split" onAction="btnDuctSplit" imageMso="F" />
 						<button id="btnSilencer" label="Silencer" onAction="btnSilencer" imageMso="ParagraphIndentLeft" />
-						<button id="btnAcousticLouvres" label="Acoustic Louvres" onAction="btnLouvres" imageMso="ShapeArc" />
+
 						</menu>
 						
 						<menu id="Room_Losses" label="Room Loss" imageMso="CombineShapesMenu">
