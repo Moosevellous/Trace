@@ -38,7 +38,7 @@ On Error Resume Next
 '    Next ad
 
     If Application.AddIns.Count = 0 Then 'catches the error
-    RootPath = "U:\SectionData\Property\Specialist Services\Acoustics\1 - Technical Library\Excel Add-in\Trace" 'hard coded location of AddIn as a fallback
+    'RootPath = C:/...... 'hard coded location of AddIn as a fallback
     Else
     RootPath = Application.AddIns("Trace").Path
     End If
