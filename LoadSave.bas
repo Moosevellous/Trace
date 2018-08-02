@@ -10,6 +10,8 @@ Dim TemplateSheet As Worksheet
 Dim NumSheets As Long
 Dim i As Integer
 
+On Error GoTo errors:
+
 GetSettings 'get all variable information
 
 Set CurrentBook = ActiveWorkbook
@@ -63,6 +65,16 @@ Set TemplateBook = ActiveWorkbook
 
 TemplateBook.Close SaveChanges:=False
 
+Exit Sub
+
+errors:
+
+    Select Case err.Number
+    Case Is = 1004
+    msg = MsgBox("Not enough rows in workbook: " & Chr(10) & CurrentBook.Name & Chr(10) & "Convert workbook to XLSX format and try again.", vbOKOnly, "XLS error")
+    TemplateBook.Close SaveChanges:=False
+    End Select
+
 End Sub
 
 Private Function SheetExists(sWSName As String) As Boolean
@@ -79,13 +91,13 @@ Dim CurrentBook As Workbook
 Dim TemplateSheet As Worksheet
 Dim NumSheets As Long
 Dim i As Integer
-Dim TypeCode As String
+Dim Typecode As String
 
 Application.ScreenUpdating = False
 
 GetSettings 'get all variable information
     If RangeExists("TYPECODE") Then
-    TypeCode = Range("TYPECODE").Value
+    Typecode = Range("TYPECODE").Value
     Else
     End
     End If
@@ -105,8 +117,8 @@ With TemplateBook
 
 ReDim Preserve DESCRIPTION(.Sheets.Count)
 
-    If SheetExists(TypeCode) Then
-        Set TemplateSheet = .Sheets(TypeCode)
+    If SheetExists(Typecode) Then
+        Set TemplateSheet = .Sheets(Typecode)
         TemplateSheet.Copy After:=CurrentBook.Sheets(NumSheets)
         DoEvents
     ElseIf IMPORTSHEETNAME = "" Then 'Cancel Clicked
@@ -114,7 +126,7 @@ ReDim Preserve DESCRIPTION(.Sheets.Count)
     DoEvents
     End
     Else
-        MsgBox "There is no sheet with name " & TypeCode & "in:" & vbCr & .Name
+        MsgBox "There is no sheet with name " & Typecode & "in:" & vbCr & .Name
     End If
 DoEvents
 End With
@@ -183,6 +195,10 @@ DoEvents
 Application.StatusBar = False
 Set TemplateBook = ActiveWorkbook
 
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'TODO Element types insertion for glazing, facade breka in etc
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 FileNameStr = Format(CStr(Now), "yyyymmdd") & " " & TemplateBook.Name
     Select Case TemplateBook.FileFormat
     Case Is = 51
@@ -210,4 +226,15 @@ DoEvents
 catch:
 Application.StatusBar = False
 
+End Sub
+
+
+
+Sub Error_Catcher(e)
+
+    Select Case e
+    Case Is = 1004
+    msg = MsgBox("Not enough rows", vbOKOnly, "XLS error")
+    End Select
+    
 End Sub

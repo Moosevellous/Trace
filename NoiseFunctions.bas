@@ -20,6 +20,11 @@ Public SilencerIL() As Double
 Public SilLength As Double
 Public SilFA As Double
 Public SolverRow As Integer
+Public PlaneH As Double
+Public PlaneL As Double
+Public PlaneDist As Double
+
+
 
 ''''''''''
 'FUNCTIONS
@@ -727,6 +732,46 @@ Cells(Selection.Row, ParamCol2).NumberFormat = "Q=0"
     
 End Sub
 
+
+Sub DistancePlane(SheetType As String)
+Dim ParamCol1 As Integer
+Dim ParamCol2 As Integer
+CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
+
+'In the near field (approximately `r < a//pi`), the sound level can be approximated as:
+'`L_p=L_W-10log_10 S+DI`
+'In the line-source intermediate region (approximately `a//pi < r < b//pi`) , the sound level can be approximated as:
+'`L_p=L_W-10log_10 S-10log_10(d/(a//pi))+DI`
+'In the point-source far region (approximately `r > b//pi`), the sound level can be approximated as:
+'`L_p=L_W-10log_10 S-10log_10(a/b)-20log(d/(b//pi))+DI`
+'where `r` is the distance from the source, `H` and `L` are the minor and major source dimensions (m), `S=H*L` is the area of the source (m?) and `DI` is the directivity index of the source (dB).
+'B&H formula
+'=-10*LOG($N9*$O9)+10*LOG(ATAN(($N9*$O9)/(2*$P9*SQRT(($N9^2)+($O9^2)+(4*$P9^2)))))-2
+
+frmPlaneSource.Show
+
+If btnOkPressed = False Then End 'catch cancel
+
+Cells(Selection.Row, 2).Value = "Distance Attenuation - plane"
+    If Left(SheetType, 3) = "OCT" Then
+    Cells(Selection.Row, 5).Value = "=-10*LOG(" & PlaneH & "*" & PlaneL & ")+10*LOG(ATAN((" & PlaneH & "*" & PlaneL & ")/(2*$N" & Selection.Row & "*SQRT((" & PlaneH & "^2)+(" & PlaneL & "^2)+(4*$N" & Selection.Row & "^2)))))-2"
+    ParamCol1 = 14
+    ElseIf Left(SheetType, 2) = "TO" Then
+    Cells(Selection.Row, 5).Value = "=-10*LOG(" & PlaneH & "*" & PlaneL & ")+10*LOG(ATAN((" & PlaneH & "*" & PlaneL & ")/(2*$Z" & Selection.Row & "*SQRT((" & PlaneH & "^2)+(" & PlaneL & "^2)+(4*$Z" & Selection.Row & "^2)))))-2"
+    ParamCol1 = 26
+    End If
+
+ExtendFunction (SheetType)
+
+UserInputFormat_ParamCol (SheetType)
+
+Call ParameterMerge(Selection.Row, SheetType)
+
+Cells(Selection.Row, ParamCol1) = PlaneDist
+Cells(Selection.Row, ParamCol1).NumberFormat = "0 ""m"""
+    
+End Sub
+
 Sub AirAbsorption(SheetType As String)
 Dim ParamCol1 As Integer
 Dim ParamCol2 As Integer
@@ -1020,8 +1065,8 @@ Call ParameterUnmerge(Selection.Row, SheetType)
     SheetTypeUnknownError
     End If
     
-    ExtendFunction (SheetType)
-    UserInputFormat_ParamCol (SheetType)
+ExtendFunction (SheetType)
+UserInputFormat_ParamCol (SheetType)
     
     With Cells(Selection.Row, ParamCol).Validation
     .Delete
@@ -1037,7 +1082,7 @@ Call ParameterUnmerge(Selection.Row, SheetType)
     .ShowError = True
     End With
     
-    Cells(Selection.Row, 2).Value = "Elbow Loss - " & elbowShape
+Cells(Selection.Row, 2).Value = "Elbow Loss - " & elbowShape
     
 End Sub
 
@@ -1081,7 +1126,7 @@ End Sub
 Sub RoomLoss(SheetType As String)
 Dim splitStr() As String
 Dim ParamCol As Integer
-On Error GoTo errorcatch:
+On Error GoTo errorCatch:
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
 'populate frmRoomLoss
@@ -1092,7 +1137,7 @@ roomH = CLng(splitStr(3))
 roomType = Cells(Selection.Row, 14).Value
 Call frmRoomLoss.Populate_frmRoomLoss
 
-errorcatch:
+errorCatch:
 
 frmRoomLoss.Show
 
@@ -1128,8 +1173,6 @@ With Cells(Selection.Row, ParamCol).Validation
 End With
 
 Cells(Selection.Row, 2).Value = "Room Loss"
-
-
 
 End Sub
 
@@ -1173,7 +1216,7 @@ End Sub
 Sub RoomLossRT(SheetType As String)
 Dim splitStr() As String
 Dim ParamCol As Integer
-On Error GoTo errorcatch:
+On Error GoTo errorCatch:
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
 'populate frmRoomLoss
@@ -1184,7 +1227,7 @@ roomH = CLng(splitStr(3))
 roomType = Cells(Selection.Row, 14).Value
 Call frmRoomLoss.Populate_frmRoomLoss
 
-errorcatch:
+errorCatch:
 
 frmRoomLossRT.Show
 
@@ -1388,9 +1431,17 @@ RoomLoss (SheetType)
 'move down
 Cells(Selection.Row + 1, Selection.Column).Select
 
+'number of reverberant sources
+TenLogN (SheetType)
+Cells(Selection.Row, 14).Value = 1 'default to 1 source ie 10log(n)=0
+
+'move down
+Cells(Selection.Row + 1, Selection.Column).Select
+
+
     'Sum reverb
     If Left(SheetType, 3) = "OCT" Then
-    Cells(Selection.Row, 5).Value = "=SUM(E" & StartRw + 1 & ":E" & endrw & ",E" & Selection.Row - 1 & ")"
+    Cells(Selection.Row, 5).Value = "=SUM(E" & StartRw + 1 & ":E" & endrw & ",E" & Selection.Row - 2 & ":E" & Selection.Row - 1 & ")" '=SUM(H19:H19,H22:H23)
     ElseIf Left(SheetType, 2) = "TO" Then
     'Cells(Selection.Row, 5).Value = "=$Z" & Selection.Row
     End If

@@ -1,6 +1,6 @@
 Attribute VB_Name = "SheetFunctions"
-Sub HeaderBlock(TypeCode As String)
-    If TypeCode = "NR1L" Or TypeCode = "R2R" Or TypeCode = "RT" Or TypeCode = "N1L" Then
+Sub HeaderBlock(Typecode As String)
+    If Typecode = "NR1L" Or Typecode = "R2R" Or Typecode = "RT" Or Typecode = "N1L" Then
     'do nothing
     Else
     
@@ -21,8 +21,8 @@ Sub HeaderBlock(TypeCode As String)
 End Sub
 
 
-Sub ClearHeaderBlock(TypeCode As String)
-    If TypeCode = "NR1L" Or TypeCode = "R2R" Or TypeCode = "RT" Or TypeCode = "N1L" Then
+Sub ClearHeaderBlock(Typecode As String)
+    If Typecode = "NR1L" Or Typecode = "R2R" Or Typecode = "RT" Or Typecode = "N1L" Then
     'do nothing
     Else
     msg = MsgBox("Are you sure?", vbYesNo, "Choose wisely...")
@@ -159,23 +159,23 @@ Sub FormatBorders()
     End With
 End Sub
 
-Sub Plot(TypeCode As String)
+Sub Plot(Typecode As String)
 
 Dim OneThirdsCheck As Boolean
 Dim CheckAWeight As Boolean
 
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
-    If Left(TypeCode, 3) = "OCT" Then
+    If Left(Typecode, 3) = "OCT" Then
     StartRw = Selection.Row
     endrw = Selection.Row + Selection.Rows.Count - 1
     Range(Cells(StartRw, 4), Cells(endrw, 13)).Select
-    ElseIf Left(TypeCode, 2) = "TO" Then
+    ElseIf Left(Typecode, 2) = "TO" Then
     'do nothing
     End If
     
     'check for A-weighting
-    If Right(TypeCode, 1) = "A" Then
+    If Right(Typecode, 1) = "A" Then
     CheckAWeight = True
     Else
     CheckAWeight = False
@@ -183,7 +183,7 @@ CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
 
     'check for one thirds
-    If Left(TypeCode, 2) = "TO" Then
+    If Left(Typecode, 2) = "TO" Then
     OneThirdsCheck = True
     Else
     OneThirdsCheck = False

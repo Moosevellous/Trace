@@ -115,6 +115,11 @@ On Error Resume Next
 DistanceLine (ActiveSheet.Range("TYPECODE").Value)
 End Sub
 
+Sub btnDistancePlane(control As IRibbonControl)
+On Error Resume Next
+DistancePlane (ActiveSheet.Range("TYPECODE").Value)
+End Sub
+
 Sub btnAreaCorrection(control As IRibbonControl)
 On Error Resume Next
 Area (ActiveSheet.Range("TYPECODE").Value)
@@ -176,10 +181,30 @@ End Sub
 
 Sub btnSilencer(control As IRibbonControl)
 On Error Resume Next
-'msg = MsgBox("Feature does not exist yet - please try again later", vbOKOnly, "You wanna build it? Go right ahead.")
 Silencer (ActiveSheet.Range("TYPECODE").Value)
 End Sub
 
+Sub btnLouvres(control As IRibbonControl)
+On Error Resume Next
+DoesNotExist
+End Sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'ESTIMATOR FUNCTIONS
+Sub btnFanSimple(control As IRibbonControl)
+On Error Resume Next
+PutLwFanSimple (ActiveSheet.Range("TYPECODE").Value)
+End Sub
+
+Sub btnPumpSimple(control As IRibbonControl)
+On Error Resume Next
+PutLwPumpSimple (ActiveSheet.Range("TYPECODE").Value)
+End Sub
+
+Sub btnCoolingTower(control As IRibbonControl)
+'On Error Resume Next
+PutLwCoolingTower (ActiveSheet.Range("TYPECODE").Value)
+End Sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 'CURVE FUNCTIONS
@@ -198,7 +223,15 @@ On Error Resume Next
 PutRw (ActiveSheet.Range("TYPECODE").Value)
 End Sub
 
+Sub btnSTCCurve(control As IRibbonControl)
+On Error Resume Next
+PutSTC (ActiveSheet.Range("TYPECODE").Value)
+End Sub
 
+Sub btnLnwCurve(control As IRibbonControl)
+On Error Resume Next
+PutLnw (ActiveSheet.Range("TYPECODE").Value)
+End Sub
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 'SHEET FUNCTIONS
 Sub btnHeaderBlock(control As IRibbonControl)
@@ -222,8 +255,7 @@ Plot (ActiveSheet.Range("TYPECODE").Value)
 End Sub
 
 Sub btnHeatMap(control As IRibbonControl)
-'On Error Resume Next
-'msg = MsgBox("Feature does not exist yet - please try again later", vbOKOnly, "You wanna build it? Go right ahead.")
+On Error Resume Next
 HeatMap (ActiveSheet.Range("TYPECODE").Value)
 End Sub
 
@@ -232,12 +264,24 @@ On Error Resume Next
 FixReferences (ActiveSheet.Range("TYPECODE").Value)
 End Sub
 
-
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'Help
+Sub btnOnlineHelp(control As IRibbonControl)
+GetHelp
+End Sub
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 
 'named range for sheet type would enable error catching
 'if named range throws error, can catch at button press
 Public Sub ErrorTypeCode()
 msg = MsgBox("Function only possible in template sheets.", vbOKOnly, "Waggling finger of shame")
 End
+End Sub
+
+
+
+
+Sub DoesNotExist()
+msg = MsgBox("Feature does not exist yet - please try again later", vbOKOnly, "You wanna build it? Go right ahead.")
 End Sub

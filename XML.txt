@@ -1,10 +1,10 @@
-<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui" >
-<!--Note this line is different between versions-->
-<!-- Alternative line: <customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui" > -->
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui">
+<!--<customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui">-->
 	<ribbon>
 		<tabs>
-			<tab id="customTab" label="Trace V1.16" insertAfterMso="TabView">
-<!--VERSION CREATED 20171115-->
+			<tab id="customTab" label="Trace V1.19" insertAfterMso="TabView">
+
+<!--VERSION CREATED 20180529-->
 
 				<group id="Main" label="Load" insertAfterMso="GroupEditingExcel">
 					<button id="btnLoad" label="New Tab" size="normal" onAction="btnLoad" imageMso="LocalShareNotebook" />
@@ -39,6 +39,7 @@
 						<menu id="Distance" label="Distance" imageMso="DiagramChangeToTargetClassic">
 						<button id="btnDistance" label="Point (spherical)" onAction="btnDistance" imageMso="DiagramChangeToTargetClassic" />
 						<button id="btnDistanceLine" label="Line (Cylindrical)" onAction="btnDistanceLine" imageMso="Drawing1GalleryContrast" />
+						<button id="btnDistancePlane" label="Plane" onAction="btnDistancePlane" imageMso="_3DExtrusionDepthInfinityClassic" />					
 						</menu>
 					<button id="btnAreaCorrection" label="Area" size="normal" onAction="btnAreaCorrection" imageMso="BlackAndWhiteBlackWithWhiteFill" />
 						<menu id="Mech_Elements" label="Mech Elements" imageMso="ColorMenu">
@@ -49,7 +50,7 @@
 						<button id="btnElbow" label="Elbow" onAction="btnElbow" imageMso="CollapseSearchPane" />
 						<button id="btnDuctSplit" label="Duct Split" onAction="btnDuctSplit" imageMso="F" />
 						<button id="btnSilencer" label="Silencer" onAction="btnSilencer" imageMso="ParagraphIndentLeft" />
-
+						<button id="btnAcousticLouvres" label="Acoustic Louvres" onAction="btnLouvres" imageMso="ShapeArc" />
 						</menu>
 						
 						<menu id="Room_Losses" label="Room Loss" imageMso="CombineShapesMenu">
@@ -60,10 +61,19 @@
 					<button id="btnDirectReverberantSum" label="Dir/Rev Sum" size="normal" onAction="btnDirectReverberantSum" imageMso="DataGraphicDataBar" />
 				</group>
 
+				<group id="EstFuncs" label="Estimator Functions" insertAfterMso="GroupEditingExcel">
+					<button id="btnFanSimple" label="Fan Simple" size="normal" onAction="btnFanSimple" imageMso="ActiveXRadioButton" />
+					<button id="btnPumpSimple" label="Pump Simple" size="normal" onAction="btnPumpSimple" imageMso="SyncMenu" />
+					<button id="btnCoolingTower" label="Cooling Tower" size="normal" onAction="btnCoolingTower" imageMso="GroupAccessLayoutWeb" />
+				</group>
+
+
 				<group id="CurveFuncs" label="Curve Functions" insertAfterMso="GroupEditingExcel">
 					<button id="btnNRCurve" label="NR Curve" size="normal" onAction="btnNRCurve" imageMso="ColorRed" />
 					<button id="btnNCCurve" label="NC Curve" size="normal" onAction="btnNCCurve" imageMso="ColorBlue" />
 					<button id="btnRwCurve" label="Rw Curve" size="normal" onAction="btnRwCurve" imageMso="ColorGreen" />
+					<button id="btnSTCCurve" label="STC Curve" size="normal" onAction="btnSTCCurve" imageMso="ColorWhite" />
+					<button id="btnLnwCurve" label="Lnw Curve" size="normal" onAction="btnLnwCurve" imageMso="ColorYellow" />
 				</group>
 
 				<group id="SheetFuncs" label="Sheet Functions" insertAfterMso="GroupEditingExcel">
@@ -75,6 +85,9 @@
 					<button id="btnFixReferences" label="Fix References" size="normal" onAction="btnFixReferences" imageMso="ColorRed" />
 				</group>
 
+				<group id="Help" label="Help" insertAfterMso="GroupEditingExcel">
+					<button id="btnOnlineHelp" label="Wiki" size="large" onAction="btnOnlineHelp" imageMso="Help" />
+				</group>
 			</tab>
 		</tabs>
 	</ribbon>

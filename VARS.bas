@@ -12,6 +12,7 @@ Public PROJECTNO As String
 Public PROJECTNAME As String
 Public PROJECTINFODIRECTORY As String
 Public FANTECH_SILENCERS As String
+Public LOUVRES As String
 Public fmtREFERENCE As Long
 Public fmtUSERINPUT As Long
 Public fmrFINALRESULT  As Long
@@ -37,7 +38,7 @@ On Error Resume Next
 '    Next ad
 
     If Application.AddIns.Count = 0 Then 'catches the error
-    RootPath = "N:\Property\Specialist Services\Acoustics\1 - Technical Library\Excel Add-in\Trace" 'hard coded location of AddIn as a fallback
+    RootPath = "U:\SectionData\Property\Specialist Services\Acoustics\1 - Technical Library\Excel Add-in\Trace" 'hard coded location of AddIn as a fallback
     Else
     RootPath = Application.AddIns("Trace").Path
     End If
@@ -50,6 +51,7 @@ ASHRAE_DUCT_TXT = RootPath & "\ASHRAE DATA\ASHRAE_DUCTS.txt"
 ASHRAE_FLEX = RootPath & "\ASHRAE DATA\ASHRAE_FLEX.txt"
 ASHRAE_REGEN = RootPath & "\ASHRAE DATA\ASHRAE_REGEN.txt"
 FANTECH_SILENCERS = RootPath & "\Silencers.txt"
+LOUVRES = RootPath & "\Louvres.txt"
 
 'Colours
 fmtREFERENCE = RGB(255, 0, 0)

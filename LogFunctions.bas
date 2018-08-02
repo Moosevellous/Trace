@@ -22,9 +22,10 @@ For i = LBound(Rng1) To UBound(Rng1)
 Next i
 
 ''check for negative
-'If SPLSUM < 0 Then
+'If SPLSUM < -5 Then
 'SPLSUM = ""
 'End If
+
 End Function
 
 Public Function SPLAV(ParamArray Rng1() As Variant) As Variant
@@ -56,8 +57,8 @@ Next i
 SPLAV = SPLAV + 10 * Application.WorksheetFunction.Log10(1 / n)
 
 ''check for negative
-'If SPLSAV < 0 Then
-'SPLAV = ""
+'If SPLSUM < -5 Then
+'SPLSUM = ""
 'End If
 
 End Function

@@ -72,7 +72,7 @@ msg = MsgBox("Done!", vbOKOnly, "Macro Complete")
 Exit Sub
 
 errHandler:
-  MsgBox "Error " & Err.Number & ": " & Err.DESCRIPTION, vbOKOnly, "Error"
+  MsgBox "Error " & err.Number & ": " & err.DESCRIPTION, vbOKOnly, "Error"
 
 End Sub
 
@@ -111,8 +111,8 @@ CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 End Sub
 
 Function GetClipBoardText()
-   Dim DataObj As MsForms.DataObject
-   Set DataObj = New MsForms.DataObject
+   Dim DataObj As MSForms.DataObject
+   Set DataObj = New MSForms.DataObject
 
    On Error GoTo Whoa
 
@@ -124,6 +124,6 @@ Function GetClipBoardText()
 
    Exit Function
 Whoa:
-   If Err <> 0 Then MsgBox "Data on clipboard is not text or is empty"
+   If err <> 0 Then MsgBox "Data on clipboard is not text or is empty"
 End Function
 
