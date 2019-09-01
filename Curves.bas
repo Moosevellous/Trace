@@ -220,7 +220,7 @@ Dim NR_f, NR As Double
 Dim NRTemp, temp_NR, freq As Double
 Dim IStart, Col As Integer
 
-    If DataTable.Rows.count <> 1 Then
+    If DataTable.Rows.Count <> 1 Then
         NRrate = "ERROR!"
         Exit Function
     End If
@@ -257,7 +257,7 @@ B_f = Array(0.681, 0.79, 0.87, 0.93, 0.974, 1, 1.015, 1.025, 1.03)
     End Select
     
     'Debug.Print DataTable.Columns.Count
-    For Col = 1 To DataTable.Columns.count
+    For Col = 1 To DataTable.Columns.Count
         If DataTable(1, Col) <> "-" Then
             NR_f = (DataTable(1, Col) - A_f(IStart + Col - 1)) / B_f(IStart + Col - 1) 'get the NR for that octave band
             If NR_f > NR Then 'if greater than highest NR found so far
@@ -664,21 +664,18 @@ End Function
 
 Function CiRate(DataTable As Variant, Lnw As Integer)
 Dim LnSum As Double
-Dim PartialSum As Double
+Dim PartialSum As Single
 Dim i As Integer
 
-
-
-'PartialSum = 0
-'    For i = 0 To DataTable.Count
-'    Debug.Print "No of elements="; DataTable.Count
-'    PartialSum = PartialSum + (10 ^ ((DataTable(i + 1)) / 10)) ' VBA and it's stupid 1 indexing
-'    Next i
-'LnSum = Round(10 * Application.WorksheetFunction.Log10(PartialSum), 0)
-'Debug.Print "LnSum:"; LnSum; "- 15 -"; Lnw
-
-'LnSum = SPLSUM(DataTable)
-CiRate = Round(LnSum, 0) - 15 - Lnw
+    'Debug.Print "No of elements="; DataTable.Count
+    If DataTable.Count = 15 And IsNumeric(DataTable(1)) = True Then 'check for 15 values, 100Hz to 2500Hz, as per ISO 717.2
+    LnSum = SPLSUM(DataTable)
+    'Debug.Print "LnSum:"; LnSum; "- 15 -"; Lnw
+    CiRate = Round(LnSum, 0) - 15 - Lnw 'from A.2.1 of ISO 717.2
+    Else 'too many columns
+    CiRate = "Error"
+    End If
+    
 End Function
 
 '''''''''''''''''''

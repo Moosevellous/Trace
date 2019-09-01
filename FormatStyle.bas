@@ -30,7 +30,7 @@ End Sub
 
 Sub fmtTitle(SheetType As String)
 CheckRow (Selection.Row)
-ApplyTraceStyle "Trace Total", SheetType, Selection.Row
+ApplyTraceStyle "Trace Title", SheetType, Selection.Row
 End Sub
 
 Sub fmtUnmiti(SheetType As String)
@@ -93,15 +93,15 @@ Range(Cells(Selection.Row, colStart), Cells(Selection.Row, colEnd)).NumberFormat
 End Sub
 
 Sub Unit_m2(colStart As Integer, Optional colEnd As Integer)
-Range(Cells(Selection.Row, colStart), Cells(Selection.Row, colEnd)).NumberFormat = "0 ""m" & Chr(178) & """"
+Range(Cells(Selection.Row, colStart), Cells(Selection.Row, colEnd)).NumberFormat = "0 ""m" & chr(178) & """"
 End Sub
 
 Sub Unit_m2ps(colStart As Integer, Optional colEnd As Integer)
-Range(Cells(Selection.Row, colStart), Cells(Selection.Row, colEnd)).NumberFormat = "0 ""m" & Chr(178) & "/s"""
+Range(Cells(Selection.Row, colStart), Cells(Selection.Row, colEnd)).NumberFormat = "0 ""m" & chr(178) & "/s"""
 End Sub
 
 Sub Unit_m3ps(colStart As Integer, Optional colEnd As Integer)
-Range(Cells(Selection.Row, colStart), Cells(Selection.Row, colEnd)).NumberFormat = "0 ""m" & Chr(179) & "/s"""
+Range(Cells(Selection.Row, colStart), Cells(Selection.Row, colEnd)).NumberFormat = "0 ""m" & chr(179) & "/s"""
 End Sub
 
 Sub Unit_dB(colStart As Integer, Optional colEnd As Integer)
@@ -154,7 +154,7 @@ Case Is = "Band"
 End Select
 
 Range(targetRange).Select
-If Selection.FormatConditions.count > 0 Then
+If Selection.FormatConditions.Count > 0 Then
 Selection.FormatConditions.Delete
 End If
 
@@ -177,7 +177,7 @@ Selection.FormatConditions.Add Type:=xlCellValue, Operator:=xlLessEqual, Formula
 Selection.FormatConditions(numconditions).Interior.Color = targetCompliantColour
 End If
 
-Selection.FormatConditions(Selection.FormatConditions.count).SetFirstPriority 'I think this line is just good housekeeping?
+Selection.FormatConditions(Selection.FormatConditions.Count).SetFirstPriority 'I think this line is just good housekeeping?
 
     
 End Sub
@@ -233,6 +233,9 @@ Function GetStyleRange(SheetType As String, InputRw As Integer, Optional isParam
         GetStyleRange = Range(Cells(InputRw, 2), Cells(Selection.Row, 31)).Address
         Cells(Selection.Row, 4).Font.Bold = True
         End If
+    ElseIf SheetType = "CVT" Then 'no parameter columns
+        GetStyleRange = Range(Cells(InputRw, 2), Cells(Selection.Row, 44)).Address
+        Cells(Selection.Row, 4).Font.Bold = True
     Else
     msg = MsgBox("Sheet Type '" & SheetType & "' is not supported. Try applying the style manually.", vbOKOnly, "Style application error")
     End
@@ -241,7 +244,7 @@ End Function
 
 Function StyleExists(StyleName As String) As Boolean
 StyleExists = False
-    For i = 1 To ActiveWorkbook.Styles.count
+    For i = 1 To ActiveWorkbook.Styles.Count
     'Debug.Print ActiveWorkbook.Styles(i).Name
         If ActiveWorkbook.Styles(i).Name = StyleName Then
         StyleExists = True
