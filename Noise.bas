@@ -18,16 +18,21 @@ Public regenNoiseElement As String
 Public elbowLining As String
 Public elbowShape As String
 Public elbowVanes As String
+Public ERL_Area As Single
+Public ERL_Mode As String
+Public ERL_Termination As String
 
 Public SilencerModel As String
 Public SilencerIL() As Double
 Public SilLength As Double
 Public SilFA As Double
+Public SilSeries As String
 
 Public LouvreModel As String
 Public LouvreIL() As Double
 Public LouvreLength As Double
 Public LouvreFA As String
+Public LouvreSeries As String
 
 Public SolverRow As Integer
 Public PlaneH As Double
@@ -49,6 +54,7 @@ Public r_v As Long
 Public PlenumLiningType As String
 Public UnlinedType As String
 Public PlenumWallEffect As String
+Public PlenumElbowEffect As Boolean
 
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -81,71 +87,18 @@ Private Function AirAbsorb(freq As String, Distance As Integer, Optional temp As
     End Select
 End Function
 
-Function AWeightCorrections(freq)
-Dim dBAAdjustment As Variant
-Dim freqTitles As Variant
-Dim freqTitlesAlt As Variant
-Dim ArrayIndex As Integer
 
-ArrayIndex = 999 'for error catching
-dBAAdjustment = Array(-70.4, -63.4, -56.7, -50.5, -44.7, -39.4, -34.6, -30.2, -26.2, -22.5, -19.1, -16.1, -13.4, -10.9, -8.6, -6.6, -4.8, -3.2, -1.9, -0.8, 0#, 0.6, 1#, 1.2, 1.3, 1.2, 1#, 0.5, -0.1, -1.1, -2.5, -4.3, -6.6, -9.3)
-freqTitles = Array(10, 12.5, 16, 20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000, 12500, 16000, 20000)
-'freqTitlesAlt = Array("", 13, 32, "1k", "1.25k", "1.6k", "2k", "2.5k", "3.15k", "4k", "5k", "6k", "6.3k", "8k", "10k", "12.5k", "16k", "20k")
-    
-    For i = LBound(freqTitles) To UBound(freqTitles)
-        If freq = freqTitles(i) Then
-        ArrayIndex = i
-        found = True
-        End If
-    Next i
-    
-    If ArrayIndex <> 999 Then 'error
-    AWeightCorrections = dBAAdjustment(ArrayIndex)
-    Else
-    AWeightCorrections = "-"
-    End If
-    
-End Function
-
-Function CWeightCorrections(freq)
-Dim dBCAdjustment As Variant
-Dim freqTitles As Variant
-Dim freqTitlesAlt As Variant
-Dim ArrayIndex As Integer
-
-ArrayIndex = 999 'for error catching
-dBCAdjustment = Array(-14.3, -11.2, -8.5, -6.2, -4.4, -3.1, -2#, -1.3, -0.8, -0.5, -0.3, -0.2, -0.1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.1, -0.2, -0.3, -0.5, -0.8, -1.3, -2#, -3#, -4.4, -6.2, -8.5, -11.2)
-freqTitles = Array(10, 12.5, 16, 20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000, 12500, 16000, 20000)
-'freqTitlesAlt = Array("", 13, 32, "1k", "1.25k", "1.6k", "2k", "2.5k", "3.15k", "4k", "5k", "6k", "6.3k", "8k", "10k", "12.5k", "16k", "20k")
-
-'alternative methods!!!!
-'http://www.beis.de/Elektronik/AudioMeasure/WeightingFilters.html
-'=10*LOG(((35041384000000000*f^8)/((20.598997^2+f^2)^2*(107.65265^2+f^2)*(737.86223^2+f^2)*(12194.217^2+f^2)^2)))
-
-    For i = LBound(freqTitles) To UBound(freqTitles)
-        If freq = freqTitles(i) Then
-        ArrayIndex = i
-        End If
-    Next i
-    
-    If ArrayIndex <> 999 Then 'error
-    CWeightCorrections = dBCAdjustment(ArrayIndex)
-    Else
-    CWeightCorrections = "-"
-    End If
-    
-End Function
 
 'legacy reasons, keep the old function and forward on to the new function
-Function GetASHRAE(freq As String, L As Long, W As Long, DuctType As String, Distance As Double)
-GetASHRAE = GetASHRAEDuct(freq, L, W, DuctType, Distance)
+Function GetASHRAE(freq As String, L As Long, w As Long, DuctType As String, Distance As Double)
+GetASHRAE = GetASHRAEDuct(freq, L, w, DuctType, Distance)
 End Function
 
-Function GetASHRAEDuct(freq As String, H As Long, W As Long, DuctType As String, Length As Double)
+Function GetASHRAEDuct(freq As String, H As Long, w As Long, DuctType As String, Length As Double)
 'On Error GoTo closefile
 Dim ReadStr() As String
 Dim i As Integer
-Dim SplitStr() As String
+Dim splitStr() As String
 Dim splitVal() As Double
 Dim CurrentType As String
 Dim InputArea As Double
@@ -154,7 +107,7 @@ Close #1
 
 Call GetSettings
 
-Open ASHRAE_DUCT_TXT For Input As #1  'global
+Open ASHRAE_DUCT For Input As #1  'global
 
     i = 0 '<-line number
     found = False
@@ -164,23 +117,23 @@ Open ASHRAE_DUCT_TXT For Input As #1  'global
     Line Input #1, ReadStr(i)
     'Debug.Print ReadStr(i)
     
-    SplitStr = Split(ReadStr(i), vbTab, Len(ReadStr(i)), vbTextCompare)
+    splitStr = Split(ReadStr(i), vbTab, Len(ReadStr(i)), vbTextCompare)
     
-        If Left(SplitStr(0), 1) <> "*" Then
+        If Left(splitStr(0), 1) <> "*" Then
         
             'convert to values
-            For Col = 0 To UBound(SplitStr)
-            If SplitStr(Col) <> "" Then
-            ReDim Preserve splitVal(Col)
-            splitVal(Col) = CDbl(SplitStr(Col))
-            End If
+            For Col = 0 To UBound(splitStr)
+                If splitStr(Col) <> "" Then
+                ReDim Preserve splitVal(Col)
+                splitVal(Col) = CDbl(splitStr(Col))
+                End If
             Next Col
             
             ReDim Preserve splitVal(Col + 1)
             
                 If Right(DuctType, 1) = "R" Then 'RECTANGULAR DUCT
                 ReadArea = splitVal(0) * splitVal(1)
-                InputArea = H * W
+                InputArea = H * w
                 ElseIf Right(DuctType, 1) = "C" Then 'CIRCULAR DUCT
                 ReadArea = WorksheetFunction.Pi * ((splitVal(0) / 2) ^ 2)
                 InputArea = WorksheetFunction.Pi * ((H / 2) ^ 2)
@@ -235,7 +188,7 @@ Open ASHRAE_DUCT_TXT For Input As #1  'global
             
         Else '* is the type identifier
         'ReDim Preserve SplitVal(1)
-        CurrentType = Right(SplitStr(0), Len(SplitStr(0)) - 1)
+        CurrentType = Right(splitStr(0), Len(splitStr(0)) - 1)
         'Debug.Print "TYPE: " & currentType
         End If
         
@@ -246,7 +199,7 @@ closefile: '<-on errors, closes text file
 Close #1
 End Function
 
-Function GetReynoldsDuct(freq As String, H As Double, W As Double, thickness As Double, L As Double)
+Function GetReynoldsDuct(freq As String, H As Double, w As Double, thickness As Double, L As Double)
 
 Dim PonA As Double
 Dim Attn As Double
@@ -255,14 +208,14 @@ Dim IL As Double
 'Static Values from NEBB book
 b = Array(0.0133, 0.0574, 0.271, 1.0147, 1.77, 1.392, 1.518, 1.581)
 C = Array(1.959, 1.41, 0.824, 0.5, 0.695, 0.802, 0.451, 0.219)
-D = Array(0.917, 0.941, 1.079, 1.087, 0, 0, 0, 0)
+d = Array(0.917, 0.941, 1.079, 1.087, 0, 0, 0, 0)
 
 'convert to millimetres to metres
 H = H / 1000
-W = W / 1000
+w = w / 1000
 
-P = (H * 2) + (W * 2) 'perimeter
-a = H * W 'area
+P = (H * 2) + (w * 2) 'perimeter
+a = H * w 'area
 PonA = P / a 'used later
 
 f = freqStr2Num(freq)
@@ -276,7 +229,11 @@ i = GetOctaveColumnIndex(freq)
     Else
     
     'equation 5.16
-    IL = 3.281 * b(i) * ((0.305 * PonA) ^ C(i)) * ((0.039 * thickness) ^ D(i)) * L
+    If thickness = 0 Then 'don't apply this correction
+    IL = 0
+    Else
+    IL = (3.281 * b(i)) * ((0.305 * PonA) ^ C(i)) * ((0.039 * thickness) ^ d(i)) * L
+    End If
     
         'applies from 500Hz octave band and up
         If f <= 250 Then
@@ -304,39 +261,8 @@ i = GetOctaveColumnIndex(freq)
 
 End Function
 
-Function GetOctaveColumnIndex(freq)
-    Select Case freq
-    Case Is = "63"
-    GetOctaveColumnIndex = 0
-    Case Is = "125"
-    GetOctaveColumnIndex = 1
-    Case Is = "250"
-    GetOctaveColumnIndex = 2
-    Case Is = "500"
-    GetOctaveColumnIndex = 3
-    Case Is = "1k"
-    GetOctaveColumnIndex = 4
-    Case Is = "2k"
-    GetOctaveColumnIndex = 5
-    Case Is = "4k"
-    GetOctaveColumnIndex = 6
-    Case Is = "8k"
-    GetOctaveColumnIndex = 7
-    Case Is = 1000
-    GetOctaveColumnIndex = 4
-    Case Is = 2000
-    GetOctaveColumnIndex = 5
-    Case Is = 4000
-    GetOctaveColumnIndex = 6
-    Case Is = 8000
-    GetOctaveColumnIndex = 7
-    Case Else
-    GetOctaveColumnIndex = 999
-    End Select
-End Function
 
-
-Function GetDuctBreakout(freq As String, H As Single, W As Single, L As Single, MaterialDensity As Single, DuctWallThickness As Single) 'H and W in mm, L in m, SurfaceMass in kg/m2
+Function GetDuctBreakout(freq As String, H As Single, w As Single, L As Single, MaterialDensity As Single, DuctWallThickness As Single) 'H and W in mm, L in m, SurfaceMass in kg/m2
 
 Dim TLoutMin As Single
 Dim TLout As Single
@@ -344,16 +270,16 @@ Dim SurfaceMass As Single
 Dim fL As Long
 
 f = freqStr2Num(freq)
-fL = 613000# / ((W * H) ^ 0.5) 'W and H in mm
+fL = 613000# / ((w * H) ^ 0.5) 'W and H in mm
 
 SurfaceMass = MaterialDensity * DuctWallThickness / 1000 'duct wall thickness is in mm
 
-TLoutMin = 10 * Application.WorksheetFunction.Log10(2 * L * 1000 * ((1 / W) + (1 / H))) 'length in metres, needs to X1000
+TLoutMin = 10 * Application.WorksheetFunction.Log10(2 * L * 1000 * ((1 / w) + (1 / H))) 'length in metres, needs to X1000
 
 
-    If SurfaceMass <> 0 And W <> 0 And H <> 0 Then
+    If SurfaceMass <> 0 And w <> 0 And H <> 0 Then
         If f < fL Then
-        TLout = 10 * Application.WorksheetFunction.Log10((f * (SurfaceMass ^ 2)) / (W + H)) + 17 'equation 6.11
+        TLout = 10 * Application.WorksheetFunction.Log10((f * (SurfaceMass ^ 2)) / (w + H)) + 17 'equation 6.11
         Else
         TLout = 20 * Application.WorksheetFunction.Log10(f * SurfaceMass) - 45 'equation 6.12
         End If
@@ -372,11 +298,85 @@ TLoutMin = 10 * Application.WorksheetFunction.Log10(2 * L * 1000 * ((1 / W) + (1
 End Function
 
 
+Function GetDuctBreakIn(freq As String, H As Single, w As Single, L As Single, MaterialDensity As Single, DuctWallThickness As Single)  'H and W in mm, L in m, SurfaceMass in kg/m2
+
+Dim TLoutMin As Single
+Dim TLin_a As Single
+Dim TLin_b As Single
+Dim TLin1 As Single
+Dim TLout As Single
+Dim SurfaceMass As Single
+Dim f1 As Single
+Dim a As Single
+Dim b As Single
+
+f = freqStr2Num(freq)
+
+    If H > w Then
+    a = H
+    b = w
+    Else
+    a = w
+    b = H
+    End If
+
+f1 = (1.718 * 10 ^ 5) / a 'a in mm
+
+TLout = GetDuctBreakout(freq, H, w, L, MaterialDensity, DuctWallThickness) * -1 + 10 * Application.WorksheetFunction.Log(2 * (L * 1000) * ((H + w) / (H * w))) 'call trace function, but make it positive
+
+    If f1 > f Then
+    TLin_a = TLout - 4 - (10 * Application.WorksheetFunction.Log(a / b)) + (20 * Application.WorksheetFunction.Log(f / f1)) 'equation 6.15a
+    TLin_b = 10 * Application.WorksheetFunction.Log((L * 1000) * ((1 / a) + (1 / b))) 'equation 6.15b
+        If TLin_a > TLin_b Then
+        TLin1 = TLin_a
+        Else
+        TLin1 = TLin_b
+        End If
+    GetDuctBreakIn = (TLin1 * -1) - 3 'comes out as negative
+    
+    Else 'f1<=f
+    TLin1 = TLout - 3 'equation 6.16
+    End If
+
+GetDuctBreakIn = (TLin1 * -1) - 3  'Trace convention is negative
+    
+End Function
+
+
+'Function GetDuctLaggingIL(freq As String, H As Single, w As Single, DuctMass As Single, LaggingMass As Single, LaggingThickness As Single)
+'Dim P1 As Single
+'Dim P2 As Single
+'Dim S As Single
+'Dim f_res As Single
+'Dim IL_LF As Single
+'
+'f = freqStr2Num(freq)
+'P1 = 2 * (w + H)
+'P2 = 2 * (L + w + 4 * LaggingThickness)
+'S = 2 * LaggingThickness * (w + H + 2 * LaggingThickness)
+'f_res = 156 * ((((P2 / P1) + (LaggingMass / DuctMass)) * (P1 * S / LaggingMass)) ^ 0.5)
+'
+''Low frequency insertion Loss
+'IL_LF = 20 * Application.WorksheetFunction.Log(1 + (LaggingMass / DuctMass) * (P1 / P2))
+'
+'    'check for octave band containing f_res
+'    If IsInOctaveBand(f, freq) Then
+'    GetDuctLaggingIL = IL_LF - 5
+'    Else
+'        If f < f_res Then
+'        GetDuctLaggingIL = IL_LF
+'        Else
+'        GetDuctLaggingIL = IL_LF + 29.9 * Application.WorksheetFunction.Log(f / (1.41 * f_res))
+'        End If
+'    End If
+'
+'End Function
+
 Function GetFlexDuct(freq As String, dia As Integer, L As Double)
 On Error GoTo closefile
 Dim ReadStr() As String
 Dim i As Integer
-Dim SplitStr() As String
+Dim splitStr() As String
 Dim splitVal() As Double
 Dim Col As Integer
 
@@ -391,14 +391,14 @@ i = 0 '<-line number
     Line Input #1, ReadStr(i)
     'Debug.Print ReadStr(i)
     
-    SplitStr = Split(ReadStr(i), vbTab, Len(ReadStr(i)), vbTextCompare)
-        If Left(SplitStr(0), 1) <> "*" Then 'titles
+    splitStr = Split(ReadStr(i), vbTab, Len(ReadStr(i)), vbTextCompare)
+        If Left(splitStr(0), 1) <> "*" Then 'titles
         
             'convert to values
-            For Col = 0 To UBound(SplitStr)
-                If SplitStr(Col) <> "" Then
+            For Col = 0 To UBound(splitStr)
+                If splitStr(Col) <> "" Then
                 ReDim Preserve splitVal(Col)
-                splitVal(Col) = CDbl(SplitStr(Col))
+                splitVal(Col) = CDbl(splitStr(Col))
                 End If
             Next Col
             
@@ -438,23 +438,57 @@ closefile: '<-on errors, closes text file
 Close #1
 End Function
 
-Function GetERL(TerminationType As String, freq As String, DuctArea As Double)
+Function GetERL(TerminationType As String, freq As String, DuctArea As Double) 'legacy reasons, keep the old function and forward on to the new function
+GetERL = GetERL_ASHRAE(TerminationType, freq, DuctArea)
+End Function
+
+Function GetERL_ASHRAE(TerminationType As String, freq As String, DuctArea As Double)
+
 Dim dia As Double
 Dim A1 As Double
 Dim A2 As Double
 Dim f As Double
-dia = (4 * DuctArea / Application.WorksheetFunction.Pi) ^ 0.5 'eqn 11
-f = freqStr2Num(freq)
-c0 = 343
-    'table 28 of ASHRAE
-    If TerminationType = "Flush" Then
-    A1 = 0.7
-    A2 = 2
-    ElseIf TerminationType = "Free" Then
-    A1 = 1
-    A2 = 2
+    If DuctArea <> 0 Then
+    dia = (4 * DuctArea / Application.WorksheetFunction.Pi) ^ 0.5 'eqn 11
+    
+    f = freqStr2Num(freq)
+    C0 = 343
+        'table 28 of ASHRAE
+        If TerminationType = "Flush" Then
+        A1 = 0.7
+        A2 = 2
+        ElseIf TerminationType = "Free" Then
+        A1 = 1
+        A2 = 2
+        End If
+    GetERL_ASHRAE = -10 * Application.WorksheetFunction.Log10(1 + ((A1 * C0) / (f * dia * Application.WorksheetFunction.Pi)) ^ A2)
+    Else
+    GetERL_ASHRAE = 0
     End If
-GetERL = -10 * Application.WorksheetFunction.Log10(1 + ((A1 + c0) / (f * dia * Application.WorksheetFunction.Pi)) ^ A2)
+End Function
+
+Function GetERL_NEBB(TerminationType As String, freq As String, DuctArea As Double)
+Dim dia As Double
+Dim A1 As Double
+Dim A2 As Double
+Dim f As Double
+    If DuctArea <> 0 Then
+    dia = (4 * DuctArea / Application.WorksheetFunction.Pi) ^ 0.5
+    
+    f = freqStr2Num(freq)
+    C0 = 343
+        If TerminationType = "Flush" Then
+        A1 = 0.8
+        A2 = 1.88
+        ElseIf TerminationType = "Free" Then
+        A1 = 1
+        A2 = 1.88
+        End If
+    
+    GetERL_NEBB = -10 * Application.WorksheetFunction.Log10(1 + ((A1 * C0) / (f * dia * Application.WorksheetFunction.Pi)) ^ A2)
+    Else
+    GetERL_NEBB = 0
+    End If
 End Function
 
 Function GetRegenNoise(freq As String, Condition As String, Velocity As Double, Element As String)
@@ -477,18 +511,18 @@ Open ASHRAE_REGEN For Input As #1  'global
     Line Input #1, ReadStr(i)
     'Debug.Print ReadStr(i)
     
-    SplitStr = Split(ReadStr(i), vbTab, Len(ReadStr(i)), vbTextCompare)
+    splitStr = Split(ReadStr(i), vbTab, Len(ReadStr(i)), vbTextCompare)
     
-        If Left(SplitStr(0), 1) <> "*" Then
+        If Left(splitStr(0), 1) <> "*" Then
             
             If CurrentType = Element Then 'elbow, damper, or transition
-                If SplitStr(0) = Condition And CDbl(SplitStr(1)) = Velocity Then 'vanes/no vanes
+                If splitStr(0) = Condition And CDbl(splitStr(1)) = Velocity Then 'vanes/no vanes
                 
                 'convert to values
-                For Col = 1 To UBound(SplitStr)
-                If SplitStr(Col) <> "" Then
+                For Col = 1 To UBound(splitStr)
+                If splitStr(Col) <> "" Then
                 ReDim Preserve splitVal(Col)
-                splitVal(Col) = CDbl(SplitStr(Col))
+                splitVal(Col) = CDbl(splitStr(Col))
                 End If
                 Next Col
                 
@@ -523,7 +557,7 @@ Open ASHRAE_REGEN For Input As #1  'global
             'ReDim Preserve splitVal(Col + 1)
             
         Else '* is the type identifier
-        CurrentType = Right(SplitStr(0), Len(SplitStr(0)) - 1)
+        CurrentType = Right(splitStr(0), Len(splitStr(0)) - 1)
         End If
         
             'catch for 0
@@ -539,7 +573,7 @@ Close #1
 
 End Function
 
-Function GetRoomLoss(fstr As String, L As Double, W As Double, H As Double, roomType As String)
+Function GetRoomLoss(fstr As String, L As Double, w As Double, H As Double, roomType As String)
 Dim alpha() As Variant
 Dim alpha_av As Double
 Dim Rc As Double
@@ -588,8 +622,8 @@ Dim Rc As Double
     bandIndex = 8
     End Select
         
-    S_total = (L * W * 2) + (L * H * 2) + (W * H * 2)
-    alpha_av = ((L * W * alpha(bandIndex) * 2) + (L * H * alpha(bandIndex) * 2) + (W * H * alpha(bandIndex) * 2)) / S_total
+    S_total = (L * w * 2) + (L * H * 2) + (w * H * 2)
+    alpha_av = ((L * w * alpha(bandIndex) * 2) + (L * H * alpha(bandIndex) * 2) + (w * H * alpha(bandIndex) * 2)) / S_total
     Rc = (S_total * alpha(bandIndex)) / (1 - alpha_av)
     'Debug.Print "Room Contant " Rc
         If Rc <> 0 Then
@@ -600,7 +634,7 @@ Dim Rc As Double
 End Function
 
 
-Function GetRoomLossRT(fstr As String, L As Double, W As Double, H As Double, RT_Type As String)
+Function GetRoomLossRT(fstr As String, L As Double, w As Double, H As Double, RT_Type As String)
 Dim RT() As Variant
 Dim alpha_av As Double
 Dim Rc As Double
@@ -652,8 +686,8 @@ Dim Rc As Double
     bandIndex = 8
     End Select
     
-    S_total = (L * W * 2) + (L * H * 2) + (W * H * 2)
-    alpha_av = ((L * W * alpha(bandIndex) * 2) + (L * H * alpha(bandIndex) * 2) + (W * H * alpha(bandIndex) * 2)) / S_total
+    S_total = (L * w * 2) + (L * H * 2) + (w * H * 2)
+    alpha_av = ((L * w * alpha(bandIndex) * 2) + (L * H * alpha(bandIndex) * 2) + (w * H * alpha(bandIndex) * 2)) / S_total
     Rc = (S_total * alpha(bandIndex)) / (1 - alpha_av)
 
         If Rc <> 0 Then
@@ -664,7 +698,7 @@ Dim Rc As Double
 
 End Function
 
-Function GetElbowLoss(fstr As String, W As Double, elbowShape As String, DuctLining As String, VaneType As String)
+Function GetElbowLoss(fstr As String, w As Double, elbowShape As String, DuctLining As String, VaneType As String)
 Dim Unlined() As Variant
 Dim Lined() As Variant
 Dim RadiusBend() As Variant
@@ -672,7 +706,7 @@ Dim freq As Double
 Dim FW As Double
 Dim ArrayIndex As Integer
 Dim linedDuct As Boolean
-Dim vanes As Boolean
+Dim Vanes As Boolean
 
     If DuctLining = "Lined" Then
     linedDuct = True
@@ -681,9 +715,9 @@ Dim vanes As Boolean
     End If
     
     If VaneType = "Vanes" Then
-    vanes = True
+    Vanes = True
     ElseIf VaneType = "No Vanes" Then
-    vanes = False
+    Vanes = False
     End If
     
 
@@ -696,11 +730,11 @@ LinedV = Array(0, -1, -4, -7, -7)
 RadiusBend = Array(0, -1, -2, -3) 'table 23 of ASHRAE
 
 freq = freqStr2Num(fstr)
-FW = (freq / 1000) * W
+FW = (freq / 1000) * w
 
     Select Case elbowShape
     Case Is = "Square"
-        If vanes = False Then
+        If Vanes = False Then
             Select Case FW
             Case Is < 48
             ArrayIndex = 0
@@ -762,8 +796,8 @@ FW = (freq / 1000) * W
 
 End Function
 
-Function GetASHRAEPlenumLoss(fstr As String, L As Long, W As Long, H As Long, DuctInL As Single, DuctInW As Single, DuctOutL As Single, DuctOutW As Single, _
-Q As Integer, r_h As Long, r_v As Long, PlenumLiningType As String, UnlinedType As String, wallEffect As String, applyElbowEffect As Boolean, Optional OneThirdsMode As Boolean)
+Function GetASHRAEPlenumLoss(fstr As String, L As Long, w As Long, H As Long, DuctInL As Single, DuctInW As Single, DuctOutL As Single, DuctOutW As Single, _
+q As Integer, r_h As Long, r_v As Long, PlenumLiningType As String, UnlinedType As String, wallEffect As String, applyElbowEffect As Boolean, Optional OneThirdsMode As Boolean)
 
 Dim f_OneUp As Integer
 Dim f_OneDown As Integer
@@ -777,14 +811,14 @@ f = freqStr2Num(fstr)
 If IsMissing(OneThirdsMode) Then OneThirdsMode = False
 
     If OneThirdsMode = True Then
-    GetASHRAEPlenumLoss = GetASHRAEPlenumLoss_OneThirdOctave(f, L, W, H, DuctInL, DuctInW, DuctOutL, DuctOutW, Q, r_h, r_v, PlenumLiningType, UnlinedType, wallEffect, applyElbowEffect)
+    GetASHRAEPlenumLoss = GetASHRAEPlenumLoss_OneThirdOctave(f, L, w, H, DuctInL, DuctInW, DuctOutL, DuctOutW, q, r_h, r_v, PlenumLiningType, UnlinedType, wallEffect, applyElbowEffect)
     Else
     f_OneUp = GetAdjacentFrequency(f, "Up")
     f_OneDown = GetAdjacentFrequency(f, "Down")
     'get for each one third octave and then Tl average them
-    Loss1 = GetASHRAEPlenumLoss_OneThirdOctave(f_OneDown, L, W, H, DuctInL, DuctInW, DuctOutL, DuctOutW, Q, r_h, r_v, PlenumLiningType, UnlinedType, wallEffect, applyElbowEffect)
-    Loss2 = GetASHRAEPlenumLoss_OneThirdOctave(f, L, W, H, DuctInL, DuctInW, DuctOutL, DuctOutW, Q, r_h, r_v, PlenumLiningType, UnlinedType, wallEffect, applyElbowEffect)
-    Loss3 = GetASHRAEPlenumLoss_OneThirdOctave(f_OneUp, L, W, H, DuctInL, DuctInW, DuctOutL, DuctOutW, Q, r_h, r_v, PlenumLiningType, UnlinedType, wallEffect, applyElbowEffect)
+    Loss1 = GetASHRAEPlenumLoss_OneThirdOctave(f_OneDown, L, w, H, DuctInL, DuctInW, DuctOutL, DuctOutW, q, r_h, r_v, PlenumLiningType, UnlinedType, wallEffect, applyElbowEffect)
+    Loss2 = GetASHRAEPlenumLoss_OneThirdOctave(f, L, w, H, DuctInL, DuctInW, DuctOutL, DuctOutW, q, r_h, r_v, PlenumLiningType, UnlinedType, wallEffect, applyElbowEffect)
+    Loss3 = GetASHRAEPlenumLoss_OneThirdOctave(f_OneUp, L, w, H, DuctInL, DuctInW, DuctOutL, DuctOutW, q, r_h, r_v, PlenumLiningType, UnlinedType, wallEffect, applyElbowEffect)
     'Note: losses are negative already so no need for negatives sign in formula
     GetASHRAEPlenumLoss = 10 * Application.WorksheetFunction.Log10((1 / 3) * ((10 ^ (Loss1 / 10)) + (10 ^ (Loss2 / 10)) + (10 ^ (Loss3 / 10))))
     End If
@@ -792,19 +826,19 @@ If IsMissing(OneThirdsMode) Then OneThirdsMode = False
 End Function
 
 
-Function GetASHRAEPlenumLoss_OneThirdOctave(f As Integer, L As Long, W As Long, H As Long, DuctInL As Single, DuctInW As Single, DuctOutL As Single, DuctOutW As Single, _
-Q As Integer, r_h As Long, r_v As Long, PlenumLiningType As String, UnlinedType As String, wallEffect As String, applyElbowEffect As Boolean)
+Function GetASHRAEPlenumLoss_OneThirdOctave(f As Integer, L As Long, w As Long, H As Long, DuctInL As Single, DuctInW As Single, DuctOutL As Single, DuctOutW As Single, _
+q As Integer, r_h As Long, r_v As Long, PlenumLiningType As String, UnlinedType As String, wallEffect As String, applyElbowEffect As Boolean)
 
 Dim Stotal As Single
 Dim InletArea As Single
 Dim OutletArea As Single
-Dim r As Single 'inlet to outlet offset distance
+Dim R As Single 'inlet to outlet offset distance
 Dim alphaTotal(7) As Single
 Dim AbsorptionArea(7) As Single
 Dim PlenumVolume As Single
 Dim offsetangle As Single
 Dim b As Single
-Dim n As Single
+Dim N As Single
 'Dim f As Integer
 Dim f_co As Single 'cutoff frequency
 Dim OAE As Single
@@ -820,7 +854,7 @@ Dim AngleEffect As Single
 
 'Values from ASHRAE equation 5
 b = 3.505
-n = -0.359
+N = -0.359
 'If IsMissing(OneThirdsMode) Then OneThirdsMode = False
 
 'Lining Materials, from ASHRAE table 12
@@ -853,10 +887,10 @@ f_co = GetCutoffFrequency(DuctInL_OT, DuctInW_OT)
 'Areas and Volumes
 InletArea = DuctInL_OT * DuctInW_OT
 OutletArea = DuctOutL_OT * DuctOutW_OT
-PlenumVolume = (L / 1000) * (W / 1000) * (H / 1000) 'input in mm
+PlenumVolume = (L / 1000) * (w / 1000) * (H / 1000) 'input in mm
 
 'Surface area
-Stotal = GetPlenumSurfaceArea(L, W, H, InletArea, OutletArea) ' Stotal doesn't include inlet and outlet area
+Stotal = GetPlenumSurfaceArea(L, w, H, InletArea, OutletArea) ' Stotal doesn't include inlet and outlet area
 'Debug.Print "S_total = " & Stotal
 
     'Linings - selected from static tables as array variables
@@ -896,7 +930,7 @@ Stotal = GetPlenumSurfaceArea(L, W, H, InletArea, OutletArea) ' Stotal doesn't i
     Next i
         
 'Distance from inlet to outlet
-r = GetPlenumDistanceR(r_h, r_v, L)
+R = GetPlenumDistanceR(r_h, r_v, L)
 'Debug.Print "Offset Distance, R = " & Round(r, 1)
 
         
@@ -904,7 +938,7 @@ r = GetPlenumDistanceR(r_h, r_v, L)
     AngleEffect = GetPlenumElbowEffect(f, f_co)
     Else
     'Offset Angle
-    offsetangle = GetPlenumAngleTheta(L, r)
+    offsetangle = GetPlenumAngleTheta(L, R)
     'Debug.Print "Offset Angle = " & Round(OffsetAngle, 2)
     'Offset Angle Effect
     AngleEffect = GetPlenumOAE(f, f_co, offsetangle)
@@ -928,7 +962,7 @@ r = GetPlenumDistanceR(r_h, r_v, L)
     
     Else 'f>=f_co
     A_index = GetOctaveBandIndex(f)
-    GetASHRAEPlenumLoss_OneThirdOctave = -1 * (b * (((OutletArea * Q / (4 * Application.WorksheetFunction.Pi() * (r ^ 2))) + AbsorptionArea(A_index)) ^ n) + AngleEffect)
+    GetASHRAEPlenumLoss_OneThirdOctave = -1 * (b * (((OutletArea * q / (4 * Application.WorksheetFunction.Pi() * (R ^ 2))) + AbsorptionArea(A_index)) ^ N) + AngleEffect)
     End If
         
 End Function
@@ -938,22 +972,22 @@ Function GetPlenumDistanceR(r_h As Long, r_v As Long, L As Long) As Single 'all 
 GetPlenumDistanceR = (((r_v / 1000) ^ 2) + ((r_h / 1000) ^ 2) + ((L / 1000) ^ 2)) ^ 0.5
 End Function
 
-Function GetPlenumAngleTheta(L As Long, r As Single) 'L is in millimetres
+Function GetPlenumAngleTheta(L As Long, R As Single) 'L is in millimetres
 Dim PlenumL As Single
 PlenumL = L / 1000
-    If PlenumL / r >= -1 And PlenumL / r <= 1 Then 'between -1 and 1
-    GetPlenumAngleTheta = Application.WorksheetFunction.Degrees(Application.WorksheetFunction.Acos(PlenumL / r))
+    If PlenumL / R >= -1 And PlenumL / R <= 1 Then 'between -1 and 1
+    GetPlenumAngleTheta = Application.WorksheetFunction.Degrees(Application.WorksheetFunction.Acos(PlenumL / R))
     Else
     GetPlenumAngleTheta = 0
     End If
 End Function
 
-Function GetCutoffFrequency(L As Single, W As Single) As Single 'all units are input in metres
-GetCutoffFrequency = 343 / (2 * Application.Max(L, W)) 'cutoff frequency
+Function GetCutoffFrequency(L As Single, w As Single) As Single 'all units are input in metres
+GetCutoffFrequency = 343 / (2 * Application.Max(L, w)) 'cutoff frequency
 End Function
 
-Function GetPlenumSurfaceArea(L As Long, W As Long, H As Long, InletArea As Single, OutletArea As Single) As Single
-GetPlenumSurfaceArea = (2 * L * W / 1000000) + (2 * W * H / 1000000) + (2 * H * L / 1000000) - InletArea - OutletArea 'inputs are in mm, which are squared => correction is 1000x1000 = 1million
+Function GetPlenumSurfaceArea(L As Long, w As Long, H As Long, InletArea As Single, OutletArea As Single) As Single
+GetPlenumSurfaceArea = (2 * L * w / 1000000) + (2 * w * H / 1000000) + (2 * H * L / 1000000) - InletArea - OutletArea 'inputs are in mm, which are squared => correction is 1000x1000 = 1million
 End Function
 
 Function GetPlenumAreaCoefficient(f_input As Integer, Vol As Single)
@@ -963,11 +997,16 @@ SmallPlenum = Array(1.4, 1#, 1.1, 1.1, 2.3, 2.4, 2, 1#, 2.2, 0.7, 0.7, 1.1) '50 
 LargePlenum = Array(0.3, 0.3, 0.3, 0.3, 0.4, 0.4, 0.3, 0.4, 0.3, 0.2, 0.2) '50 to 500Hz
 i = GetArrayIndex_TO_50Hz(f_input)
 
-    If Vol < 1.5 Then 'm^3
-    GetPlenumAreaCoefficient = SmallPlenum(i)
-    Else 'Vol>1.5m^3
-    GetPlenumAreaCoefficient = LargePlenum(i)
+    If i <= 10 Then
+        If Vol < 1.5 Then 'm^3
+        GetPlenumAreaCoefficient = SmallPlenum(i)
+        Else 'Vol>1.5m^3
+        GetPlenumAreaCoefficient = LargePlenum(i)
+        End If
+    Else
+    GetPlenumAreaCoefficient = 0
     End If
+
 
 End Function
 
@@ -1091,22 +1130,27 @@ WType4 = Array(1, 7, 9, 12, 11, 15, 12, 14, 14, 13)
 WType5 = Array(0, 1, 2, 1, 1, 0, 4, 1, 5, 7, 8)
 WType6 = Array(0, 3, 7, 6, 4, 2, 3, 1, 2, 1, 0)
 
-    Select Case WallType
-    Case Is = 0
+    If i <= 10 Then 'maximum 10 elements in WType arrays
+        Select Case WallType
+        Case Is = 0
+        GetPlenumWallEffect = 0
+        Case Is = 1
+        GetPlenumWallEffect = WType1(i)
+        Case Is = 2
+        GetPlenumWallEffect = WType2(i)
+        Case Is = 3
+        GetPlenumWallEffect = WType3(i)
+        Case Is = 4
+        GetPlenumWallEffect = WType4(i)
+        Case Is = 5
+        GetPlenumWallEffect = WType5(i)
+        Case Is = 6
+        GetPlenumWallEffect = WType6(i)
+        End Select
+    Else
     GetPlenumWallEffect = 0
-    Case Is = 1
-    GetPlenumWallEffect = WType1(i)
-    Case Is = 2
-    GetPlenumWallEffect = WType2(i)
-    Case Is = 3
-    GetPlenumWallEffect = WType3(i)
-    Case Is = 4
-    GetPlenumWallEffect = WType4(i)
-    Case Is = 5
-    GetPlenumWallEffect = WType5(i)
-    Case Is = 6
-    GetPlenumWallEffect = WType6(i)
-    End Select
+    End If
+
 
 End Function
 
@@ -1116,10 +1160,14 @@ BelowFc = Array(2, 3, 6, 5, 3, 0, -2, -3, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 AboveFc = Array(0, 0, 0, 0, 0, 0, 3, 6, 3, 3, 2, 3, 3, 2, 2, 2, 2, 2, 2, 2, 1)
 i = GetArrayIndex_TO_50Hz(f)
 
-    If f > f_c Then
-    GetPlenumElbowEffect = AboveFc(i)
-    Else 'f<=f_c
-    GetPlenumElbowEffect = BelowFc(i)
+    If i <= 20 Then
+        If f > f_c Then
+        GetPlenumElbowEffect = AboveFc(i)
+        Else 'f<=f_c
+        GetPlenumElbowEffect = BelowFc(i)
+        End If
+    Else
+    GetPlenumElbowEffect = 0
     End If
     
 End Function
@@ -1171,7 +1219,9 @@ Function GetArrayIndex_TO_50Hz(f As Integer)
     End Select
 End Function
 
-Function GetOctaveBandIndex(f_input As Integer) 'map a 1/3 octave centre frequency to the relevant 1/1 octave band centre frequency
+Function GetOctaveBandIndex(f_input As Integer)
+'map a 1/3 octave centre frequency to the relevant 1/1 octave band centre frequency
+'OR get column index of octave band centre frequencies
     Select Case f_input
     Case Is = 50
     GetOctaveBandIndex = 0
@@ -1238,140 +1288,152 @@ f_ref = Array(50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000
 End Function
 
 Function GetDuctArea(inputStr As String)
-Dim SplitStr() As String
+Dim splitStr() As String
 Dim L As Double
-Dim W As Double
-SplitStr = Split(inputStr, ",", Len(inputStr), vbTextCompare)
-L = CDbl(SplitStr(1))
-W = CDbl(SplitStr(2))
-GetDuctArea = (L / 1000) * (W / 1000) 'because millimetres
+Dim w As Double
+splitStr = Split(inputStr, ",", Len(inputStr), vbTextCompare)
+L = CDbl(splitStr(1))
+w = CDbl(splitStr(2))
+GetDuctArea = (L / 1000) * (w / 1000) 'because millimetres
 End Function
 
-Function freqStr2Num(fstr)
-    Select Case fstr
-    Case Is = "1"
-    freqStr2Num = 1
-    Case Is = "1.25"
-    freqStr2Num = 1.25
-    Case Is = "1.6"
-    freqStr2Num = 1.6
-    Case Is = "2"
-    freqStr2Num = 2
-    Case Is = "2.5"
-    freqStr2Num = 2.5
-    Case Is = "3.15"
-    freqStr2Num = 3.15
-    Case Is = "4"
-    freqStr2Num = 4
-    Case Is = "5"
-    freqStr2Num = 5
-    Case Is = "6.3"
-    freqStr2Num = 6.3
-    Case Is = "8"
-    freqStr2Num = 8
-    Case Is = "10"
-    freqStr2Num = 10
-    Case Is = "12.5"
-    freqStr2Num = 12.5
-    Case Is = "16"
-    freqStr2Num = 16
-    Case Is = "20"
-    freqStr2Num = 20
-    Case Is = "25"
-    freqStr2Num = 25
-    Case Is = "31.5"
-    freqStr2Num = 31.5
-    Case Is = "40"
-    freqStr2Num = 40
-    Case Is = "50"
-    freqStr2Num = 50
-    Case Is = "63"
-    freqStr2Num = 63
-    Case Is = "80"
-    freqStr2Num = 80
-    Case Is = "100"
-    freqStr2Num = 100
-    Case Is = "125"
-    freqStr2Num = 125
-    Case Is = "160"
-    freqStr2Num = 160
-    Case Is = "200"
-    freqStr2Num = 200
-    Case Is = "250"
-    freqStr2Num = 250
-    Case Is = "315"
-    freqStr2Num = 315
-    Case Is = "400"
-    freqStr2Num = 400
-    Case Is = "500"
-    freqStr2Num = 500
-    Case Is = "630"
-    freqStr2Num = 630
-    Case Is = "800"
-    freqStr2Num = 800
-    Case Is = "1k"
-    freqStr2Num = 1000
-    Case Is = "1000"
-    freqStr2Num = 1000
-    Case Is = "1.25k"
-    freqStr2Num = 1250
-    Case Is = "1250"
-    freqStr2Num = 1250
-    Case Is = "1.6k"
-    freqStr2Num = 1600
-    Case Is = "1600"
-    freqStr2Num = 1600
-    Case Is = "2k"
-    freqStr2Num = 2000
-    Case Is = "2000"
-    freqStr2Num = 2000
-    Case Is = "2.5k"
-    freqStr2Num = 2500
-    Case Is = "2500"
-    freqStr2Num = 2500
-    Case Is = "3.15k"
-    freqStr2Num = 3150
-    Case Is = "3150"
-    freqStr2Num = 3150
-    Case Is = "4k"
-    freqStr2Num = 4000
-    Case Is = "4000"
-    freqStr2Num = 4000
-    Case Is = "5k"
-    freqStr2Num = 5000
-    Case Is = "5000"
-    freqStr2Num = 5000
-    Case Is = "6.3k"
-    freqStr2Num = 6300
-    Case Is = "6300"
-    freqStr2Num = 6300
-    Case Is = "8k"
-    freqStr2Num = 8000
-    Case Is = "8000"
-    freqStr2Num = 8000
-    Case Is = "10k"
-    freqStr2Num = 10000
-    Case Is = "10000"
-    freqStr2Num = 10000
-    Case Is = "12.5k"
-    freqStr2Num = 12500
-    Case Is = "12500"
-    freqStr2Num = 12500
-    Case Is = "16k"
-    freqStr2Num = 16000
-    Case Is = "16000"
-    freqStr2Num = 16000
-    Case Is = "20k"
-    freqStr2Num = 20000
-    Case Is = "20000"
-    freqStr2Num = 20000
-    Case Else
-    freqStr2Num = 0
+Function GetDuctParameter(inputStr As String, Parameter As String)
+Dim splitStr() As String
+Dim L As Single
+Dim w As Single
+Dim Area As Single
+splitStr = Split(inputStr, ",", Len(inputStr), vbTextCompare)
+L = CSng(splitStr(1))
+w = CSng(splitStr(2))
+Area = (L / 1000) * (w / 1000) 'because millimetres
+    Select Case Parameter
+    Case Is = "Area"
+    GetDuctParameter = Area
+    Case Is = "L"
+    GetDuctParameter = L
+    Case Is = "W"
+    GetDuctParameter = w
     End Select
 End Function
 
+Function GetFantechAirwayVelocityCorrection(fstr As String, airwayVelocity As Single)
+Dim f As Integer
+LessThan8 = Array(-2, -6, -7, -10, -12, -16, -19, -22)
+EightTo32 = Array(-3, -5, -8, -7, -8, -10, -13, -15)
+MoreThan32 = Array(-3, -6, -10, -7, -7, -8, -10, -12)
+
+f = freqStr2Num(fstr)
+i = GetOctaveBandIndex(f)
+
+    If airwayVelocity < 8 Then
+    GetFantechAirwayVelocityCorrection = LessThan8(i)
+    ElseIf airwayVelocity >= 8 And airwayVelocity <= 32 Then
+    GetFantechAirwayVelocityCorrection = EightTo32(i)
+    Else
+    GetFantechAirwayVelocityCorrection = MoreThan32(i)
+    End If
+
+End Function
+
+Function GetDuctDirectivity(freq As String, angle As Double, diameter As Double)
+'On Error GoTo closefile
+Dim ReadStr() As String
+Dim i As Integer
+Dim splitStr() As String
+Dim splitVal() As Double
+Dim Col As Integer
+'Get Array from text
+
+Call GetSettings
+
+Open DUCT_DIRLOSS For Input As #1  'global
+
+    i = 0 '<-line number
+    found = False
+    Do Until EOF(1) Or found = True
+    
+    ReDim Preserve ReadStr(i)
+    Line Input #1, ReadStr(i)
+    'Debug.Print ReadStr(i)
+    
+    splitStr = Split(ReadStr(i), vbTab, Len(ReadStr(i)), vbTextCompare)
+    
+        If Left(splitStr(0), 1) <> "*" Then
+        
+            'convert to values
+            For Col = 0 To UBound(splitStr)
+                If splitStr(Col) <> "" Then
+                ReDim Preserve splitVal(Col)
+                splitVal(Col) = CDbl(splitStr(Col))
+                End If
+            Next Col
+            
+            ReDim Preserve splitVal(Col + 1)
+            
+               If splitVal(0) = diameter And splitVal(1) = angle Then
+                Select Case freq 'catch for both kinds of header
+                Case Is = "63"
+                GetDuctDirectivity = splitVal(2)
+                Case Is = "125"
+                GetDuctDirectivity = splitVal(3)
+                Case Is = "250"
+                GetDuctDirectivity = splitVal(4)
+                Case Is = "500"
+                GetDuctDirectivity = splitVal(5)
+                Case Is = "1k"
+                GetDuctDirectivity = splitVal(6)
+                Case Is = "2k"
+                GetDuctDirectivity = splitVal(7)
+                Case Is = "4k"
+                GetDuctDirectivity = splitVal(8)
+                Case Is = 1000
+                GetDuctDirectivity = splitVal(6)
+                Case Is = 2000
+                GetDuctDirectivity = splitVal(7)
+                Case Is = 4000
+                GetDuctDirectivity = splitVal(8)
+                Case Is = 8000
+                GetDuctDirectivity = splitVal(9)
+                Case Is = "8k"
+                GetDuctDirectivity = splitVal(9)
+                Case Else
+                GetDuctDirectivity = "-"
+                End Select
+                
+            End If
+            
+        End If
+        
+    i = i + 1
+    Loop
+    
+closefile: '<-on errors, closes text file
+Close #1
+End Function
+
+Function FantechAttenRegen(fstr As String, airflow As Double, percentage_free_area As Double, width As Double, SplitterHeight As Double, numModules As Integer)
+'units?
+Dim airwayVelocity As Single
+Dim base_sound_power_level As Double
+Dim SWL As Double
+Dim freq As Integer
+Dim AV_correction As Integer
+
+airwayVelocity = (airflow * 100) / ((width / 1000) * (SplitterHeight / 1000) * percentage_free_area)
+base_sound_power_level = (50.6 * Application.WorksheetFunction.Log10(airwayVelocity)) + (10 * Application.WorksheetFunction.Log(SplitterHeight)) - 33.8
+SWL = base_sound_power_level + (10 * Application.WorksheetFunction.Log(numModules))
+
+'Debug.Print airway_velocity
+'Debug.Print base_sound_power_level
+'Debug.Print mid_regennoise
 
 
+'spectrum Corrections, from 63Hz octave band
+AV_correction = GetFantechAirwayVelocityCorrection(fstr, airwayVelocity)
+
+FantechAttenRegen = SWL + AV_correction
+
+End Function
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -1380,6 +1442,7 @@ End Function
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 Sub Distance(SheetType As String)
 Dim ParamCol1 As Integer
 Dim ParamCol2 As Integer
@@ -1394,6 +1457,10 @@ Cells(Selection.Row, 2).Value = "Distance Attenuation - point"
     Cells(Selection.Row, 5).Value = "=10*LOG($AA" & Selection.Row & "/(4*PI()*$Z" & Selection.Row & "^2))"
     ParamCol1 = 26
     ParamCol2 = 27
+    ElseIf SheetType = "LF_TO" Then
+    Cells(Selection.Row, 5).Value = "=10*LOG($AG" & Selection.Row & "/(4*PI()*$AF" & Selection.Row & "^2))"
+    ParamCol1 = 32
+    ParamCol2 = 33
     End If
 
 ExtendFunction (SheetType)
@@ -1437,6 +1504,10 @@ Cells(Selection.Row, 2).Value = "Distance Attenuation - line"
     Cells(Selection.Row, 5).Value = "=10*LOG($AA" & Selection.Row & "/(2*PI()*$Z" & Selection.Row & "))"
     ParamCol1 = 26
     ParamCol2 = 27
+    ElseIf SheetType = "LF_TO" Then
+    Cells(Selection.Row, 5).Value = "=10*LOG($AG" & Selection.Row & "/(2*PI()*$AF" & Selection.Row & "))"
+    ParamCol1 = 32
+    ParamCol2 = 33
     End If
 
 ExtendFunction (SheetType)
@@ -1493,6 +1564,9 @@ Cells(Selection.Row, 2).Value = "Distance Attenuation - plane"
     ElseIf Left(SheetType, 2) = "TO" Then
     Cells(Selection.Row, 5).Value = "=-10*LOG(" & PlaneH & "*" & PlaneL & ")+10*LOG(ATAN((" & PlaneH & "*" & PlaneL & ")/(2*$Z" & Selection.Row & "*SQRT((" & PlaneH & "^2)+(" & PlaneL & "^2)+(4*$Z" & Selection.Row & "^2)))))-2"
     ParamCol1 = 26
+    ElseIf SheetType = "LF_TO" Then
+    Cells(Selection.Row, 5).Value = "=-10*LOG(" & PlaneH & "*" & PlaneL & ")+10*LOG(ATAN((" & PlaneH & "*" & PlaneL & ")/(2*$AF" & Selection.Row & "*SQRT((" & PlaneH & "^2)+(" & PlaneL & "^2)+(4*$AF" & Selection.Row & "^2)))))-2"
+    ParamCol1 = 32
     End If
 
 ExtendFunction (SheetType)
@@ -1504,6 +1578,33 @@ Call ParameterMerge(Selection.Row, SheetType)
 Cells(Selection.Row, ParamCol1) = PlaneDist
 Cells(Selection.Row, ParamCol1).NumberFormat = "0 ""m"""
     
+End Sub
+
+Sub DistanceRatio(SheetType As String)
+Dim ParamCol1 As Integer
+Dim ParamCol2 As Integer
+
+CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
+
+Cells(Selection.Row, 2).Value = "Distance Attenuation - ratio"
+
+    If Left(SheetType, 3) = "OCT" Then
+    Cells(Selection.Row, 5).Value = "=20*LOG($N" & Selection.Row & "/$O" & Selection.Row & ")"
+    ParamCol1 = 14
+    ParamCol2 = 15
+    Else
+    ErrorOctOnly
+    End If
+
+ExtendFunction (SheetType)
+
+fmtUserInput SheetType, True
+
+Cells(Selection.Row, ParamCol1).Value = 1
+Cells(Selection.Row, ParamCol2).Value = 2
+Cells(Selection.Row, ParamCol1).NumberFormat = "0 ""m"""
+Cells(Selection.Row, ParamCol2).NumberFormat = "0 ""m"""
+
 End Sub
 
 Sub AirAbsorption(SheetType As String)
@@ -1527,7 +1628,7 @@ Call ParameterUnmerge(Selection.Row, SheetType)
 Cells(Selection.Row, ParamCol1) = 150
 Cells(Selection.Row, ParamCol2) = 20
 Cells(Selection.Row, ParamCol1).NumberFormat = "0 ""m"""
-Cells(Selection.Row, ParamCol2).NumberFormat = "0""" & Chr(176) & "C"""
+Cells(Selection.Row, ParamCol2).NumberFormat = "0""" & chr(176) & "C"""
 End Sub
 
 
@@ -1596,7 +1697,7 @@ Dim ParamCol1 As Integer
 Dim ParamCol2 As Integer
 
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
-Cells(Selection.Row, 2).Value = "Flex Duct-ASHRAE"
+Cells(Selection.Row, 2).Value = "Flex Duct - ASHRAE"
     If Left(SheetType, 3) = "OCT" Then
     Cells(Selection.Row, 5).Value = "=GetFlexDuct(E$6,$N" & Selection.Row & ",$O" & Selection.Row & ")"
     ParamCol1 = 14
@@ -1637,77 +1738,85 @@ End Sub
 
 Sub Area(SheetType As String)
 
+Dim ParamCol As Integer
+
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
 Cells(Selection.Row, 2).Value = "Area Correction: 10log(A)"
 
     If Left(SheetType, 3) = "OCT" Then 'oct or OCT
-    Cells(Selection.Row, 5).Value = "=10*LOG(" & Cells(Selection.Row, 14).Address(False, True) & ")"
-    Call ParameterMerge(Selection.Row, SheetType)
-    Cells(Selection.Row, 14) = 2
-    Cells(Selection.Row, 14).NumberFormat = "0 ""m" & Chr(178) & """"
-    
+    ParamCol = 14
     ElseIf Left(SheetType, 2) = "TO" Then 'TO or TOA
-    Cells(Selection.Row, 5).Value = "=10*LOG(" & Cells(Selection.Row, 26).Address(False, True) & ")"
-    Call ParameterMerge(Selection.Row, SheetType)
-    Cells(Selection.Row, 26) = 2
-    Cells(Selection.Row, 26).NumberFormat = "0 ""m" & Chr(178) & """"
-    
+    ParamCol = 26
+    ElseIf SheetType = "LF_TO" Then
+    ParamCol = 32
     Else
-    SheetTypeUnknownError
+    SheetTypeUnknownError (SheetType)
     End If
+
+    Cells(Selection.Row, 5).Value = "=10*LOG(" & Cells(Selection.Row, ParamCol).Address(False, True) & ")"
+    Call ParameterMerge(Selection.Row, SheetType)
+    Cells(Selection.Row, ParamCol) = 2
+    Cells(Selection.Row, ParamCol).NumberFormat = "0 ""m" & chr(178) & """"
     
 ExtendFunction (SheetType)
 fmtUserInput SheetType, True 'IsParamCol
 End Sub
 
 Sub TenLogN(SheetType As String)
+
+Dim ParamCol As Integer
+
 CheckRow (Selection.Row)
 Cells(Selection.Row, 2).Value = "Multiple sources: 10log(n)"
 
     If Left(SheetType, 3) = "OCT" Then 'oct or OCT
-    Cells(Selection.Row, 5).Value = "=10*LOG(" & Cells(Selection.Row, 14).Address(False, True) & ")"
-    Call ParameterMerge(Selection.Row, SheetType)
-    Cells(Selection.Row, 14) = 2
-    Cells(Selection.Row, 14).NumberFormat = """n = ""0"
-    
+    ParamCol = 14
     ElseIf Left(SheetType, 2) = "TO" Then 'TO or TOA
-    Cells(Selection.Row, 5).Value = "=10*LOG(" & Cells(Selection.Row, 26).Address(False, True) & ")"
-    Call ParameterMerge(Selection.Row, SheetType)
-    Cells(Selection.Row, 26) = 2
-    Cells(Selection.Row, 26).NumberFormat = """n = ""0"
-    
+    ParamCol = 26
+    ElseIf SheetType = "LF_TO" Then
+    ParamCol = 32
     Else
-    SheetTypeUnknownError
+    SheetTypeUnknownError (SheetType)
     End If
     
+Cells(Selection.Row, 5).Value = "=10*LOG(" & Cells(Selection.Row, ParamCol).Address(False, True) & ")"
+Call ParameterMerge(Selection.Row, SheetType)
+Cells(Selection.Row, ParamCol) = 2
+Cells(Selection.Row, ParamCol).NumberFormat = """n = ""0"
+
 ExtendFunction (SheetType)
 fmtUserInput SheetType, True
 End Sub
 
 Sub TenLogOneOnT(SheetType As String)
+
+Dim ParamCol1 As Integer
+Dim ParamCol2 As Integer
+
 CheckRow (Selection.Row)
 Cells(Selection.Row, 2).Value = "Time Correction: 10log(1/t)"
 
     If Left(SheetType, 3) = "OCT" Then 'oct or OCT
-    Cells(Selection.Row, 5).Value = "=10*LOG(" & Cells(Selection.Row, 14).Address(False, True) & "/" & Cells(Selection.Row, 15).Address(False, True) & ")"
-    Call ParameterUnmerge(Selection.Row, SheetType)
-    Cells(Selection.Row, 14) = 1
-    Cells(Selection.Row, 14).NumberFormat = """t = ""0"
-    Cells(Selection.Row, 15) = 2
-    Cells(Selection.Row, 15).NumberFormat = """t0 = ""0"
-    
+    ParamCol1 = 14
+    ParamCol2 = 15
     ElseIf Left(SheetType, 2) = "TO" Then 'TO or TOA
-    Cells(Selection.Row, 5).Value = "=10*LOG(1/" & Cells(Selection.Row, 26).Address(False, True) & ")"
-    Call ParameterUnmerge(Selection.Row, SheetType)
-    Cells(Selection.Row, 26) = 1
-    Cells(Selection.Row, 26).NumberFormat = """t = ""0"
-    Cells(Selection.Row, 27) = 2
-    Cells(Selection.Row, 27).NumberFormat = """t0 = ""0"
+    ParamCol1 = 26
+    ParamCol2 = 27
+    ElseIf SheetType = "LF_TO" Then
+    ParamCol1 = 32
+    ParamCol2 = 33
     Else
-    SheetTypeUnknownError
+    SheetTypeUnknownError (SheetType)
     End If
-    
+
+Cells(Selection.Row, 5).Value = "=10*LOG(" & Cells(Selection.Row, ParamCol1).Address(False, True) & "/" & Cells(Selection.Row, ParamCol2).Address(False, True) & ")"
+Call ParameterUnmerge(Selection.Row, SheetType)
+Cells(Selection.Row, ParamCol1) = 1
+Cells(Selection.Row, ParamCol1).NumberFormat = """t = ""0"
+Cells(Selection.Row, ParamCol2) = 2
+Cells(Selection.Row, ParamCol2).NumberFormat = """t0 = ""0"
+
 ExtendFunction (SheetType)
 fmtUserInput SheetType, True
 End Sub
@@ -1729,8 +1838,8 @@ frmDuctSplit.Show
         
         Case Is = "Area"
         Call ParameterUnmerge(Selection.Row, SheetType)
-        Cells(Selection.Row, 14).NumberFormat = "0.0""m" & Chr(178) & """"
-        Cells(Selection.Row, 15).NumberFormat = "0.0""m" & Chr(178) & """"
+        Cells(Selection.Row, 14).NumberFormat = "0.0""m" & chr(178) & """"
+        Cells(Selection.Row, 15).NumberFormat = "0.0""m" & chr(178) & """"
         Cells(Selection.Row, 14) = ductA1
         Cells(Selection.Row, 15) = ductA2
         Cells(Selection.Row, 5).Value = "=10*LOG($O" & Selection.Row & "/($O" & Selection.Row & "+$N" & Selection.Row & "))"
@@ -1760,15 +1869,32 @@ ExtendFunction (SheetType)
 fmtUserInput SheetType, True
 End Sub
 
-Sub ERLoss(SheetType As String)
+Sub ERL(SheetType As String)
 Dim ParamCol1 As Integer
 Dim ParamCol2 As Integer
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
-Cells(Selection.Row, 2).Value = "End Reflection Loss"
+    If InStr(1, Cells(Selection.Row - 1, 10).Formula, "GetASHRAEDuct", vbTextCompare) > 0 Or _
+    InStr(1, Cells(Selection.Row - 1, 10).Formula, "GetreynoldsDuct", vbTextCompare) > 0 Then
+    frmERL.txtL.Value = GetDuctParameter(Cells(Selection.Row - 1, 10).Formula, "L") '1kHz band formula
+    frmERL.txtW.Value = GetDuctParameter(Cells(Selection.Row - 1, 10).Formula, "W") '1kHz band formula
+    End If
+
+frmERL.Show
+
+    If btnOkPressed = False Then
+    End
+    End If
+
+Cells(Selection.Row, 2).Value = "End Reflection Loss - " & ERL_Mode
 Call ParameterUnmerge(Selection.Row, SheetType)
     If Left(SheetType, 3) = "OCT" Then 'oct or OCT
-    Cells(Selection.Row, 5).Value = "=GetERL($N" & Selection.Row & "," & Cells(6, 5).Address(True, False) & ",$O" & Selection.Row & ")"
+        If ERL_Mode = "ASHRAE" Then
+        Cells(Selection.Row, 5).Value = "=GetERL_ASHRAE($N" & Selection.Row & "," & Cells(6, 5).Address(True, False) & ",$O" & Selection.Row & ")"
+        ElseIf ERL_Mode = "NEBB" Then
+        Cells(Selection.Row, 5).Value = "=GetERL_NEBB($N" & Selection.Row & "," & Cells(6, 5).Address(True, False) & ",$O" & Selection.Row & ")"
+        End If
+        
     ParamCol1 = 14
     ParamCol2 = 15
 '    ElseIf Left(SheetType, 2) = "TO" Then 'TO or TOA
@@ -1779,15 +1905,10 @@ Call ParameterUnmerge(Selection.Row, SheetType)
     ErrorOctOnly
     End If
     
-Cells(Selection.Row, ParamCol1) = "Flush"
+Cells(Selection.Row, ParamCol1) = ERL_Termination
 Cells(Selection.Row, ParamCol1).NumberFormat = xlGeneral
-'Debug.Print Cells(Selection.Row - 1, 10).Formula
-    If InStr(1, Cells(Selection.Row - 1, 10).Formula, "GetASHRAEDuct", vbTextCompare) > 0 Then
-    Cells(Selection.Row, ParamCol2) = GetDuctArea(Cells(Selection.Row - 1, 10).Formula) '1kHz band formula
-    Else
-    Cells(Selection.Row, ParamCol2) = "=0.5*0.5"
-    End If
-Cells(Selection.Row, ParamCol2).NumberFormat = "0.0""m" & Chr(178) & """"
+Cells(Selection.Row, ParamCol2).Value = ERL_Area
+Cells(Selection.Row, ParamCol2).NumberFormat = "0.00""m" & chr(178) & """"
     
 ExtendFunction (SheetType)
 fmtUserInput SheetType, True
@@ -1809,7 +1930,7 @@ fmtUserInput SheetType, True
 End Sub
 
 Sub ElbowLoss(SheetType As String)
-Dim paramcol As Integer
+Dim ParamCol As Integer
 
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
@@ -1829,7 +1950,7 @@ Call ParameterUnmerge(Selection.Row, SheetType)
     Cells(Selection.Row, 15).NumberFormat = xlGeneral
     'Debug.Print "=GetElbowLoss(" & Cells(6, 5).Address(True, False) & ",$N" & Selection.Row & ",""" & elbowShape & """,$O" & Selection.Row & ",""" & elbowLining & """)"
     Cells(Selection.Row, 5).Value = "=GetElbowLoss(" & Cells(6, 5).Address(True, False) & ",$N" & Selection.Row & ",""" & elbowShape & """,$O" & Selection.Row & ",""" & elbowVanes & """)"
-    paramcol = 15
+    ParamCol = 15
 '    ElseIf Left(SheetType, 2) = "TO" Then 'TO or TOA
 '    Cells(Selection.Row, 5).Value = "=GetERL($Z" & Selection.Row & "," & Cells(6, 5).Address(True, False) & ",$AA" & Selection.Row & ")"
 '    ParamCol1 = 26
@@ -1841,7 +1962,7 @@ Call ParameterUnmerge(Selection.Row, SheetType)
 ExtendFunction (SheetType)
 fmtUserInput SheetType, True
     
-    With Cells(Selection.Row, paramcol).Validation
+    With Cells(Selection.Row, ParamCol).Validation
     .Delete
     .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
     xlBetween, Formula1:="Lined,Unlined"
@@ -1878,21 +1999,24 @@ If btnOkPressed = False Then End
         For Col = 0 To 7 '8 columns
         Cells(SolverRow, 6 + Col).Value = SilencerIL(Col)
         Next Col
-        Cells(SolverRow, 14).Value = SilLength
-        Cells(SolverRow, 14).NumberFormat = "0 ""mm"""
+        
+    Call ParameterMerge(Selection.Row, SheetType)
+    Cells(SolverRow, 14).Value = SilLength
+    Cells(SolverRow, 14).NumberFormat = "0 ""mm"""
     'add comment with more detail
     Set CheckRng = Cells(SolverRow, 14)
-            If CheckRng.Comment Is Nothing Then
-            Else
-            CheckRng.Comment.Delete
-            End If
-            CheckRng.AddComment "Free Area: " & CStr(SilFA) & "%"
-        
+        If CheckRng.Comment Is Nothing Then
+        Else
+        CheckRng.Comment.Delete
+        End If
+    CheckRng.AddComment SilSeries & chr(10) & "Length: " & SilLength & "mm" & chr(10) & "Free Area: " & CStr(SilFA) & "%"
     Else
     ErrorOctOnly
     End If
     
-Cells(Selection.Row, 2).Value = "Silencer Model: " & SilencerModel
+Cells(Selection.Row, 2).Value = "Silencer: " & SilencerModel
+
+fmtSilencer (SheetType)
 
 End Sub
 
@@ -1909,23 +2033,29 @@ Set CheckRng = Cells(Selection.Row, 14)
 
 If btnOkPressed = False Then End
 
-
     If Left(SheetType, 3) = "OCT" Then 'oct or OCT
         For Col = 0 To 7 '8 columns
         Cells(Selection.Row, 6 + Col).Value = LouvreIL(Col)
         Next Col
-            'add comment with more detail
-    Set CheckRng = Cells(Selection.Row, 2)
+    Call ParameterMerge(Selection.Row, SheetType)
+    Cells(Selection.Row, 14) = LouvreLength
+    Cells(Selection.Row, 14).NumberFormat = "0 ""mm"""
+    'add comment with more detail
+    Set CheckRng = Cells(Selection.Row, 14)
         If CheckRng.Comment Is Nothing Then
         Else
         CheckRng.Comment.Delete
         End If
-        CheckRng.AddComment "Length: " & LouvreLength & "mm" & Chr(10) & "Free Area: " & LouvreFA
+    CheckRng.AddComment LouvreSeries & chr(10) & "Length: " & LouvreLength & "mm" & chr(10) & "Free Area: " & LouvreFA
+    CheckRng.Comment.Shape.width = 150
     Else
     ErrorOctOnly
     End If
   
-Cells(Selection.Row, 2).Value = "Acoustic Louvres Model: " & LouvreModel
+Cells(Selection.Row, 2).Value = "Acoustic Louvres: " & LouvreModel
+
+'apply style - silencer
+fmtSilencer (SheetType)
 
 End Sub
 
@@ -1937,9 +2067,9 @@ frmPlenum.Show
 If btnOkPressed = False Then End
 
     If Left(SheetType, 3) = "OCT" Then 'oct or OCT
-    Cells(Selection.Row, 5).Value = "=GetASHRAEPlenumLoss(E$6," & PlenumL & "," & PlenumW & "," & PlenumH & "," & DuctInL & "," & DuctInW & "," & DuctOutL & "," & DuctOutW & "," & PlenumQ & "," & r_h & "," & r_v & ",""" & PlenumLiningType & """,""" & UnlinedType & """,""" & PlenumWallEffect & """)"
-    Else 'one thirds mode
-    Cells(Selection.Row, 5).Value = "=GetASHRAEPlenumLoss(E$6," & PlenumL & "," & PlenumW & "," & PlenumH & "," & DuctInL & "," & DuctInW & "," & DuctOutL & "," & DuctOutW & "," & PlenumQ & "," & r_h & "," & r_v & ",""" & PlenumLiningType & """,""" & UnlinedType & """,""" & PlenumWallEffect & """,TRUE)"
+    Cells(Selection.Row, 5).Value = "=GetASHRAEPlenumLoss(E$6," & PlenumL & "," & PlenumW & "," & PlenumH & "," & DuctInL & "," & DuctInW & "," & DuctOutL & "," & DuctOutW & "," & PlenumQ & "," & r_h & "," & r_v & ",""" & PlenumLiningType & """,""" & UnlinedType & """,""" & PlenumWallEffect & """," & PlenumElbowEffect & ")"
+    ElseIf Left(SheetType, 2) = "TO" Then 'one thirds mode
+    Cells(Selection.Row, 5).Value = "=GetASHRAEPlenumLoss(E$6," & PlenumL & "," & PlenumW & "," & PlenumH & "," & DuctInL & "," & DuctInW & "," & DuctOutL & "," & DuctOutW & "," & PlenumQ & "," & r_h & "," & r_v & ",""" & PlenumLiningType & """,""" & UnlinedType & """,""" & PlenumWallEffect & """," & PlenumElbowEffect & ",TRUE)"
     End If
 
 ExtendFunction (SheetType)
@@ -1978,21 +2108,104 @@ Call ParameterUnmerge(Selection.Row, SheetType)
     End If
 Cells(Selection.Row, 2).Value = "Duct breakout"
 
+End Sub
 
+
+Sub DuctBreakin(SheetType As String)
+
+CheckRow (Selection.Row)
+
+frmBreakIn.Show
+
+    If btnOkPressed = False Then End
+
+Call ParameterUnmerge(Selection.Row, SheetType)
+
+    If Left(SheetType, 3) = "OCT" Then 'oct or OCT
+    
+    Cells(Selection.Row, 14).Value = ductL 'global variable
+    Unit_m (14)
+    Cells(Selection.Row, 15).Value = DuctWallThickness 'global variable
+    Cells(Selection.Row, 15).NumberFormat = "0.0""mm"""
+    fmtUserInput SheetType, True
+    
+    Cells(Selection.Row, 5).Value = "=GetDuctBreakin(E$6," & ductW & "," & ductH & ",$N" & Selection.Row & "," & MaterialDensity & ",$O" & Selection.Row & ")"
+    
+    ExtendFunction (SheetType)
+    
+    Else
+    
+    ErrorOctOnly
+    
+    End If
+Cells(Selection.Row, 2).Value = "Duct break-in"
 
 End Sub
 
+Sub DuctDirectivity(SheetType As String)
+Dim ParamCol1 As Integer
+Dim ParamCol2 As Integer
+CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
+'The cell N contains angle and the cell o contains the diameter
+
+    If Left(SheetType, 3) = "OCT" Then
+    Cells(Selection.Row, 5).Value = "=GetDuctDirectivity(E$6,$N" & Selection.Row & ",$O" & Selection.Row & ")"
+    ParamCol1 = 14
+    ParamCol2 = 15
+    ElseIf Left(SheetType, 2) = "TO" Then
+    ErrorOctOnly
+    End If
+Cells(Selection.Row, 2).Value = "Duct directivity"
+ExtendFunction (SheetType)
+
+fmtUserInput SheetType, True
+
+Call ParameterUnmerge(Selection.Row, SheetType)
+
+Cells(Selection.Row, ParamCol1) = 0 'default to 0 degrees as angle
+Cells(Selection.Row, ParamCol2) = 305 'default to 305mm as diameter
+Cells(Selection.Row, ParamCol1).NumberFormat = "0°"
+Cells(Selection.Row, ParamCol2).NumberFormat = "0 ""mm"""
+
+    With Cells(Selection.Row, ParamCol1).Validation 'allowed angles from table
+        .Delete
+        .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
+        xlBetween, Formula1:="0,15,30,45,50,75,90,105,120,135,150,165"
+        .IgnoreBlank = True
+        .InCellDropdown = True
+        .InputTitle = ""
+        .ErrorTitle = ""
+        .InputMessage = ""
+        .ErrorMessage = ""
+        .ShowInput = True
+        .ShowError = True
+    End With
+    With Cells(Selection.Row, ParamCol2).Validation 'allowed diameters from table
+        .Delete
+        .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
+        xlBetween, Formula1:="305,610,914"
+        .IgnoreBlank = True
+        .InCellDropdown = True
+        .InputTitle = ""
+        .ErrorTitle = ""
+        .InputMessage = ""
+        .ErrorMessage = ""
+        .ShowInput = True
+        .ShowError = True
+    End With
+End Sub
+
 Sub RoomLoss(SheetType As String)
-Dim SplitStr() As String
-Dim paramcol As Integer
+Dim splitStr() As String
+Dim ParamCol As Integer
 On Error GoTo errorCatch:
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
 'populate frmRoomLoss
-SplitStr = Split(Cells(Selection.Row, 5).Formula, ",", Len(Cells(Selection.Row, 5).Formula), vbTextCompare)
-roomL = CLng(SplitStr(1))
-roomW = CLng(SplitStr(2))
-roomH = CLng(SplitStr(3))
+splitStr = Split(Cells(Selection.Row, 5).Formula, ",", Len(Cells(Selection.Row, 5).Formula), vbTextCompare)
+roomL = CLng(splitStr(1))
+roomW = CLng(splitStr(2))
+roomH = CLng(splitStr(3))
 roomType = Cells(Selection.Row, 14).Value
 Call frmRoomLoss.Populate_frmRoomLoss
 
@@ -2009,7 +2222,7 @@ Call ParameterMerge(Selection.Row, SheetType)
     If Left(SheetType, 3) = "OCT" Then 'oct or OCT
     Cells(Selection.Row, 5).Value = "=GetRoomLoss(" & Cells(6, 5).Address(True, False) & "," & roomL & "," & roomW & "," & roomH & ",$N" & Selection.Row & ")"
     Cells(Selection.Row, 14) = roomType
-    paramcol = 14
+    ParamCol = 14
     Else
     ErrorOctOnly
     End If
@@ -2017,7 +2230,7 @@ Call ParameterMerge(Selection.Row, SheetType)
 ExtendFunction (SheetType)
 fmtUserInput SheetType, True
 
-With Cells(Selection.Row, paramcol).Validation
+With Cells(Selection.Row, ParamCol).Validation
     .Delete
     .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
     xlBetween, Formula1:="Dead, Av. Dead, Average, Av. Live, Live"
@@ -2042,15 +2255,13 @@ CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
 DefaultArray = Array(17, 19, 22, 24, 31, 39, 43) 'Some bullshit Rc, based on a 0.5sec RT
 
-Call ParameterMerge(Selection.Row, SheetType)
-
     If Left(SheetType, 3) = "OCT" Or Left(SheetType, 2) = "TO" Then 'OCT, OCTA, TO, or TOA
     Cells(Selection.Row + 1, 5).Value = "=10*LOG(4/E" & Selection.Row & ")" 'next row down
     Else
     ErrorOctOnly
     End If
 
-UserInputFormat (SheetType)
+fmtUserInput SheetType
 Cells(Selection.Row, 2).Value = "Room Constant"
 
 'move one row down
@@ -2058,7 +2269,6 @@ Cells(Selection.Row + 1, 5).Select
 ExtendFunction (SheetType)
 
 Cells(Selection.Row, 2).Value = "Room Loss - 10LOG(4/Rc)"
-
 
 
     If Left(SheetType, 3) = "OCT" Then 'delete 31.5 and 8k octave bands
@@ -2073,16 +2283,16 @@ End Sub
 
 
 Sub RoomLossRT(SheetType As String)
-Dim SplitStr() As String
-Dim paramcol As Integer
+Dim splitStr() As String
+Dim ParamCol As Integer
 On Error GoTo errorCatch:
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
 'populate frmRoomLoss
-SplitStr = Split(Cells(Selection.Row, 5).Formula, ",", Len(Cells(Selection.Row, 5).Formula), vbTextCompare)
-roomL = CLng(SplitStr(1))
-roomW = CLng(SplitStr(2))
-roomH = CLng(SplitStr(3))
+splitStr = Split(Cells(Selection.Row, 5).Formula, ",", Len(Cells(Selection.Row, 5).Formula), vbTextCompare)
+roomL = CLng(splitStr(1))
+roomW = CLng(splitStr(2))
+roomH = CLng(splitStr(3))
 roomType = Cells(Selection.Row, 14).Value
 Call frmRoomLoss.Populate_frmRoomLoss
 
@@ -2099,7 +2309,7 @@ Call ParameterMerge(Selection.Row, SheetType)
     If Left(SheetType, 3) = "OCT" Then 'oct or OCT
     Cells(Selection.Row, 5).Value = "=GetRoomLossRT(" & Cells(6, 5).Address(True, False) & "," & roomL & "," & roomW & "," & roomH & ",$N" & Selection.Row & ")"
     Cells(Selection.Row, 14) = roomType
-    paramcol = 14
+    ParamCol = 14
     Else
     ErrorOctOnly
     End If
@@ -2107,7 +2317,7 @@ Call ParameterMerge(Selection.Row, SheetType)
 ExtendFunction (SheetType)
 fmtUserInput SheetType, True
 
-With Cells(Selection.Row, paramcol).Validation
+With Cells(Selection.Row, ParamCol).Validation
     .Delete
     .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
     xlBetween, Formula1:="<0.2 sec,0.2 to 0.5 sec,0.5 to 1 sec,1.5 to 2 sec,>2 sec"
@@ -2239,7 +2449,7 @@ isSpace = True
             Next SpareCol
         Next SpareRow
     Else
-    SheetTypeUnknownError
+    SheetTypeUnknownError (SheetType)
     End If
     
     
@@ -2313,7 +2523,7 @@ fmtSubtotal (SheetType)
 'move down
 Cells(Selection.Row + 1, Selection.Column).Select
 
-    'Sum TOTAL
+    'Sum Total
     If Left(SheetType, 3) = "OCT" Then
     Cells(Selection.Row, 5).Value = "=SPLSUM(E" & Selection.Row - 1 & ",E" & Selection.Row - 4 & ")" 'extra line for number of sources correction
     ElseIf Left(SheetType, 2) = "TO" Then
@@ -2321,7 +2531,7 @@ Cells(Selection.Row + 1, Selection.Column).Select
     End If
     
 ExtendFunction (SheetType)
-Cells(Selection.Row, 2).Value = "TOTAL"
+Cells(Selection.Row, 2).Value = "Total"
 fmtTotal (SheetType)
 
 'Colour highlight

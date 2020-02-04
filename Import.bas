@@ -3,7 +3,7 @@ Sub IMPORT_FANTECH_DATA(SheetType As String)
 
 On Error GoTo errHandler
 
-Dim SplitStr() As String
+Dim splitStr() As String
 Dim RawBookName As String
 Dim WriteRw As Integer
 Dim PercentDone As Single
@@ -29,7 +29,9 @@ File = Application.GetOpenFilename(FileFilter:="Excel Files (*.xlsx),*.xlsx", _
 ButtonText:="Please select file (in XLSX format)...", _
 MultiSelect:=True)
 
-numfiles = UBound(File)
+If Not IsArray(File) Then End
+
+numFiles = UBound(File)
 
     For fnumber = 1 To UBound(File)
     Workbooks.Open File(fnumber)
@@ -59,7 +61,7 @@ numfiles = UBound(File)
     
     'Status
     doneFiles = doneFiles + 1
-    PercentDone = (doneFiles / numfiles)
+    PercentDone = (doneFiles / numFiles)
     Application.ScreenUpdating = True
     'Cells(2, 11).Value = PercentDone
     Application.ScreenUpdating = False
@@ -118,7 +120,7 @@ CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
     If Left(SheetType, 2) = "TO" Then
     ClipData = GetClipBoardText
-    Debug.Print ClipData
+    'Debug.Print ClipData
     
     'catch INSUL Import
     If InStr(1, ClipData, "Wall", vbTextCompare) > 0 Or _

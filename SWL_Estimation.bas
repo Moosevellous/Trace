@@ -21,16 +21,20 @@ Public MotorPower As Long
 Public MotorSpeed As Long
 Public Motor_Correction(0 To 8) As Long
 
-Public TurbineType As String
 Public TurbinePower As Long
 Public TurbineEqn As String
+Public TurbineCorrection(0 To 9) As Long
+Public TurbineEnclosure(0 To 9) As Long
+Public GasTurbineType As String
+Public EnclosureDescription As String
 
+Public CompressorSPL(0 To 8) As Long
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-Function LwFanSimple(freq As String, v As Double, P As Double, FanType As String)
+Function LwFanSimple(freq As String, V As Double, P As Double, FanType As String)
 
-LwOverall = 10 * Application.WorksheetFunction.Log10(v) + 20 * Application.WorksheetFunction.Log10(P) + 40 'v in m^3, p in Pa
+LwOverall = 10 * Application.WorksheetFunction.Log10(V) + 20 * Application.WorksheetFunction.Log10(P) + 40 'v in m^3, p in Pa
  
     Select Case FanType
     Case Is = ""
@@ -82,116 +86,6 @@ LwOverall = 10 * Application.WorksheetFunction.Log10(v) + 20 * Application.Works
 End Function
 
 
-Public TurbineType As String
-
-Public TurbineW As Long
-Public TurbineEqn As String
-Public TurbinePower As String
-Public DescriptionString As String
-Public Eqn As String
-Public Power As Long
-Public CT_Correction(0 To 8) As Long
-
-
-
-
-Function LwTurbine(freq As String, W As Double, TurbineType As String, EnclosureType As String)
-
-'Casing output sound power level is the same for steam and gas turbines
-LwCasing = 120 + 5 * Application.WorksheetFunction.Log10(W)
-            
-Correction = Array(-10, -7, -5, -4, -4, -4, -4, -4) 'gas casing = steam overall correction
-
-'add casing corrections based on B&H, octave bands from 63 to 8k Hz
-    If TurbineType = "Gas" Then
-        Select Case EnclosureType
-        Case Is = ""
-        Casingreduction = Array(0, 0, 0, 0, 0, 0, 0, 0) 'default to no casing reduction
-        Case Is = "1"
-        Casingreduction = Array(-2, -2, -3, -3, -3, -4, -5, -6)
-        Case Is = "2"
-        Casingreduction = Array(-5, -5, -6, -6, -7, -8, -9, -10)
-        Case Is = "3"
-        Casingreduction = Array(-1, -1, -2, -2, -2, -2, -3, -3)
-        Case Is = "4"
-        Casingreduction = Array(-4, -4, -5, -6, -7, -8, -8, -8)
-        Case Is = "5"
-        Casingreduction = Array(-7, -8, -9, -10, -11, -12, -13, -14)
-        End Select
-    End If
-
-    Select Case freq
-    Case Is = "63"
-    LwTurbineCasing = LwCasing + CorrectionCasing(0) + Casingreduction(0)
-    Case Is = "125"
-    LwTurbineCasing = LwCasing + CorrectionCasing(1) + Casingreduction(1)
-    Case Is = "250"
-    LwTurbineCasing = LwCasing + CorrectionCasing(2) + Casingreduction(2)
-    Case Is = "500"
-    LwTurbineCasing = LwCasing + CorrectionCasing(3) + Casingreduction(3)
-    Case Is = "1k"
-    LwTurbineCasing = LwCasing + CorrectionCasing(4) + Casingreduction(4)
-    Case Is = "2k"
-    LwTurbineCasing = LwCasing + CorrectionCasing(5) + Casingreduction(5)
-    Case Is = "4k"
-    LwTurbineCasing = LwCasing + CorrectionCasing(6) + Casingreduction(6)
-    Case Else
-    LwTurbineCasing = ""
-    End Select
-
-
-'Inlet and outlet are gas turbine only, to be excluded for steam turbine output
-LwInlet = 127 + 15 * Application.WorksheetFunction.Log10(W)
-
-'Inlet SWL correction values from overall Lw
-CorrectionInlet = Array(-19, -18, -17, -17, -14, -8, -3, -3)
-
-    Select Case freq
-    Case Is = "63"
-    LwTurbineInlet = LwInlet + CorrectionInlet(0)
-    Case Is = "125"
-    LwTurbineInlet = LwInlet + CorrectionInlet(1)
-    Case Is = "250"
-    LwTurbineInlet = LwInlet + CorrectionInlet(2)
-    Case Is = "500"
-    LwTurbineInlet = LwInlet + CorrectionInlet(3)
-    Case Is = "1k"
-    LwTurbineInlet = LwInlet + CorrectionInlet(4)
-    Case Is = "2k"
-    LwTurbineInlet = LwInlet + CorrectionInlet(5)
-    Case Is = "4k"
-    LwTurbineInlet = LwInlet + CorrectionInlet(6)
-    Case Else
-    LwTurbineInlet = ""
-    End Select
-
-LwOutlet = 133 + 10 * Application.WorksheetFunction.Log10(W)
-
-'Outlet SWL correction values from overall Lw
-CorrectionOutlet = Array(-12, -8, -6, -6, -7, -9, -11, -15)
-
-    Select Case freq
-    Case Is = "63"
-    LwTurbineOutlet = LwOutlet + CorrectionOutlet(0)
-    Case Is = "125"
-    LwTurbineOutlet = LwOutlet + CorrectionOutlet(1)
-    Case Is = "250"
-    LwTurbineOutlet = LwOutlet + CorrectionOutlet(2)
-    Case Is = "500"
-    LwTurbineOutlet = LwOutlet + CorrectionOutlet(3)
-    Case Is = "1k"
-    LwTurbineOutlet = LwOutlet + CorrectionOutlet(4)
-    Case Is = "2k"
-    LwTurbineOutlet = LwOutlet + CorrectionOutlet(5)
-    Case Is = "4k"
-    LwTurbineOutlet = LwOutlet + CorrectionOutlet(6)
-    Case Else
-    LwTurbineOutlet = ""
-    End Select
-
-End Function
-
-
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 'Here be subs
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -210,7 +104,7 @@ frmEstFanLw.Show
         Cells(Selection.Row, 15).Value = FanP
         Cells(Selection.Row, 5).Value = "=LwFanSimple(E$6,$N" & Selection.Row & ",$O" & Selection.Row & ",""" & FanType & """)"
         ExtendFunction (SheetType)
-        Cells(Selection.Row, 14).NumberFormat = "0""m" & Chr(179) & "/s"""
+        Cells(Selection.Row, 14).NumberFormat = "0""m" & chr(179) & "/s"""
         Cells(Selection.Row, 15).NumberFormat = "0""Pa"""
         Cells(Selection.Row, 2).Value = "Fan Estimate - Simple"
         Else 'Third octave - not implemented
@@ -259,8 +153,7 @@ frmEstPumpLw.Show
     Distance (SheetType)
         If Left(SheetType, 3) = "OCT" Then
         Cells(Selection.Row, 14).Value = 1 'assume 1m
-        Range(Cells(Selection.Row, 5), Cells(Selection.Row, 13)).Select
-        FlipSign (SheetType)
+        FlipSign SheetType, True 'skip user input
         Else
         'Third octaves not provided
         End If
@@ -332,6 +225,46 @@ frmEstCoolingTower.Show
     End If 'close if statement for btnOK
 End Sub
 
+Sub PutCompressorSmall(SheetType As String)
+
+Dim i As Integer
+
+CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
+
+frmEstCompressorSmall.Show
+
+    If btnOkPressed Then 'ok
+        If Left(SheetType, 3) = "OCT" Then
+            For i = 0 To 8
+            Cells(Selection.Row, 5 + i).Formula = Cells(Selection.Row, 5 + i).Formula & "+" & CompressorSPL(i)
+            Next i
+        Else
+        ErrorOctOnly
+        End If
+    End If
+Cells(Selection.Row, 2).Value = "Compressor (small) SPL Estimate"
+
+'move down one row
+Cells(Selection.Row + 1, Selection.Column).Select
+
+'Assume spherical spreading
+Distance (SheetType)
+    If Left(SheetType, 3) = "OCT" Then
+    Cells(Selection.Row, 14).Value = 1 'assume minimum distance 6m
+    FlipSign SheetType, True 'skip user input
+    Else
+    ErrorOctOnly
+    End If
+
+'move down one row
+Cells(Selection.Row + 1, Selection.Column).Select
+'Add divergence formula
+Cells(Selection.Row, 5).Value = "=" & Cells(Selection.Row - 2, 5).Address(False, False) & "+" & Cells(Selection.Row - 1, 5).Address(False, False)
+ExtendFunction (SheetType)
+Cells(Selection.Row, 2).Value = "SWL - Compressor"
+
+End Sub
+
 Sub PutElectricMotorSmall(SheetType As String)
 
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
@@ -357,6 +290,7 @@ frmEstElectricMotorSmall.Show
                 End If
             Next corNum
         Else
+        ErrorOctOnly
         End If
     End If
     
@@ -372,7 +306,7 @@ frmEstElectricMotorSmall.Show
         If Left(SheetType, 3) = "OCT" Then
         Cells(Selection.Row, 14).Value = 1 'assume minimum distance 6m
         Range(Cells(Selection.Row, 5), Cells(Selection.Row, 13)).Select
-        FlipSign (SheetType)
+        FlipSign SheetType, True 'skip user input
         End If
     
     'move down one row
@@ -385,3 +319,80 @@ frmEstElectricMotorSmall.Show
 End Sub
 
 
+Sub PutGasTurbine(SheetType As String)
+
+CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
+
+frmEstGasTurbine.Show
+
+    If btnOkPressed Then 'ok
+    Call ParameterMerge(Selection.Row, SheetType)
+        If Left(SheetType, 3) = "OCT" Then
+        Cells(Selection.Row, 14).Value = TurbinePower
+        Cells(Selection.Row, 14).NumberFormat = "0""MW"""
+        
+        TurbineEqn = Right(TurbineEqn, Len(TurbineEqn) - 3)
+        TurbineEqn = Replace(TurbineEqn, "MW", "$N" & Selection.Row, 1, Len(TurbineEqn), vbTextCompare)
+        Cells(Selection.Row, 5).Value = "=" & TurbineEqn
+        ExtendFunction (SheetType)
+            For corNum = 0 To 8
+                If TurbineCorrection(corNum) >= 0 Then
+                Cells(Selection.Row, 5 + corNum).Formula = Cells(Selection.Row, 5 + corNum).Formula & "+" & TurbineCorrection(corNum)
+                Else
+                Cells(Selection.Row, 5 + corNum).Formula = Cells(Selection.Row, 5 + corNum).Formula & TurbineCorrection(corNum)  'number includes minus sign
+                End If
+            Cells(Selection.Row + 1, 5 + corNum).Value = TurbineEnclosure(corNum)
+            Next corNum
+        Else
+        ErrorOctOnly
+        End If
+        
+    fmtUserInput SheetType, True
+    
+    Cells(Selection.Row, 2).Value = "Gas Turbine SWL Estimate - " & GasTurbineType
+    Cells(Selection.Row + 1, 2).Value = "Turbine Enclosure - " & EnclosureDescription
+    'move down
+    Cells(Selection.Row + 2, 2).Select
+    AutoSum (SheetType)
+
+    End If
+End Sub
+
+
+Sub PutSteamTurbine(SheetType As String)
+
+CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
+
+frmEstSteamTurbine.Show
+
+    If btnOkPressed Then 'ok
+    Call ParameterMerge(Selection.Row, SheetType)
+        If Left(SheetType, 3) = "OCT" Then
+        Cells(Selection.Row, 14).Value = TurbinePower
+        Cells(Selection.Row, 14).NumberFormat = "0""kW"""
+        
+        TurbineEqn = Right(TurbineEqn, Len(TurbineEqn) - 3)
+        TurbineEqn = Replace(TurbineEqn, "kW", "$N" & Selection.Row, 1, Len(TurbineEqn), vbTextCompare)
+        Cells(Selection.Row, 5).Value = "=" & TurbineEqn
+        ExtendFunction (SheetType)
+            For corNum = 0 To 8
+                If TurbineCorrection(corNum) >= 0 Then
+                Cells(Selection.Row, 5 + corNum).Formula = Cells(Selection.Row, 5 + corNum).Formula & "+" & TurbineCorrection(corNum)
+                Else
+                Cells(Selection.Row, 5 + corNum).Formula = Cells(Selection.Row, 5 + corNum).Formula & TurbineCorrection(corNum)  'number includes minus sign
+                End If
+            Cells(Selection.Row + 1, 5 + corNum).Value = TurbineEnclosure(corNum)
+            Next corNum
+        Else
+        ErrorOctOnly
+        End If
+        
+    fmtUserInput SheetType, True
+    
+    Cells(Selection.Row, 2).Value = "Steam Turbine SWL Estimate"
+     Cells(Selection.Row + 1, 2).Value = "Turbine Enclosure - " & EnclosureDescription
+    'move down
+    Cells(Selection.Row + 2, 2).Select
+    AutoSum (SheetType)
+    End If
+End Sub

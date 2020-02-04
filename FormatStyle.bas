@@ -30,7 +30,7 @@ End Sub
 
 Sub fmtTitle(SheetType As String)
 CheckRow (Selection.Row)
-ApplyTraceStyle "Trace Total", SheetType, Selection.Row
+ApplyTraceStyle "Trace Title", SheetType, Selection.Row
 End Sub
 
 Sub fmtUnmiti(SheetType As String)
@@ -89,42 +89,57 @@ End Sub
 '''''''''''''''''''''''''''''''''''''''''''''''''''
 
 Sub Unit_m(colStart As Integer, Optional colEnd As Integer)
+If colEnd = 0 Then colEnd = colStart
 Range(Cells(Selection.Row, colStart), Cells(Selection.Row, colEnd)).NumberFormat = "0 ""m"""
 End Sub
 
 Sub Unit_m2(colStart As Integer, Optional colEnd As Integer)
-Range(Cells(Selection.Row, colStart), Cells(Selection.Row, colEnd)).NumberFormat = "0 ""m" & Chr(178) & """"
+If colEnd = 0 Then colEnd = colStart
+Range(Cells(Selection.Row, colStart), Cells(Selection.Row, colEnd)).NumberFormat = "0 ""m" & chr(178) & """"
 End Sub
 
 Sub Unit_m2ps(colStart As Integer, Optional colEnd As Integer)
-Range(Cells(Selection.Row, colStart), Cells(Selection.Row, colEnd)).NumberFormat = "0 ""m" & Chr(178) & "/s"""
+If colEnd = 0 Then colEnd = colStart
+Range(Cells(Selection.Row, colStart), Cells(Selection.Row, colEnd)).NumberFormat = "0 ""m" & chr(178) & "/s"""
 End Sub
 
 Sub Unit_m3ps(colStart As Integer, Optional colEnd As Integer)
-Range(Cells(Selection.Row, colStart), Cells(Selection.Row, colEnd)).NumberFormat = "0 ""m" & Chr(179) & "/s"""
+If colEnd = 0 Then colEnd = colStart
+Range(Cells(Selection.Row, colStart), Cells(Selection.Row, colEnd)).NumberFormat = "0 ""m" & chr(179) & "/s"""
+End Sub
+
+Sub Unit_mm(colStart As Integer, Optional colEnd As Integer, Optional numDigits As Integer)
+If colEnd = 0 Then colEnd = colStart
+Range(Cells(Selection.Row, colStart), Cells(Selection.Row, colEnd)).NumberFormat = "0 ""m" & chr(179) & "/s"""
 End Sub
 
 Sub Unit_dB(colStart As Integer, Optional colEnd As Integer)
+If colEnd = 0 Then colEnd = colStart
 Range(Cells(Selection.Row, colStart), Cells(Selection.Row, colEnd)).NumberFormat = "0 ""dB"""
 End Sub
 
 Sub Unit_dBA(colStart As Integer, Optional colEnd As Integer)
+If colEnd = 0 Then colEnd = colStart
 Range(Cells(Selection.Row, colStart), Cells(Selection.Row, colEnd)).NumberFormat = "0 ""dBA"""
 End Sub
 
 Sub Unit_kW(colStart As Integer, Optional colEnd As Integer)
+If colEnd = 0 Then colEnd = colStart
 Range(Cells(Selection.Row, colStart), Cells(Selection.Row, colEnd)).NumberFormat = "0 ""kW"""
 End Sub
 
 Sub Unit_Pa(colStart As Integer, Optional colEnd As Integer)
+If colEnd = 0 Then colEnd = colStart
 Range(Cells(Selection.Row, colStart), Cells(Selection.Row, colEnd)).NumberFormat = "0 ""Pa"""
 End Sub
 
 Sub Unit_Q(colStart As Integer, Optional colEnd As Integer)
+If colEnd = 0 Then colEnd = colStart
 Range(Cells(Selection.Row, colStart), Cells(Selection.Row, colEnd)).NumberFormat = "Q=0"
 End Sub
 
 Sub Unit_Clear(colStart As Integer, Optional colEnd As Integer)
+If colEnd = 0 Then colEnd = colStart
 Range(Cells(Selection.Row, colStart), Cells(Selection.Row, colEnd)).NumberFormat = "General"
 End Sub
 
@@ -140,44 +155,45 @@ If btnOkPressed = False Then End
 
 If targetType = "" Then End
 
-Select Case targetType
-Case Is = "dB"
-targetRange = Range(Cells(Selection.Row, 3)).Address
-Case Is = "dBA"
-'Cells(Selection.Row, 4).Value = targetLimitValue
-targetRange = Cells(Selection.Row, 4).Address
-Case Is = "dBC" '<- TODO check for C-weighted range
-targetRange = Range(Cells(Selection.Row, 4)).Address
-Case Is = "NR"
-PutNR (SheetType)
-Case Is = "Band"
-End Select
+    Select Case targetType
+    Case Is = "dB"
+    targetRange = Cells(Selection.Row, 3).Address
+    Case Is = "dBA"
+    'Cells(Selection.Row, 4).Value = targetLimitValue
+    targetRange = Cells(Selection.Row, 4).Address
+    Case Is = "dBC" '<- TODO check for C-weighted range
+    targetRange = Cells(Selection.Row, 4).Address
+    Case Is = "NR"
+    PutNR (SheetType)
+    Case Is = "Band"
+    '<- TODO band limits
+    End Select
 
 Range(targetRange).Select
-If Selection.FormatConditions.count > 0 Then
-Selection.FormatConditions.Delete
-End If
+
+    If Selection.FormatConditions.Count > 0 Then
+    Selection.FormatConditions.Delete
+    End If
 
 numconditions = 1
 
-If targetLimitValue <> 0 Then
-Selection.FormatConditions.Add Type:=xlCellValue, Operator:=xlGreater, Formula1:="=" & targetLimitValue
-Selection.FormatConditions(numconditions).Interior.Color = targetLimitColour
-numconditions = numconditions + 1
-End If
+    If targetLimitValue <> 0 Then
+    Selection.FormatConditions.Add Type:=xlCellValue, Operator:=xlGreater, Formula1:="=" & targetLimitValue
+    Selection.FormatConditions(numconditions).Interior.Color = targetLimitColour
+    numconditions = numconditions + 1
+    End If
+    
+    If targetCompliantValue <> 0 Then
+    'margin format
+    Selection.FormatConditions.Add Type:=xlCellValue, Operator:=xlBetween, Formula1:=targetMarginValue, Formula2:=targetLimitValue
+    Selection.FormatConditions(numconditions).Interior.Color = targetMarginColour
+    numconditions = numconditions + 1
+    'compliant format
+    Selection.FormatConditions.Add Type:=xlCellValue, Operator:=xlLessEqual, Formula1:="=" & targetCompliantValue
+    Selection.FormatConditions(numconditions).Interior.Color = targetCompliantColour
+    End If
 
-If targetMarginValue <> 0 Then
-Selection.FormatConditions.Add Type:=xlCellValue, Operator:=xlBetween, Formula1:="=" & targetMarginValue, Formula2:="=" & targetLimitValue
-Selection.FormatConditions(numconditions).Interior.Color = targetMarginColour
-numconditions = numconditions + 1
-End If
-
-If targetCompliantValue <> 0 Then
-Selection.FormatConditions.Add Type:=xlCellValue, Operator:=xlLessEqual, Formula1:="=" & targetCompliantValue
-Selection.FormatConditions(numconditions).Interior.Color = targetCompliantColour
-End If
-
-Selection.FormatConditions(Selection.FormatConditions.count).SetFirstPriority 'I think this line is just good housekeeping?
+Selection.FormatConditions(Selection.FormatConditions.Count).SetFirstPriority 'I think this line is just good housekeeping?
 
     
 End Sub
@@ -207,9 +223,19 @@ Range(GetStyleRange(SheetType, InputRw, isParamCol)).Style = StyleName
 End Sub
 
 
-''''''''''''''''''''''''''''''
+'Sub DeleteOtherStyles()
+'  For i = 1 To ActiveWorkbook.Styles.Count
+'    Debug.Print ActiveWorkbook.Styles(i).Name
+'        If InStr(1, "Trace", ActiveWorkbook.Styles(i).Name, vbTextCompare) = 0 Then
+'        ActiveWorkbook.Styles(i).Delete
+'        i = i - 1 'don't skip
+'        End If
+'    Next i
+'End Sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 'FUNCTIONS
-''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 Function GetStyleRange(SheetType As String, InputRw As Integer, Optional isParamCol As Boolean) As String
     If Left(SheetType, 3) = "OCT" Then
@@ -233,6 +259,9 @@ Function GetStyleRange(SheetType As String, InputRw As Integer, Optional isParam
         GetStyleRange = Range(Cells(InputRw, 2), Cells(Selection.Row, 31)).Address
         Cells(Selection.Row, 4).Font.Bold = True
         End If
+    ElseIf SheetType = "CVT" Then 'no parameter columns
+        GetStyleRange = Range(Cells(InputRw, 2), Cells(Selection.Row, 44)).Address
+        Cells(Selection.Row, 4).Font.Bold = True
     Else
     msg = MsgBox("Sheet Type '" & SheetType & "' is not supported. Try applying the style manually.", vbOKOnly, "Style application error")
     End
@@ -241,7 +270,7 @@ End Function
 
 Function StyleExists(StyleName As String) As Boolean
 StyleExists = False
-    For i = 1 To ActiveWorkbook.Styles.count
+    For i = 1 To ActiveWorkbook.Styles.Count
     'Debug.Print ActiveWorkbook.Styles(i).Name
         If ActiveWorkbook.Styles(i).Name = StyleName Then
         StyleExists = True

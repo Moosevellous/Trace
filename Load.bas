@@ -38,7 +38,7 @@ End If
     End If
 DoEvents
 
-NumSheets = ActiveWorkbook.Sheets.count
+NumSheets = ActiveWorkbook.Sheets.Count
 
 Workbooks.Open Filename:=TEMPLATELOCATION, ReadOnly:=True 'global variable
 DoEvents
@@ -46,10 +46,10 @@ DoEvents
 Set TemplateBook = ActiveWorkbook
     With TemplateBook
     
-    ReDim Preserve DESCRIPTION(.Sheets.count)
+    ReDim Preserve DESCRIPTION(.Sheets.Count)
     
         If frmLoadTemplate.cBoxSelectTemplate.ListCount = 0 Then 'only if list is not populated
-            For i = 1 To .Sheets.count
+            For i = 1 To .Sheets.Count
             frmLoadTemplate.cBoxSelectTemplate.AddItem .Sheets(i).Name
             DoEvents
             DESCRIPTION(i) = .Sheets(i).Cells(3, 15).Comment.Text 'multiline is on, paragraph marks work!
@@ -85,7 +85,7 @@ errors:
 
     Select Case Err.Number
     Case Is = 1004
-    msg = MsgBox("Not enough rows in workbook: " & Chr(10) & CurrentBook.Name & Chr(10) & "Convert workbook to XLSX format and try again.", vbOKOnly, "XLS error")
+    msg = MsgBox("Not enough rows in workbook: " & chr(10) & CurrentBook.Name & chr(10) & "Convert workbook to XLSX format and try again.", vbOKOnly, "XLS error")
     TemplateBook.Close SaveChanges:=False
     End Select
 
@@ -119,14 +119,14 @@ Set CurrentBook = ActiveWorkbook
     DoEvents
     Set CurrentBook = ActiveWorkbook
     End If
-NumSheets = ActiveWorkbook.Sheets.count
+NumSheets = ActiveWorkbook.Sheets.Count
 
 Workbooks.Open (TEMPLATELOCATION) 'global variable
 DoEvents
 Set TemplateBook = ActiveWorkbook
 With TemplateBook
 
-ReDim Preserve DESCRIPTION(.Sheets.count)
+ReDim Preserve DESCRIPTION(.Sheets.Count)
 
     If SheetExists(TypeCode) Then
         Set TemplateSheet = .Sheets(TypeCode)
@@ -153,6 +153,7 @@ Sub LoadCalcFieldSheet(ImportSheetType As String)
 
 Dim TemplateBook As Workbook
 Dim CurrentBook As Workbook
+Dim CurrentBookName As String
 Dim TemplateSheet As Worksheet
 Dim NumSheets As Long
 Dim i As Integer
@@ -169,6 +170,7 @@ Set CurrentBook = ActiveWorkbook
     Application.Workbooks.Add
     DoEvents
     Set CurrentBook = ActiveWorkbook
+    CurrentBookName = CurrentBook.Name
     End If
 
 Application.StatusBar = "Generating list of templates..."
@@ -185,13 +187,15 @@ Set fso = CreateObject("Scripting.FileSystemObject")
 
 
     If frmStandardCalc.cBoxSelectTemplate.ListCount <= 0 Then
-    For Each standardSheet In ScanFolder.Files
-        If Left(standardSheet.Name, 1) <> "#" Then
-        frmStandardCalc.cBoxSelectTemplate.AddItem (standardSheet.Name)
-        End If
-    Next standardSheet
+        For Each standardSheet In ScanFolder.Files
+            If Left(standardSheet.Name, 1) <> "#" Then
+            frmStandardCalc.cBoxSelectTemplate.AddItem (standardSheet.Name)
+            Application.StatusBar = "Loading: " & standardSheet.Name
+            End If
+        Next standardSheet
     End If
-    
+
+Application.StatusBar = False
 frmStandardCalc.Show
 
 '<-------Form returns here
@@ -232,8 +236,8 @@ Set TemplateBook = ActiveWorkbook
 '52 = xlOpenXMLWorkbookMacroEnabled (with or without macro's in 2007-2013, xlsm)
 
     If ImportSheetType = "Standard" Or ImportSheetType = "EquipmentImport" Then 'Only save the Equipment Import sheets
-    newTabs = MsgBox("Do you want to add to existing workbook '" & CurrentBook.Name & "'?" & _
-    Chr(10) & "Note: Clicking 'No' will Save As", vbYesNo, "Import as new tabs?")
+    newTabs = MsgBox("Do you want to add to existing workbook '" & CurrentBookName & "'?" & _
+    chr(10) & "Note: Clicking 'No' will Save As", vbYesNo, "Import as new tabs?")
         If newTabs = vbNo Then
         Application.StatusBar = "Saving sheet..."
         SaveSheetAs_DateStamped TemplateBook.Name, FilterIndexValue
@@ -272,7 +276,7 @@ Sub ImportSheetAsNewTabs(ImportBookName As String, MainBookName As String)
 
 'Dim SheetsNameArray() As String
 Dim LastSheet As Integer
-LastSheet = Workbooks(MainBookName).Sheets.count
+LastSheet = Workbooks(MainBookName).Sheets.Count
 Workbooks(ImportBookName).Sheets.Select
 Sheets().Copy after:=Workbooks(MainBookName).Sheets(LastSheet)
 End Sub

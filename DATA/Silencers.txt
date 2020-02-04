@@ -1,0 +1,394 @@
+*Model	Length	63	125	250	500	1k	2k	4k	8k	Free Area (%)	Code	Series	Module Width
+*Rectangular Tapered													
+07A	600	-4	-6	-13	-23	-31	-30	-19	-17	27	RT07A	Fantech RT series	
+07B	900	-5	-10	-19	-33	-39	-34	-27	-22	27	RT07B	Fantech RT series	
+07C	1200	-6	-13	-24	-40	-43	-38	-33	-26	27	RT07C	Fantech RT series	
+07D	1500	-7	-16	-29	-46	-47	-42	-35	-28	27	RT07D	Fantech RT series	
+07E	1800	-8	-19	-34	-50	-49	-45	-37	-32	27	RT07E	Fantech RT series	
+07F	2100	-10	-23	-40	-50	-49	-46	-43	-41	27	RT07F	Fantech RT series	
+07G	2400	-11	-25	-44	-50	-50	-48	-45	-43	27	RT07G	Fantech RT series	
+10A	600	-3	-5	-11	-18	-28	-24	-15	-13	33	RT10A	Fantech RT series	
+10B	900	-4	-8	-16	-28	-35	-29	-21	-16	33	RT10B	Fantech RT series	
+10C	1200	-6	-11	-21	-39	-42	-35	-27	-20	33	RT10C	Fantech RT series	
+10D	1500	-6	-13	-25	-43	-44	-39	-31	-21	33	RT10D	Fantech RT series	
+10E	1800	-7	-16	-30	-49	-47	-43	-35	-25	33	RT10E	Fantech RT series	
+10F	2100	-7	-18	-35	-50	-48	-45	-42	-30	33	RT10F	Fantech RT series	
+10G	2400	-8	-20	-39	-50	-50	-50	-44	-32	33	RT10G	Fantech RT series	
+12A	600	-2	-5	-10	-13	-24	-23	-11	-9	38	RT12A	Fantech RT series	
+12B	900	-4	-8	-15	-27	-33	-26	-18	-14	38	RT12B	Fantech RT series	
+12C	1200	-5	-10	-20	-34	-38	-31	-22	-16	38	RT12C	Fantech RT series	
+12D	1500	-5	-12	-24	-41	-42	-36	-26	-18	38	RT12D	Fantech RT series	
+12E	1800	-6	-14	-29	-45	-45	-40	-31	-20	38	RT12E	Fantech RT series	
+12F	2100	-7	-16	-32	-50	-47	-43	-38	-23	38	RT12F	Fantech RT series	
+12G	2400	-8	-19	-38	-50	-50	-46	-39	-26	38	RT12G	Fantech RT series	
+15A	600	-2	-4	-8	-11	-22	-16	-10	-8	43	RT15A	Fantech RT series	
+15B	900	-3	-6	-13	-21	-27	-21	-14	-11	43	RT15B	Fantech RT series	
+15C	1200	-4	-8	-18	-31	-34	-27	-18	-13	43	RT15C	Fantech RT series	
+15D	1500	-4	-10	-21	-35	-39	-31	-20	-14	43	RT15D	Fantech RT series	
+15E	1800	-5	-14	-27	-43	-44	-35	-26	-17	43	RT15E	Fantech RT series	
+15F	2100	-6	-15	-29	-47	-46	-41	-33	-19	43	RT15F	Fantech RT series	
+15G	2400	-6	-17	-34	-49	-50	-43	-34	-21	43	RT15G	Fantech RT series	
+17A	600	-2	-3	-8	-10	-20	-13	-9	-7	47	RT17A	Fantech RT series	
+17B	900	-3	-6	-13	-21	-26	-19	-12	-9	47	RT17B	Fantech RT series	
+17C	1200	-4	-8	-17	-27	-31	-23	-14	-11	47	RT17C	Fantech RT series	
+17D	1500	-4	-10	-20	-33	-36	-27	-17	-12	47	RT17D	Fantech RT series	
+17E	1800	-5	-12	-25	-38	-40	-32	-21	-14	47	RT17E	Fantech RT series	
+17F	2100	-5	-14	-28	-44	-44	-37	-24	-14	47	RT17F	Fantech RT series	
+17G	2400	-6	-16	-33	-46	-50	-39	-26	-16	47	RT17G	Fantech RT series	
+20A	600	-2	-3	-7	-10	-18	-10	-8	-6	50	RT20A	Fantech RT series	
+20B	900	-2	-5	-11	-18	-20	-14	-9	-6	50	RT20B	Fantech RT series	
+20C	1200	-3	-8	-15	-23	-28	-19	-12	-9	50	RT20C	Fantech RT series	
+20D	1500	-4	-9	-18	-28	-33	-22	-13	-9	50	RT20D	Fantech RT series	
+20E	1800	-4	-11	-23	-34	-38	-26	-16	-10	50	RT20E	Fantech RT series	
+20F	2100	-5	-13	-27	-40	-44	-31	-16	-10	50	RT20F	Fantech RT series	
+20G	2400	-5	-14	-29	-43	-48	-33	-19	-12	50	RT20G	Fantech RT series	
+22A	600	-1	-3	-7	-9	-14	-9	-7	-5	53	RT22A	Fantech RT series	
+22B	900	-2	-4	-10	-16	-18	-12	-8	-7	53	RT22B	Fantech RT series	
+22C	1200	-3	-7	-13	-19	-25	-17	-10	-7	53	RT22C	Fantech RT series	
+22D	1500	-3	-8	-16	-25	-29	-20	-10	-7	53	RT22D	Fantech RT series	
+22E	1800	-4	-9	-21	-30	-34	-22	-11	-7	53	RT22E	Fantech RT series	
+22F	2100	-4	-12	-25	-36	-40	-26	-14	-8	53	RT22F	Fantech RT series	
+22G	2400	-5	-12	-27	-40	-42	-30	-16	-10	53	RT22G	Fantech RT series	
+25A	600	-1	-2	-6	-8	-11	-8	-5	-5	56	RT25A	Fantech RT series	
+25B	900	-1	-4	-9	-14	-16	-11	-6	-6	56	RT25B	Fantech RT series	
+25C	1200	-2	-6	-12	-16	-22	-15	-8	-6	56	RT25C	Fantech RT series	
+25D	1500	-3	-7	-15	-22	-26	-18	-9	-6	56	RT25D	Fantech RT series	
+25E	1800	-3	-8	-19	-25	-30	-18	-9	-7	56	RT25E	Fantech RT series	
+25F	2100	-4	-10	-23	-31	-36	-24	-11	-7	56	RT25F	Fantech RT series	
+25G	2400	-4	-11	-25	-36	-38	-28	-13	-9	56	RT25G	Fantech RT series	
+*Rectangular Straight													
+07B	900	-6	-12	-23	-36	-45	-43	-36	-28	27	RS07B	Fantech RS series	
+07C	1200	-8	-16	-30	-47	-50	-50	-47	-39	27	RS07C	Fantech RS series	
+07D	1500	-9	-19	-35	-49	-50	-50	-49	-42	27	RS07D	Fantech RS series	
+07E	1800	-10	-21	-41	-50	-50	-50	-50	-45	27	RS07E	Fantech RS series	
+07F	2100	-12	-25	-45	-50	-50	-50	-50	-50	27	RS07F	Fantech RS series	
+07G	2400	-13	-28	-48	-50	-50	-50	-50	-50	27	RS07G	Fantech RS series	
+10B	900	-5	-10	-19	-31	-39	-35	-27	-21	33	RS10B	Fantech RS series	
+10C	1200	-6	-13	-26	-41	-48	-46	-37	-26	33	RS10C	Fantech RS series	
+10D	1500	-8	-16	-30	-47	-50	-50	-43	-31	33	RS10D	Fantech RS series	
+10E	1800	-9	-18	-35	-49	-50	-50	-48	-36	33	RS10E	Fantech RS series	
+10F	2100	-10	-20	-40	-50	-50	-50	-50	-37	33	RS10F	Fantech RS series	
+10G	2400	-11	-23	-44	-50	-50	-50	-50	-39	33	RS10G	Fantech RS series	
+12B	900	-4	-9	-17	-28	-35	-31	-22	-17	38	RS12B	Fantech RS series	
+12C	1200	-5	-11	-22	-37	-43	-40	-30	-21	38	RS12C	Fantech RS series	
+12D	1500	-6	-13	-26	-43	-47	-44	-34	-24	38	RS12D	Fantech RS series	
+12E	1800	-7	-15	-31	-47	-50	-48	-40	-28	38	RS12E	Fantech RS series	
+12F	2100	-8	-17	-35	-50	-50	-50	-43	-30	38	RS12F	Fantech RS series	
+12G	2400	-9	-20	-39	-50	-50	-50	-45	-32	38	RS12G	Fantech RS series	
+15B	900	-4	-8	-15	-25	-31	-28	-18	-13	43	RS15B	Fantech RS series	
+15C	1200	-5	-9	-19	-33	-38	-34	-23	-16	43	RS15C	Fantech RS series	
+15D	1500	-5	-11	-23	-39	-44	-39	-26	-18	43	RS15D	Fantech RS series	
+15E	1800	-6	-13	-27	-45	-49	-46	-32	-21	43	RS15E	Fantech RS series	
+15F	2100	-7	-15	-31	-49	-50	-50	-37	-24	43	RS15F	Fantech RS series	
+15G	2400	-8	-18	-35	-50	-50	-50	-41	-26	43	RS15G	Fantech RS series	
+*Rectangular Tapered Q-seal													
+07A	600	-3	-5	-10	-18	-20	-18	-12	-9	27	RT07AQS	Fantech RT series, with Q-seals	
+07B	900	-4	-7	-14	-25	-28	-25	-17	-13	27	RT07BQS	Fantech RT series, with Q-seals	
+07C	1200	-5	-10	-20	-32	-38	-32	-22	-16	27	RT07CQS	Fantech RT series, with Q-seals	
+07D	1500	-7	-13	-26	-40	-48	-38	-27	-20	27	RT07DQS	Fantech RT series, with Q-seals	
+07E	1800	-7	-13	-26	-40	-48	-38	-27	-20	27	RT07EQS	Fantech RT series, with Q-seals	
+07F	2100	-9	-19	-34	-46	-51	-44	-33	-25	27	RT07FQS	Fantech RT series, with Q-seals	
+07G	2400	-10	-22	-38	-49	-52	-47	-35	-27	27	RT07GQS	Fantech RT series, with Q-seals	
+10A	600	-3	-5	-9	-15	-17	-14	-10	-8	33	RT10AQS	Fantech RT series, with Q-seals	
+10B	900	-4	-7	-13	-22	-24	-20	-14	-11	33	RT10BQS	Fantech RT series, with Q-seals	
+10C	1200	-5	-9	-17	-28	-32	-25	-17	-13	33	RT10CQS	Fantech RT series, with Q-seals	
+10D	1500	-6	-12	-21	-34	-40	-30	-21	-15	33	RT10DQS	Fantech RT series, with Q-seals	
+10E	1800	-7	-15	-26	-39	-43	-35	-24	-17	33	RT10EQS	Fantech RT series, with Q-seals	
+10F	2100	-8	-17	-29	-42	-46	-38	-26	-19	33	RT10FQS	Fantech RT series, with Q-seals	
+10G	2400	-8	-19	-33	-46	-48	-42	-29	-20	33	RT10GQS	Fantech RT series, with Q-seals	
+12A	600	-3	-4	-8	-14	-14	-12	-8	-7	38	RT12AQS	Fantech RT series, with Q-seals	
+12B	900	-4	-6	-11	-20	-21	-17	-11	-10	38	RT12BQS	Fantech RT series, with Q-seals	
+12C	1200	-4	-8	-15	-26	-28	-22	-15	-11	38	RT12CQS	Fantech RT series, with Q-seals	
+12D	1500	-5	-10	-18	-32	-35	-27	-18	-12	38	RT12DQS	Fantech RT series, with Q-seals	
+12E	1800	-6	-12	-22	-36	-39	-32	-21	-14	38	RT12EQS	Fantech RT series, with Q-seals	
+12F	2100	-7	-13	-26	-40	-43	-35	-23	-16	38	RT12FQS	Fantech RT series, with Q-seals	
+12G	2400	-8	-15	-29	-43	-46	-39	-25	-18	38	RT12GQS	Fantech RT series, with Q-seals	
+15A	600	-2	-3	-7	-13	-13	-10	-7	-6	43	RT15AQS	Fantech RT series, with Q-seals	
+15B	900	-3	-5	-10	-18	-19	-14	-10	-9	43	RT15BQS	Fantech RT series, with Q-seals	
+15C	1200	-3	-6	-13	-24	-25	-19	-13	-10	43	RT15CQS	Fantech RT series, with Q-seals	
+15D	1500	-3	-8	-17	-30	-31	-24	-16	-10	43	RT15DQS	Fantech RT series, with Q-seals	
+15E	1800	-4	-10	-21	-34	-35	-28	-18	-12	43	RT15EQS	Fantech RT series, with Q-seals	
+15F	2100	-5	-12	-24	-38	-39	-31	-19	-14	43	RT15FQS	Fantech RT series, with Q-seals	
+15G	2400	-6	-13	-27	-41	-42	-34	-21	-16	43	RT15GQS	Fantech RT series, with Q-seals	
+17A	600	-2	-3	-6	-11	-12	-9	-6	-5	47	RT17AQS	Fantech RT series, with Q-seals	
+17B	900	-3	-4	-9	-16	-17	-12	-8	-7	47	RT17BQS	Fantech RT series, with Q-seals	
+17C	1200	-3	-6	-12	-22	-22	-16	-10	-7	47	RT17CQS	Fantech RT series, with Q-seals	
+17D	1500	-3	-7	-16	-27	-28	-20	-12	-8	47	RT17DQS	Fantech RT series, with Q-seals	
+17E	1800	-3	-9	-19	-32	-33	-24	-14	-9	47	RT17EQS	Fantech RT series, with Q-seals	
+17F	2100	-4	-10	-21	-35	-36	-26	-16	-10	47	RT17FQS	Fantech RT series, with Q-seals	
+17G	2400	-4	-11	-24	-39	-40	-29	-18	-11	47	RT17GQS	Fantech RT series, with Q-seals	
+20A	600	-1	-3	-6	-10	-10	-7	-5	-4	50	RT20AQS	Fantech RT series, with Q-seals	
+20B	900	-2	-4	-9	-15	-15	-10	-7	-6	50	RT20BQS	Fantech RT series, with Q-seals	
+20C	1200	-2	-5	-12	-20	-19	-14	-8	-6	50	RT20CQS	Fantech RT series, with Q-seals	
+20D	1500	-2	-6	-15	-26	-23	-18	-8	-7	50	RT20DQS	Fantech RT series, with Q-seals	
+20E	1800	-3	-8	-18	-30	-28	-21	-11	-8	50	RT20EQS	Fantech RT series, with Q-seals	
+20F	2100	-3	-9	-20	-34	-32	-23	-13	-9	50	RT20FQS	Fantech RT series, with Q-seals	
+20G	2400	-3	-10	-22	-37	-36	-25	-15	-10	50	RT20GQS	Fantech RT series, with Q-seals	
+22A	600	-1	-2	-5	-9	-9	-6	-4	-4	53	RT22AQS	Fantech RT series, with Q-seals	
+22B	900	-2	-3	-7	-13	-13	-8	-6	-5	53	RT22BQS	Fantech RT series, with Q-seals	
+22C	1200	-2	-4	-10	-18	-17	-12	-7	-5	53	RT22CQS	Fantech RT series, with Q-seals	
+22D	1500	-2	-5	-12	-23	-21	-15	-7	-5	53	RT22DQS	Fantech RT series, with Q-seals	
+22E	1800	-2	-6	-15	-28	-26	-18	-9	-6	53	RT22EQS	Fantech RT series, with Q-seals	
+22F	2100	-2	-7	-18	-31	-30	-20	-11	-7	53	RT22FQS	Fantech RT series, with Q-seals	
+22G	2400	-3	-10	-22	-37	-36	-25	-15	-10	53	RT22GQS	Fantech RT series, with Q-seals	
+25A	600	-1	-2	-5	-8	-8	-5	-3	-3	56	RT25AQS	Fantech RT series, with Q-seals	
+25B	900	-1	-3	-7	-12	-11	-7	-5	-4	56	RT25BQS	Fantech RT series, with Q-seals	
+25C	1200	-1	-4	-9	-16	-15	-10	-5	-4	56	RT25CQS	Fantech RT series, with Q-seals	
+25D	1500	-1	-5	-11	-21	-18	-13	-6	-4	56	RT25DQS	Fantech RT series, with Q-seals	
+25E	1800	-2	-5	-14	-26	-23	-16	-8	-5	56	RT25EQS	Fantech RT series, with Q-seals	
+25F	2100	-2	-6	-16	-29	-27	-18	-9	-6	56	RT25FQS	Fantech RT series, with Q-seals	
+25G	2400	-2	-7	-18	-33	-31	-20	-11	-7	56	RT25GQS	Fantech RT series, with Q-seals	
+*Circular Open 1D													
+-31	300	-1	-3	-5	-9	-13	-10	-8	-7		C1-031	Fantech Circular Open series	
+-35	300	-2	-3	-5	-9	-13	-10	-8	-7		C1-035	Fantech Circular Open series	
+-40	600	-2	-3	-5	-9	-13	-10	-8	-7		C1-040	Fantech Circular Open series	
+-45	600	-2	-3	-5	-10	-13	-10	-8	-7		C1-045	Fantech Circular Open series	
+-50	600	-2	-3	-6	-10	-14	-10	-8	-7		C1-050	Fantech Circular Open series	
+-56	600	-2	-4	-6	-10	-14	-10	-8	-7		C1-056	Fantech Circular Open series	
+-63	600	-3	-4	-7	-13	-14	-9	-8	-6		C1-063	Fantech Circular Open series	
+-71	900	-3	-4	-8	-14	-14	-9	-7	-6		C1-071	Fantech Circular Open series	
+-80	900	-3	-4	-8	-14	-13	-9	-7	-6		C1-080	Fantech Circular Open series	
+-90	1150	-3	-4	-9	-14	-13	-8	-7	-6		C1-090	Fantech Circular Open series	
+-100	1150	-3	-4	-9	-14	-12	-8	-7	-6		C1-100	Fantech Circular Open series	
+-125	1150	-3	-4	-10	-14	-12	-8	-6	-6		C1-125	Fantech Circular Open series	
+-140	1150	-3	-5	-10	-13	-11	-8	-5	-5		C1-140	Fantech Circular Open series	
+-160	1800	-4	-6	-11	-13	-10	-7	-5	-5		C1-160	Fantech Circular Open series	
+-180	1800	-4	-6	-11	-13	-10	-6	-5	-5		C1-180	Fantech Circular Open series	
+-200	1800	-4	-6	-11	-13	-9	-6	-5	-5		C1-200	Fantech Circular Open series	
+*Circular Open 2D													
+-31	600	-3	-6	-9	-15	-21	-17	-14	-13		C2-031	Fantech Circular Open series	
+-35	600	-4	-6	-10	-15	-21	-17	-14	-13		C2-035	Fantech Circular Open series	
+-40	900	-4	-6	-10	-16	-21	-18	-15	-13		C2-040	Fantech Circular Open series	
+-45	900	-4	-7	-10	-17	-21	-18	-15	-13		C2-045	Fantech Circular Open series	
+-50	1150	-4	-7	-10	-18	-21	-17	-15	-12		C2-050	Fantech Circular Open series	
+-56	1150	-5	-7	-11	-18	-21	-17	-15	-12		C2-056	Fantech Circular Open series	
+-63	1150	-5	-8	-11	-21	-23	-17	-15	-10		C2-063	Fantech Circular Open series	
+-71	1500	-5	-8	-12	-22	-23	-16	-15	-10		C2-071	Fantech Circular Open series	
+-80	1500	-5	-8	-12	-22	-23	-16	-15	-10		C2-080	Fantech Circular Open series	
+-90	1800	-5	-8	-13	-22	-19	-13	-12	-10		C2-090	Fantech Circular Open series	
+-100	1800	-6	-8	-13	-22	-19	-13	-12	-10		C2-100	Fantech Circular Open series	
+-125	2400	-6	-8	-13	-21	-18	-13	-12	-11		C2-125	Fantech Circular Open series	
+-140	2400	-7	-9	-15	-21	-18	-11	-11	-11		C2-140	Fantech Circular Open series	
+-160	3600	-8	-9	-15	-20	-17	-11	-9	-8		C2-160	Fantech Circular Open series	
+-180	3600	-8	-9	-15	-20	-17	-10	-9	-8		C2-180	Fantech Circular Open series	
+-200	3600	-8	-9	-15	-20	-17	-10	-9	-8		C2-200	Fantech Circular Open series	
+*Circular Pod 1D Podded													
+-31	300	-3	-6	-8	-13	-20	-19	-16	-14		C1P-031	Fantech Circular Podded series	
+-35	300	-4	-6	-8	-13	-20	-19	-16	-14		C1P-035	Fantech Circular Podded series	
+-40	600	-4	-6	-9	-14	-21	-19	-16	-13		C1P-040	Fantech Circular Podded series	
+-45	600	-4	-6	-9	-15	-21	-19	-16	-13		C1P-045	Fantech Circular Podded series	
+-50	600	-4	-6	-9	-15	-22	-19	-15	-12		C1P-050	Fantech Circular Podded series	
+-56	600	-4	-6	-9	-15	-22	-19	-15	-12		C1P-056	Fantech Circular Podded series	
+-63	600	-4	-6	-10	-18	-22	-19	-15	-11		C1P-063	Fantech Circular Podded series	
+-71	900	-5	-6	-10	-18	-22	-19	-15	-11		C1P-071	Fantech Circular Podded series	
+-80	900	-5	-6	-10	-18	-24	-17	-15	-11		C1P-080	Fantech Circular Podded series	
+-90	1150	-5	-7	-11	-20	-20	-16	-13	-11		C1P-090	Fantech Circular Podded series	
+-100	1150	-5	-7	-12	-20	-19	-14	-13	-10		C1P-100	Fantech Circular Podded series	
+-125	1150	-5	-7	-12	-20	-19	-14	-13	-10		C1P-125	Fantech Circular Podded series	
+-140	1150	-5	-7	-12	-19	-18	-14	-12	-9		C1P-140	Fantech Circular Podded series	
+-160	1800	-5	-7	-12	-18	-17	-12	-10	-9		C1P-160	Fantech Circular Podded series	
+-180	1800	-5	-7	-12	-18	-17	-12	-10	-9		C1P-180	Fantech Circular Podded series	
+-200	1800	-5	-7	-12	-18	-17	-12	-10	-9		C1P-200	Fantech Circular Podded series	
+*Circular Pod 2D Podded													
+-31	600	-6	-9	-14	-21	-28	-28	-25	-22		C2P-031	Fantech Circular Podded series	
+-35	600	-6	-9	-14	-21	-28	-28	-25	-22		C2P-035	Fantech Circular Podded series	
+-40	900	-6	-9	-14	-22	-29	-28	-26	-23		C2P-040	Fantech Circular Podded series	
+-45	900	-6	-9	-14	-22	-29	-28	-26	-23		C2P-045	Fantech Circular Podded series	
+-50	1150	-7	-10	-14	-24	-30	-29	-27	-22		C2P-050	Fantech Circular Podded series	
+-56	1150	-7	-10	-14	-24	-30	-29	-27	-22		C2P-056	Fantech Circular Podded series	
+-63	1150	-7	-11	-16	-28	-33	-32	-29	-20		C2P-063	Fantech Circular Podded series	
+-71	1500	-8	-11	-16	-28	-34	-31	-28	-20		C2P-071	Fantech Circular Podded series	
+-80	1500	-8	-11	-16	-28	-34	-31	-28	-20		C2P-080	Fantech Circular Podded series	
+-90	1800	-8	-11	-18	-27	-28	-27	-23	-19		C2P-090	Fantech Circular Podded series	
+-100	1800	-8	-11	-19	-27	-29	-27	-23	-19		C2P-100	Fantech Circular Podded series	
+-125	2400	-8	-11	-19	-27	-28	-27	-22	-17		C2P-125	Fantech Circular Podded series	
+-140	2400	-9	-12	-20	-26	-28	-26	-19	-16		C2P-140	Fantech Circular Podded series	
+-160	3600	-10	-14	-21	-26	-28	-26	-18	-15		C2P-160	Fantech Circular Podded series	
+-180	3600	-10	-14	-21	-26	-28	-26	-18	-15		C2P-180	Fantech Circular Podded series	
+-200	3600	-10	-14	-21	-26	-28	-26	-18	-15		C2P-200	Fantech Circular Podded series	
+*Circular Open 1D Qseal													
+-031QS	300	-1	-2	-4	-7	-9	-7	-5	-5		C1-031QS	Fantech Circular Open series with Q-seal	
+-035QS	300	-2	-2	-4	-7	-9	-7	-5	-5		C1-035QS	Fantech Circular Open series with Q-seal	
+-040QS	600	-2	-2	-4	-7	-9	-7	-5	-5		C1-040QS	Fantech Circular Open series with Q-seal	
+-045QS	600	-2	-2	-4	-8	-9	-7	-5	-5		C1-045QS	Fantech Circular Open series with Q-seal	
+-050QS	600	-2	-2	-4	-8	-9	-7	-5	-5		C1-050QS	Fantech Circular Open series with Q-seal	
+-056QS	600	-2	-3	-4	-8	-9	-7	-5	-5		C1-056QS	Fantech Circular Open series with Q-seal	
+-063QS	600	-3	-3	-5	-10	-9	-6	-5	-5		C1-063QS	Fantech Circular Open series with Q-seal	
+-071QS	900	-3	-3	-6	-11	-9	-6	-5	-5		C1-071QS	Fantech Circular Open series with Q-seal	
+-080QS	900	-3	-3	-6	-11	-9	-6	-5	-5		C1-080QS	Fantech Circular Open series with Q-seal	
+-090QS	1150	-3	-3	-7	-11	-9	-5	-5	-5		C1-090QS	Fantech Circular Open series with Q-seal	
+-100QS	1150	-3	-3	-7	-11	-8	-5	-5	-4		C1-100QS	Fantech Circular Open series with Q-seal	
+-125QS	1150	-3	-3	-7	-11	-8	-5	-4	-4		C1-125QS	Fantech Circular Open series with Q-seal	
+-140QS	1150	-3	-4	-7	-10	-7	-5	-4	-4		C1-140QS	Fantech Circular Open series with Q-seal	
+-153QS	1500	-4	-4	-8	-10	-7	-5	-4	-4		C1-153QS	Fantech Circular Open series with Q-seal	
+-160QS	1800	-4	-4	-8	-10	-7	-5	-4	-4		C1-160QS	Fantech Circular Open series with Q-seal	
+-180QS	1800	-4	-4	-8	-10	-7	-4	-4	-3		C1-180QS	Fantech Circular Open series with Q-seal	
+-200QS	1800	-4	-4	-8	-10	-6	-4	-4	-3		C1-200QS	Fantech Circular Open series with Q-seal	
+*Circular Open 2D QsealQS													
+-031QS	600	-3	-5	-7	-13	-18	-13	-10	-9		C2-031QS	Fantech Circular Open series with Q-seal	
+-035QS	600	-3	-5	-8	-13	-18	-13	-10	-9		C2-035QS	Fantech Circular Open series with Q-seal	
+-040QS	900	-3	-5	-8	-13	-18	-14	-11	-9		C2-040QS	Fantech Circular Open series with Q-seal	
+-045QS	900	-3	-5	-8	-14	-18	-14	-11	-9		C2-045QS	Fantech Circular Open series with Q-seal	
+-050QS	1150	-3	-5	-8	-15	-18	-13	-11	-8		C2-050QS	Fantech Circular Open series with Q-seal	
+-056QS	1150	-4	-5	-9	-15	-18	-13	-11	-8		C2-056QS	Fantech Circular Open series with Q-seal	
+-063QS	1150	-4	-6	-9	-18	-19	-13	-11	-7		C2-063QS	Fantech Circular Open series with Q-seal	
+-071QS	1500	-4	-6	-10	-18	-19	-13	-11	-7		C2-071QS	Fantech Circular Open series with Q-seal	
+-080QS	1500	-4	-6	-10	-18	-19	-13	-11	-7		C2-080QS	Fantech Circular Open series with Q-seal	
+-090QS	1800	-4	-6	-11	-18	-16	-10	-9	-7		C2-090QS	Fantech Circular Open series with Q-seal	
+-100QS	1800	-5	-6	-11	-18	-16	-10	-9	-7		C2-100QS	Fantech Circular Open series with Q-seal	
+-125QS	2400	-5	-6	-11	-18	-15	-10	-9	-8		C2-125QS	Fantech Circular Open series with Q-seal	
+-140QS	2400	-6	-7	-12	-18	-15	-9	-8	-7		C2-140QS	Fantech Circular Open series with Q-seal	
+-153QS	3000	-7	-7	-12	-17	-14	-9	-6	-6		C2-153QS	Fantech Circular Open series with Q-seal	
+-160QS	3600	-7	-7	-12	-17	-14	-9	-6	-6		C2-160QS	Fantech Circular Open series with Q-seal	
+-180QS	3600	-7	-7	-12	-17	-14	-8	-6	-6		C2-180QS	Fantech Circular Open series with Q-seal	
+-200QS	3600	-7	-7	-12	-17	-14	-8	-6	-6		C2-200QS	Fantech Circular Open series with Q-seal	
+*Circular Pod 1D QsealQS													
+-031QS	300	-3	-5	-7	-11	-17	-15	-11	-10		C1P-031QS	Fantech Circular Podded series with Q-seal	
+-035QS	300	-3	-5	-7	-11	-17	-15	-11	-10		C1P-035QS	Fantech Circular Podded series with Q-seal	
+-040QS	600	-3	-5	-7	-12	-18	-15	-11	-9		C1P-040QS	Fantech Circular Podded series with Q-seal	
+-045QS	600	-3	-5	-7	-13	-18	-15	-11	-9		C1P-045QS	Fantech Circular Podded series with Q-seal	
+-050QS	600	-3	-5	-7	-13	-18	-15	-11	-8		C1P-050QS	Fantech Circular Podded series with Q-seal	
+-056QS	600	-3	-5	-7	-13	-18	-15	-11	-8		C1P-056QS	Fantech Circular Podded series with Q-seal	
+-063QS	600	-3	-5	-8	-15	-18	-15	-11	-8		C1P-063QS	Fantech Circular Podded series with Q-seal	
+-071QS	900	-4	-5	-8	-15	-18	-15	-11	-8		C1P-071QS	Fantech Circular Podded series with Q-seal	
+-080QS	900	-4	-5	-8	-15	-20	-13	-11	-8		C1P-080QS	Fantech Circular Podded series with Q-seal	
+-090QS	1150	-4	-5	-9	-17	-17	-13	-9	-8		C1P-090QS	Fantech Circular Podded series with Q-seal	
+-100QS	1150	-4	-5	-10	-17	-16	-11	-9	-7		C1P-100QS	Fantech Circular Podded series with Q-seal	
+-125QS	1150	-4	-5	-10	-17	-16	-11	-9	-7		C1P-125QS	Fantech Circular Podded series with Q-seal	
+-140QS	1150	-4	-5	-10	-16	-15	-11	-9	-6		C1P-140QS	Fantech Circular Podded series with Q-seal	
+-153QS	1500	-4	-5	-10	-15	-14	-10	-7	-6		C1P-153QS	Fantech Circular Podded series with Q-seal	
+-160QS	1800	-4	-5	-10	-15	-14	-10	-7	-6		C1P-160QS	Fantech Circular Podded series with Q-seal	
+-180QS	1800	-4	-5	-10	-15	-14	-10	-7	-6		C1P-180QS	Fantech Circular Podded series with Q-seal	
+-200QS	1800	-4	-5	-10	-15	-14	-10	-7	-6		C1P-200QS	Fantech Circular Podded series with Q-seal	
+*Circular Pod 2D QsealQS													
+-031QS	600	-5	-7	-11	-19	-25	-23	-17	-15		C2P-031QS	Fantech Circular Podded series with Q-seal	
+-035QS	600	-5	-7	-11	-19	-25	-23	-17	-15		C2P-035QS	Fantech Circular Podded series with Q-seal	
+-040QS	900	-5	-7	-11	-19	-26	-23	-18	-16		C2P-040QS	Fantech Circular Podded series with Q-seal	
+-045QS	900	-5	-7	-11	-19	-26	-23	-18	-16		C2P-045QS	Fantech Circular Podded series with Q-seal	
+-050QS	1150	-6	-8	-11	-21	-27	-24	-19	-15		C2P-050QS	Fantech Circular Podded series with Q-seal	
+-056QS	1150	-6	-8	-11	-21	-27	-24	-19	-15		C2P-056QS	Fantech Circular Podded series with Q-seal	
+-063QS	1150	-6	-9	-13	-25	-29	-26	-20	-14		C2P-063QS	Fantech Circular Podded series with Q-seal	
+-071QS	1500	-7	-9	-13	-25	-30	-26	-19	-14		C2P-071QS	Fantech Circular Podded series with Q-seal	
+-080QS	1500	-7	-9	-13	-25	-30	-26	-19	-14		C2P-080QS	Fantech Circular Podded series with Q-seal	
+-090QS	1800	-7	-9	-14	-24	-25	-22	-16	-13		C2P-090QS	Fantech Circular Podded series with Q-seal	
+-100QS	1800	-7	-9	-15	-24	-26	-22	-16	-13		C2P-100QS	Fantech Circular Podded series with Q-seal	
+-125QS	2400	-7	-9	-15	-24	-25	-22	-15	-12		C2P-125QS	Fantech Circular Podded series with Q-seal	
+-140QS	2400	-8	-10	-16	-23	-25	-21	-13	-11		C2P-140QS	Fantech Circular Podded series with Q-seal	
+-153QS	3000	-8	-11	-17	-23	-25	-21	-13	-11		C2P-153QS	Fantech Circular Podded series with Q-seal	
+-160QS	3600	-8	-11	-17	-23	-25	-21	-13	-11		C2P-160QS	Fantech Circular Podded series with Q-seal	
+-180QS	3600	-8	-11	-17	-23	-25	-21	-13	-11		C2P-180QS	Fantech Circular Podded series with Q-seal	
+-200QS	3600	-8	-11	-17	-23	-25	-21	-13	-11		C2P-200QS	Fantech Circular Podded series with Q-seal	
+*NAP Rectangular													
+D27/90	900	-5	-10	-18	-33	-42	-32	-28	-20	27	D27/90	NAP D_series	275
+D27/120	1200	-5	-13	-23	-40	-47	-36	-32	-23	27	D27/120	NAP D_series	275
+D27/150	1500	-6	-16	-28	-45	-53	-42	-33	-24	27	D27/150	NAP D_series	275
+D27/180	1800	-7	-18	-33	-52	-54	-49	-36	-26	27	D27/180	NAP D_series	275
+D27/240	2400	-10	-24	-43	-60	-60	-60	-40	-30	27	D27/240	NAP D_series	275
+D27/300	3000	-11	-28	-48	-60	-60	-60	-43	-32	27	D27/300	NAP D_series	275
+D33/90	900	-4	-9	-17	-31	-40	-29	-24	-17	33	D33/90	NAP D_series	300
+D33/120	1200	-5	-11	-21	-36	-45	-33	-26	-19	33	D33/120	NAP D_series	300
+D33/150	1500	-6	-14	-26	-42	-49	-39	-28	-21	33	D33/150	NAP D_series	300
+D33/180	1800	-6	-16	-31	-48	-53	-45	-31	-23	33	D33/180	NAP D_series	300
+D33/240	2400	-8	-21	-41	-57	-60	-56	-35	-26	33	D33/240	NAP D_series	300
+D33/300	3000	-9	-24	-44	-60	-60	-57	-40	-29	33	D33/300	NAP D_series	300
+D38/90	900	-4	-8	-16	-29	-35	-25	-19	-14	38	D38/90	NAP D_series	325
+D38/120	1200	-5	-10	-20	-33	-39	-29	-21	-16	38	D38/120	NAP D_series	325
+D38/150	1500	-6	-13	-25	-39	-44	-33	-23	-18	38	D38/150	NAP D_series	325
+D38/180	1800	-6	-15	-30	-44	-49	-38	-26	-20	38	D38/180	NAP D_series	325
+D38/240	2400	-8	-19	-41	-57	-57	-47	-30	-23	38	D38/240	NAP D_series	325
+D38/300	3000	-9	-22	-44	-60	-60	-54	-34	-26	38	D38/300	NAP D_series	325
+D43/90	900	-3	-6	-14	-26	-29	-21	-14	-11	43	D43/90	NAP D_series	350
+D43/120	1200	-4	-8	-18	-30	-33	-24	-16	-13	43	D43/120	NAP D_series	350
+D43/150	1500	-5	-11	-24	-35	-38	-27	-18	-15	43	D43/150	NAP D_series	350
+D43/180	1800	-5	-14	-30	-40	-44	-31	-20	-17	43	D43/180	NAP D_series	350
+D43/240	2400	-7	-18	-41	-49	-55	-37	-24	-20	43	D43/240	NAP D_series	350
+D43/300	3000	-9	-20	-44	-55	-59	-44	-27	-22	43	D43/300	NAP D_series	350
+D47/90	900	-3	-6	-13	-23	-26	-18	-12	-9	47	D47/90	NAP D_series	375
+D47/120	1200	-4	-8	-17	-27	-30	-21	-14	-12	47	D47/120	NAP D_series	375
+D47/150	1500	-5	-10	-22	-31	-35	-24	-16	-13	47	D47/150	NAP D_series	375
+D47/180	1800	-5	-13	-27	-36	-40	-27	-19	-15	47	D47/180	NAP D_series	375
+D47/240	2400	-7	-16	-36	-45	-50	-33	-24	-18	47	D47/240	NAP D_series	375
+D47/300	3000	-8	-19	-38	-49	-54	-39	-27	-20	47	D47/300	NAP D_series	375
+D50/90	900	-3	-6	-12	-20	-23	-15	-9	-6	50	D50/90	NAP D_series	400
+D50/120	1200	-4	-8	-15	-23	-27	-17	-12	-10	50	D50/120	NAP D_series	400
+D50/150	1500	-5	-10	-19	-27	-31	-20	-15	-11	50	D50/150	NAP D_series	400
+D50/180	1800	-5	-11	-23	-32	-36	-23	-18	-12	50	D50/180	NAP D_series	400
+D50/240	2400	-6	-13	-30	-40	-45	-29	-24	-16	50	D50/240	NAP D_series	400
+D50/300	3000	-7	-17	-32	-43	-48	-33	-27	-18	50	D50/300	NAP D_series	400
+E29/90	900	-6	-11	-18	-31	-36	-27	-24	-17	29	E29/90	NAP E_series	350
+E29/120	1200	-7	-13	-23	-37	-41	-34	-28	-20	29	E29/120	NAP E_series	350
+E29/150	1500	-8	-16	-28	-43	-46	-41	-31	-23	29	E29/150	NAP E_series	350
+E29/180	1800	-10	-18	-33	-49	-50	-47	-35	-25	29	E29/180	NAP E_series	350
+E29/240	2400	-12	-22	-43	-58	-56	-60	-41	-29	29	E29/240	NAP E_series	350
+E29/300	3000	-14	-27	-49	-60	-60	-60	-47	-33	29	E29/300	NAP E_series	350
+E38/90	900	-5	-8	-14	-25	-27	-21	-15	-12	38	E38/90	NAP E_series	400
+E38/120	1200	-6	-11	-20	-30	-33	-25	-18	-14	38	E38/120	NAP E_series	400
+E38/150	1500	-7	-14	-25	-35	-38	-29	-21	-16	38	E38/150	NAP E_series	400
+E38/180	1800	-8	-17	-31	-40	-44	-33	-23	-19	38	E38/180	NAP E_series	400
+E38/240	2400	-10	-21	-41	-49	-55	-41	-31	-23	38	E38/240	NAP E_series	400
+E38/300	3000	-13	-24	-47	-57	-59	-50	-35	-27	38	E38/300	NAP E_series	400
+E44/90	900	-5	-7	-13	-22	-24	-16	-12	-10	44	E44/90	NAP E_series	450
+E44/120	1200	-6	-10	-17	-26	-29	-19	-13	-12	44	E44/120	NAP E_series	450
+E44/150	1500	-7	-12	-21	-31	-33	-22	-17	-13	44	E44/150	NAP E_series	450
+E44/180	1800	-7	-14	-25	-35	-38	-26	-19	-14	44	E44/180	NAP E_series	450
+E44/240	2400	-9	-17	-33	-44	-46	-33	-25	-18	44	E44/240	NAP E_series	450
+E44/300	3000	-10	-21	-39	-49	-52	-39	-28	-20	44	E44/300	NAP E_series	450
+E50/90	900	-3	-7	-11	-18	-20	-12	-9	-7	50	E50/90	NAP E_series	500
+E50/120	1200	-3	-9	-14	-22	-23	-13	-10	-8	50	E50/120	NAP E_series	500
+E50/150	1500	-4	-10	-17	-26	-27	-16	-13	-9	50	E50/150	NAP E_series	500
+E50/180	1800	-6	-11	-21	-29	-30	-20	-15	-10	50	E50/180	NAP E_series	500
+E50/240	2400	-8	-14	-27	-38	-39	-25	-19	-14	50	E50/240	NAP E_series	500
+E50/300	3000	-10	-18	-32	-43	-46	-29	-21	-16	50	E50/300	NAP E_series	500
+H33/90	900	-8	-13	-17	-22	-27	-21	-16	-14	33	H33/90	NAP H_series	450
+H33/120	1200	-9	-15	-22	-27	-32	-26	-20	-16	33	H33/120	NAP H_series	450
+H33/150	1500	-10	-17	-27	-32	-37	-31	-24	-19	33	H33/150	NAP H_series	450
+H33/180	1800	-12	-20	-32	-38	-43	-36	-28	-21	33	H33/180	NAP H_series	450
+H33/240	2400	-14	-24	-42	-48	-53	-46	-36	-26	33	H33/240	NAP H_series	450
+H33/300	3000	-18	-29	-52	-59	-60	-56	-44	-31	33	H33/300	NAP H_series	450
+H40/90	900	-7	-11	-14	-25	-28	-17	-15	-14	40	H40/90	NAP H_series	500
+H40/120	1200	-8	-13	-19	-30	-32	-21	-17	-15	40	H40/120	NAP H_series	500
+H40/150	1500	-9	-15	-23	-35	-36	-25	-19	-16	40	H40/150	NAP H_series	500
+H40/180	1800	-10	-17	-28	-39	-40	-29	-21	-17	40	H40/180	NAP H_series	500
+H40/240	2400	-12	-21	-37	-48	-48	-37	-26	-20	40	H40/240	NAP H_series	500
+H40/300	3000	-14	-25	-4	-55	-6	-45	-30	-22	40	H40/300	NAP H_series	500
+H45/90	900	-3	-9	-13	-20	-20	-14	-14	-9	45	H45/90	NAP H_series	550
+H45/120	1200	-4	-11	-17	-25	-24	-17	-15	-10	45	H45/120	NAP H_series	550
+H45/150	1500	-6	-13	-21	-30	-29	-20	-16	-12	45	H45/150	NAP H_series	550
+H45/180	1800	-8	-15	-25	-35	-34	-23	-17	-14	45	H45/180	NAP H_series	550
+H45/240	2400	-11	-19	-33	-45	-43	-29	-20	-17	45	H45/240	NAP H_series	550
+H45/300	3000	-14	-23	-41	-50	-52	-35	-22	-20	45	H45/300	NAP H_series	550
+H50/90	900	-3	-7	-12	-17	-14	-12	-11	-10	50	H50/90	NAP H_series	600
+H50/120	1200	-4	-11	-16	-22	-18	-14	-12	-11	50	H50/120	NAP H_series	600
+H50/150	1500	-5	-12	-19	-26	-24	-16	-14	-12	50	H50/150	NAP H_series	600
+H50/180	1800	-6	-13	-22	-30	-30	-19	-15	-13	50	H50/180	NAP H_series	600
+H50/240	2400	-9	-16	-29	-39	-41	-25	-17	-14	50	H50/240	NAP H_series	600
+H50/300	3000	-12	-19	-36	-43	-47	-28	-18	-16	50	H50/300	NAP H_series	600
+*NAP Circular													
+480CS-1D	480		-3	-4	-9	-7	-7	-7	-5		480CS-1D	NAP Circular no pod	
+610CS-1D	610		-3	-5	-9	-7	-7	-6	-5		610CS-1D	NAP Circular no pod	
+760CS-1D	760		-3	-6	-9	-7	-6	-5	-4		760CS-1D	NAP Circular no pod	
+965CS-1D	965		-3	-6	-9	-7	-6	-5	-4		965CS-1D	NAP Circular no pod	
+1220CS-1D	1220		-4	-7	-9	-7	-6	-4	-4		1220CS-1D	NAP Circular no pod	
+1525CS-1D	1525		-4	-8	-8	-6	-5	-4	-3		1525CS-1D	NAP Circular no pod	
+2415CS-1D	2415		-6	-8	-8	-6	-5	-4	-3		2415CS-1D	NAP Circular no pod	
+480CS-2D	480		-5	-7	-15	-14	-13	-10	-8		480CS-2D	NAP Circular no pod	
+610CS-2D	610		-6	-8	-15	-14	-12	-10	-8		610CS-2D	NAP Circular no pod	
+760CS-2D	760		-6	-10	-16	-14	-11	-9	-7		760CS-2D	NAP Circular no pod	
+965CS-2D	965		-6	-11	-16	-15	-11	-8	-7		965CS-2D	NAP Circular no pod	
+1220CS-2D	1220		-8	-14	-18	-14	-10	-8	-7		1220CS-2D	NAP Circular no pod	
+1525CS-2D	1525		-9	-15	-18	-11	-9	-7	-6		1525CS-2D	NAP Circular no pod	
+2415CS-2D	2415		-10	-17	-14	-10	-7	-6	-6		2415CS-2D	NAP Circular no pod	
+480CSP-1D	480		-4	-7	-13	-14	-18	-18	-14		480CSP-1D	NAP Circular with pod	
+610CSP-1D	610		-4	-8	-13	-16	-21	-16	-12		610CSP-1D	NAP Circular with pod	
+760CSP-1D	760		-5	-10	-13	-17	-23	-15	-11		760CSP-1D	NAP Circular with pod	
+965CSP-1D	965		-6	-11	-14	-19	-20	-13	-10		965CSP-1D	NAP Circular with pod	
+1220CSP-1D	1220		-6	-11	-14	-24	-18	-12	-9		1220CSP-1D	NAP Circular with pod	
+1525CSP-1D	1525		-8	-11	-15	-22	-15	-11	-9		1525CSP-1D	NAP Circular with pod	
+2415CSP-1D	2415		-10	-13	-23	-17	-11	-9	-7		2415CSP-1D	NAP Circular with pod	
+480CSP-2D	480		-8	-14	-24	-30	-38	-31	-21		480CSP-2D	NAP Circular with pod	
+610CSP-2D	610		-8	-18	-26	-33	-37	-30	-18		610CSP-2D	NAP Circular with pod	
+760CSP-2D	760		-9	-21	-27	-34	-35	-26	-16		760CSP-2D	NAP Circular with pod	
+965CSP-2D	965		-10	-23	-29	-37	-34	-20	-14		965CSP-2D	NAP Circular with pod	
+1220CSP-2D	1220		-13	-24	-30	-37	-33	-19	-13		1220CSP-2D	NAP Circular with pod	
+1525CSP-2D	1525		-18	-25	-33	-36	-26	-17	-13		1525CSP-2D	NAP Circular with pod	
+2415CSP-2D	2415		-22	-27	-36	-30	-17	-12	-11		2415CSP-2D	NAP Circular with pod	

@@ -1,0 +1,18 @@
+*Model	Length	63	125	250	500	1k	2k	4k	8k	Free Area (%)	Code	Manufacturer
+SBL1	300	-4	-7	-9	-13	-14	-12	-12	-8	20% to 36%	SBL1-50-50	Fantech
+SBL2	600	-5	-10	-14	-22	-27	-25	-21	-17	20% to 36%	SBL2-50-50	Fantech
+ASB	200	-1	-3	-7	-1	-12	-10	-10	-9	16% to 24%	ASB-50-50	Fantech
+R	305	-5	-7	-11	-12	-13	-14	-12	-9	43%	Type R	IAC Noishield™
+2R	610	-6	-12	-15	-21	-24	-27	-25	-20	43%	Type 2R	IAC Noishield™
+LP	305	-4	-5	-8	-9	-12	-9	-7	-6	52%	Type LP	IAC Noishield™
+2LP	610	-5	-8	-12	-16	-22	-18	-15	-14	52%	Type 2LP	IAC Noishield™
+SL-100	100	-5	-4	-5	-6	-9	-13	-14	-13	42%	SL-100	IAC Slimshield™
+SL-150	150	-6	-6	-8	-10	-14	-18	-16	-15	32%	SL-150	IAC Slimshield™
+SL-300	300	-6	-7	-10	-12	-18	-18	-14	-13	45%	SL-300	IAC Slimshield™
+SL-600	600	-7	-9	-12	-24	-31	-33	-39	-30	45%	SL-600	IAC Slimshield™
+SL-V3000L	300	-	-5	-10	-12	-17	-22	-21	-21	42%	SL-V3000L	IAC Slimshield™
+SL-V3000S	300	-	-7	-13	-13	-18	-21	-20	-21	32%	SL-V3000S	IAC Slimshield™
+AP300	300	-3	-7	-9	-11	-14	-13	-15	-15		AP300	Ofinac
+AP600	600	-3	-8	-16	-21	-27	-27	-27	-21		AP600	Ofinac
+FP300	300	-2	-5	-7	-10	-13	-17	-18	-15		FP300	Ofinac
+FP600	600	-2	-6	-8	-17	-27	-37	-38	-34		FP600	Ofinac

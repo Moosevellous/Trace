@@ -31,10 +31,12 @@ Sub EXPORT_TRACE_SOURCE_CODE()
 'For Each VbComp In ActiveWorkbook.VBProject.VBComponents
 Dim TraceIndex As Integer
 Dim fldr As String
-Dim numfiles As Integer
+Dim numFiles As Integer
+Dim TraceComponent As Object
+Dim SavePath As String
 
 TraceIndex = findTraceVBProject 'calls function to find which add-in is Trace
-numfiles = 0
+numFiles = 0
 
 fldr = GetFolder
 
@@ -46,15 +48,19 @@ If fldr = "" Then End
         If TraceComponent.Type = 1 Or TraceComponent.Type = 3 Then 'modules and forms
         Debug.Print "EXPORTED"
         'MkDir "C:\Users\AUPS02932\Documents\Development\Trace\EXPORT\"
-        SavePath = fldr & "\" & TraceComponent.Name & ".txt"
+            If Left(TraceComponent.Name, 3) = "frm" Then
+            SavePath = fldr & "\form\" & TraceComponent.Name & ".bas"
+            Else
+            SavePath = fldr & "\" & TraceComponent.Name & ".bas"
+            End If
         TraceComponent.EXPORT (SavePath)
-        numfiles = numfiles + 1
+        numFiles = numFiles + 1
         Else
         Debug.Print "SKIPPED"
         End If
     Next
 
-msg = MsgBox("Process complete. " & numfiles & " files exported", vbOKOnly, "Source Code Export")
+msg = MsgBox("Process complete. " & numFiles & " files exported", vbOKOnly, "Source Code Export")
 
 End Sub
 

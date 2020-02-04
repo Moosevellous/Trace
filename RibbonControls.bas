@@ -6,7 +6,7 @@ Set rngExists = Range(strRangeName)
 NamedRangeExists = True
     If rngExists Is Nothing Then
     NamedRangeExists = False
-    msg = MsgBox("Error: Named Range TYPECODE missing" & Chr(10) & "Description: Trace functions require that you use a blank calculation sheet.", vbOKOnly, "Sorryyyyyyyyyy")
+    msg = MsgBox("Error: Named Range TYPECODE missing!" & chr(10) & chr(10) & "Description: Trace functions require that you use a blank calculation sheet. " & chr(10) & "Try clicking 'Add Sheet' in the Load group on the Trace Ribbon (top left).", vbOKOnly, "Sorryyyyyyyyyy")
     End If
     On Error GoTo 0
 End Function
@@ -31,6 +31,56 @@ End Sub
 
 Sub btnEquipmentImport(control As IRibbonControl)
     LoadCalcFieldSheet ("EquipmentImport")
+End Sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'THE BASICS (NOT INCLUDING WALLY DE BACKER)
+Sub btnSUM(control As IRibbonControl)
+    If NamedRangeExists("TYPECODE") Then
+    InsertBasicFunction ActiveSheet.Range("TYPECODE").Value, "SUM"
+    End If
+End Sub
+
+Sub btnSPLSUM(control As IRibbonControl)
+    If NamedRangeExists("TYPECODE") Then
+    InsertBasicFunction ActiveSheet.Range("TYPECODE").Value, "SPLSUM"
+    End If
+End Sub
+
+Sub btnSPLMINUS(control As IRibbonControl)
+    If NamedRangeExists("TYPECODE") Then
+    InsertBasicFunction ActiveSheet.Range("TYPECODE").Value, "SPLMINUS"
+    End If
+End Sub
+
+Sub btnSPLAV(control As IRibbonControl)
+    If NamedRangeExists("TYPECODE") Then
+    InsertBasicFunction ActiveSheet.Range("TYPECODE").Value, "SPLAV"
+    End If
+End Sub
+
+Sub btnSPLSUMIF(control As IRibbonControl)
+    If NamedRangeExists("TYPECODE") Then
+    InsertBasicFunction ActiveSheet.Range("TYPECODE").Value, "SPLSUMIF"
+    End If
+End Sub
+
+Sub btnSPLAVIF(control As IRibbonControl)
+    If NamedRangeExists("TYPECODE") Then
+    InsertBasicFunction ActiveSheet.Range("TYPECODE").Value, "SPLAVIF"
+    End If
+End Sub
+
+Sub btnWavelength(control As IRibbonControl)
+    If NamedRangeExists("TYPECODE") Then Wavelength (ActiveSheet.Range("TYPECODE").Value)
+End Sub
+
+Sub btnSpeedOfSound(control As IRibbonControl)
+DoesNotExist
+End Sub
+
+Sub btnFrequencyBandCutoff(control As IRibbonControl)
+DoesNotExist
 End Sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -99,6 +149,10 @@ Sub btnConvertAWeight(control As IRibbonControl)
     If NamedRangeExists("TYPECODE") Then ConvertToAWeight (ActiveSheet.Range("TYPECODE").Value)
 End Sub
 
+Sub btnConvertCWeight(control As IRibbonControl)
+    DoesNotExist
+End Sub
+
 Sub btnRowReference(control As IRibbonControl)
     If NamedRangeExists("TYPECODE") Then RowReference (ActiveSheet.Range("TYPECODE").Value)
 End Sub
@@ -106,9 +160,34 @@ End Sub
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 'NOISE FUNCTIONS
 
-Sub btnAirAbsorption(control As IRibbonControl)
-    If NamedRangeExists("TYPECODE") Then AirAbsorption (ActiveSheet.Range("TYPECODE").Value)
+'Sub btnAirAbsorption(control As IRibbonControl)
+'    If NamedRangeExists("TYPECODE") Then AirAbsorption (ActiveSheet.Range("TYPECODE").Value)
+'End Sub
+
+Sub btnISO_full(control As IRibbonControl)
+If NamedRangeExists("TYPECODE") Then ISO_full (ActiveSheet.Range("TYPECODE").Value)
 End Sub
+
+Sub btnISO_Adiv(control As IRibbonControl)
+If NamedRangeExists("TYPECODE") Then A_div (ActiveSheet.Range("TYPECODE").Value)
+End Sub
+
+Sub btnISO_Aatm(control As IRibbonControl)
+If NamedRangeExists("TYPECODE") Then A_atm (ActiveSheet.Range("TYPECODE").Value)
+End Sub
+
+Sub btnISO_Agr(control As IRibbonControl)
+If NamedRangeExists("TYPECODE") Then A_gr (ActiveSheet.Range("TYPECODE").Value)
+End Sub
+
+Sub btnISO_Abar(control As IRibbonControl)
+If NamedRangeExists("TYPECODE") Then A_bar (ActiveSheet.Range("TYPECODE").Value)
+End Sub
+
+Sub btnISO_Cmet(control As IRibbonControl)
+DoesNotExist
+End Sub
+
 
 Sub btnDistance(control As IRibbonControl)
     If NamedRangeExists("TYPECODE") Then Distance (ActiveSheet.Range("TYPECODE").Value)
@@ -122,10 +201,13 @@ Sub btnDistancePlane(control As IRibbonControl)
     If NamedRangeExists("TYPECODE") Then DistancePlane (ActiveSheet.Range("TYPECODE").Value)
 End Sub
 
+Sub btnDistanceRatio(control As IRibbonControl)
+    If NamedRangeExists("TYPECODE") Then DistanceRatio (ActiveSheet.Range("TYPECODE").Value)
+End Sub
+
 Sub btnAreaCorrection(control As IRibbonControl)
     If NamedRangeExists("TYPECODE") Then Area (ActiveSheet.Range("TYPECODE").Value)
 End Sub
-
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''
 
@@ -150,7 +232,7 @@ End Sub
     End Sub
     
     Sub btnERL(control As IRibbonControl)
-        If NamedRangeExists("TYPECODE") Then ERLoss (ActiveSheet.Range("TYPECODE").Value)
+        If NamedRangeExists("TYPECODE") Then ERL (ActiveSheet.Range("TYPECODE").Value)
     End Sub
     
     Sub btnElbow(control As IRibbonControl)
@@ -176,6 +258,14 @@ End Sub
     Sub btnDuctBreakout(control As IRibbonControl)
         If NamedRangeExists("TYPECODE") Then DuctBreakout (ActiveSheet.Range("TYPECODE").Value)
     End Sub
+    
+    Sub btnDuctBreakin(control As IRibbonControl)
+        If NamedRangeExists("TYPECODE") Then DuctBreakin (ActiveSheet.Range("TYPECODE").Value)
+    End Sub
+    
+    Sub btnDirectivity(control As IRibbonControl)
+       If NamedRangeExists("TYPECODE") Then DuctDirectivity (ActiveSheet.Range("TYPECODE").Value)
+    End Sub
 
 '''''''''''''''''''''''''''''''''''''''''''''''''
     'ROOM LOSS SUBGROUP
@@ -190,6 +280,11 @@ End Sub
     
     Sub btnRoomLossRT(control As IRibbonControl)
         If NamedRangeExists("TYPECODE") Then RoomLossRT (ActiveSheet.Range("TYPECODE").Value)
+    End Sub
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    
+    Sub btnceilingIL(control As IRibbonControl)
+        If NamedRangeExists("TYPECODE") Then DoesNotExist
     End Sub
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 'CURVE FUNCTIONS
@@ -234,13 +329,20 @@ Sub btnCoolingTower(control As IRibbonControl)
 End Sub
 
 Sub btnCompressor(control As IRibbonControl)
-    If NamedRangeExists("TYPECODE") Then DoesNotExist
+    If NamedRangeExists("TYPECODE") Then PutCompressorSmall (ActiveSheet.Range("TYPECODE").Value)
 End Sub
 
 Sub btnElectricMotor(control As IRibbonControl)
     If NamedRangeExists("TYPECODE") Then PutElectricMotorSmall (ActiveSheet.Range("TYPECODE").Value)
 End Sub
 
+Sub btnGasTurbine(control As IRibbonControl)
+    If NamedRangeExists("TYPECODE") Then PutGasTurbine (ActiveSheet.Range("TYPECODE").Value)
+End Sub
+
+Sub btnSteamTurbine(control As IRibbonControl)
+    If NamedRangeExists("TYPECODE") Then PutSteamTurbine (ActiveSheet.Range("TYPECODE").Value)
+End Sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 'VIBRATION
@@ -249,22 +351,25 @@ Sub btnMMPS2DB(control As IRibbonControl) 'change this name
     If NamedRangeExists("TYPECODE") Then VibLin2DB (ActiveSheet.Range("TYPECODE").Value)
 End Sub
 
-
 Sub btnDB2MMPS(control As IRibbonControl) 'change this name
     If NamedRangeExists("TYPECODE") Then VibDB2Lin (ActiveSheet.Range("TYPECODE").Value)
 End Sub
-
 
 Sub btnVibConvert(control As IRibbonControl)
     If NamedRangeExists("TYPECODE") Then VibConvert (ActiveSheet.Range("TYPECODE").Value)
 End Sub
 
-
 Sub btnASHRAEcurve(control As IRibbonControl)
     If NamedRangeExists("TYPECODE") Then PutVCcurve (ActiveSheet.Range("TYPECODE").Value)
 End Sub
 
+Sub btnCouplingLoss(control As IRibbonControl)
+    If NamedRangeExists("TYPECODE") Then CouplingLoss (ActiveSheet.Range("TYPECODE").Value)
+End Sub
 
+Sub btnAmplification(control As IRibbonControl)
+    If NamedRangeExists("TYPECODE") Then BuildingAmplification (ActiveSheet.Range("TYPECODE").Value)
+End Sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 'SHEET FUNCTIONS
@@ -288,7 +393,7 @@ Sub btnPlot(control As IRibbonControl)
         Plot (ActiveSheet.Range("TYPECODE").Value)
         End If
     Else
-    frmChartFormatter.Show
+    frmPlotTool.Show
     End If
 End Sub
 
@@ -354,43 +459,43 @@ End Sub
     'Units
     ''''''
     Sub btnFmtUnitMetres(control As IRibbonControl)
-    Unit_m Selection.Column, Selection.Column + Selection.Columns.count - 1
+    Unit_m Selection.Column, Selection.Column + Selection.Columns.Count - 1
     End Sub
     
     Sub btnFmtUnitMetresSquared(control As IRibbonControl)
-    Unit_m2 Selection.Column, Selection.Column + Selection.Columns.count - 1
+    Unit_m2 Selection.Column, Selection.Column + Selection.Columns.Count - 1
     End Sub
     
     Sub btnFmtUnitMetresSquaredPerSecond(control As IRibbonControl)
-    Unit_m2ps Selection.Column, Selection.Column + Selection.Columns.count - 1
+    Unit_m2ps Selection.Column, Selection.Column + Selection.Columns.Count - 1
     End Sub
     
     Sub btnFmtUnitMetresCubedPerSecond(control As IRibbonControl)
-    Unit_m3ps Selection.Column, Selection.Column + Selection.Columns.count - 1
+    Unit_m3ps Selection.Column, Selection.Column + Selection.Columns.Count - 1
     End Sub
     
     Sub btnFmtUnitdB(control As IRibbonControl)
-    Unit_dB Selection.Column, Selection.Column + Selection.Columns.count - 1
+    Unit_dB Selection.Column, Selection.Column + Selection.Columns.Count - 1
     End Sub
     
     Sub btnFmtUnitdBA(control As IRibbonControl)
-    Unit_dBA Selection.Column, Selection.Column + Selection.Columns.count - 1
+    Unit_dBA Selection.Column, Selection.Column + Selection.Columns.Count - 1
     End Sub
     
     Sub btnFmtUnitkW(control As IRibbonControl)
-    Unit_kW Selection.Column, Selection.Column + Selection.Columns.count - 1
+    Unit_kW Selection.Column, Selection.Column + Selection.Columns.Count - 1
     End Sub
     
     Sub btnFmtUnitPa(control As IRibbonControl)
-    Unit_Pa Selection.Column, Selection.Column + Selection.Columns.count - 1
+    Unit_Pa Selection.Column, Selection.Column + Selection.Columns.Count - 1
     End Sub
     
     Sub btnFmtUnitQ(control As IRibbonControl)
-    Unit_Q Selection.Column, Selection.Column + Selection.Columns.count - 1
+    Unit_Q Selection.Column, Selection.Column + Selection.Columns.Count - 1
     End Sub
     
     Sub btnFmtClear(control As IRibbonControl)
-    Unit_Clear Selection.Column, Selection.Column + Selection.Columns.count - 1
+    Unit_Clear Selection.Column, Selection.Column + Selection.Columns.Count - 1
     End Sub
 
 Sub btnTarget(control As IRibbonControl)
@@ -402,6 +507,10 @@ End Sub
 'HELP
 Sub btnOnlineHelp(control As IRibbonControl)
 GetHelp
+End Sub
+
+Sub btnAbout(control As IRibbonControl)
+frmAbout.Show
 End Sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''

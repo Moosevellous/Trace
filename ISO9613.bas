@@ -2,11 +2,21 @@ Attribute VB_Name = "ISO9613"
 Public ISOFullElements(5) As Boolean 'boolean array for which elements are selected: Adiv Aatm Agr Abar Amisc
 Public iso9613_d As Double
 Public iso9613_d_ref As Double
+Public iso9613_Temperature As Integer
+Public iso9613_RelHumidity As Integer
 Public iso9613_G_source As Double
 Public iso9613_G_middle As Double
 Public iso9613_G_receiver As Double
 Public iso9613_SourceHeight As Double
 Public iso9613_ReceiverHeight As Double
+Public iso9613_SourceToBarrier As Double
+Public iso9613_SrcToBarrierEdge As Double
+Public iso9613_RecToBarrierEdge As Double
+Public iso9613_BarrierHeight As Double
+Public iso9613_BarrierHeightReceiverSide As Double
+Public iso9613_DoubleDiffraction As Boolean
+Public iso9613_BarrierThickness As Double
+Public iso9613_MultiSource As Boolean
 
 Function ISO9613_Adiv(Distance As Single, D_ref As Single) 'maybe we don't need this?????
 ISO9613_Adiv = -20 * Application.WorksheetFunction.Log(Distance / D_ref) + 11
@@ -15,7 +25,7 @@ End Function
 
 Function ISO9613_Aatm(fstr As String, Distance As Double, Temperature As Integer, RelHumidity As Integer)
 
-'These are the values from Table X of ISO9613
+'These are the values from Table 2 of ISO9613
 Dim TenSeventy() As Variant
 Dim TwentySeventy() As Variant
 Dim ThirtySeventy() As Variant
@@ -56,7 +66,7 @@ elem = GetOctaveColumnIndex(fstr)
 End Function
 
 
-Function ISO9613_Agr(fstr As String, SourceHeight As Double, ReceiverHeight As Double, dp As Double, Gsrc As Double, Grec As Double, Gmid As Double)
+Function ISO9613_Agr(fstr As String, SourceHeight As Double, ReceiverHeight As Double, dp As Double, Gsrc As Double, Grec As Double, Optional Gmid As Double)
 
 'Dp- source to reciever distance as projected on to the ground plane
 'ReceiverHeight- height of the reciever
@@ -83,6 +93,8 @@ Dim q As Double
     Else
       q = 1 - ((30 * (SourceHeight + ReceiverHeight)) / dp)
     End If
+    
+    If IsMissing(Gmid) Then Gmid = 0
 
 'Source polynomials
 ahs = 1.5 + (3 * Exp(-0.12 * ((SourceHeight - 5) ^ 2)) * (1 - Exp(-dp / 50))) + (5.7 * Exp(-0.09 * SourceHeight ^ 2) * (1 - Exp(-2.8 * dp ^ 2 * (10 ^ -6))))
@@ -131,135 +143,95 @@ elem = GetOctaveColumnIndex(fstr)
 End Function
 
 
+Function ISO9613_Abar(fstr As String, SourceHeight As Double, ReceiverHeight As Double, SourceReceiverDistance As Double, SourceBarrierDistance As Double, _
+SrcDistanceEdge As Double, RecDistanceEdge As Double, HeightBarrierSource As Double, _
+Optional DoubleDiffraction As Boolean, Optional BarrierThickness As Double, Optional HeightBarrierReceiver As Double, Optional multisource As Boolean, Optional GroundEffect As Double)
+'NOTE distances are input as horizontal distances, with the hypotenuse calculated during this function
+'SourceBarrierDistance = distance from source to barrier (and vice versa)
 
-Function ISO9613_Abar(fstr As String, d As Double, ls As Double, lr As Double, a As Double, e As Double, hs As Double, hbs As Double, dbs As Double, _
-hr As Double, hbr As Double, dbr As Double, ctwo As Double, Agr As Double, multisource As Double, Optional DoubleDiffraction As Boolean)
-
-'Final calclation variables
-'Dim DoubleDiffraction As Double
-'Dim multisource As Single
+Dim Ctwo As Double
+Dim Cthree As Single
 Dim topEdge As Single
 Dim verticalEdge As Single
 Dim Dz As Double
-'Dim Agr As DoubleWelcome2019
 Dim f As Double
-Dim dss As Double
-Dim dsr As Double
-'hs is the height of the source
-'hbs is the height of the barrier at the source
-'dbs perpendicular distance between the source and the barrier at the source
-dss = ((dbs ^ 2) + ((hbs - hs) ^ 2)) ^ (1 / 2)
-
-'hr is the height of the reciever
-'hbr is the height of the barrier at the reciever
-'dbr perpendicular distance between the reciever and the barrier at the source
-
-dsr = ((dbr ^ 2) + ((hbr - hr) ^ 2)) ^ (1 / 2)
-
-
-Dim lambda As Double
-'Dim ctwo As Double
-'Dim cthree As Single
-Dim z As Double
+Dim dss As Double 'distance from source to the first diffraction edge
+Dim dsr As Double 'distance from the (second) diffraction edge to the receiver
+Dim DistanceRecBarrier As Double 'distance from Receiver to the barrier (near side)
+Dim a As Double 'a is the horizontal offset distance between the source and the receivers
+Dim lambda As Double 'wavelength
+Dim Z As Double 'difference in path lengths of diffracted and direct sound in metres
 Dim kmet As Double
+Dim d_standard As Double 'includes vertical component
 
-'z calculation variables
-'Dim dss As Double
-'Dim dsr As Double
-'Dim d As Double
-'Dim e As Double
-'Dim a As Double
-
-
-'User needs to enter ll and lr
-'Then a check will be done to see if lr+ll is > the wavelength that can be obtained from the freqquency
-'The next check will be done for multisource noices or nigh noise sources using the variable multisource
-'if the variable multisource is 1, the use equation 13
-'If the variable multisource is not 1 then the function checks for the variables topedge and vertical edge and assigns the equations accordingly
-'If the variable topedge is set as 12 then eq 12 is used otherwise eq 13 is used
-'If equation 12 is used, then Agr should be available from a certain location- Temporartily we can enter it using a input box
-
-'DoubleDiffraction = InputBox("User please input 1 for single diffraction,2 for double diffraction and 3 for well seperated double diffraction")
-
-'dss = InputBox("User Please Input the Distance of the source to the first diffraction edge(dss)")
-'dsr = InputBox("User Please Input the Distance of the second diffraction edge to the reciever(dsr)")
-'a = InputBox("Sorry for the lots of inputs user but please input the component distance parallel to the barrier edge between source and reciever in metres(a)")
-'e = InputBox("Sorry for the lots of inputs user but please input the distance between the two barrier edges in metres(e) if you have selected double diffraction")
-'d = InputBox("User please input the distance between the source and the reciever in metres (d)")
-'cthree = InputBox("User please enter 40 if you want to consider the effect of image sources and 20 if not")
-
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-'calulating the lambda
+If IsMissing(BarrierThickness) Or DoubleDiffraction = False Then BarrierThickness = 0
 
 f = freqStr2Num(fstr)
+lambda = (343) / f 'as defined in the method
+a = Abs(SrcDistanceEdge - RecDistanceEdge)
 
-lambda = (343) / f
-
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-'Here we use the a,dss,dsr,d,e from above to calculate z , c3
-'z is the difference in path lengths of diffracted and direct sound in metres
-'the value of cthree changes according to the diffraction type entered
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-cthree = 1
-z = ((((dss + dsr) ^ 2) + (a ^ 2)) ^ (1 / 2)) - d
-    If DoubleDiffraction = True Then
-    cthree = (1 + ((5 * lambda / e) * (5 * lambda / e))) / (1 / 3 + ((5 * lambda / e) * (5 * lambda / e)))
-    z = ((((dss + dsr + e) ^ 2) + (a ^ 2)) ^ (1 / 2)) - d
-    'Here the case of double diffraction is considered it actually says if lambda is << e so here we have considered half of the value
-        If lambda < (e / 2) Then
-        cthree = 3
-        End If
+    'If the double diffraction is set as false then there are no 2 edges to the wall
+    If DoubleDiffraction = False Then
+      If HeightBarrierReceiver <> HeightBarrierSource Then
+      HeightBarrierReceiver = HeightBarrierSource
+      End If
     End If
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-'Here we try to calculate the kmet which is the meteorological correction
+    
+DistanceRecBarrier = SourceReceiverDistance - SourceBarrierDistance - BarrierThickness
 
+dss = ((SourceBarrierDistance ^ 2) + ((HeightBarrierSource - SourceHeight) ^ 2)) ^ (1 / 2)
+dsr = ((DistanceRecBarrier ^ 2) + ((HeightBarrierReceiver - ReceiverHeight) ^ 2)) ^ (1 / 2)
+d_standard = (((SourceReceiverDistance ^ 2) + ((ReceiverHeight - SourceHeight) ^ 2)) ^ (1 / 2)) 'pythagoras rules!
 
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-Debug.Print "z: "; z
-    If z < 0 Or d < 100 Then
+'Here we use the a, dss, dsr, d, e from above to calculate z , cthree
+    If DoubleDiffraction = True And BarrierThickness > 0 Then
+    Cthree = (1 + ((5 * lambda / BarrierThickness) * (5 * lambda / BarrierThickness))) / (1 / 3 + ((5 * lambda / BarrierThickness) * (5 * lambda / BarrierThickness)))
+    Z = ((((dss + dsr + BarrierThickness) ^ 2) + (a ^ 2)) ^ (1 / 2)) - d_standard
+    'Here the case of double diffraction is considered it actually says if lambda is << e so here we have considered half of the value
+        If lambda < (BarrierThickness / 2) Then
+        Cthree = 3
+        End If
+    Else 'double diffraction is false
+    Cthree = 1
+    Z = ((((dss + dsr) ^ 2) + (a ^ 2)) ^ (1 / 2)) - d_standard
+    End If
+
+'calculate the kmet: the meteorological correction
+
+    If Z < 0 Or d_standard < 100 Then
     kmet = 1
     Else
-    kmet = Exp((-1 / 2000) * (((dss * dsr * d) / (2 * z)) ^ (1 / 2)))
+    kmet = Exp((-1 / 2000) * (((dss * dsr * d_standard) / (2 * Z)) ^ (1 / 2)))
     End If
 
+'Debug.Print "dss: "; dss
+'Debug.Print "dsr: "; dsr
+'Debug.Print "kmet: "; kmet
+'Debug.Print "lambda: "; lambda
+'Debug.Print "cthree: "; cthree
+'Debug.Print "----------------- ";
 
-'The code is workig till here
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-'Calculation 0f Dz
-Debug.Print "dss: "; dss
-Debug.Print "dsr: "; dsr
-Debug.Print "kmet: "; kmet
-Debug.Print "lambda: "; lambda
-Debug.Print "cthree: "; cthree
-Debug.Print "----------------- ";
-Dz = 10 * Application.WorksheetFunction.Log10(3 + ((ctwo / lambda) * cthree * Abs(z) * kmet))
-
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    If (lr + ls > lambda) Then
-    
-      ' multisource = InputBox("Please enter 1 if the environment under consideration has multisource industrial plants or high noise sources, And of course press 0 if they are not")
-    
-       If multisource = 1 Then
-       ISO9613_Abar = Dz
-       Else
-       'Agr = InputBox("User Please Enter a Reasonable Value for Ground attenuation ")
-       ISO9613_Abar = Dz - Agr
-       End If
+    'condition for Ctwo
+    If multisource = True Then
+    Ctwo = 40
     Else
-        MsgBox ("User the lr+ll has to be greater than lambda to consider the attenuation due to barriers")
-    
+    Ctwo = 20
     End If
 
+Dz = 10 * Application.WorksheetFunction.Log(3 + ((Ctwo / lambda) * Cthree * Abs(Z) * kmet))
+
+    If multisource = True Then
+    ISO9613_Abar = Dz * -1 'trace convention is negative!
+    Else
+    ISO9613_Abar = (Dz - GroundEffect) * -1
+    End If
+    
 End Function
 
 
 Function ISO9613_Cmet(fstr As String, hs, hr, dp, C0)
 
 End Function
-
 
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -270,17 +242,17 @@ End Function
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 Sub ISO_full(SheetType As String)
+
 CheckRow (Selection.Row)
 
+frmISO9613.chkAatm.Value = True
+frmISO9613.chkAdiv.Value = True
+frmISO9613.chkAgr.Value = True
+frmISO9613.chkAbar.Value = True
+
 frmISO9613.Show
-If btnOkPressed = False Then End
 
-If Left(SheetType, 3).Value = "OCT" Then
-Else
-ErrorOctOnly
-End If
-
-ExtendFunction (SheetType)
+Insert_ISO9613_CalcElements (SheetType)
 
 End Sub
 
@@ -304,58 +276,210 @@ Cells(Selection.Row, 2).Value = "ISO9613: A_div"
 End Sub
 
 Sub A_atm(SheetType As String)
+
 CheckRow (Selection.Row)
 
-Cells(Selection.Row, 2).Value = "ISO9613: A_atm"
+frmISO9613.chkAatm.Value = True
+frmISO9613.chkAdiv.Value = False
+frmISO9613.chkAgr.Value = False
+frmISO9613.chkAbar.Value = False
+
+frmISO9613.Show
+
+Insert_ISO9613_CalcElements (SheetType)
+
+
+'If btnOkPressed = False Then End
+'
+'Cells(Selection.Row, 2).Value = "ISO9613: A_atm"
+'
+'    If Left(SheetType, 3) = "OCT" Then
+'
+'    Cells(Selection.Row, 14).Value = iso9613_Temperature 'degrees
+'    Cells(Selection.Row, 15).Value = iso9613_RelHumidity 'Relative Humidity
+'
+'    Cells(Selection.Row, 14).NumberFormat = "0""" & chr(176) & "C"""
+'    Cells(Selection.Row, 15).NumberFormat = "0 ""RH"""
+'
+'        If InStr(1, Cells(Selection.Row - 1, 10).Formula, "ISO9613_Adiv", vbTextCompare) > 1 Then 'row above has A-div, so we can use the same input for distance!
+'        Cells(Selection.Row, 5).Value = "=ISO9613_Aatm(E$6,$N" & Selection.Row - 1 & "," & iso9613_Temperature & "," & iso9613_RelHumidity & ")"
+'        Else
+'        Cells(Selection.Row, 5).Value = "=ISO9613_Aatm(E$6," & iso9613_d & ",$N" & Selection.Row & ",$O" & Selection.Row & ")"
+'        End If
+'
+'    ExtendFunction (SheetType)
+'
+'    fmtUserInput SheetType, True
+'
+'    Else 'Catch other SheetTypes
+'    ErrorOctOnly
+'    End If
+'
+
+End Sub
+
+Sub A_gr(SheetType As String)
+CheckRow (Selection.Row)
+
+frmISO9613.chkAdiv.Value = False
+frmISO9613.chkAatm.Value = False
+frmISO9613.chkAgr.Value = True
+frmISO9613.chkAbar.Value = False
+
+frmISO9613.Show
+
+Insert_ISO9613_CalcElements (SheetType)
+
+'Cells(Selection.Row, 2).Value = "ISO9613: A_gr"
+'
+'    If Left(SheetType, 3) = "OCT" Then
+'    Cells(Selection.Row, 5).Value = "=ISO9613_Agr(E$6," & iso9613_SourceHeight & "," & iso9613_ReceiverHeight & "," & _
+'    iso9613_d & ",$N" & Selection.Row & ",$O" & Selection.Row & "," & iso9613_G_middle & ")"
+'    Cells(Selection.Row, 14).Value = iso9613_G_source
+'    Cells(Selection.Row, 14).NumberFormat = """Gs:"" 0.0"
+'    Cells(Selection.Row, 15).Value = iso9613_G_receiver
+'    Cells(Selection.Row, 15).NumberFormat = """Gr:"" 0.0"
+'    fmtUserInput SheetType, True
+'    Else 'Catch other SheetTypes
+'    ErrorOctOnly
+'    End If
+'
+'ExtendFunction (SheetType)
+    
+End Sub
+
+Sub A_bar(SheetType As String)
+CheckRow (Selection.Row)
+
+frmISO9613.chkAdiv.Value = False
+frmISO9613.chkAatm.Value = False
+frmISO9613.chkAgr.Value = True 'required for barrier calc
+frmISO9613.chkAbar.Value = True
+
+frmISO9613.Show
+
+Insert_ISO9613_CalcElements (SheetType)
+
+End Sub
+
+Sub Insert_ISO9613_CalcElements(SheetType As String)
+
+If btnOkPressed = False Then End
+
     If Left(SheetType, 3) = "OCT" Then
-    
-    Cells(Selection.Row, 14).Value = 10 'degrees
-    Cells(Selection.Row, 15).Value = 70 'Relative Humidity
-    
-    Cells(Selection.Row, 14).NumberFormat = "0""" & chr(176) & "C"""
-    Cells(Selection.Row, 15).NumberFormat = "0 ""RH"""
-    
-        If InStr(1, Cells(Selection.Row - 1, 10).Formula, "ISO9613_Adiv", vbTextCompare) > 1 Then 'row above has A-div, so we can use the same input for distance!
-        Cells(Selection.Row, 5).Value = "=ISO9613_Aatm(E6,$N$" & Selection.Row - 1 & ",$N" & Selection.Row & ",$O" & Selection.Row & ")"
-        Else
-        Cells(Selection.Row, 5).Value = "=ISO9613_Aatm(E6,10,$N" & Selection.Row & ",$O" & Selection.Row & ")" 'default to 10m for now   <-----TODO, add different options for input
+        
+        'Adiv
+        If ISOFullElements(0) = True Then
+        Cells(Selection.Row, 2).Value = "ISO9613: A_div"
+        Cells(Selection.Row, 5).Value = "=ISO9613_Adiv($N" & Selection.Row & ",$O" & Selection.Row & ")"
+        Cells(Selection.Row, 14).Value = iso9613_d
+        Cells(Selection.Row, 15).Value = iso9613_d_ref
+        Unit_m 14, 15
+        
+        ExtendFunction (SheetType)
+        fmtUserInput SheetType, True
+        Cells(Selection.Row + 1, Selection.Column).Select 'move down
+        
         End If
         
-    ExtendFunction (SheetType)
-
-    With Cells(Selection.Row, 14).Validation
-        .Delete
-        .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
-        xlBetween, Formula1:="10,15,20,30"
-        .IgnoreBlank = True
-        .InCellDropdown = True
-        .InputTitle = ""
-        .ErrorTitle = ""
-        .InputMessage = ""
-        .ErrorMessage = ""
-        .ShowInput = True
-        .ShowError = True
-    End With
-    
-    With Cells(Selection.Row, 15).Validation
-        .Delete
-        .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
-        xlBetween, Formula1:="20,50,70,80"
-        .IgnoreBlank = True
-        .InCellDropdown = True
-        .InputTitle = ""
-        .ErrorTitle = ""
-        .InputMessage = ""
-        .ErrorMessage = ""
-        .ShowInput = True
-        .ShowError = True
-    End With
-    
-    fmtUserInput SheetType, True
-    
-    Else 'Catch other SheetTypes
+        'Aatm
+        If ISOFullElements(1) = True Then
+        Cells(Selection.Row, 2).Value = "ISO9613: A_atm"
+        
+            If ISOFullElements(0) = True Then 'row above has A-div, so we can use the same input for distance!
+            Cells(Selection.Row, 5).Value = "=ISO9613_Aatm(E$6,$N$" & Selection.Row - 1 & ",$N" & Selection.Row & ",$O" & Selection.Row & ")"
+            Else
+            Cells(Selection.Row, 5).Value = "=ISO9613_Aatm(E$6," & iso9613_d & ",$N" & Selection.Row & ",$O" & Selection.Row & ")"
+            End If
+            
+        Cells(Selection.Row, 14).Value = iso9613_Temperature
+        Cells(Selection.Row, 15).Value = iso9613_RelHumidity
+        Cells(Selection.Row, 14).NumberFormat = "0""" & chr(176) & "C"""
+        Cells(Selection.Row, 15).NumberFormat = "0 ""RH"""
+        
+            'data validation
+            With Cells(Selection.Row, 14).Validation
+            .Delete
+            .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
+            xlBetween, Formula1:="10,15,20,30"
+            .IgnoreBlank = True
+            .InCellDropdown = True
+            .InputTitle = ""
+            .ErrorTitle = ""
+            .InputMessage = ""
+            .ErrorMessage = ""
+            .ShowInput = True
+            .ShowError = True
+            End With
+        
+            With Cells(Selection.Row, 15).Validation
+            .Delete
+            .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
+            xlBetween, Formula1:="20,50,70,80"
+            .IgnoreBlank = True
+            .InCellDropdown = True
+            .InputTitle = ""
+            .ErrorTitle = ""
+            .InputMessage = ""
+            .ErrorMessage = ""
+            .ShowInput = True
+            .ShowError = True
+            End With
+            
+            
+        ExtendFunction (SheetType)
+        fmtUserInput SheetType, True
+        Cells(Selection.Row + 1, Selection.Column).Select 'move down
+        
+        End If 'end of Aatm
+        
+        'Agr
+        If ISOFullElements(2) = True Then
+        Cells(Selection.Row, 2).Value = "ISO9613: A_gr"
+            
+            If ISOFullElements(0) = True Then 'Two rows above has A-div, so we can use the same input for distance!
+            Cells(Selection.Row, 5).Value = "=ISO9613_Agr(E$6," & iso9613_SourceHeight & "," & iso9613_ReceiverHeight & ",$N" & _
+            Selection.Row - 2 & ",$N" & Selection.Row & ",$O" & Selection.Row & "," & iso9613_G_middle & ")"
+            Else
+            Cells(Selection.Row, 5).Value = "=ISO9613_Agr(E$6," & iso9613_SourceHeight & "," & iso9613_ReceiverHeight & "," & _
+            iso9613_d & ",$N" & Selection.Row & ",$O" & Selection.Row & "," & iso9613_G_middle & ")"
+            End If
+            
+            Cells(Selection.Row, 14).Value = iso9613_G_source
+            Cells(Selection.Row, 14).NumberFormat = """Gs:"" 0.0"
+            Cells(Selection.Row, 15).Value = iso9613_G_receiver
+            Cells(Selection.Row, 15).NumberFormat = """Gr:"" 0.0"
+            
+        ExtendFunction (SheetType)
+        fmtUserInput SheetType, True
+        Cells(Selection.Row + 1, Selection.Column).Select 'move down
+        
+        End If 'end of Agr
+        
+        'Abar
+        If ISOFullElements(3) = True Then
+        Cells(Selection.Row, 2).Value = "ISO9613: A_bar"
+        Cells(Selection.Row, 14).Value = iso9613_BarrierHeight
+        Cells(Selection.Row, 14).NumberFormat = "0.0 ""m"""
+            If ISOFullElements(0) = True Then 'Three rows above has A-div, so we can use the same input for distance!
+            Cells(Selection.Row, 5).Value = "=ISO9613_Abar(E$6," & iso9613_SourceHeight & "," & iso9613_ReceiverHeight & ",$N" & Selection.Row - 3 & "," & iso9613_SourceToBarrier & "," & _
+            iso9613_SrcToBarrierEdge & "," & iso9613_RecToBarrierEdge & "," & "$N" & Selection.Row & "," & iso9613_DoubleDiffraction & "," & iso9613_BarrierThickness & "," & _
+            iso9613_BarrierHeightReceiverSide & "," & iso9613_MultiSource & ",E$" & Selection.Row - 1 & ")"
+            Else
+            Cells(Selection.Row, 5).Value = "=ISO9613_Abar(E$6," & iso9613_SourceHeight & "," & iso9613_ReceiverHeight & "," & iso9613_d & "," & iso9613_SourceToBarrier & "," & _
+            iso9613_SrcToBarrierEdge & "," & iso9613_RecToBarrierEdge & "," & "$N" & Selection.Row & "," & iso9613_DoubleDiffraction & "," & iso9613_BarrierThickness & "," & _
+            iso9613_BarrierHeightReceiverSide & "," & iso9613_MultiSource & ",E$" & Selection.Row - 1 & ")"
+            End If
+        
+        ExtendFunction (SheetType)
+        fmtUserInput SheetType, True
+        Cells(Selection.Row + 1, Selection.Column).Select 'move down
+        
+        End If 'end of Abar
+        
+        'Amisc
+        
+    Else
     ErrorOctOnly
-    End If
-    
-
+    End If 'end of sheet type
 End Sub

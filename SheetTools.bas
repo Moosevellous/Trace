@@ -1,6 +1,7 @@
 Attribute VB_Name = "SheetTools"
 Sub HeaderBlock(TypeCode As String)
-    If TypeCode = "NR1L" Or TypeCode = "R2R" Or TypeCode = "RT" Or TypeCode = "N1L" Or TypeCode = "BA" Then
+
+    If TypeCode = "NR1L" Or TypeCode = "R2R" Or TypeCode = "N1L" Or TypeCode = "BA" Then
     msg = MsgBox("Header block not supported for Sheet Type '" & TypeCode & "'", vbOKOnly, "Error - header block") 'do nothing
     Else
     
@@ -40,8 +41,8 @@ End Sub
 Sub Update_ENGINEER()
 Dim StrUserName As String
 StrUserName = Application.UserName
-SplitStr = Split(StrUserName, " ", Len(StrUserName), vbTextCompare)
-ENGINEER = Left(SplitStr(1), 1) & Left(SplitStr(0), 1)
+splitStr = Split(StrUserName, " ", Len(StrUserName), vbTextCompare)
+ENGINEER = Left(splitStr(1), 1) & Left(splitStr(0), 1)
 End Sub
 
 'Legacy code for text files
@@ -99,17 +100,20 @@ MainBookName = ActiveWorkbook.Name
 Application.StatusBar = "Opening HTML file: " & PROJECTINFODIRECTORY
 Application.ScreenUpdating = False
 'open file
-Workbooks.Open Filename:=PROJECTINFODIRECTORY
-DoEvents
-scanBookName = ActiveWorkbook.Name
-'set global variables
-PROJECTNO = Cells(3, 2).Value
-PROJECTNAME = Cells(5, 2).Value
-'close file
-Workbooks(scanBookName).Close (False)
+    If PROJECTINFODIRECTORY <> "" Then
+    Workbooks.Open Filename:=PROJECTINFODIRECTORY
+    DoEvents
+    scanBookName = ActiveWorkbook.Name
+    'set global variables
+    PROJECTNO = Cells(3, 2).Value
+    PROJECTNAME = Cells(5, 2).Value
+    'close file
+    Workbooks(scanBookName).Close (False)
+    End If
 DoEvents
 Application.StatusBar = False
 Application.ScreenUpdating = True
+
 End Sub
 
 'LEGACY CODE FOR SCANNING
@@ -159,7 +163,7 @@ Dim ProjNoExtract As String
 foundProjectDirectory = False
 searchlevel = 0
 
-    While foundProjectDirectory = False And searchlevel <= 4 'max 4 searchlevels
+    While foundProjectDirectory = False And searchlevel <= 10 'max 10 searchlevels
         testPath = ""
         splitDir = Split(ActiveWorkbook.Path, "\", Len(ActiveWorkbook.Path), vbTextCompare)
         
@@ -170,22 +174,30 @@ searchlevel = 0
                 testPath = testPath & "\" & splitDir(i)
                 End If
             Next i
-              
-        If Len(testPath) = 0 Then End 'path not found
-        SplitPS = Split(testPath, "PS", Len(testPath), vbTextCompare)
-        ProjNoExtract = "PS" & Left(SplitPS(1), 6)
-        HTMLFilePath = Right(testPath, Len(testPath)) & "\*" & ProjNoExtract & "*.html"
-        'Debug.Print testPath
-        checkExists = Dir(HTMLFilePath)
-        
-            If Len(checkExists) > 0 Then
-            foundProjectDirectory = True
-            PROJECTINFODIRECTORY = testPath & "\" & checkExists
 
+            If Len(testPath) = 0 Or InStr(1, HTMLFilePath, "https://", vbTextCompare) > 0 Then
+            'skip! sharepoint location not allowed, nor are blank file paths
+            PROJECTINFODIRECTORY = ""
+            Else
+            
+            SplitPS = Split(testPath, "PS", Len(testPath), vbTextCompare)
+                If UBound(SplitPS) > 0 Then
+                ProjNoExtract = "PS" & Left(SplitPS(1), 6)
+                HTMLFilePath = Right(testPath, Len(testPath)) & "\*" & ProjNoExtract & "*.html"
+                'Debug.Print HTMLFilePath
+    
+                Application.StatusBar = "Scanning: " & testPath
+                checkExists = Dir(HTMLFilePath)
+                
+                    If Len(checkExists) > 0 Then
+                    foundProjectDirectory = True
+                    PROJECTINFODIRECTORY = testPath & "\" & checkExists
+                    End If
+                End If
             End If
         searchlevel = searchlevel + 1
     Wend
-
+Application.StatusBar = False
 End Sub
 
 Sub FormatBorders()
@@ -193,37 +205,37 @@ Sub FormatBorders()
     Selection.Borders(xlDiagonalUp).LineStyle = xlNone
     With Selection.Borders(xlEdgeLeft)
         .LineStyle = xlContinuous
-        .ColorIndex = 0
+        .colorindex = 0
         .TintAndShade = 0
         .Weight = xlThin
     End With
     With Selection.Borders(xlEdgeTop)
         .LineStyle = xlContinuous
-        .ColorIndex = 0
+        .colorindex = 0
         .TintAndShade = 0
         .Weight = xlThin
     End With
     With Selection.Borders(xlEdgeBottom)
         .LineStyle = xlContinuous
-        .ColorIndex = 0
+        .colorindex = 0
         .TintAndShade = 0
         .Weight = xlThin
     End With
     With Selection.Borders(xlEdgeRight)
         .LineStyle = xlContinuous
-        .ColorIndex = 0
+        .colorindex = 0
         .TintAndShade = 0
         .Weight = xlThin
     End With
     With Selection.Borders(xlInsideVertical)
         .LineStyle = xlContinuous
-        .ColorIndex = 0
+        .colorindex = 0
         .TintAndShade = 0
         .Weight = xlHairline
     End With
     With Selection.Borders(xlInsideHorizontal)
         .LineStyle = xlContinuous
-        .ColorIndex = 0
+        .colorindex = 0
         .TintAndShade = 0
         .Weight = xlThin
     End With
@@ -239,12 +251,23 @@ Dim EndCol As Integer
 Dim TraceChartObj As ChartObject
 Dim XaxisTitle As String
 Dim YaxisTitle As String
+Dim TraceChartTitle As String
+Dim SheetName As String
+Dim SeriesNameStr As String
 
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
+    'check if sheet name contains space and needs quotation marks
+    If Left(ActiveSheet.Name, 1) <> "'" And Right(ActiveSheet.Name, 1) <> "'" Then
+    SheetName = "'" & ActiveSheet.Name & "'!"
+    Else
+    SheetName = ActiveSheet.Name & "!"
+    End If
+
+StartRw = Selection.Row
+EndRw = Selection.Row + Selection.Rows.Count - 1
+    
     If Left(TypeCode, 3) = "OCT" Then
-    StartRw = Selection.Row
-    EndRw = Selection.Row + Selection.Rows.count - 1
     StartCol = 5
     EndCol = 13
     OneThirdsCheck = False
@@ -263,7 +286,7 @@ CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
     YaxisTitle = "Sound Pressure Level, dB"
     End If
     
-TraceChartTitle = InputBox("Name of the chart?", "Nom de le carte", Cells(Selection.Row, 2).Value)
+'TraceChartTitle = InputBox("Name of the chart?", "Nom de le carte", Cells(Selection.Row, 2).Value)
 
 'create chart
 Set TraceChartObj = ActiveSheet.ChartObjects.Add(600, 70, 340, 400) 'L, T, W, H
@@ -273,7 +296,7 @@ TraceChartObj.Chart.ChartType = xlLine
     For plotrw = StartRw To EndRw
     'TraceChartObj.Chart.Add '(Range(Cells(plotrw, 5), Cells(plotrw, 13)))
         With TraceChartObj.Chart.SeriesCollection.NewSeries
-        .Name = Cells(plotrw, 2)
+        .Name = "=" & SheetName & Cells(plotrw, 2).Address
         .Values = Range(Cells(plotrw, StartCol), Cells(plotrw, EndCol))
         End With
     Next plotrw
@@ -284,7 +307,9 @@ TraceChartObj.Chart.ChartType = xlLine
     .SetElement (msoElementPrimaryCategoryAxisTitleBelowAxis)
     .SetElement (msoElementPrimaryValueAxisTitleBelowAxis)
     .SetElement (msoElementChartTitleAboveChart)
-    .ChartTitle.Text = TraceChartTitle
+        If TraceChartTitle <> "" Then
+        .ChartTitle.Text = TraceChartTitle
+        End If
     .ChartTitle.Font.size = 12
     .Axes(xlValue, xlPrimary).MajorUnit = 10
     .Axes(xlCategory, xlPrimary).AxisBetweenCategories = False
@@ -294,14 +319,14 @@ TraceChartObj.Chart.ChartType = xlLine
 
     'x-axis labels
     If OneThirdsCheck = True Then 'One third octave
-    TraceChartObj.Chart.FullSeriesCollection(1).XValues = "=" & ActiveSheet.Name & "!$E$6:$Y$6"
+    TraceChartObj.Chart.FullSeriesCollection(1).XValues = "=" & SheetName & "$E$6:$Y$6"
     Else 'Octave
-    TraceChartObj.Chart.FullSeriesCollection(1).XValues = "=" & ActiveSheet.Name & "!$E$6:$M$6"
+    TraceChartObj.Chart.FullSeriesCollection(1).XValues = "=" & SheetName & "$E$6:$M$6"
     End If
 
 'Call graph formatter
 TraceChartObj.Select
-frmChartFormatter.Show
+frmPlotTool.Show
 
 End Sub
 
@@ -321,7 +346,7 @@ If msg = vbCancel Then End
 
 
 StartRw = Selection.Row
-LastRw = StartRw + Selection.Rows.count - 1
+LastRw = StartRw + Selection.Rows.Count - 1
 
     If Left(SheetType, 3) = "OCT" Then ' OCT or OCTA
     Range(Cells(StartRw, 3), Cells(LastRw, 13)).Select
@@ -331,7 +356,7 @@ LastRw = StartRw + Selection.Rows.count - 1
 Selection.FormatConditions.Delete
     
     If RowByRow Then
-        For selectrw = StartRw To LastRw
+        For selectrw = StartRw To LastRw 'loop for each row
             If Left(SheetType, 3) = "OCT" Then ' OCT or OCTA
             Range(Cells(StartRw, 3), Cells(LastRw, 13)).Select
             ElseIf Left(SheetType, 2) = "TO" Then 'TO or TOA
@@ -348,46 +373,79 @@ End Sub
 Sub GreenYellowRed()
 
 Selection.FormatConditions.AddColorScale ColorScaleType:=3
-Selection.FormatConditions(Selection.FormatConditions.count).SetFirstPriority
-Selection.FormatConditions(1).ColorScaleCriteria(1).Type = _
-xlConditionValueLowestValue
-With Selection.FormatConditions(1).ColorScaleCriteria(1).FormatColor
-.Color = 8109667
-.TintAndShade = 0
-End With
+Selection.FormatConditions(Selection.FormatConditions.Count).SetFirstPriority
 
-Selection.FormatConditions(1).ColorScaleCriteria(2).Type = _
-xlConditionValuePercentile
+Selection.FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
+    With Selection.FormatConditions(1).ColorScaleCriteria(1).FormatColor
+    .Color = 8109667
+    .TintAndShade = 0
+    End With
+
+Selection.FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValuePercentile
 Selection.FormatConditions(1).ColorScaleCriteria(2).Value = 50
-With Selection.FormatConditions(1).ColorScaleCriteria(2).FormatColor
-.Color = 8711167
-.TintAndShade = 0
-End With
+    With Selection.FormatConditions(1).ColorScaleCriteria(2).FormatColor
+    .Color = 8711167
+    .TintAndShade = 0
+    End With
 
-Selection.FormatConditions(1).ColorScaleCriteria(3).Type = _
-xlConditionValueHighestValue
-With Selection.FormatConditions(1).ColorScaleCriteria(3).FormatColor
-.Color = 7039480
-.TintAndShade = 0
-End With
+Selection.FormatConditions(1).ColorScaleCriteria(3).Type = xlConditionValueHighestValue
+    With Selection.FormatConditions(1).ColorScaleCriteria(3).FormatColor
+    .Color = 7039480
+    .TintAndShade = 0
+    End With
 End Sub
 
 Sub FixReferences(SheetType As String)
 
 Dim AposPos As Integer 'Position of the apostrophe' in the string
 Dim ExPos As Integer 'Position of the exclamation mark! in the string
+Dim BoxCaption As String
+Dim ReturnSheet As String
+Dim inputFormula As String
+Dim inputFormulaVar As Variant
 
-'find exclamation mark character
-InputFormula = Selection.Formula
-ExPos = InStr(1, InputFormula, "!", vbTextCompare)
-AposPos = InStr(1, InputFormula, "'", vbTextCompare)
+ReturnSheet = ActiveSheet.Name 'to return to later
+
+AllSheets = MsgBox("Apply fix to all sheets? ('No' will apply to this sheet only).", vbYesNoCancel, "....everywhere?")
+If AllSheets = vbCancel Then End
+
+    'find exclamation mark character
+    If TypeName(Selection.Formula) = "Variant()" Then 'catch merged cells
+    inputFormulaVar = Selection.Formula
+    inputFormula = inputFormulaVar(1, 1)
+    Else
+    inputFormula = Selection.Formula
+    End If
+
+ExPos = InStr(1, inputFormula, "!", vbTextCompare)
+AposPos = InStr(1, inputFormula, "'", vbTextCompare)
 
 'catch error
-If AposPos = 0 Or ExPos = 0 Then End
+If AposPos = 0 Or ExPos = 0 Then
+msg = MsgBox("Reference not found!" & chr(10) & "Try selecting a cell with the reference to be fixed and try again.", vbOKOnly, "Search Error")
+End
+End If
 
-PurgeStr = Mid(InputFormula, AposPos, ExPos - AposPos + 1)
+PurgeStr = Mid(inputFormula, AposPos, ExPos - AposPos + 1)
 'Debug.Print PurgeStr
-Cells.Replace What:=PurgeStr, Replacement:="", LookAt:=xlPart, _
-    SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
-msg = MsgBox("Reference string " & Chr(10) & PurgeStr & Chr(10) & "has been removed.", vbOKOnly, "THE PURGE!")
+
+    'if all sheets, then loop through
+    If AllSheets = vbYes Then
+        For sh = 1 To ActiveWorkbook.Sheets.Count
+            If Sheets(sh).Type = xlWorksheet Then 'not for chart sheet types
+            Sheets(sh).Activate
+            Cells.Replace What:=PurgeStr, Replacement:="", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
+            End If
+        Next sh
+    BoxCaption = ".........everywhere!!!!"
+    Else 'current sheet only, no loops
+    Cells.Replace What:=PurgeStr, Replacement:="", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
+    BoxCaption = "Done!"
+    End If
+
+msg = MsgBox("Reference string " & chr(10) & PurgeStr & chr(10) & "has been removed.", vbOKOnly, BoxCaption)
+
+'go back to where you started
+Sheets(ReturnSheet).Activate
+
 End Sub

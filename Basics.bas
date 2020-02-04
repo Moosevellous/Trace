@@ -6,7 +6,7 @@ Public Range2Selection As String
 Public FitToSheetType As Boolean
 Public BasicsApplyStyle As String
 
-Function freqStr2Num(fstr)
+Function freqStr2Num(fstr) As Double
     Select Case fstr
     Case Is = "1"
     freqStr2Num = 1
@@ -450,7 +450,7 @@ Function FindConditionType(inputFormula As String)
 End Function
 
 
-Public Function FitzroyRT(X As Long, Y As Long, z As Long, S_i As Range, Direction As Range, alpha_i As Range)
+Public Function FitzroyRT(X As Long, Y As Long, Z As Long, S_i As Range, Direction As Range, alpha_i As Range)
 
 Dim a_x As Single 'a_x is alpha-bar x, ie the averabe absorption for surfaces in the x direction
 Dim a_y As Single
@@ -498,7 +498,12 @@ a_x = a_x / Sx_total
 a_y = a_y / Sy_total
 a_z = a_z / Sz_total
 
-Volume = X * Y * z
+'catch error when alphaBar=1 and ln(0)=ERROR
+If a_x = 1 Then a_x = 0.99999
+If a_y = 1 Then a_y = 0.99999
+If a_z = 1 Then a_z = 0.99999
+
+Volume = X * Y * Z
 
 'Debug.Print "ax:"; a_x; "   ay:"; a_y; "   az"; a_z
 
@@ -509,16 +514,16 @@ FitzroyRT = (0.161 * Volume / S_total ^ 2) * _
 
 End Function
 
-Function SpeedOfSound(temp As Long, Optional IsKelvin As Boolean)
+Function GetSpeedOfSound(temp As Long, Optional IsKelvin As Boolean)
     If IsKelvin = False Then 'convert to kelvin, not hobbs
     temp = temp + 273.15
     End If
-SpeedOfSound = (1.4 * 287.1848 * temp) ^ 0.5 'square root of Gamma * R * Temp for air
+GetSpeedOfSound = (1.4 * 287.1848 * temp) ^ 0.5 'square root of Gamma * R * Temp for air
 End Function
 
-Function Wavelength(fstr As String, SoundSpeed As Long)
+Function GetWavelength(fstr As String, SoundSpeed As Long)
 f = freqStr2Num(fstr)
-Wavelength = SoundSpeed / f
+GetWavelength = SoundSpeed / f
 End Function
 
 Function FrequencyBandCutoff(freq As String, Mode As String, Optional bandwidth As Double, Optional baseTen As Boolean)
@@ -569,7 +574,14 @@ fr = 1000
 End Function
 
 
+Function RangeAddressSheetExtents(AddrStr As String, SheetType As String) As String()
+Dim Addresses()  As String
 
+splitStr = Split(AddrStr, ",", Len(AddrStr), vbTextCompare)
+
+
+
+End Function
 
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -586,6 +598,8 @@ Dim FirstRow As String
 Dim LastRow As String
 
     Select Case functionName
+    Case Is = "SUM"
+    frmBasicFunctions.optSum.Value = True
     Case Is = "SPLSUM"
     frmBasicFunctions.optSPLSUM.Value = True
     Case Is = "SPLAV"
@@ -647,10 +661,61 @@ Sub BandCutoff(SheetType As String)
 End Sub
 
 Function ExtractRefElement(AddressStr As String, elemNo As Integer)
-Dim SplitStr() As String
-SplitStr = Split(AddressStr, "$", Len(AddressStr), vbTextCompare)
-    If elemNo <= UBound(SplitStr) Then
-    ExtractRefElement = SplitStr(elemNo)
+Dim splitStr() As String
+splitStr = Split(AddressStr, "$", Len(AddressStr), vbTextCompare)
+    If elemNo <= UBound(splitStr) Then
+    ExtractRefElement = splitStr(elemNo)
     End If
 End Function
+
+Sub Wavelength(SheetType As String)
+Dim Col As Integer
+Dim ParamCol1 As Integer
+Dim ParamCol2 As Integer
+
+CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
+Cells(Selection.Row, 2).Value = "Wavelength"
+Cells(Selection.Row, 3).Value = ""
+Cells(Selection.Row, 4).Value = ""
+
+    If Left(SheetType, 3) = "OCT" Then
+    Cells(Selection.Row, 14).Value = "=GetSpeedOfSound($O" & Selection.Row & ")"
+    Cells(Selection.Row, 5).Value = "=GetWavelength(E$6,$N" & Selection.Row & ")"
+    ParamCol1 = 14
+    ParamCol2 = 15
+    Range(Cells(Selection.Row, 5), Cells(Selection.Row, 13)).NumberFormat = "0.00"
+    
+    ElseIf Left(SheetType, 2) = "TO" Then
+    Cells(Selection.Row, 26).Value = "=GetSpeedOfSound($AA" & Selection.Row & ")"
+    Cells(Selection.Row, 5).Value = "=GetWavelength(E$6,$Z" & Selection.Row & ")"
+    ParamCol1 = 26
+    ParamCol2 = 27
+    Range(Cells(Selection.Row, 5), Cells(Selection.Row, 25)).NumberFormat = "0.00"
+    
+    ElseIf Left(SheetType, 5) = "LF_TO" Then
+    Cells(Selection.Row, 32).Value = "=GetSpeedOfSound($AG" & Selection.Row & ")"
+    Cells(Selection.Row, 5).Value = "=GetWavelength(E$6,$AF" & Selection.Row & ")"
+    ParamCol1 = 32
+    ParamCol2 = 33
+    Range(Cells(Selection.Row, 5), Cells(Selection.Row, 31)).NumberFormat = "0.0"
+    
+    Else
+    ErrorTypeCode
+    End If
+
+Cells(Selection.Row, ParamCol2).Value = 20 'default to 20 degrees celcius
+
+ExtendFunction (SheetType)
+'Formatting
+Cells(Selection.Row, ParamCol1).NumberFormat = """""#""m/s"";""""# ""m/s"""
+Cells(Selection.Row, ParamCol2).NumberFormat = """""0""°C """
+fmtUserInput SheetType, True
+
+End Sub
+
+
+
+Sub SpeedOfSound(SheetType As String)
+
+End Sub
 

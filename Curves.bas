@@ -1,4 +1,63 @@
 Attribute VB_Name = "Curves"
+Function AWeightCorrections(fstr As String)
+Dim dBAAdjustment As Variant
+Dim freqTitles As Variant
+Dim freqTitlesAlt As Variant
+Dim ArrayIndex As Integer
+
+freq = freqStr2Num(fstr)
+
+ArrayIndex = 999 'for error catching
+dBAAdjustment = Array(-70.4, -63.4, -56.7, -50.5, -44.7, -39.4, -34.6, -30.2, -26.2, -22.5, -19.1, -16.1, -13.4, -10.9, -8.6, -6.6, -4.8, -3.2, -1.9, -0.8, 0#, 0.6, 1#, 1.2, 1.3, 1.2, 1#, 0.5, -0.1, -1.1, -2.5, -4.3, -6.6, -9.3)
+freqTitles = Array(10, 12.5, 16, 20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000, 12500, 16000, 20000)
+'freqTitlesAlt = Array("", 13, 32, "1k", "1.25k", "1.6k", "2k", "2.5k", "3.15k", "4k", "5k", "6k", "6.3k", "8k", "10k", "12.5k", "16k", "20k")
+    
+    For i = LBound(freqTitles) To UBound(freqTitles)
+        If freq = freqTitles(i) Then
+        ArrayIndex = i
+        found = True
+        End If
+    Next i
+    
+    If ArrayIndex <> 999 Then 'error
+    AWeightCorrections = dBAAdjustment(ArrayIndex)
+    Else
+    AWeightCorrections = "-"
+    End If
+    
+End Function
+
+Function CWeightCorrections(fstr As String)
+Dim dBCAdjustment As Variant
+Dim freqTitles As Variant
+Dim freqTitlesAlt As Variant
+Dim ArrayIndex As Integer
+
+freq = freqStr2Num(fstr)
+
+ArrayIndex = 999 'for error catching
+dBCAdjustment = Array(-14.3, -11.2, -8.5, -6.2, -4.4, -3.1, -2#, -1.3, -0.8, -0.5, -0.3, -0.2, -0.1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.1, -0.2, -0.3, -0.5, -0.8, -1.3, -2#, -3#, -4.4, -6.2, -8.5, -11.2)
+freqTitles = Array(10, 12.5, 16, 20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000, 12500, 16000, 20000)
+'freqTitlesAlt = Array("", 13, 32, "1k", "1.25k", "1.6k", "2k", "2.5k", "3.15k", "4k", "5k", "6k", "6.3k", "8k", "10k", "12.5k", "16k", "20k")
+
+'alternative methods!!!!
+'http://www.beis.de/Elektronik/AudioMeasure/WeightingFilters.html
+'=10*LOG(((35041384000000000*f^8)/((20.598997^2+f^2)^2*(107.65265^2+f^2)*(737.86223^2+f^2)*(12194.217^2+f^2)^2)))
+
+    For i = LBound(freqTitles) To UBound(freqTitles)
+        If freq = freqTitles(i) Then
+        ArrayIndex = i
+        End If
+    Next i
+    
+    If ArrayIndex <> 999 Then 'error
+    CWeightCorrections = dBCAdjustment(ArrayIndex)
+    Else
+    CWeightCorrections = "-"
+    End If
+    
+End Function
+
 Function NRcurve(Curve_no As Integer, fstr As String)
 Dim A_f As Variant
 Dim B_f As Variant
@@ -122,106 +181,15 @@ PNCcurve = DataTable(DataRow, Ifreq)
         
 End Function
 
-Function NCcurve(Curve_no As Integer, fstr As String)
-Dim DataTable(0 To 11, 0 To 7) As Integer
-Dim Ifreq As Integer
-Dim freq As Integer
-Dim DataRow As Integer
-
-freq = freqStr2Num(fstr)
-
-    If freq < 63 Then
-    NCcurve = "-"
-    Exit Function
-    End If
-'NC curves
-NC15 = Array(47, 36, 29, 22, 17, 14, 12, 11)
-NC20 = Array(51, 40, 33, 26, 22, 19, 17, 16)
-NC25 = Array(55, 44, 37, 31, 27, 24, 22, 21)
-NC30 = Array(57, 48, 41, 35, 31, 29, 28, 27)
-NC35 = Array(60, 52, 45, 40, 36, 34, 33, 32)
-NC40 = Array(64, 57, 50, 45, 41, 39, 38, 37)
-NC45 = Array(67, 60, 54, 49, 46, 44, 43, 42)
-NC50 = Array(71, 64, 58, 54, 51, 49, 48, 47)
-NC55 = Array(74, 67, 62, 58, 56, 54, 53, 52)
-NC60 = Array(77, 71, 67, 63, 61, 59, 58, 57)
-NC65 = Array(80, 75, 71, 68, 66, 64, 63, 62)
-NC70 = Array(83, 79, 75, 72, 71, 70, 69, 68)
-
-    For i = 0 To 7
-    DataTable(0, i) = NC15(i)
-    DataTable(1, i) = NC20(i)
-    DataTable(2, i) = NC25(i)
-    DataTable(3, i) = NC30(i)
-    DataTable(4, i) = NC35(i)
-    DataTable(5, i) = NC40(i)
-    DataTable(6, i) = NC45(i)
-    DataTable(7, i) = NC50(i)
-    DataTable(8, i) = NC55(i)
-    DataTable(9, i) = NC60(i)
-    DataTable(10, i) = NC65(i)
-    DataTable(11, i) = NC65(i)
-    Next i
-
-    Select Case freq
-    Case 63
-        Ifreq = 0
-    Case 125
-        Ifreq = 1
-    Case 250
-        Ifreq = 2
-    Case 500
-        Ifreq = 3
-    Case 1000
-        Ifreq = 4
-    Case 2000
-        Ifreq = 5
-    Case 4000
-        Ifreq = 6
-    Case 8000
-        Ifreq = 7
-    End Select
-
-    Select Case Curve_no
-    Case Is = 15
-    DataRow = 0
-    Case Is = 20
-    DataRow = 1
-    Case Is = 25
-    DataRow = 2
-    Case Is = 30
-    DataRow = 3
-    Case Is = 35
-    DataRow = 4
-    Case Is = 40
-    DataRow = 5
-    Case Is = 45
-    DataRow = 6
-    Case Is = 50
-    DataRow = 7
-    Case Is = 55
-    DataRow = 8
-    Case Is = 60
-    DataRow = 9
-    Case Is = 65
-    DataRow = 10
-    Case Is = 70
-    DataRow = 11
-    End Select
-    
-NCcurve = DataTable(DataRow, Ifreq)
-
-End Function
-
 Function NR_rate(DataTable As Variant, Optional fstr As String)
 Dim A_f As Variant
 Dim B_f As Variant
 Dim NR_f, NR As Double
-Dim NRTemp, temp_NR, freq As Double
+Dim NRTemp, freq As Double
 Dim IStart, Col As Integer
 
-    If DataTable.Rows.count <> 1 Then
-        NRrate = "ERROR!"
+    If DataTable.Rows.Count <> 1 Then
+        NR_rate = "ERROR!"
         Exit Function
     End If
 NRTemp = 0
@@ -230,7 +198,7 @@ NRTemp = 0
 A_f = Array(55.4, 35.5, 22, 12, 4.8, 0, -3.5, -6.1, -8)
 B_f = Array(0.681, 0.79, 0.87, 0.93, 0.974, 1, 1.015, 1.025, 1.03)
     If fstr = "" Then
-    freq = 31.5
+    freq = 31.5 'if no frequency input, assume data starts at 31.5Hz
     Else
     freq = freqStr2Num(fstr)
     End If
@@ -257,8 +225,8 @@ B_f = Array(0.681, 0.79, 0.87, 0.93, 0.974, 1, 1.015, 1.025, 1.03)
     End Select
     
     'Debug.Print DataTable.Columns.Count
-    For Col = 1 To DataTable.Columns.count
-        If DataTable(1, Col) <> "-" Then
+    For Col = 1 To DataTable.Columns.Count
+        If IsNumeric(DataTable(1, Col)) Then
             NR_f = (DataTable(1, Col) - A_f(IStart + Col - 1)) / B_f(IStart + Col - 1) 'get the NR for that octave band
             If NR_f > NR Then 'if greater than highest NR found so far
                 NR = NR_f
@@ -271,6 +239,196 @@ B_f = Array(0.681, 0.79, 0.87, 0.93, 0.974, 1, 1.015, 1.025, 1.03)
         Exit Function
     End If
 NR_rate = WorksheetFunction.RoundUp(NR, 0)
+End Function
+
+Function NCcurve(Curve_no As Integer, fstr As String)
+Dim Ifreq As Integer
+Dim freq As Integer
+
+freq = freqStr2Num(fstr)
+
+    If freq < 16 Then
+    NCcurve = "-"
+    Exit Function
+    End If
+    
+'Define NC curves
+'According to ANSI S12.2 2008
+'            Octave band centre frequencies
+'            16  31  63  125 250 500 1k  2k  4k  8k
+NC70 = Array(90, 90, 84, 79, 75, 72, 71, 70, 68, 68)
+NC65 = Array(90, 88, 80, 75, 71, 68, 65, 64, 63, 62)
+NC60 = Array(90, 85, 77, 71, 66, 63, 60, 59, 58, 57)
+NC55 = Array(89, 82, 74, 67, 62, 58, 56, 54, 53, 52)
+NC50 = Array(87, 79, 71, 64, 58, 54, 51, 49, 48, 47)
+NC45 = Array(85, 76, 67, 60, 54, 49, 46, 44, 43, 42)
+NC40 = Array(84, 74, 64, 56, 50, 44, 41, 39, 38, 37)
+NC35 = Array(82, 71, 60, 52, 45, 40, 36, 34, 33, 32)
+NC30 = Array(81, 68, 57, 48, 41, 35, 32, 29, 28, 27)
+NC25 = Array(80, 65, 54, 44, 37, 31, 27, 24, 22, 22)
+NC20 = Array(79, 63, 50, 40, 33, 26, 22, 20, 17, 16)
+NC15 = Array(78, 61, 47, 36, 28, 22, 18, 14, 12, 11)
+
+    Select Case freq
+    Case 16
+        Ifreq = 0
+    Case 31.5
+        Ifreq = 1
+    Case 63
+        Ifreq = 2
+    Case 125
+        Ifreq = 3
+    Case 250
+        Ifreq = 4
+    Case 500
+        Ifreq = 5
+    Case 1000
+        Ifreq = 6
+    Case 2000
+        Ifreq = 7
+    Case 4000
+        Ifreq = 8
+    Case 8000
+        Ifreq = 9
+    End Select
+    
+    If Curve_no Mod 5 = 0 Then 'simply return the defined value
+        Select Case Curve_no
+        Case Is = 15
+        ChosenCurve = NC15
+        Case Is = 20
+        ChosenCurve = NC20
+        Case Is = 25
+        ChosenCurve = NC25
+        Case Is = 30
+        ChosenCurve = NC30
+        Case Is = 35
+        ChosenCurve = NC35
+        Case Is = 40
+        ChosenCurve = NC40
+        Case Is = 45
+        ChosenCurve = NC45
+        Case Is = 50
+        ChosenCurve = NC50
+        Case Is = 55
+        ChosenCurve = NC55
+        Case Is = 60
+        ChosenCurve = NC60
+        Case Is = 65
+        ChosenCurve = NC65
+        Case Is = 70
+        ChosenCurve = NC70
+        End Select
+    NCcurve = ChosenCurve(Ifreq)
+    Else 'interpolate between the curves
+    NCcurve = InterpolateNCcurve(Curve_no, fstr)
+    End If
+    
+End Function
+
+Function InterpolateNCcurve(CurveNo As Integer, fstr As String)
+
+Dim freq As Integer
+Dim Remainder As Integer
+Dim UpperCurveValue As Single
+Dim LowerCurveValue As Single
+Dim UpperCurve As Integer
+Dim LowerCurve As Integer
+
+freq = freqStr2Num(fstr)
+
+Remainder = CurveNo Mod 5
+'x values
+UpperCurve = CurveNo + (5 - Remainder)
+LowerCurve = CurveNo - Remainder
+'y values
+UpperCurveValue = NCcurve(UpperCurve, fstr)
+LowerCurveValue = NCcurve(LowerCurve, fstr)
+
+'interpolate linearly
+m = (UpperCurveValue - LowerCurveValue) / (UpperCurve - LowerCurve)
+InterpolateNCcurve = LowerCurveValue + (m * (CurveNo - LowerCurve))
+
+End Function
+
+Function NCrate(DataTable As Variant, Optional StartFreqStr As String)
+
+Dim NC_f, NC As Double
+Dim NCTemp, freq As Double
+Dim IStart, Col As Integer
+Dim i As Integer
+   
+   If DataTable.Rows.Count <> 1 Then
+        NCrate = "ERROR!"
+        Exit Function
+    End If
+
+octaveBands = Array(16, 31.5, 63, 125, 250, 500, 1000, 2000, 4000, 8000)
+
+    If StartFreqStr = "" Then
+    freq = 16 'if no frequency input, assume data starts at 16Hz octave band
+    Else
+    freq = freqStr2Num(StartFreqStr)
+    End If
+
+    Select Case freq
+        Case 16
+            IStart = 0
+        Case 31.5
+            IStart = 1
+        Case 63
+            IStart = 2
+        Case 125
+            IStart = 3
+        Case 250
+            IStart = 4
+        Case 500
+            IStart = 5
+        Case 1000
+            IStart = 6
+        Case 2000
+            IStart = 7
+        Case 4000
+            IStart = 8
+        Case 8000
+            IStart = 9
+    End Select
+
+    i = 15
+    found = False
+    SumExceedances = 0
+    While found = False
+    'Debug.Print "Checking NC"; i
+    test_freq = octaveBands(IStart)
+        For Col = 1 To DataTable.Columns.Count 'all input value
+        test_freq = octaveBands(IStart + Col - 1) 'DataTable is indexed from 1, not 0
+            If IsNumeric(DataTable(1, Col)) Then
+            'get value of curve at that band
+            NC_curve_value = NCcurve(i, CStr(test_freq))
+            'Debug.Print DataTable(1, Col + 1).Value; "    NCvalue: "; NC_curve_value
+                If DataTable(1, Col).Value > NC_curve_value Then
+                SumExceedances = SumExceedances + (DataTable(1, Col) - NC_curve_value)
+                End If
+            End If
+        Next Col
+    
+        'catch error
+        If i > 70 Then
+        found = True
+        errnc = True
+        ElseIf SumExceedances = 0 Then
+        found = True
+        NCrate = i
+        End If
+    
+    i = i + 1
+    SumExceedances = 0
+    Wend
+    
+If errnc = True Then
+NCrate = "ERROR"
+End If
+
 End Function
 
 Function RwCurve(CurveNo As Variant, fstr As String, Optional Mode As String)
@@ -364,6 +522,7 @@ Dim CurveIndex As Integer
 Dim SumDeficiencies As Double
 Dim Deficiencies(16) As Long 'empty array for deficiences
 
+'TODO - make this reference RwCurve
 Rw_ThOct = Array(-9, -6, -3, 0, 3, 6, 9, 10, 11, 12, 13, 14, 14, 14, 14, 14) 'From 100 Hz to 3150 Hz, Rw10 curve
 Rw_Oct = Array(-6, 3, 10, 13, 14) 'From 125 Hz to 2kHz octave bands, Rw10 curve
 
@@ -448,7 +607,6 @@ End Function
 
 Function STCRate(DataTable As Variant, Optional Mode As String)
 
-
 Dim MaxDeficiency As Long
 Dim SumDeficiencies As Long
 Dim Deficiencies(16) As Long
@@ -498,7 +656,7 @@ Function STCCurve(CurveNo As Variant, fstr As String) 'Optional Mode As String)
 '''''''''''''''''''''''''''''''
 'REFERENCE CURVES
 'STC_Oct = Array(36, 45, 52, 55, 56) 'From 125 Hz to 2000 Hz
-STC_ThOct = Array(36, 39, 42, 45, 48, 51, 52, 53, 54, 55, 56, 56, 56, 56, 56, 56) 'From 125 Hz to 4000 Hz, Rw52 curve
+STC_ThOct = Array(36, 39, 42, 45, 48, 51, 52, 53, 54, 55, 56, 56, 56, 56, 56, 56) 'From 125 Hz to 4000 Hz, STC52 curve
 ''''''''''''''''''''''''''''''''
 
     If fstr = "" Then
@@ -549,9 +707,7 @@ STC_ThOct = Array(36, 39, 42, 45, 48, 51, 52, 53, 54, 55, 56, 56, 56, 56, 56, 56
         Exit Function
     End If
 
-
     STCCurve = STC_ThOct(IStart) + CurveNo - 52
-
 
 End Function
 
@@ -664,21 +820,83 @@ End Function
 
 Function CiRate(DataTable As Variant, Lnw As Integer)
 Dim LnSum As Double
-Dim PartialSum As Double
+Dim PartialSum As Single
 Dim i As Integer
 
+    'Debug.Print "No of elements="; DataTable.Count
+    If DataTable.Count = 15 And IsNumeric(DataTable(1)) = True Then 'check for 15 values, 100Hz to 2500Hz, as per ISO 717.2
+    LnSum = SPLSUM(DataTable)
+    'Debug.Print "LnSum:"; LnSum; "- 15 -"; Lnw
+    CiRate = Round(LnSum, 0) - 15 - Lnw 'from A.2.1 of ISO 717.2
+    Else 'too many columns
+    CiRate = "Error"
+    End If
+    
+End Function
+
+Function RNCcurve(CurveNo As Integer, fstr As String) '<------TODO check this function
+Dim OctaveBandIndex As Integer
+'Table 5 of ANSI S12.2
+'coefficients for 16,31.5,63,125,250,500,1000,2000,4000,8000 bands
+bands = Array(16, 31.5, 63, 125, 250, 500, 1000, 2000, 4000, 8000)
+LevelRanges = Array(81, 76, 71, 66) 'first 4 bands
+K1 = Array(64.3333, 51, 37.6667, 24.3333, 11, 6, 2, -2, -6, -10)
+K1alt = Array(31, 26, 21, 16, 11, 6, 2, -2, -6, -10)
+K2 = Array(3, 2, 1.5, 1.2, 1, 1, 1, 1, 1, 1)
+K2alt = Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+
+f = freqStr2Num(fstr)
+
+    For i = LBound(bands) To UBound(bands)
+        If f = bands(i) Then
+        OctaveBandIndex = i
+        End If
+    Next i
+    
+RNCcurve = (CurveNo / K2(OctaveBandIndex)) + K1(OctaveBandIndex)
+    
+    If OctaveBandIndex <= 3 Then 'first 4 bands
+        If RNCcurve > LevelRanges(OctaveBandIndex) Then
+        RNCcurve = (CurveNo / K2alt(OctaveBandIndex)) + K1alt(OctaveBandIndex)
+        End If
+    End If
+    
+End Function
+
+Function RNCrate(DataTable As Variant) '<------TODO check this function
+Dim OctaveBandIndex As Integer
+'Table 5 of ANSI S12.2
+'coefficients for 16,31.5,63,125,250,500,1000,2000,4000,8000 bands
+bands = Array(16, 31.5, 63, 125, 250, 500, 1000, 2000, 4000, 8000)
+LevelRanges = Array(81, 76, 71, 66) 'first 4 bands
+K1 = Array(64.3333, 51, 37.6667, 24.3333, 11, 6, 2, -2, -6, -10)
+K1alt = Array(31, 26, 21, 16, 11, 6, 2, -2, -6, -10)
+K2 = Array(3, 2, 1.5, 1.2, 1, 1, 1, 1, 1, 1)
+K2alt = Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
 
 
-'PartialSum = 0
-'    For i = 0 To DataTable.Count
-'    Debug.Print "No of elements="; DataTable.Count
-'    PartialSum = PartialSum + (10 ^ ((DataTable(i + 1)) / 10)) ' VBA and it's stupid 1 indexing
+'    For i = LBound(bands) To UBound(bands)
+'        If f = bands(i) Then
+'        OctaveBandIndex = i
+'        End If
 '    Next i
-'LnSum = Round(10 * Application.WorksheetFunction.Log10(PartialSum), 0)
-'Debug.Print "LnSum:"; LnSum; "- 15 -"; Lnw
+RNCrate = 0
 
-'LnSum = SPLSUM(DataTable)
-CiRate = Round(LnSum, 0) - 15 - Lnw
+    For i = LBound(bands) To UBound(bands)
+    RNCrate_temp = (DataTable(i) - K1(i)) * K2(i)
+        If OctaveBandIndex <= 3 Then 'first 4 bands
+            If RNCrate > LevelRanges(OctaveBandIndex) Then
+            RNCrate = (DataTable(i) - K1alt(i)) * K2alt(i)
+            End If
+        End If
+        
+        If RNCrate_temp > RNCrate Then
+        RNCrate = RNCrate_temp
+        End If
+        
+    Next i
+    
+RNCrate = Round(RNCrate, 0)
 End Function
 
 '''''''''''''''''''
@@ -707,28 +925,14 @@ CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 Cells(Selection.Row, 2).Value = "NC Curve"
     If Left(SheetType, 3) = "OCT" Then
     Cells(Selection.Row, 5).Value = "=NCcurve($N" & Selection.Row & "," & Cells(6, 5).Address(True, False) & ")"
-    Cells(Selection.Row, 14) = 40
+    Cells(Selection.Row, 14) = "=NCrate(" & Range(Cells(Selection.Row - 1, 5), Cells(Selection.Row - 1, 13)).Address(False, False) & ",$E$6)"
     Cells(Selection.Row, 14).NumberFormat = """NC = ""0"
-    paramcol = 14
+    ParamCol = 14
     ElseIf Left(SheetType, 2) = "TO" Then
     'none
     End If
 ExtendFunction (SheetType)
 Call ParameterMerge(Selection.Row, SheetType)
-
-    With Cells(Selection.Row, paramcol).Validation
-        .Delete
-        .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
-        xlBetween, Formula1:="15,20,25,30,35,40,45,50,55,60,65,70"
-        .IgnoreBlank = True
-        .InCellDropdown = True
-        .InputTitle = ""
-        .ErrorTitle = ""
-        .InputMessage = ""
-        .ErrorMessage = ""
-        .ShowInput = True
-        .ShowError = True
-    End With
 
 fmtUserInput SheetType, True '<-Format Parameter column as user input
 
@@ -738,10 +942,10 @@ Sub PutPNC(SheetType As String)
 CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
     If Left(SheetType, 3) = "OCT" Then
-    paramcol = 14
+    ParamCol = 14
     Cells(Selection.Row, 5).Value = "=PNCcurve($N" & Selection.Row & "," & Cells(6, 5).Address(True, False) & ")"
-    Cells(Selection.Row, paramcol) = 40 '<default to 40
-    Cells(Selection.Row, paramcol).NumberFormat = """PNC = ""0"
+    Cells(Selection.Row, ParamCol) = 40 '<default to 40
+    Cells(Selection.Row, ParamCol).NumberFormat = """PNC = ""0"
     Else
     ErrorOctOnly 'catch error
     End If
@@ -752,7 +956,7 @@ ExtendFunction (SheetType)
 
 Call ParameterMerge(Selection.Row, SheetType)
 
-    With Cells(Selection.Row, paramcol).Validation
+    With Cells(Selection.Row, ParamCol).Validation
         .Delete
         .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
         xlBetween, Formula1:="15,20,25,30,35,40,45,50,55,60,65,70"
