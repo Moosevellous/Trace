@@ -29,8 +29,6 @@ File = Application.GetOpenFilename(FileFilter:="Excel Files (*.xlsx),*.xlsx", _
 ButtonText:="Please select file (in XLSX format)...", _
 MultiSelect:=True)
 
-If Not IsArray(File) Then End
-
 numfiles = UBound(File)
 
     For fnumber = 1 To UBound(File)
@@ -120,7 +118,7 @@ CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
     If Left(SheetType, 2) = "TO" Then
     ClipData = GetClipBoardText
-    'Debug.Print ClipData
+    Debug.Print ClipData
     
     'catch INSUL Import
     If InStr(1, ClipData, "Wall", vbTextCompare) > 0 Or _
