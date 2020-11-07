@@ -1,159 +1,293 @@
-<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui">
+﻿<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui">
 <!--<customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui">-->
-
 	<ribbon>
 		<tabs>
-			<tab id="customTab" label="Trace v2.0" insertAfterMso="TabView">
-<!--VERSION CREATED 20190409-->
+			<tab id="customTab" label="Trace v3.0" insertAfterMso="TabView" keytip="X">
+<!--EDIT DATE 20201026-->
+<!--'tag' is the function to be called by the Universal Builder, the 'id' is the function input, if required -->
 
-				<group id="Main" label="Load" insertAfterMso="GroupEditingExcel">
-
-						<button id="btnLoad" label="Add Sheet" size="normal" onAction="btnLoad" imageMso="AddAccount" screentip="Load > Add Sheet" supertip="Imports from Blank Calculation Sheet into existing workbook" />
-						<button id="btnSameType" label="Clone Sheet" size="normal" onAction="btnSameType" imageMso="NewSharePointConnectedTool" screentip="Load > Clone Sheet" supertip="Imports the current sheet type (OCT/TO_OCT/etc...) from Blank Calculation Sheet into this workbook"/>
-
-					<menu id="CalcSheets" label="Calc/Field Sheets" imageMso="GroupOrganizationChartStyleClassic" screentip="Load > Calc/Field Sheets" supertip="Creates Standard Calculation Sheets and Field Sheets." >
-						<button id="btnStandardCalc" label="Standard Calc" onAction="btnStandardCalc" imageMso="AddToFavorites" />
-						<button id="btnFieldSheet" label="Field Sheet" onAction="btnFieldSheet" imageMso="SpeechMicrophone" />
-						<button id="btnEquipmentImport" label="Equipment Import" onAction="btnEquipmentImport" imageMso="ImportExcel" />
+				<group id="gNew" label="New" insertAfterMso="GroupEditingExcel">
+				    
+                    <menu id="AddSheets" label="Sheet" imageMso="AddAccount" screentip="New > Sheet" supertip="Inserts a new blank calculation sheet" keytip="NS">
+                        <menuSeparator id="Oct" title="Octave Bands" />
+                            <button id="AddOCT" label="OCT" onAction="btnLoad" />
+                            <button id="AddOCTA" label="OCTA" onAction="btnLoad" />
+                            <button id="AddMECH" label="MECH" onAction="btnLoad" />
+                        <menuSeparator id="ThirdOct" title="1/3 Octave Bands" />
+                            <button id="AddTO" label="TO" onAction="btnLoad" />
+                            <button id="AddTOA" label="TOA" onAction="btnLoad" />
+                        <menuSeparator id="LF" title="Low-frequency" />
+                            <button id="AddLF_OCT" label="LF_OCT" onAction="btnLoad" />
+                            <button id="AddLF_TO" label="LF_TO" onAction="btnLoad" />
+                        <menuSeparator id="Other" title="Other" />
+                            <button id="AddCVT" label="CVT" onAction="btnLoad" />
+                            <button id="AddSTYLE" label="Style" onAction="btnLoad" />
+                    </menu>
+                        
+                 <button id="StandardCalc" label="Calc" onAction="btnStandardCalc" imageMso="AddToFavorites" screentip="Load > Standard Calc" supertip="New > Standard Calculation Sheet" keytip="AS"/>
+					
+					<menu id="AddOther" label="Other" imageMso="GroupOrganizationChartStyleClassic" screentip="New > Other" supertip="Loads blank field sheets or equipment import sheets" keytip="O">	
+						<button id="FieldSheet" label="Field Sheet" onAction="btnFieldSheet" imageMso="SpeechMicrophone" />
+						<button id="EquipmentImport" label="Equipment Import" onAction="btnEquipmentImport" imageMso="ImportExcel" />
 					</menu>
 				</group>
 
-				<group id="Import" label="Import" insertAfterMso="GroupEditingExcel">
-					<button id="btnImportFantech" label="Fantech" size="normal" onAction="btnImportFantech" imageMso="ImportDBase" screentip="Import > Fantech" supertip="Reads multiple datasheets exported by Fantech Software" />
-					<button id="btnImportInsul" label="Insul" size="normal" onAction="btnImportInsul" imageMso="ImportLotus" screentip="Import > Insul" supertip="Pastes transmission loss data from Insul into correct format for this sheet." />
-					<button id="btnImportZorba" label="Zorba" size="normal" onAction="btnImportZorba" imageMso="ImportTextFile" screentip="Import > Zorba" supertip="Pastes absorption data from Zorba into correct format for this sheet." />
+				<group id="gBasics" label="Basics" insertAfterMso="GroupEditingExcel">
+					<menu id="Functions" label="Functions" imageMso="Formula" size="large" screentip="Basics > Functions" supertip="Add, Subtract, Frequencies, Wavelengths...you know, the basics." keytip="F">
+					    
+                        <menuSeparator id="SepArithmetic" title="Arithmetic" />
+                        <button id="SUM" label="SUM" onAction="TraceFunctionWithInput" tag="InsertBasicFunction" screentip="Basics > Functions > SUM" supertip="Normal addition of values. You know. Plus." />
+                        
+                        <menuSeparator id="SepLog" title="Logarithmics" />
+                        <button id="SPLSUM" label="SPLSUM" onAction="TraceFunctionWithInput" tag="InsertBasicFunction" screentip="Basics > Functions > SPLSUM" supertip="Logarithmic addition of values." />
+                        <button id="SPLMINUS" label="SPLMINUS" onAction="TraceFunctionWithInput" tag="InsertBasicFunction" screentip="Basics > Functions > SPLMINUS" supertip="Logarithmic subtraction" />
+                        <button id="SPLAV" label="SPLAV" onAction="TraceFunctionWithInput" tag="InsertBasicFunction" screentip="Basics > Functions > " supertip="Logarithmic average of value" />
+
+                        <menuSeparator id="SepConditional" title="Conditional" />
+                        <button id="SPLSUMIF" label="SPLSUMIF" onAction="TraceFunctionWithInput" tag="InsertBasicFunction" screentip="Basics > Functions > SPLSUMIF" supertip="Performs logarithmic addition of values depending on a condition being TRUE." />
+                        <button id="SPLAVIF" label="SPLAVIF" onAction="TraceFunctionWithInput" tag="InsertBasicFunction" screentip="Basics > Functions > SPLSUMIF" supertip="Performs logarithmic average of values depending on a condition being TRUE." />
+
+                        <menuSeparator id="SepMisc" title="Misc." />
+                        <button id="Wavelength" label="Wavelength" onAction="TraceFunction" tag="PutWavelength" />
+                        <button id="SpeedOfSound" label="Speed of Sound" onAction="TraceFunction" tag="PutSpeedOfSound" />
+                        <button id="frequencyBandCutoff" label="Frequency Band Cutoff" onAction="TraceFunction" tag="BandCutoff"/>
+					</menu>
+				</group>
+
+				<group id="gImport" label="Import" insertAfterMso="GroupEditingExcel">
+					<button id="ImportFantech" label="Fantech" tag="ImportFantech" size="normal" onAction="TraceFunction" imageMso="ImportDBase" screentip="Import > Fantech" supertip="Reads multiple datasheets exported by Fantech Software" keytip="IF" />
+					<button id="ImportInsul" label="Insul" size="normal" onAction="TraceFunction" tag="ImportInsul" imageMso="ImportLotus" screentip="Import > Insul" supertip="Pastes transmission loss data from Insul into correct format for this sheet." keytip="II" />
+					<button id="ImportZorba" label="Zorba" size="normal" onAction="TraceFunction" tag="ImportZorba" imageMso="ImportTextFile" screentip="Import > Zorba" supertip="Pastes absorption data from Zorba into correct format for this sheet." keytip="IZ" />
+				</group>
+
+				<group id="gDatabase" label="Database" insertAfterMso="GroupEditingExcel">
+                    <menu id="Database" label="Insert" size="large" imageMso="ProofingToolsFlyoutAnchor" keytip="D" screentip="Databse > Insert" supertip="Coming soon...?" enabled="false">
+                        <button id="SWL" label="SWL" onAction="TraceFunction" tag="Database_SWL" imageMso="SlideShowVolume" />
+                        <button id="TL" label="TL" onAction="TraceFunction" tag="Database_TL" imageMso="NewBlankStencil" />
+                        <button id="alpha" label="Alpha" onAction="TraceFunction" tag="Database_alpha" imageMso="GroupTypography" />
+                        <button id="CeilingIL" label="Ceiling IL" onAction="TraceFunction" tag="CeilingIL" imageMso="GridSettings" screentip="Database > Ceiling Insertion Loss" supertip="For sound breaking through a ceiling, a combination of room loss and tranmission loss." />
+                    </menu>
+                </group>
+           
+                <group id="gEstFuncs" label="SWL Estimation" insertAfterMso="GroupEditingExcel">
+				    <menu id="SWLs" label="Plant/Equipment" imageMso="SoundMaximumFileSize" size="large" screentip="SWL Estimation > Plant/Equipment" supertip="When you don't have enough information, make a good estimate." keytip="E">
+                        <button id="Boiler" label="Boiler" onAction="TraceFunction" tag="Boiler" imageMso="Coffee" />
+                        <button id="Compressor" label="Compressor" onAction="TraceFunction" tag="CompressorSmall" imageMso="RecursiveSection" screentip="SWL Estimation > Plant/Equipment > Compressor" supertip="Estimates SWL for small compressors (up to 75kW), given range of input power." />
+                        <button id="CoolingTower" label="Cooling Tower" onAction="TraceFunction" tag="CoolingTower" imageMso="GroupAccessLayoutWeb" screentip="SWL Estimation > Plant/Equipment > Cooling Tower" supertip="Estimates SWL for a cooling tower, given input power, type of tower, and measurement location. Directivity effects may also be applied." />
+                        <button id="ElectricMotor" label="Electric Motor" onAction="TraceFunction" tag="ElectricMotorSmall" imageMso="_3DTiltUpClassic" screentip="SWL Estimation > Plant/Equipment > Electric Motor" supertip="Estimates SWL for an electric motor, given input power and input speed. Further corrections are applied for Totally Enclosed Fan Cooled and Drip Proof Motors. Suitable for up to 300kW rating only."/>
+                        <button id="FanSimple" label="Fan Simple" onAction="TraceFunction" tag="FanSimple" imageMso="ActiveXRadioButton" screentip="SWL Estimation > Plant/Equipment > Fan Simple" supertip="Estimates SWL for a fan, given input air velocity, pressure and fan type." />
+                        <button id="PumpSimple" label="Pump Simple" onAction="TraceFunction" tag="PumpSimple" imageMso="SyncMenu" screentip="SWL Estimation > Plant/Equipment > Pump Simple" supertip="Estimates SWL for a pump, given input power and RPM." />
+                            <menu id="Turbines" label="Turbines" imageMso="VideoFadeOutTime" screentip="SWL > Turbines">
+                            <button id="GasTurbine" label="Gas Turbine" onAction="TraceFunction" tag="GasTurbine" imageMso="ShapeLightningBolt" screentip="SWL Estimation > Plant/Equipment > Gas Turbine" supertip="Estimates SWL for a gas turbine, given input power." />
+                            <button id="SteamTurbine" label="Steam Turbine" onAction="TraceFunction" tag="SteamTurbine" imageMso="ShapeCloud" screentip="SWL Estimation > Plant/Equipment > Steam Turbine" supertip="Estimates SWL for a steam turbine, given input power. Includes consideration of enclosure around the turbine." />
+                            </menu>
+                    </menu>
 				</group>
 			
-				<group id="RwFuncs" label="Row Operations" insertAfterMso="GroupEditingExcel">
-					<button id="btnClearRow" label="Clear" size="normal" onAction="btnClearRw" imageMso="DeleteRows" screentip="Row Ops. > Clear" supertip="Deletes values, clears formatting for the current Sheet Type." />
-					<button id="btnMoveUp" label="Move Up" size="normal" onAction="btnMoveUp" imageMso="_3DPerspectiveIncrease" screentip="Row Ops. > Move Up" supertip="Moves selected rows up by one row. Applies to correct columns for this SheetType." />					
-					<button id="btnMoveDown" label="Move Down" size="normal" onAction="btnMoveDown" imageMso="_3DPerspectiveDecrease" screentip="Row Ops. > Move Down" supertip="Moves selected rows down by one row. Applies to correct column for this SheetType" />
-					<button id="btnRowReference" label="Row Reference" size="normal" onAction="btnRowReference" imageMso="ReviewReviewingPane" screentip="Row Ops. > Reference row" supertip="Creates formula reference to another row. Applies Reference Style to cells." />
-					<button id="btnFlipSign" label="Flip Sign" size="normal" onAction="btnFlipSign" imageMso="GroupAppointmentMoreOptions" screentip="Row Ops. > Flip Sign" supertip="Adds a negative sign to values and formulas." />
-					<button id="btnSingleCorrection" label="Single Correction" size="normal" onAction="btnSingleCorrection" imageMso="PlusSign" screentip="Row Ops. > Single Correction" supertip=" Add a number to the entire row. Accepts positive or negative values." />
-					<button id="btnAutoSum" label="Auto Sum" size="normal" onAction="btnAutoSum" imageMso="AutoSum" screentip="Row Ops. > Auto Sum" supertip="Add the rows above to find the final result. Searches for the first blank cell above in the selected column and sums that range."  />
-					<button id="btnManual_ExtendFunction" label="Extend Function" size="normal" onAction="btnManual_ExtendFunction" imageMso="RightArrow2" screentip="Row Ops. > Extend Function" supertip="Apply the formula from Column E to all columns in the selected row." />
-						<menu id="Convert" label="Convert" imageMso="ConferenceMeetNow">
-						<button id="btnOneThirdsToOctave" label="1/3 to 1/1" onAction="btnOneThirdsToOctave" imageMso="OrganizationChartInsert" screentip="Row Ops. > 1/3 to 1/1" supertip="Convert 1/3 octave bands to 1/1 octave bands"/>
-						<button id="btnConvertAWeight" label="A-Weight Spectrum" onAction="btnConvertAWeight" imageMso="A" screentip="Row Ops. > A-Weight Spectrum" supertip="Apply A-weighting in line 0 to the current row."/>
+				<group id="gRwFuncs" label="Row Operations" insertAfterMso="GroupEditingExcel">
+					<button id="ClearRow" label="Clear" size="normal" onAction="TraceFunction" tag="ClearRow" imageMso="DeleteRows" screentip="Row Ops. > Clear" supertip="Deletes values, clears formatting for the current Sheet Type." keytip="X" />
+                        <menu id="Move" label="Move" imageMso="AutoConnect" screentip="Row Ops. > Move" supertip="Move rows of calculations up and down while not breaking links." keytip="RM" >
+                            <menuSeparator id="SepCalcLine" title="Calc. line" />
+                            <button id="MoveUp" label="Up" onAction="TraceFunction" tag="MoveUp" imageMso="_3DPerspectiveIncrease" screentip="Row Ops. > Move > Up" supertip="Moves selected rows up by one row. Applies to correct columns for this SheetType." />					
+                            <button id="MoveDown" label="Down" onAction="TraceFunction" tag="MoveDown" imageMso="_3DPerspectiveDecrease" screentip="Row Ops. > Move > Down" supertip="Moves selected rows down by one row. Applies to correct column for this SheetType" />
+                            <menuSeparator id="SepSpectrum" title="Spectrum" />
+                            <button id="MoveLeft" label="Left" onAction="TraceFunction" tag="MoveLeft" imageMso="LeftArrow2" screentip="Row Ops. > Move > Left" supertip="Moves spectrum down by one band." />
+                            <button id="MoveRight" label="Right" onAction="TraceFunction" tag="MoveRight" imageMso="RightArrow2" screentip="Row Ops. > Move > Right" supertip="Moves spectrum up by one band." />
+                        </menu>
+                    <button id="ToggleActive" label="Toggle" size="normal" onAction="TraceFunction" tag="ToggleActive" imageMso="AutoSummaryViewByHighlight" keytip="RT" />        
+					<button id="RowReference" label="Row Ref." size="normal" onAction="TraceFunction" tag="RowReference" imageMso="ReviewReviewingPane" screentip="Row Ops. > Row Reference" supertip="Creates formula reference to another row or to multiple rows with a dropdown option menu. Applies Reference Style to cells." keytip="RR" />
+                    <button id="FlipSign" label="Flip Sign" onAction="TraceFunction" tag="FlipSign" imageMso="GroupAppointmentMoreOptions" screentip="Row Ops. > Flip Sign" supertip="Adds a negative sign to values and formulas." keytip="RF" />
+					<button id="Correction" label="Correction" size="normal" onAction="TraceFunction" tag="SingleCorrection" imageMso="PlusSign" screentip="Row Ops. > Correction" supertip=" Add a number to the entire row. Accepts positive or negative values." keytip="RC" />
+                        <splitButton id="sbAutoSum">
+                        <button id="AutoSum" label="Auto Sum" onAction="TraceFunctionWithInput" tag="AutoSum" imageMso="AutoSum" screentip="Row Ops. > Auto Sum" supertip="Add the rows above to find the final result. Searches for the first blank cell above in the selected column and sums that range." />
+                        <menu id="mAutoSum" label="Format" imageMso="AutoSum" keytip="RS">
+                        <button id="AutoSum_Normal" label="Auto Sum Style: Trace Normal" onAction="TraceFunctionWithInput" tag="AutoSum"/>
+                        <button id="AutoSum_Subtotal" label="Auto Sum Style: Trace Subtotal" onAction="TraceFunctionWithInput" tag="AutoSum"/>
+                        <button id="AutoSum_Total" label="Auto Sum Style: Trace Total" onAction="TraceFunctionWithInput" tag="AutoSum"/>
+                        </menu>
+                        </splitButton>
+					<button id="Manual_ExtendFunction" label="Extend" size="normal" onAction="TraceFunction" tag="Manual_ExtendFunction" imageMso="RightArrow2" screentip="Row Ops. > Extend Function" supertip="Apply the formula from Column E to all columns in the selected row." keytip="RX" />
+						<menu id="Convert" label="Convert" imageMso="ConferenceMeetNow" keytip="RV" >
+                            <button id="OneThirdsToOctave" label="1/3 to 1/1" onAction="TraceFunction" tag="OneThirdsToOctave" imageMso="OrganizationChartInsert" screentip="Row Ops. > 1/3 to 1/1" supertip="Convert 1/3 octave bands to 1/1 octave bands" />
+                            <button id="ConvertAWeight" label="A-Weight Spectrum" onAction="TraceFunction" tag="ConvertAWeight" imageMso="A" screentip="Row Ops. > A-Weight Spectrum" supertip="Apply A-weighting in line 0 to the current row." />
+                            <button id="ConvertCWeight" label="C-Weight Spectrum" onAction="TraceFunction" tag="ConvertCWeight" imageMso="C" screentip="Row Ops. > C-Weight Spectrum" supertip="Apply C-weighting to the current row." enabled="false"/>
 						</menu>
 				</group>
 
-				<group id="NoiseFuncs" label="Noise" insertAfterMso="GroupEditingExcel">
-					<button id="btnAirAbsorption" label="AirAbsorb" size="normal" onAction="btnAirAbsorption" imageMso="PictureReflectionGalleryItem" screentip="Noise Funcs. > AirAbsorb" supertip="Inserts loss over distance for air absorption values in octave bands." />
-						<menu id="Distance" label="Distance" imageMso="DiagramChangeToTargetClassic" screentip="Noise Funcs. > Distance" supertip="Inserts propagation loss over distance. Options for point (spherical), line (cylindrical) and plane sources.">
-						<button id="btnDistance" label="Point (spherical)" onAction="btnDistance" imageMso="DiagramChangeToTargetClassic" screentip="Noise Funcs. > Point (spherical)" supertip="Spherical propagation loss." />
-						<button id="btnDistanceLine" label="Line (cylindrical)" onAction="btnDistanceLine" imageMso="Drawing1GalleryContrast" screentip="Noise Funcs. > Line (Cylindrical)" supertip="Cylindrical propagation loss." />
-						<button id="btnDistancePlane" label="Plane" onAction="btnDistancePlane" imageMso="_3DExtrusionDepthInfinityClassic" screentip="Noise Funcs. > Plane" supertip="Plane propagation loss." />					
-						</menu>
-					<button id="btnAreaCorrection" label="Area" size="normal" onAction="btnAreaCorrection" imageMso="BlackAndWhiteBlackWithWhiteFill" screentip="Noise Funcs. > Area" supertip="Inserts correction for area, 10log(A)." />
-					<button id="btnTenLogN" label="10Log(n)" size="normal" onAction="btnTenLogN" imageMso="N" screentip="Noise Funcs. > 10Log(n)" supertip="Inserts correction for number of sources, 10log(n)." />
-					<button id="btnTenLogOneOnT" label="10Log(t/t0)" size="normal" onAction="btnTenLogOneOnT" imageMso="T" screentip="Noise Funcs. > 10Log(t/t0)" supertip="Inserts time correction, 10log(t/t0), where t is the operating time and t0 is the reference time." />
-					<button id="btnDirectReverberantSum" label="Dir/Rev Sum" size="normal" onAction="btnDirectReverberantSum" imageMso="DataGraphicDataBar" screentip="Noise Funcs. > Dir/Rev Sum" supertip="Calculates the direct path of sound (spherical spreading), the reverberant path of sound (classic method) and logarithmically adds them. Styles applied for subtotal and total." />
-						<menu id="Mech_Elements" label="Mech Elements" imageMso="ColorMenu" screentip="Noise Funcs. > Mech Elements" supertip="Acoustic performance of elements for mechanical systems.">
-						<button id="btnDuctAtten" label="Solid Duct" onAction="btnDuctAtten" imageMso="_3DSurfaceWireFrameClassic" screentip="Noise > Mech > Solid Duct" supertip="Attenuation per metre of solid duct." />
-						<button id="btnFlexDuct" label="Flex Duct" onAction="btnFlexDuct" imageMso="ShapeCurve" screentip="Noise > Mech > Flex Duct" supertip="Attenuation per metre of flexible duct." />
-						<button id="btnERL" label="ERL" onAction="btnERL" imageMso="_3DExtrusionDepthGalleryClassic" screentip="Noise > Mech > End Reflection Loss" supertip="Attenuation for End Reflection Loss." />
-						<button id="btnRegenNoise" label="Regen. Noise" onAction="btnRegenNoise" imageMso="GroupCompressMedia" screentip="Noise > Mech > Regen. Noise" supertip="Regenerated noise from mechanical elements." />
-						<button id="btnElbow" label="Elbow" onAction="btnElbow" imageMso="CollapseSearchPane" screentip="Noise > Mech > Elbow" supertip="Attenuation through elbows / bends." />
-						<button id="btnDuctSplit" label="Duct Split" onAction="btnDuctSplit" imageMso="F" screentip="Noise > Mech > Duct Split" supertip="Attenuation from takeoffs, junctions and splits." />
-						<button id="btnSilencer" label="Silencer" onAction="btnSilencer" imageMso="ParagraphIndentLeft" screentip="Noise > Mech > Silencer" supertip="Attenuation from splitter silencers (from Fantech catalogue)." />
-						<button id="btnAcousticLouvres" label="Acoustic Louvres" onAction="btnLouvres" imageMso="ShapeArc" screentip="Noise > Mech > Acoustic Louvres" supertip="Attenuation from acoustic louvres (from Fantech catalogue)." />
-						<button id="btnPlenum" label="Plenum" onAction="btnPlenum" imageMso="_3DSurfaceMetalClassic" screentip="Noise > Mech > Plenum" supertip="Calculates down-duct attenuation from plenums." />
-						<button id="btnDuctBreakout" label="Duct Breakout" onAction="btnDuctBreakout" imageMso="DiagramExpandClassic" screentip="Noise > Mech > Duct Breakout" supertip="Calculates attenuation from duct breakout." />
-						</menu>
-						
-						<menu id="Room_Losses" label="Room Loss" imageMso="CombineShapesMenu" screentip="Noise Funcs. > Room Loss" supertip="Calculates the difference between sound power and sound pressure in a room, due to the reverberant characteristics. Options for Classic, Reverberation Time, and Room Constant.">
-						<button id="btnRoomLoss" label="Classic" onAction="btnRoomLoss" imageMso="ControlLineThicknessGallery" screentip="Noise > Room Loss > Classic" supertip="Room Loss - Assuming generalised 'Live' and 'Dead' characteristics" />
-						<button id="btnRoomLossRT" label="Reverberation" onAction="btnRoomLossRT" imageMso="DiagramChangeToRadialClassic" screentip="Noise > Room Loss > Reverberation" supertip="Room Loss - Assuming an input Reverberation Time" />
-						<button id="btnRoomLossRC" label="Room Constant" onAction="btnRoomLossRC" imageMso="DiagramChangeToPyramidClassic" screentip="Noise > Room Loss > Room Constant" supertip="Room Loss - from room constant. See also RT Calc in Standard Calc Sheets." />
-						</menu>
-				</group>
+				<group id="gNoiseFuncs" label="Noise" insertAfterMso="GroupEditingExcel">
+                        <splitButton id="sbISO9613">
+                            <button id="ISOdefault" label="ISO9613" imageMso="PictureReflectionGalleryItem" onAction="TraceFunction" tag="ISO9613_full" screentip="Noise Funcs. > ISO9613 Calculation" supertip="Adds ISO9613-2:1996 attenuation elements" />
+                            <menu id="mISO9613" label="ISO9613" imageMso="PictureReflectionGalleryItem" keytip="NI" >
+                            <menuSeparator id="ISO_Full" title="All" />
+                            <button id="ISOfull" label="Complete Calculation" onAction="TraceFunction" tag="ISO9613_full" screentip="Noise Funcs. > ISO9613 Calculation" supertip="Adds ISO9613-2:1996 attenuation elements" />
+                            <menuSeparator id="ISO_Elements" title="Elements" />
+                            <button id="Adiv" label="Adiv" onAction="TraceFunction" tag="A_div" screentip="Noise Funcs. > Adiv" supertip="Inserts divergence correction according to ISO9613-2:1996" />
+                            <button id="Aatm" label="Aatm" onAction="TraceFunction" tag="A_atm" screentip="Noise Funcs. > Aatm" supertip="Inserts atmospheric attenuation correction according to ISO9613-2:1996"/>
+                            <button id="Agr" label="Agr" onAction="TraceFunction" tag="A_gr" screentip="Noise Funcs. > Agr" supertip="Inserts ground effect according to ISO9613-2:1996"/>
+                            <button id="Abar" label="Abar" onAction="TraceFunction" tag="A_bar" screentip="Noise Funcs. > Abar" supertip="Inserts barrier effect according to ISO9613-2:1996"/>
+                            <button id="Cmet" label="Cmet" onAction="TraceFunction" tag="ISO_Cmet" screentip="Noise Funcs. > Adiv" supertip="Inserts metorology correction according to ISO9613-2:1996"/>
+                            </menu>
+                        </splitButton>
 
+						<splitButton id="sbDistance">
+						    <button id="DistanceDefault" label="Distance" onAction="TraceFunction" tag="DistancePoint" imageMso="DiagramChangeToTargetClassic" screentip="Noise Funcs. > Point (spherical)" supertip="Spherical propagation loss." />
+						    <menu id="mDistance" label="Distance" imageMso="DiagramChangeToTargetClassic" screentip="Noise Funcs. > Distance" supertip="Inserts propagation loss over distance. Options for point (spherical), line (cylindrical) and plane sources." keytip="ND">
+                            <button id="DistancePoint" label="Point (spherical)" onAction="TraceFunction" tag="DistancePoint" imageMso="DiagramChangeToTargetClassic" screentip="Noise Funcs. > Point (spherical)" supertip="Spherical propagation loss." />
+                            <button id="DistanceLine" label="Line (cylindrical)" onAction="TraceFunction" tag="DistanceLine" imageMso="Drawing1GalleryContrast" screentip="Noise Funcs. > Line (Cylindrical)" supertip="Cylindrical propagation loss." />
+                            <button id="DistancePlane" label="Plane" onAction="TraceFunction" tag="DistancePlane" imageMso="_3DExtrusionDepthInfinityClassic" screentip="Noise Funcs. > Plane" supertip="Plane propagation loss." />
+                            <button id="DistanceRatio" label="Ratio" onAction="TraceFunction" tag="DistanceRatio" imageMso="EquationFractionGallery" screentip="Noise Funcs. > Ratio" supertip="Ratio of two distances (applicable for both point and line sources)." />
+                            </menu>
+						</splitButton>
 
-				<group id="CurveFuncs" label="Curves" insertAfterMso="GroupEditingExcel">
-					<button id="btnNRCurve" label="NR Curve" size="normal" onAction="btnNRCurve" imageMso="ColorAqua" screentip="Curves > NR Curve" supertip="Rates a spectrum in the row above against the NR curve and returns the values for the determined curve." />
-					<button id="btnNCCurve" label="NC Curve" size="normal" onAction="btnNCCurve" imageMso="ColorBlue" screentip="Curves > NC Curve" supertip="Rates a spectrum in the row above against the NC curve and returns the values for the determined curve." />
-					<button id="btnPNCCurve" label="PNC Curve" size="normal" onAction="btnPNCCurve" imageMso="ColorNavy" screentip="Curves > PNC Curve" supertip="Rates a spectrum in the row above against the PNC curve and returns the values for the determined curve." />
-					<button id="btnRwCurve" label="Rw Curve" size="normal" onAction="btnRwCurve" imageMso="ColorLime" screentip="Curves > Rw Curve" supertip="Rates a Transmission Loss Spectrum in the row above against the Rw curves (ISO717.1) and returns the values for the detemined curve." />
-					<button id="btnSTCCurve" label="STC Curve" size="normal" onAction="btnSTCCurve" imageMso="ColorGreen" screentip="Curves > STC Curve" supertip="Rates a Transmission Loss spectrum in the row above against the STC curves and returns the values for the detemined curve." />
-					<button id="btnLnwCurve" label="Lnw Curve" size="normal" onAction="btnLnwCurve" imageMso="ColorYellow" screentip="Curves > Lnw Curve" supertip="Rates a Sound Pressure Level from an tapping machine test against the Lnw curves (ISO717.2)" />
-				</group>
-
-
-				<group id="EstFuncs" label="SWL Estimation" insertAfterMso="GroupEditingExcel">
-					<button id="btnFanSimple" label="Fan Simple" size="normal" onAction="btnFanSimple" imageMso="ActiveXRadioButton" screentip="SWL Estimation > Fan Simple" supertip="Estimates SWL for a fan, given input air velocity, pressure and fan type." />
-					<button id="btnPumpSimple" label="Pump Simple" size="normal" onAction="btnPumpSimple" imageMso="SyncMenu" screentip="SWL Estimation > Pump Simple" supertip="Estimates SWL for a pump, given input power and RPM." />
-					<button id="btnCoolingTower" label="Cooling Tower" size="normal" onAction="btnCoolingTower" imageMso="GroupAccessLayoutWeb" screentip="SWL Estimation > Cooling Tower" supertip="Estimates SWL for a cooling tower, given input power, type of tower, and measurement location. Directivity effects may also be applied." />
-					<button id="btnElectricMotor" label="Electric Motor" size="normal" onAction="btnElectricMotor" imageMso="_3DTiltUpClassic" screentip="SWL Estimation > Electric Motor" supertip="Estimates SWL for an electric motor, given input power and input speed. Further corrections are applied for Totally Enclosed Fan Cooled and Drip Proof Motors. Suitable for up to 300kW rating only."/>
-				</group>
-
-				<group id="Vibration" label="Vibration" insertAfterMso="GroupEditingExcel">
+                        <splitButton id="sbArea">
+                        <button id="AreaCorrectionDefault" label="Area" onAction="TraceFunction" tag="AreaCorrection" imageMso="BlackAndWhiteBlackWithWhiteFill" screentip="Noise Funcs. > Area" supertip="Inserts correction for area, 10log(A)." />
+                        <menu id="mArea" keytip="NA">
+                        <button id="AreaCorrection" label="Area" onAction="TraceFunction" tag="AreaCorrection" imageMso="BlackAndWhiteBlackWithWhiteFill" screentip="Noise Funcs. > Area" supertip="Inserts correction for area, 10log(A)." />
+                        <button id="ParallelipipedCorrection" label="Parallelipiped" onAction="TraceFunction" tag="ParallelipipedCorrection" imageMso="BlackAndWhiteBlackWithWhiteFill" screentip="Noise Funcs. > Parallelipiped Corection" supertip="Inserts correction for parallel box method - ISO3372." keytip="NP" />
+                        </menu>
+                        </splitButton>
 					
-						<menu id="ConvertVibUnits" label="Convert Units" imageMso="GroupShow">
-						<menuSeparator id="SepLogLin" title="Log/Lin" />
-						<button id="btnDB2MMPS" label="dB to Linear" onAction="btnDB2MMPS"  />
-						<button id="btnMMPS2DB" label="Linear to dB" onAction="btnMMPS2DB"  />
-						<menuSeparator id="SepInt" title="Int/Dif" />
-						<button id="btnVibConvert" label="Accel/Vel/Disp Convert" onAction="btnVibConvert" />					
+                        <splitButton id="sbTenLogN">
+                        <button id="TenLogNdefault" label="10Log(n)" onAction="TraceFunction" tag="TenLogN" imageMso="N" screentip="Noise Funcs. > 10Log(n)" supertip="Inserts correction for number of sources, 10log(n)." />
+                        <menu id="mTenLogN" keytip="NN">
+                        <button id="TenLogN" label="10Log(n)" onAction="TraceFunction" tag="TenLogN" imageMso="N" screentip="Noise Funcs. > 10Log(n)" supertip="Inserts correction for number of sources, 10log(n)." />
+                        <button id="TenLogOneOnT" label="10Log(t/t0)" onAction="TraceFunction" tag="TenLogOneOnT" imageMso="T" screentip="Noise Funcs. > 10Log(t/t0)" supertip="Inserts time correction, 10log(t/t0), where t is the operating time and t0 is the reference time." />
+                        </menu>
+                        </splitButton>
+                            
+					<button id="DirectReverberantSum" label="Dir/Rev Sum" size="normal" onAction="TraceFunction" tag="DirectReverberantSum" imageMso="DataGraphicDataBar" screentip="Noise Funcs. > Dir/Rev Sum" supertip="Calculates the direct path of sound (spherical spreading), the reverberant path of sound (classic method) and logarithmically adds them. Styles applied for subtotal and total." keytip="RS" />
+						
+						<splitButton id="sbRoomLoss">
+						<button id="RoomLossDefault" label="Room Loss" onAction="TraceFunction" tag="PutRoomLossTypical" imageMso="CombineShapesMenu" screentip="Noise > Room Loss > Classic" supertip="Room Loss - Assuming generalised 'Live' and 'Dead' characteristics" />
+						<menu id="Room_Losses" label="Room Loss" imageMso="CombineShapesMenu" screentip="Noise Funcs. > Room Loss" supertip="Calculates the difference between sound power and sound pressure in a room, due to the reverberant characteristics. Options for Classic, Reverberation Time, and Room Constant." keytip="RL">
+                        <button id="RoomLoss" label="Classic" onAction="TraceFunction" tag="PutRoomLossTypical" imageMso="ControlLineThicknessGallery" screentip="Noise > Room Loss > Classic" supertip="Room Loss - Assuming generalised 'Live' and 'Dead' characteristics" />
+                        <button id="RoomLossRT" label="Reverberation" onAction="TraceFunction" tag="PutRoomLossTypicalRT" imageMso="DiagramChangeToRadialClassic" screentip="Noise > Room Loss > Reverberation" supertip="Room Loss - Assuming an input Reverberation Time" />
+                        <button id="RoomLossRC" label="Room Constant" onAction="TraceFunction" tag="PutRoomLossRC" imageMso="DiagramChangeToPyramidClassic" screentip="Noise > Room Loss > Room Constant" supertip="Room Loss - from room constant. See also RT Calc in Standard Calc Sheets." />
 						</menu>
-
-				<button id="btnASHRAEcurve" label="ASHRAE Curves" onAction="btnASHRAEcurve" imageMso="TextWrappingInFrontOfText"/>
-
+						 </splitButton>
 				</group>
 
-				<group id="SheetFuncs" label="Sheet Tools" insertAfterMso="GroupEditingExcel">
-					<button id="btnHeaderBlock" label="Fill in Header Block" size="normal" onAction="btnHeaderBlock" imageMso="AutoFormatChange" screentip="Sheet Tools > Fill in Header Block" supertip="Completes header details with Project Number, Project Name, Author Initials and the current Date/Time." />
-					<button id="btnClearHeaderBlock" label="Clear Header Block" size="normal" onAction="btnClearHeaderBlock" imageMso="Delete" screentip="Sheet Tools > Clear Header Block" supertip="Clears all data from the Header Block" />
-					<button id="btnFormatBorders" label="Format Borders" size="normal" onAction="btnFormatBorders" imageMso="BorderInsideHorizontal" screentip="Sheet Tools > Format Borders" supertip="Solid line on selection edge, dash line inside vertical, solid line horizontal." />
-					<button id="btnPlot" label="Plot" size="normal" onAction="btnPlot" imageMso="ChartLines" screentip="Sheet Tools > Plot" supertip="Creates a chart object with the selected rows of data." />
-					<button id="btnHeatMap" label="Heat Map" size="normal" onAction="btnHeatMap" imageMso="ConditionalFormattingColorScalesGallery" screentip="Sheet Tools > Heat Map" supertip="Applies conditional formatting to selected rows. Red is the highest value, green is the lowest. Formatting can be done for the entire block of values or row-by-row." />
-					<button id="btnFixReferences" label="Fix References" size="normal" onAction="btnFixReferences" imageMso="ColorRed" screentip="Sheet Tools > Fix References" supertip="Replaces references to an external workbook with a blank string, restoring to the installed version of Trace." />
+                <group id="gMechanical" label="Mechanical" insertAfterMso="GroupEditingExcel">
+                    <button id="DuctAtten" label="Solid Duct" onAction="TraceFunction" tag="PutDuctAtten" imageMso="_3DSurfaceWireFrameClassic" screentip="Noise > Mech > Solid Duct" supertip="Attenuation per metre of solid duct." keytip="MD" />
+                    <button id="FlexDuct" label="Flex Duct" onAction="TraceFunction" tag="PutFlexDuctAtten" imageMso="ShapeCurve" screentip="Noise > Mech > Flex Duct" supertip="Attenuation per metre of flexible duct." keytip="MF" />
+                    <button id="ERL" label="ERL" onAction="TraceFunction" tag="PutERL" imageMso="_3DExtrusionDepthGalleryClassic" screentip="Noise > Mech > End Reflection Loss" supertip="Attenuation for End Reflection Loss." keytip="MR" />
+                    <button id="Bend" label="Bend" onAction="TraceFunction" tag="PutElbowLoss" imageMso="CollapseSearchPane" screentip="Noise > Mech > Bend" supertip="Attenuation through elbows / bends." keytip="ME" />
+                    <button id="DuctSplit" label="Duct Split" onAction="TraceFunction" tag="PutDuctSplit" imageMso="F" screentip="Noise > Mech > Duct Split" supertip="Attenuation from takeoffs, junctions and splits." keytip="MJ" />
+                    <button id="Silencer" label="Silencer" onAction="TraceFunction" tag="PutSilencer" imageMso="ParagraphIndentLeft" screentip="Noise > Mech > Silencer" supertip="Attenuation from splitter silencers (from Fantech catalogue)." keytip="MS" />
+                    <button id="AcousticLouvres" label="Louvres" onAction="TraceFunction" tag="PutLouvres" imageMso="ShapeArc" screentip="Noise > Mech > Louvres" supertip="Attenuation from acoustic louvres (from Fantech catalogue)." keytip="ML" />
+                    <button id="Directivity" label="Directivity" onAction="TraceFunction" tag="PutDuctDirectivity" imageMso="ShapeStraightConnectorArrow" screentip="Noise > Mech > Directivity" supertip="Applies a correction depending on angle from the outlet." keytip="MA" />
+                    <button id="Plenum" label="Plenum" onAction="TraceFunction" tag="PutPlenumLoss" imageMso="_3DSurfaceMetalClassic" screentip="Noise > Mech > Plenum" supertip="Calculates down-duct attenuation from plenums." keytip="MP" />
+                    <button id="DuctBreakout" label="Duct Breakout" onAction="TraceFunction" tag="PutDuctBreakOut" imageMso="DiagramExpandClassic" screentip="Noise > Mech > Duct Breakout" supertip="Calculates attenuation from duct breakout." keytip="MBO" />
+                    <button id="DuctBreakin" label="Duct Break-in" onAction="TraceFunction" tag="PutDuctBreakIn" imageMso="ReadingViewClose" screentip="Noise > Mech > Duct Break-in" supertip="Calculates attenuation from duct break-in." keytip="MBI" />
+                        <menu id="mRegenNoise" label="Regen Noise" imageMso="GroupCompressMedia" keytip="MG">
+                            <button id="DamperRegen" label="Damper" onAction="TraceFunction" tag="PutDamperRegen" screentip="Noise > Mech > Regen. Noise > Damper" />
+                            <button id="DiffuserRegen" label="Diffuser" onAction="TraceFunction" tag="PutDiffuserRegen" screentip="Noise > Mech > Regen. Noise > Diffuser" enabled="false" />
+                            <button id="ElbowRegen" label="Elbow/Bend" onAction="TraceFunction" tag="PutElbowRegen" screentip="Noise > Mech > Regen. Noise > Elbow/Bend" enabled="false" />
+                            <button id="JunctionRegen" label="Junction" onAction="TraceFunction" tag="PutJunctionRegen" screentip="Noise > Mech > Regen. Noise > Junction" enabled="false" />
+                            <button id="SilencerRegen" label="Silencer" onAction="TraceFunction" tag="PutSilencerRegen" screentip="Noise > Mech > Regen. Noise" supertip="Empirically determined regenerated noise from rectangular silencers" />
+                            <button id="TransitionRegen" label="Transition" onAction="TraceFunction" tag="PutTransitionRegen" screentip="Noise > Mech > Regen. Noise > Transition" enabled="false" />
+                        </menu>
+                </group>
+
+				<group id="gCurveFuncs" label="Curves" insertAfterMso="GroupEditingExcel">
+				    <menu id="Curves" label="Ratings" size="large" imageMso="JotInsertGraphStyle1" keytip="CR">
+                        <button id="NRCurve" label="NR Curve" onAction="TraceFunction" tag="PutNR" imageMso="ColorAqua" screentip="Curves > NR Curve" supertip="Rates a spectrum in the row above against the NR curve and returns the values for the determined curve." />
+                        <button id="NCCurve" label="NC Curve" onAction="TraceFunction" tag="PutNC" imageMso="ColorBlue" screentip="Curves > NC Curve" supertip="Rates a spectrum in the row above against the NC curve and returns the values for the determined curve." />
+                        <button id="PNCCurve" label="PNC Curve" onAction="TraceFunction" tag="PutPNC" imageMso="ColorNavy" screentip="Curves > PNC Curve" supertip="Rates a spectrum in the row above against the PNC curve and returns the values for the determined curve." />
+                        <button id="RwCurve" label="Rw Curve" onAction="TraceFunction" tag="PutRw" imageMso="ColorLime" screentip="Curves > Rw Curve" supertip="Rates a Transmission Loss Spectrum in the row above against the Rw curves (ISO717.1) and returns the values for the detemined curve." />
+                        <button id="STCCurve" label="STC Curve" onAction="TraceFunction" tag="PutSTC" imageMso="ColorGreen" screentip="Curves > STC Curve" supertip="Rates a Transmission Loss spectrum in the row above against the STC curves and returns the values for the detemined curve." />
+                        <button id="LnwCurve" label="Lnw Curve" onAction="TraceFunction" tag="PutLnw" imageMso="ColorYellow" screentip="Curves > Lnw Curve" supertip="Rates a Sound Pressure Level from an tapping machine test against the Lnw curves (ISO717.2)" />
+					</menu>
 				</group>
-				
-				
-				
-				<group id="FormatStyle" label="Format / Style" insertAfterMso="GroupEditingExcel">
-					<menu id="Style" label="Style" imageMso="StylisticSetsMenu">					
-					<button id="btnFmtTitle" label="Title" onAction="btnFmtTitle" imageMso="ColorNavy" />
-					<menuSeparator id="Paths" />
-					<button id="btnFmtUnmiti" label="Unmitigated" onAction="btnFmtUnmiti" imageMso="ColorMaroon" />
-					<button id="btnFmtMiti" label="Mitigated" onAction="btnFmtMiti" imageMso="ColorTeal" />
-					<menuSeparator id="MainFormats" />
-					<button id="btnFmtSource" label="Source" onAction="btnFmtSource" imageMso="ColorBlack" />
-					<button id="btnFmtReference" label="Reference" onAction="btnFmtReference" imageMso="ColorPurple" />
-					<button id="btnFmtSilencer" label="Silencer" onAction="btnFmtSilencer" imageMso="ColorBlue" />
-					<button id="btnFmtUserInput" label="User Input" onAction="btnFmtUserInput" imageMso="ColorYellow" />
-					<button id="btnFmtComment" label="Comment" onAction="btnFmtComment" imageMso="ColorSilver" />
-					<menuSeparator id="Totals" />
-					<button id="btnFmtSubtotal" label="Subtotal" onAction="btnFmtSubtotal" imageMso="ColorGray" />
-					<button id="btnFmtTotal" label="Total" onAction="btnFmtTotal" imageMso="ColorGreen" />
-					<menuSeparator id="Normal" />
-					<button id="btnFmtNormal" label="Normal" onAction="btnFmtNormal" imageMso="ColorWhite" />
+
+				<group id="gVibration" label="Vibration" insertAfterMso="GroupEditingExcel">
+					<menu id="ConvertVibUnits" label="Convert" imageMso="GroupShow" screentip="Vibration > Convert Vib Units" supertip="Converts between logarithmic and linear scales. Converts between displacement, velocity, and acceleration." keytip="VU">
+					<menuSeparator id="SepLogLin" title="Log/Lin" />
+						<button id="DB2MMPS" label="dB to Linear" onAction="TraceFunction" tag="VibDB2Lin"  />
+						<button id="MMPS2DB" label="Linear to dB" onAction="TraceFunction" tag="VibLin2DB"  />
+					<menuSeparator id="SepInt" title="Int/Dif" />
+						<button id="VibConvert" label="Accel/Vel/Disp Convert" onAction="TraceFunction" tag="VibConvert" />					
 					</menu>
 
-					<menu id="NumFormat" label="Units" imageMso="Superscript">
-					<button id="btnFmtUnitM" label="m" onAction="btnFmtUnitMetres" />
-					<button id="btnFmtUnitM2" label="m²" onAction="btnFmtUnitMetresSquared" />
-					<button id="btnFmtUnitM2pS" label="m²/s" onAction="btnFmtUnitMetresSquaredPerSecond" />
-					<button id="btnFmtUnitM3pS" label="m³/s" onAction="btnFmtUnitMetresCubedPerSecond" />
-					<button id="btnFmtUnitDB" label="dB" onAction="btnFmtUnitdB" />
-					<button id="btnFmtUnitDBA" label="dBA" onAction="btnFmtUnitdBA" />
-					<button id="btnFmtUnitKW" label="kW" onAction="btnFmtUnitkW" />
-					<button id="btnFmtUnitPA" label="Pa" onAction="btnFmtUnitPa" />
-					<button id="btnFmtUnitQ" label="Q" onAction="btnFmtUnitQ" />
-					<menuSeparator id="FormatClear" />
-					<button id="btnFmtClear" label="Clear" onAction="btnFmtClear" />
+                    <menu id="VibCurves" label="Rating" imageMso="TextWrappingInFrontOfText" screentip="Vibration > Rating" keytip="VC">
+                        <button id="ASHRAEcurve" label="ASHRAE Curves" onAction="TraceFunction" tag="PutVCcurve" imageMso="ColorBlue" screentip="Vibration > Rating > ASHRAE Curves (VC)" supertip="Rates against the ASHRAE VC Curves as defined in the latest standard." />
+                        <button id="AS2670curve" label="AS2670 Curves" onAction="TraceFunction" tag="PutAS2670curve" imageMso="ColorYellow" screentip="Vibration > Rating > AS2670 Curves" supertip="Rates against rating curves from AS2670 - Evaluation of human exposure to whole-body vibration." />
+                    </menu>
+
+					<menu id="BuildingVibration" label="Building Vib." imageMso="ArrangeByCompany" screentip="Vibration > Building Vibration" supertip="Inserts amplification or loss values for different building types." keytip="VB">
+					<button id="CouplingLoss" label="Coupling Loss" onAction="TraceFunction" tag="CouplingLoss" imageMso="ConnectShapes" screentip="Vibration > Building Vibration > Coupling Loss" />
+					<button id="BuildingAmplification" label="Building Amplification" onAction="TraceFunction" tag="BuildingAmplification" imageMso="AudioFadeInTime" screentip="Vibration > Building Vibration> Building Amplification" />
+					</menu>
+				</group>
+
+				<group id="gSheetFuncs" label="Sheet Tools" insertAfterMso="GroupEditingExcel">
+					<button id="HeaderBlock" label="Fill in Header" size="normal" onAction="TraceFunction" tag="`FillHeaderBlock" imageMso="AutoFormatChange" screentip="Sheet Tools > Fill in Header Block" supertip="Completes header details with Project Number, Project Name, Author Initials and the current Date/Time." keytip="TH" />
+					<button id="ClearHeaderBlock" label="Clear Header" size="normal" onAction="TraceFunction" tag="`ClearHeaderBlock" imageMso="Delete" screentip="Sheet Tools > Clear Header Block" supertip="Clears all data from the Header Block" keytip="TC" />
+					<button id="FormatBorders" label="Format Borders" size="normal" onAction="TraceFunction" tag="`FormatBorders" imageMso="BorderInsideHorizontal" screentip="Sheet Tools > Format Borders" supertip="Solid line on selection edge, dash line inside vertical, solid line horizontal." keytip="TB" />
+					<button id="Plot" label="Plot" size="normal" onAction="TraceFunction" tag="Plot" imageMso="ChartLines" screentip="Sheet Tools > Plot" supertip="Creates a chart object with the selected rows of data." keytip="TP" />
+					<button id="HeatMap" label="Heat Map" size="normal" onAction="TraceFunction" tag="HeatMap" imageMso="ConditionalFormattingColorScalesGallery" screentip="Sheet Tools > Heat Map" supertip="Applies conditional formatting to selected rows. Red is the highest value, green is the lowest. Formatting can be done for the entire block of values or row-by-row." keytip="TM"/>
+                        <splitButton id="bFixReferences">
+                        <button id="FixReferencesDefault" label="Fix Ref." onAction="TraceFunctionWithInput" tag="`FixReferences" imageMso="ColorRed" screentip="Sheet Tools > Fix References" supertip="Replaces references to an external workbook with a blank string, restoring to the installed version of Trace." />
+                        <menu id="mFixReferences" keytip="TR">
+                        <button id="FixReferencesAll" label="Fix all sheets" onAction="TraceFunctionWithInput" tag="`FixReferences" imageMso="ColorRed" screentip="Sheet Tools > Fix References" supertip="Replaces references to an external workbook with a blank string, restoring to the installed version of Trace." />
+                        <button id="FixReferences" label="Fix current sheet only"  onAction="TraceFunctionWithInput" tag="`FixReferences" imageMso="ColorRed" screentip="Sheet Tools > Fix References" supertip="Replaces references to an external workbook with a blank string, restoring to the installed version of Trace." />
+                        <button id="FixLegacyFormulas" label="Fix legacy formulas" onAction="TraceFunction" tag="FixLegacyFunctions" imageMso="ColorMaroon" screentip="Sheet Tools > Fix Legacy Formulas" supertip="Some functions have been renamed, this finds all instances of old function and replaces them with the new function name." />
+                        </menu>
+                        </splitButton>
+				</group>
+				
+				
+				<group id="gFormatStyle" label="Format / Style" insertAfterMso="GroupEditingExcel">
+					<menu id="Style" label="Style" imageMso="StylisticSetsMenu" keytip="SS">
+                        <button id="FmtTitle" label="Title" onAction="btnStyle" tag="Title" imageMso="ColorNavy" />
+                        <menuSeparator id="Paths" />
+                        <button id="FmtUnmiti" label="Unmitigated" onAction="btnStyle" tag="Unmitigated" imageMso="ColorMaroon" />
+                        <button id="FmtMiti" label="Mitigated" onAction="btnStyle" tag="Mitigated" imageMso="ColorTeal" />
+                        <menuSeparator id="MainFormats" />
+                        <button id="FmtSource" label="Source" onAction="btnStyle" tag="Lw Source" imageMso="ColorBlack" />
+                        <button id="FmtReference" label="Reference" onAction="btnStyle" tag="Reference" imageMso="ColorPurple" />
+                        <button id="FmtSilencer" label="Silencer" onAction="btnStyle" tag="Silencer" imageMso="ColorBlue" />
+                        <button id="FmtRegen" label="Regen" onAction="btnStyle" tag="Regen" imageMso="ColorAqua" />
+                        <button id="FmtUserInput" label="User Input" onAction="btnStyle" tag="Input" imageMso="ColorYellow" />
+                        <button id="FmtComment" label="Comment" onAction="btnStyle" tag="Comment" imageMso="ColorSilver" />
+                        <menuSeparator id="Totals" />
+                        <button id="FmtSubtotal" label="Subtotal" onAction="btnStyle" tag="Subtotal" imageMso="ColorGray" />
+                        <button id="FmtTotal" label="Total" onAction="btnStyle" tag="Total" imageMso="ColorGreen" />
+                        <menuSeparator id="Normal" />
+                        <button id="FmtNormal" label="Normal" onAction="btnStyle" tag="Normal" imageMso="ColorWhite" />
 					</menu>
 
-					<button id="btnTarget" label="Target" size="normal" onAction="btnTarget" imageMso="StopLeftToRight" />				
+					<menu id="NumFormat" label="Units" imageMso="Superscript" keytip="SU">
+                        <button id="FmtUnitM" label="m" onAction="btnUnits" tag="m" />
+                        <button id="FmtUnitM2" label="m²" onAction="btnUnits" tag="m2" />
+                        <button id="FmtUnitMpS" label="m/s" onAction="btnUnits" tag="mps" />
+                        <button id="FmtUnitM2pS" label="m²/s" onAction="btnUnits" tag="m2ps" />
+                        <button id="FmtUnitM3pS" label="m³/s" onAction="btnUnits" tag="m3ps" />
+                        <button id="FmtUnitLpS" label="L/s" onAction="btnUnits" tag="lps" />
+                        <button id="FmtUnitDB" label="dB" onAction="btnUnits" tag="dB" />
+                        <button id="FmtUnitDBA" label="dBA" onAction="btnUnits" tag="dBA" />
+                        <button id="FmtUnitKW" label="kW" onAction="btnUnits" tag="kW" />
+                        <button id="FmtUnitMW" label="MW" onAction="btnUnits" tag="MW" />
+                        <button id="FmtUnitPA" label="Pa" onAction="btnUnits" tag="Pa" />
+                        <button id="FmtUnitQ" label="Q" onAction="btnUnits" tag="Q" />
+                        <menuSeparator id="FormatClear" />
+                        <button id="FmtClear" label="Clear" onAction="btnUnits" tag="Clear" />
+					</menu>
+
+					<button id="Target" label="Target" size="normal" onAction="TraceFunction" tag="Target" imageMso="StopLeftToRight" keytip="ST"/>
 
 				</group>
-
-
-				<group id="Help" label="Help" insertAfterMso="GroupEditingExcel">
-					<button id="btnOnlineHelp" label="Wiki" size="large" onAction="btnOnlineHelp" imageMso="Help" screentip="Help" supertip="Go here to learn about what's really going on. Learn, review, and contribute to the project."  />
+				    
+                <!--Note: the prefix "`" skips the lines of code which set the global variables-->
+				<group id="gHelp" label="Help" insertAfterMso="GroupEditingExcel">
+				    <button id="OnlineHelp" label="Wiki" size="normal" onAction="btnOnlineHelp" image="HelpCircle" screentip="Help" supertip="Go here to learn about what's really going on. Learn, review, and contribute to the project."  keytip="HW" />
+					<button id="About" label="About" size="normal" onAction="btnAbout" image="TraceCircle" keytip="HA" />
+                        <menu id="mDevTools" label="Tools" imageMso="ToolboxGallery" keytip="HT">
+                            <button id="ExportCode" label="Export source code" onAction="TraceFunction" tag="`EXPORT_TRACE_SOURCE_CODE" />
+                            <button id="OpenTraceDir" label="Open Trace directory" onAction="TraceFunction" tag="`OpenTraceDirectory" />
+                        </menu>
 				</group>
+
 			</tab>
 		</tabs>
 	</ribbon>

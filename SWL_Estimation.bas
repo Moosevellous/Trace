@@ -1,26 +1,35 @@
 Attribute VB_Name = "SWL_Estimation"
+'==============================================================================
+'PUBLIC VARIABLES
+'==============================================================================
+
 Public DescriptionString As String
 
+'Fans
 Public FanType As String
 Public FanV As Long
 Public FanP As Long
 
+'Pumps
 Public PumpEqn As String
 Public PumpPower As Long
 
+'Cooling Towers
 Public CTEqn As String
 Public CTPower As Long
 Public CT_Type As String
 Public CT_Correction(0 To 8) As Long
-Public CT_Direction(0 To 9) As Variant
+Public CT_Directivity(0 To 9) As Variant
 Public CT_Dir_checked As Boolean
 
+'Electric Motors
 Public MotorType As String
 Public MotorEqn As String
 Public MotorPower As Long
 Public MotorSpeed As Long
 Public Motor_Correction(0 To 8) As Long
 
+'Tuurbines (steam and gas)
 Public TurbinePower As Long
 Public TurbineEqn As String
 Public TurbineCorrection(0 To 9) As Long
@@ -28,13 +37,38 @@ Public TurbineEnclosure(0 To 9) As Long
 Public GasTurbineType As String
 Public EnclosureDescription As String
 
+'Compressors
 Public CompressorSPL(0 To 8) As Long
 
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'Boilers
+Public BoilerPower As Long
+Public BoilerEqn As String
+Public BoilerCorrection(0 To 9) As Long
+Public BoilerType As String
 
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'FUNCTIONS
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+'==============================================================================
+' Name:     FanSimple
+' Author:   PS
+' Desc:     Sound power from fans
+' Args:     freq - octave band centre frequency string
+'           V - Volumetric air flow in m^3/s
+'           P - Pressure in Pascals
+'           FanType - identifier string for different fan types
+' Comments: (1)
+'==============================================================================
 Function LwFanSimple(freq As String, V As Double, P As Double, FanType As String)
 
-LwOverall = 10 * Application.WorksheetFunction.Log10(V) + 20 * Application.WorksheetFunction.Log10(P) + 40 'v in m^3, p in Pa
+LwOverall = 10 * Application.WorksheetFunction.Log10(V) + _
+    20 * Application.WorksheetFunction.Log10(P) + 40
  
     Select Case FanType
     Case Is = ""
@@ -86,313 +120,419 @@ LwOverall = 10 * Application.WorksheetFunction.Log10(V) + 20 * Application.Works
 End Function
 
 
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-'Here be subs
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'BELOW HERE BE SUBS
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+'==============================================================================
+' Name:     FanSimple
+' Author:   PS
+' Desc:     Adds simple fan equation estimation function from B&H
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub FanSimple()
 
-Sub PutLwFanSimple(SheetType As String)
-CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 frmEstFanLw.Show
 
-    If btnOkPressed Then 'ok
-    
-    Call ParameterUnmerge(Selection.Row, SheetType)
-    
-        If Left(SheetType, 3) = "OCT" Then
-        Cells(Selection.Row, 14).Value = FanV
-        Cells(Selection.Row, 15).Value = FanP
-        Cells(Selection.Row, 5).Value = "=LwFanSimple(E$6,$N" & Selection.Row & ",$O" & Selection.Row & ",""" & FanType & """)"
-        ExtendFunction (SheetType)
-        Cells(Selection.Row, 14).NumberFormat = "0""m" & chr(179) & "/s"""
-        Cells(Selection.Row, 15).NumberFormat = "0""Pa"""
-        Cells(Selection.Row, 2).Value = "Fan Estimate - Simple"
-        Else 'Third octave - not implemented
-        End If
-    
-    fmtUserInput SheetType, True
-    End If
+If btnOkPressed = False Then End
+If T_BandType <> "oct" Then ErrorOctOnly
+
+ParameterUnmerge (Selection.Row)
+'place in values
+Cells(Selection.Row, T_ParamStart).Value = FanV
+Cells(Selection.Row, T_ParamStart + 1).Value = FanP
+'build formula
+Cells(Selection.Row, T_LossGainStart).Value = "=LwFanSimple(" & _
+    T_FreqStartRng & "," & T_ParamRng(0) & "," & T_ParamRng(1) & _
+    ",""" & FanType & """)"
+ExtendFunction
+'format parameter cells
+SetUnits "mps", T_ParamStart
+SetUnits "Pa", T_ParamStart + 1, 0
+Cells(Selection.Row, T_Description).Value = "SWL Estimate - Fan Simple"
+SetTraceStyle "Input", True
 
 End Sub
 
 
+'==============================================================================
+' Name:     PumpSimple
+' Author:   PS
+' Desc:     Adds sound power estimation for pumps from B&H
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub PumpSimple()
 
-Sub PutLwPumpSimple(SheetType As String)
-CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 frmEstPumpLw.Show
 
-    If btnOkPressed Then 'ok
-    
-    Call ParameterMerge(Selection.Row, SheetType)
-    
-        If Left(SheetType, 3) = "OCT" Then
-        PumpEqn = Right(PumpEqn, Len(PumpEqn) - 3)
-        PumpEqn = Replace(PumpEqn, "kW", "$N" & Selection.Row, 1, Len(PumpEqn), vbTextCompare)
-        Cells(Selection.Row, 5).Value = "=" & PumpEqn & "-13"
-        Cells(Selection.Row, 6).Value = "=" & PumpEqn & "-12"
-        Cells(Selection.Row, 7).Value = "=" & PumpEqn & "-11"
-        Cells(Selection.Row, 8).Value = "=" & PumpEqn & "-9"
-        Cells(Selection.Row, 9).Value = "=" & PumpEqn & "-9"
-        Cells(Selection.Row, 10).Value = "=" & PumpEqn & "-6"
-        Cells(Selection.Row, 11).Value = "=" & PumpEqn & "-9"
-        Cells(Selection.Row, 12).Value = "=" & PumpEqn & "-13"
-        Cells(Selection.Row, 13).Value = "=" & PumpEqn & "-19"
-        Cells(Selection.Row, 14).Value = PumpPower
-        'ExtendFunction (SheetType)
-        Cells(Selection.Row, 14).NumberFormat = "0"" kW"""
-        Cells(Selection.Row, 2).Value = DescriptionString 'set by form code
-        Else
-        'Third octaves not provided
-        End If
-    fmtUserInput SheetType, True
-    
-    'move down one row
-    Cells(Selection.Row + 1, Selection.Column).Select
-    
-    'Assume spherical spreading
-    Distance (SheetType)
-        If Left(SheetType, 3) = "OCT" Then
-        Cells(Selection.Row, 14).Value = 1 'assume 1m
-        FlipSign SheetType, True 'skip user input
-        Else
-        'Third octaves not provided
-        End If
-    
-    'move down one row
-    Cells(Selection.Row + 1, Selection.Column).Select
-    Cells(Selection.Row, 5).Value = "=" & Cells(Selection.Row - 2, 5).Address(False, False) & "+" & Cells(Selection.Row - 1, 5).Address(False, False)
-    ExtendFunction (SheetType)
-    Cells(Selection.Row, 2).Value = "SWL - Pump"
-    
-    End If 'close if statement for btnOK
+If btnOkPressed = False Then End
+If T_BandType <> "oct" Then ErrorOctOnly
+
+ParameterMerge (Selection.Row)
+'build formulas
+PumpEqn = Right(PumpEqn, Len(PumpEqn) - 3)
+PumpEqn = Replace(PumpEqn, "kW", T_ParamRng(0), 1, Len(PumpEqn), vbTextCompare)
+Cells(Selection.Row, T_LossGainStart).Value = "=" & PumpEqn & "-13"
+Cells(Selection.Row, 6).Value = "=" & PumpEqn & "-12"
+Cells(Selection.Row, 7).Value = "=" & PumpEqn & "-11"
+Cells(Selection.Row, 8).Value = "=" & PumpEqn & "-9"
+Cells(Selection.Row, 9).Value = "=" & PumpEqn & "-9"
+Cells(Selection.Row, 10).Value = "=" & PumpEqn & "-6"
+Cells(Selection.Row, 11).Value = "=" & PumpEqn & "-9"
+Cells(Selection.Row, 12).Value = "=" & PumpEqn & "-13"
+Cells(Selection.Row, 13).Value = "=" & PumpEqn & "-19"
+Cells(Selection.Row, T_ParamStart).Value = PumpPower
+
+'format parameter cells
+SetUnits "kW", T_ParamStart
+Cells(Selection.Row, T_Description).Value = DescriptionString 'set by form code
+SetTraceStyle "Input", True
+
+'move down one row
+SelectNextRow
+
+'Assume spherical spreading
+DistancePoint
+Cells(Selection.Row, T_ParamStart).Value = 1 'assume 1m
+FlipSign
+
+'move down one row and sum
+SelectNextRow
+AutoSum "Subtotal", "SWL Estimate - Pump"
 
 End Sub
 
-Sub PutLwCoolingTower(SheetType As String)
-CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
 
-frmEstCoolingTower.Show
-    If btnOkPressed Then 'ok
-    Call ParameterMerge(Selection.Row, SheetType)
-        If Left(SheetType, 3) = "OCT" Then
-        Cells(Selection.Row, 14).Value = CTPower
-        CTEqn = Right(CTEqn, Len(CTEqn) - 2) 'chop off "Lw", start with "="
-        CTEqn = Replace(CTEqn, "kW", "$N" & Selection.Row, 1, Len(CTEqn), vbTextCompare)
-        CTEqn = Replace(CTEqn, "log(", "*LOG(", 1, Len(CTEqn), vbTextCompare)
-        Cells(Selection.Row, 5).Value = CTEqn
-        ExtendFunction (SheetType)
-            'apply correction
-            For C = LBound(CT_Correction) To UBound(CT_Correction)
-                If CT_Correction(C) >= 0 Then
-                Cells(Selection.Row, 5 + C).Formula = Cells(Selection.Row, 5 + C).Formula & "+" & CStr(CT_Correction(C))
-                Else
-                Cells(Selection.Row, 5 + C).Formula = Cells(Selection.Row, 5 + C).Formula & CStr(CT_Correction(C)) 'minus already in there
-                End If
-            Next C
-        Cells(Selection.Row, 14).NumberFormat = "0"" kW"""
-        Cells(Selection.Row, 2).Value = "Cooling Tower Estimate - " & CT_Type & " Type"
-        Else
-        End If
-        
-    fmtUserInput SheetType, True
-    
-    'move down one row
-    Cells(Selection.Row + 1, Selection.Column).Select
-    
-     'Assume spherical spreading
-    Distance (SheetType)
-        If Left(SheetType, 3) = "OCT" Then
-        Cells(Selection.Row, 14).Value = 6 'assume minimum distance 6m
-        Range(Cells(Selection.Row, 14), Cells(Selection.Row, 14)).ClearComments
-        Range(Cells(Selection.Row, 14), Cells(Selection.Row, 14)).AddComment ("Minimum distance: 6m")
-        'TODO
-        End If
-    
-    'move down one row
-    Cells(Selection.Row + 1, Selection.Column).Select
-        
-        If CT_Dir_checked = True Then
-        Range(Cells(Selection.Row, 5), Cells(Selection.Row, 13)) = CT_Direction
-        Cells(Selection.Row, 2).Value = CT_Direction(9)
-        'move down one row
-        Cells(Selection.Row + 1, Selection.Column).Select
-        End If
-        
-    
-    'add it up!
-    AutoSum (SheetType)
-    
-    End If 'close if statement for btnOK
-End Sub
-
-Sub PutCompressorSmall(SheetType As String)
+'==============================================================================
+' Name:     CoolingTower
+' Author:   PS
+' Desc:     Sound power estimation for Cooling Towers from B&H
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub CoolingTower()
 
 Dim i As Integer
 
-CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
+frmEstCoolingTower.Show
+
+If btnOkPressed = False Then End
+If T_BandType <> "oct" Then ErrorOctOnly
+
+ParameterMerge (Selection.Row)
+
+'build formulas
+Cells(Selection.Row, T_ParamStart).Value = CTPower
+CTEqn = Right(CTEqn, Len(CTEqn) - 2) 'chop off "Lw", start with "="
+CTEqn = Replace(CTEqn, "kW", T_ParamRng(0), 1, Len(CTEqn), vbTextCompare)
+CTEqn = Replace(CTEqn, "log(", "*LOG(", 1, Len(CTEqn), vbTextCompare)
+Cells(Selection.Row, T_LossGainStart).Value = CTEqn
+ExtendFunction
+
+    'apply correction
+    For i = LBound(CT_Correction) To UBound(CT_Correction)
+        If CT_Correction(i) >= 0 Then 'add a plus to the formula
+        Cells(Selection.Row, T_LossGainStart + i).Formula = _
+            Cells(Selection.Row, T_LossGainStart + i).Formula & _
+            "+" & CStr(CT_Correction(i))
+        Else 'minus already in there
+        Cells(Selection.Row, T_LossGainStart + i).Formula = _
+            Cells(Selection.Row, T_LossGainStart + i).Formula & _
+            CStr(CT_Correction(i))
+        End If
+    Next i
+
+SetUnits "kW", T_ParamStart
+Cells(Selection.Row, T_Description).Value = "Cooling Tower SWL Estimate - " & _
+    CT_Type & " Type"
+    
+SetTraceStyle "Input", True
+
+'move down one row
+SelectNextRow
+
+ 'Assume spherical spreading
+DistancePoint
+Cells(Selection.Row, T_ParamStart).Value = 6 'assume minimum distance 6m
+InsertComment "Minimum distance: 6m", T_Description, False
+
+'move down one row
+SelectNextRow
+    
+    'add directional effects
+    If CT_Dir_checked = True Then
+    Range(Cells(Selection.Row, T_LossGainStart), _
+        Cells(Selection.Row, T_LossGainEnd)) = CT_Directivity
+    Cells(Selection.Row, T_Description).Value = CT_Directivity(9)
+    'move down one row
+    SelectNextRow
+    End If
+
+'add it up!
+AutoSum "Subtotal", "Cooling Tower SPL"
+
+End Sub
+
+
+'==============================================================================
+' Name:     CompressorSmall
+' Author:   PS
+' Desc:     Sound power estimation for Small Compressors from B&H
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub CompressorSmall()
+
+Dim i As Integer
 
 frmEstCompressorSmall.Show
 
-    If btnOkPressed Then 'ok
-        If Left(SheetType, 3) = "OCT" Then
-            For i = 0 To 8
-            Cells(Selection.Row, 5 + i).Formula = Cells(Selection.Row, 5 + i).Formula & "+" & CompressorSPL(i)
-            Next i
-        Else
-        ErrorOctOnly
-        End If
-    End If
-Cells(Selection.Row, 2).Value = "Compressor (small) SPL Estimate"
+If btnOkPressed = False Then End
+If T_BandType <> "oct" Then ErrorOctOnly
+
+    For i = 0 To 8
+    Cells(Selection.Row, T_LossGainStart + i).Formula = CompressorSPL(i)
+    Next i
+
+Cells(Selection.Row, T_Description).Value = "Compressor (small) - SPL Estimate"
 
 'move down one row
-Cells(Selection.Row + 1, Selection.Column).Select
+SelectNextRow
 
 'Assume spherical spreading
-Distance (SheetType)
-    If Left(SheetType, 3) = "OCT" Then
-    Cells(Selection.Row, 14).Value = 1 'assume minimum distance 6m
-    FlipSign SheetType, True 'skip user input
-    Else
-    ErrorOctOnly
-    End If
+DistancePoint
+Cells(Selection.Row, T_ParamStart).Value = 1
+FlipSign
 
 'move down one row
-Cells(Selection.Row + 1, Selection.Column).Select
-'Add divergence formula
-Cells(Selection.Row, 5).Value = "=" & Cells(Selection.Row - 2, 5).Address(False, False) & "+" & Cells(Selection.Row - 1, 5).Address(False, False)
-ExtendFunction (SheetType)
-Cells(Selection.Row, 2).Value = "SWL - Compressor"
+SelectNextRow
+AutoSum "Subtotal", "SWL Estimate - Compressor"
 
 End Sub
 
-Sub PutElectricMotorSmall(SheetType As String)
 
-CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
+
+'==============================================================================
+' Name:     ElectricMotorSmall
+' Author:   PS
+' Desc:     Sound power estimation for Small Motors from B&H
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub ElectricMotorSmall()
+
+Dim i As Integer
 
 frmEstElectricMotorSmall.Show
 
-    If btnOkPressed Then 'ok
-    Call ParameterMerge(Selection.Row, SheetType)
-        If Left(SheetType, 3) = "OCT" Then
-        Cells(Selection.Row, 14).Value = MotorPower
-        Cells(Selection.Row, 14).NumberFormat = "0""kW"""
-        
-        MotorEqn = Right(MotorEqn, Len(MotorEqn) - 3)
-        MotorEqn = Replace(MotorEqn, "kW", "$N" & Selection.Row, 1, Len(MotorEqn), vbTextCompare)
-        MotorEqn = Replace(MotorEqn, "RPM", MotorSpeed, 1, Len(MotorEqn), vbTextCompare)
-        Cells(Selection.Row, 5).Value = "=" & MotorEqn
-        ExtendFunction (SheetType)
-            For corNum = 0 To 8
-                If Motor_Correction(corNum) >= 0 Then
-                Cells(Selection.Row, 5 + corNum).Formula = Cells(Selection.Row, 5 + corNum).Formula & "+" & Motor_Correction(corNum)
-                Else
-                Cells(Selection.Row, 5 + corNum).Formula = Cells(Selection.Row, 5 + corNum).Formula & Motor_Correction(corNum)  'number includes minus sign
-                End If
-            Next corNum
-        Else
-        ErrorOctOnly
-        End If
-    End If
-    
-    fmtUserInput SheetType, True
-    
-    Cells(Selection.Row, 2).Value = "Electric Motor SPL Estimate - " & MotorType & " Type"
+If btnOkPressed = False Then End
+If T_BandType <> "oct" Then ErrorOctOnly
 
- 'move down one row
-    Cells(Selection.Row + 1, Selection.Column).Select
-    
-     'Assume spherical spreading
-    Distance (SheetType)
-        If Left(SheetType, 3) = "OCT" Then
-        Cells(Selection.Row, 14).Value = 1 'assume minimum distance 6m
-        Range(Cells(Selection.Row, 5), Cells(Selection.Row, 13)).Select
-        FlipSign SheetType, True 'skip user input
+ParameterMerge (Selection.Row)
+
+'motor power
+Cells(Selection.Row, T_ParamStart).Value = MotorPower
+SetUnits "kW", T_ParamStart
+Range(T_ParamRng(0)).ClearComments
+Range(T_ParamRng(0)).AddComment ("Maximum motor power: 300kW")
+
+'build formula
+MotorEqn = Right(MotorEqn, Len(MotorEqn) - 3) 'trim 'Lw='
+MotorEqn = Replace(MotorEqn, "kW", T_ParamRng(0), 1, Len(MotorEqn), vbTextCompare)
+MotorEqn = Replace(MotorEqn, "RPM", MotorSpeed, 1, Len(MotorEqn), vbTextCompare)
+Cells(Selection.Row, T_LossGainStart).Value = "=" & MotorEqn
+ExtendFunction
+    For i = 0 To 8
+        If Motor_Correction(i) >= 0 Then 'add a plus to the formula
+        Cells(Selection.Row, T_LossGainStart + i).Formula = _
+            Cells(Selection.Row, T_LossGainStart + i).Formula & _
+            "+" & Motor_Correction(i)
+        Else 'minus already in there
+        Cells(Selection.Row, T_LossGainStart + i).Formula = _
+            Cells(Selection.Row, T_LossGainStart + i).Formula & _
+            Motor_Correction(i)
         End If
+    Next i
     
-    'move down one row
-    Cells(Selection.Row + 1, Selection.Column).Select
-    'Add divergence formula
-    Cells(Selection.Row, 5).Value = "=" & Cells(Selection.Row - 2, 5).Address(False, False) & "+" & Cells(Selection.Row - 1, 5).Address(False, False)
-    ExtendFunction (SheetType)
-    Cells(Selection.Row, 2).Value = "SWL - Motor"
+SetTraceStyle "Input", True
+    
+Cells(Selection.Row, T_Description).Value = "Electric Motor SPL Estimate - " & _
+    MotorType & " Type"
+
+'move down one row
+SelectNextRow
+    
+'Assume spherical spreading
+DistancePoint
+Cells(Selection.Row, T_ParamStart).Value = 1
+FlipSign
+
+'move down and sum
+SelectNextRow
+AutoSum "Subtotal", "SWL Estimate - Motor"
 
 End Sub
 
+'==============================================================================
+' Name:     GasTurbine
+' Author:   PS
+' Desc:     Sound power estimation for Gas Turbines from B&H
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub GasTurbine()
 
-Sub PutGasTurbine(SheetType As String)
-
-CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
+Dim i As Integer
 
 frmEstGasTurbine.Show
 
-    If btnOkPressed Then 'ok
-    Call ParameterMerge(Selection.Row, SheetType)
-        If Left(SheetType, 3) = "OCT" Then
-        Cells(Selection.Row, 14).Value = TurbinePower
-        Cells(Selection.Row, 14).NumberFormat = "0""MW"""
-        
-        TurbineEqn = Right(TurbineEqn, Len(TurbineEqn) - 3)
-        TurbineEqn = Replace(TurbineEqn, "MW", "$N" & Selection.Row, 1, Len(TurbineEqn), vbTextCompare)
-        Cells(Selection.Row, 5).Value = "=" & TurbineEqn
-        ExtendFunction (SheetType)
-            For corNum = 0 To 8
-                If TurbineCorrection(corNum) >= 0 Then
-                Cells(Selection.Row, 5 + corNum).Formula = Cells(Selection.Row, 5 + corNum).Formula & "+" & TurbineCorrection(corNum)
-                Else
-                Cells(Selection.Row, 5 + corNum).Formula = Cells(Selection.Row, 5 + corNum).Formula & TurbineCorrection(corNum)  'number includes minus sign
-                End If
-            Cells(Selection.Row + 1, 5 + corNum).Value = TurbineEnclosure(corNum)
-            Next corNum
-        Else
-        ErrorOctOnly
-        End If
-        
-    fmtUserInput SheetType, True
-    
-    Cells(Selection.Row, 2).Value = "Gas Turbine SWL Estimate - " & GasTurbineType
-    Cells(Selection.Row + 1, 2).Value = "Turbine Enclosure - " & EnclosureDescription
-    'move down
-    Cells(Selection.Row + 2, 2).Select
-    AutoSum (SheetType)
+If btnOkPressed = False Then End
+If T_BandType <> "oct" Then ErrorOctOnly
 
-    End If
+ParameterMerge (Selection.Row)
+
+Cells(Selection.Row, T_ParamStart).Value = TurbinePower
+SetUnits "MW", T_ParamStart
+'build formula
+TurbineEqn = Right(TurbineEqn, Len(TurbineEqn) - 3) 'trim 'Lw='
+TurbineEqn = Replace(TurbineEqn, "MW", T_ParamRng(0), 1, Len(TurbineEqn), _
+    vbTextCompare)
+Cells(Selection.Row, T_LossGainStart).Value = "=" & TurbineEqn
+ExtendFunction
+    For i = 0 To 8
+        If TurbineCorrection(i) >= 0 Then 'add a plus to the formula
+        Cells(Selection.Row, T_LossGainStart + i).Formula = _
+            Cells(Selection.Row, T_LossGainStart + i).Formula & "+" & _
+            TurbineCorrection(i)
+        Else 'minus already in there
+        Cells(Selection.Row, T_LossGainStart + i).Formula = _
+        Cells(Selection.Row, T_LossGainStart + i).Formula & _
+        TurbineCorrection(i)
+        End If
+    Cells(Selection.Row + 1, T_LossGainStart + i).Value = TurbineEnclosure(i)
+    Next i
+    
+SetTraceStyle "Input", True
+
+Cells(Selection.Row, T_Description).Value = "SWL Estimate - Gas Turbine - " _
+    & GasTurbineType
+Cells(Selection.Row + 1, T_Description).Value = "Turbine Enclosure - " _
+    & EnclosureDescription
+'move down and sum
+Cells(Selection.Row + 2, T_Description).Select
+AutoSum
+Cells(Selection.Row, T_Description).Value = "SWL Estimate - Gas Turbine"
 End Sub
 
+'==============================================================================
+' Name:     SteamTurbine
+' Author:   PS
+' Desc:     Sound power estimation for Steam Turbines from B&H
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub SteamTurbine()
 
-Sub PutSteamTurbine(SheetType As String)
-
-CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
+Dim i As Integer
 
 frmEstSteamTurbine.Show
 
-    If btnOkPressed Then 'ok
-    Call ParameterMerge(Selection.Row, SheetType)
-        If Left(SheetType, 3) = "OCT" Then
-        Cells(Selection.Row, 14).Value = TurbinePower
-        Cells(Selection.Row, 14).NumberFormat = "0""kW"""
-        
-        TurbineEqn = Right(TurbineEqn, Len(TurbineEqn) - 3)
-        TurbineEqn = Replace(TurbineEqn, "kW", "$N" & Selection.Row, 1, Len(TurbineEqn), vbTextCompare)
-        Cells(Selection.Row, 5).Value = "=" & TurbineEqn
-        ExtendFunction (SheetType)
-            For corNum = 0 To 8
-                If TurbineCorrection(corNum) >= 0 Then
-                Cells(Selection.Row, 5 + corNum).Formula = Cells(Selection.Row, 5 + corNum).Formula & "+" & TurbineCorrection(corNum)
-                Else
-                Cells(Selection.Row, 5 + corNum).Formula = Cells(Selection.Row, 5 + corNum).Formula & TurbineCorrection(corNum)  'number includes minus sign
-                End If
-            Cells(Selection.Row + 1, 5 + corNum).Value = TurbineEnclosure(corNum)
-            Next corNum
-        Else
-        ErrorOctOnly
+If btnOkPressed = False Then End
+If T_BandType <> "oct" Then ErrorOctOnly
+
+ParameterMerge (Selection.Row)
+
+Cells(Selection.Row, T_ParamStart).Value = TurbinePower
+SetUnits "kW", T_ParamStart
+'build formula
+TurbineEqn = Right(TurbineEqn, Len(TurbineEqn) - 3) 'trim 'Lw='
+TurbineEqn = Replace(TurbineEqn, "kW", T_ParamRng(o), 1, Len(TurbineEqn), _
+    vbTextCompare)
+Cells(Selection.Row, T_LossGainStart).Value = "=" & TurbineEqn
+ExtendFunction
+    For i = 0 To 8
+        If TurbineCorrection(i) >= 0 Then 'add a plus to the formula
+        Cells(Selection.Row, T_ParamStart + i).Formula = _
+            Cells(Selection.Row, T_LossGainStart + i).Formula & "+" _
+            & TurbineCorrection(i)
+        Else 'minus already in there
+        Cells(Selection.Row, T_ParamStart + i).Formula = _
+            Cells(Selection.Row, T_LossGainStart + i).Formula _
+            & TurbineCorrection(i)
         End If
-        
-    fmtUserInput SheetType, True
+    Cells(Selection.Row + 1, T_ParamStart + i).Value = TurbineEnclosure(i)
+    Next i
+
     
-    Cells(Selection.Row, 2).Value = "Steam Turbine SWL Estimate"
-     Cells(Selection.Row + 1, 2).Value = "Turbine Enclosure - " & EnclosureDescription
-    'move down
-    Cells(Selection.Row + 2, 2).Select
-    AutoSum (SheetType)
+SetTraceStyle "Input", True
+
+Cells(Selection.Row, T_Description).Value = "SWL Estimate - Steam Turbine"
+Cells(Selection.Row + 1, T_Description).Value = "Turbine Enclosure - " _
+    & EnclosureDescription
+'move down and sum
+Cells(Selection.Row + 2, 2).Select
+AutoSum
+Cells(Selection.Row, T_Description).Value = "SWL Estimate - Steam Turbine"
+End Sub
+
+
+'==============================================================================
+' Name:     Boiler
+' Author:   PS
+' Desc:     Sound power estimation for Boilers from B&H
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub Boiler()
+
+Dim i As Integer
+
+frmEstBoiler.Show
+
+If btnOkPressed = False Then End
+If T_BandType <> "oct" Then ErrorOctOnly
+
+ParameterMerge (Selection.Row)
+
+Cells(Selection.Row, T_ParamStart).Value = BoilerPower
+BoilerEqn = Right(BoilerEqn, Len(BoilerEqn) - 3) 'trim 'Lw='
+    'build formula based on boiler type
+    If BoilerType = "General Purpose" Then
+    SetUnits "kW", T_ParamStart
+    BoilerEqn = Replace(BoilerEqn, "kW", T_ParamRng(0), 1, Len(BoilerEqn), _
+    vbTextCompare) 'for General, input is kW
+    ElseIf BoilerType = "Large Power Plant" Then
+    SetUnits "MW", T_ParamStart
+    BoilerEqn = Replace(BoilerEqn, "MW", T_ParamRng(0), 1, Len(BoilerEqn), _
+    vbTextCompare) 'for Large power plants, input is MW
+    Else
+    msg = MsgBox("Error - nothing selected??????", vbOKOnly, "How????")
     End If
+
+Cells(Selection.Row, T_LossGainStart).Value = "=" & BoilerEqn
+ExtendFunction
+
+    For i = 0 To 8
+        If BoilerCorrection(i) >= 0 Then 'add a plus to the formula
+        Cells(Selection.Row, T_LossGainStart + i).Formula = _
+            Cells(Selection.Row, T_LossGainStart + i).Formula & _
+            "+" & BoilerCorrection(i)
+        Else 'minus already in there
+        Cells(Selection.Row, T_LossGainStart + i).Formula = _
+            Cells(Selection.Row, T_LossGainStart + i).Formula & _
+            BoilerCorrection(i)
+        End If
+    Next i
+    
+SetTraceStyle "Input", True
+
+Cells(Selection.Row, T_Description).Value = "SWL Estimate - Boiler - " _
+    & BoilerType
+
 End Sub

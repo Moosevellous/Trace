@@ -1,13 +1,26 @@
 Attribute VB_Name = "Basics"
-Dim ConditionValue As Variant
+'==============================================================================
+'PUBLIC VARIABLES
+'==============================================================================
+Dim ConditionValue As Variant 'why is this dim and not public?
 Public BasicFunctionType As String
 Public RangeSelection As String
 Public Range2Selection As String
-Public FitToSheetType As Boolean
-Public BasicsApplyStyle As String
+Public ApplyToSheetType As Boolean 'if true, will apply style to sheet type
+Public BasicsApplyStyle As String 'sets style
+Public FBC_bandwidth As Integer
+Public FBC_mode As String
+Public FBC_baseTen As Boolean
 
-Function freqStr2Num(fstr) As Double
-    Select Case fstr
+'==============================================================================
+' Name:     freqStr2Num
+' Author:   PS
+' Desc:     Converts octave band strings to values
+' Args:     fstr, the frequency band centre frequency as a string
+' Comments: (1) Used almost everywhere, because '2k' beats writing '2000' etc
+'==============================================================================
+Function freqStr2Num(fStr As String) As Double
+    Select Case fStr
     Case Is = "1"
     freqStr2Num = 1
     Case Is = "1.25"
@@ -124,118 +137,312 @@ Function freqStr2Num(fstr) As Double
     freqStr2Num = 20000
     Case Is = "20000"
     freqStr2Num = 20000
-    Case Else
+    Case Else 'catch the exception
     freqStr2Num = 0
     End Select
 End Function
 
+'==============================================================================
+' Name:     GetArrayIndex_OCT
+' Author:   PS
+' Desc:     Returns an array index of octave bands, starting from 63Hz
+' Args:     fStr - octave band centre frequency
+'           OffsetBands - positive value=index up for a given band
+' Comments: (1) Used a lot in ISO9613 but also elsewhere
+'==============================================================================
+Function GetArrayIndex_OCT(fStr As String, Optional OffsetBands As Integer)
+Dim freq As Double
 
-Function GetOctaveColumnIndex(freq)
+freq = freqStr2Num(fStr) 'converts to Double
     Select Case freq
-    Case Is = "63"
-    GetOctaveColumnIndex = 0
-    Case Is = "125"
-    GetOctaveColumnIndex = 1
-    Case Is = "250"
-    GetOctaveColumnIndex = 2
-    Case Is = "500"
-    GetOctaveColumnIndex = 3
-    Case Is = "1k"
-    GetOctaveColumnIndex = 4
-    Case Is = "2k"
-    GetOctaveColumnIndex = 5
-    Case Is = "4k"
-    GetOctaveColumnIndex = 6
-    Case Is = "8k"
-    GetOctaveColumnIndex = 7
+    Case Is = 16
+    GetArrayIndex_OCT = -2 + OffsetBands
+    Case Is = 31.5
+    GetArrayIndex_OCT = -1 + OffsetBands
+    Case Is = 63 'default
+    GetArrayIndex_OCT = 0 + OffsetBands
+    Case Is = 125
+    GetArrayIndex_OCT = 1 + OffsetBands
+    Case Is = 250
+    GetArrayIndex_OCT = 2 + OffsetBands
+    Case Is = 500
+    GetArrayIndex_OCT = 3 + OffsetBands
     Case Is = 1000
-    GetOctaveColumnIndex = 4
+    GetArrayIndex_OCT = 4 + OffsetBands
     Case Is = 2000
-    GetOctaveColumnIndex = 5
+    GetArrayIndex_OCT = 5 + OffsetBands
     Case Is = 4000
-    GetOctaveColumnIndex = 6
+    GetArrayIndex_OCT = 6 + OffsetBands
     Case Is = 8000
-    GetOctaveColumnIndex = 7
+    GetArrayIndex_OCT = 7 + OffsetBands
     Case Else
-    GetOctaveColumnIndex = 999 'for catching errors
+    GetArrayIndex_OCT = 999 'for catching errors
+    End Select
+    
+End Function
+
+'==============================================================================
+' Name:     GetArrayIndex_TO
+' Author:   PS
+' Desc:     Returns an array index of one-third octave bands, starting from 50Hz
+' Args:     fStr - octave band centre frequency
+'           OffsetBands - positive value=index up for a given band
+' Comments: (1) TODO: update for string inputs for consistency?
+'==============================================================================
+Function GetArrayIndex_TO(f As Double, Optional OffsetBands As Integer)
+
+    Select Case f
+    Case Is = 1
+    GetArrayIndex_TO = -17 + OffsetBands
+    Case Is = 1.25
+    GetArrayIndex_TO = -16 + OffsetBands
+    Case Is = 1.6
+    GetArrayIndex_TO = -15 + OffsetBands
+    Case Is = 2
+    GetArrayIndex_TO = -14 + OffsetBands
+    Case Is = 2.5
+    GetArrayIndex_TO = -13 + OffsetBands
+    Case Is = 3.15
+    GetArrayIndex_TO = -12 + OffsetBands
+    Case Is = 4
+    GetArrayIndex_TO = -11 + OffsetBands
+    Case Is = 5
+    GetArrayIndex_TO = -10 + OffsetBands
+    Case Is = 6.3
+    GetArrayIndex_TO = -9 + OffsetBands
+    Case Is = 8
+    GetArrayIndex_TO = -8 + OffsetBands
+    Case Is = 10
+    GetArrayIndex_TO = -7 + OffsetBands
+    Case Is = 12.5
+    GetArrayIndex_TO = -6 + OffsetBands
+    Case Is = 16
+    GetArrayIndex_TO = -5 + OffsetBands
+    Case Is = 20
+    GetArrayIndex_TO = -4 + OffsetBands
+    Case Is = 25
+    GetArrayIndex_TO = -3 + OffsetBands
+    Case Is = 31.5
+    GetArrayIndex_TO = -2 + OffsetBands
+    Case Is = 40
+    GetArrayIndex_TO = -1 + OffsetBands
+    Case Is = 50
+    GetArrayIndex_TO = 0 + OffsetBands 'DEFAULT
+    Case Is = 63
+    GetArrayIndex_TO = 1 + OffsetBands
+    Case Is = 80
+    GetArrayIndex_TO = 2 + OffsetBands
+    Case Is = 100
+    GetArrayIndex_TO = 3 + OffsetBands
+    Case Is = 125
+    GetArrayIndex_TO = 4 + OffsetBands
+    Case Is = 160
+    GetArrayIndex_TO = 5 + OffsetBands
+    Case Is = 200
+    GetArrayIndex_TO = 6 + OffsetBands
+    Case Is = 250
+    GetArrayIndex_TO = 7 + OffsetBands
+    Case Is = 315
+    GetArrayIndex_TO = 8 + OffsetBands
+    Case Is = 400
+    GetArrayIndex_TO = 9 + OffsetBands
+    Case Is = 500
+    GetArrayIndex_TO = 10 + OffsetBands
+    Case Is = 630
+    GetArrayIndex_TO = 11 + OffsetBands
+    Case Is = 800
+    GetArrayIndex_TO = 12 + OffsetBands
+    Case Is = 1000
+    GetArrayIndex_TO = 13 + OffsetBands
+    Case Is = 1250
+    GetArrayIndex_TO = 14 + OffsetBands
+    Case Is = 1600
+    GetArrayIndex_TO = 15 + OffsetBands
+    Case Is = 2000
+    GetArrayIndex_TO = 16 + OffsetBands
+    Case Is = 2500
+    GetArrayIndex_TO = 17 + OffsetBands
+    Case Is = 3150
+    GetArrayIndex_TO = 18 + OffsetBands
+    Case Is = 4000
+    GetArrayIndex_TO = 19 + OffsetBands
+    Case Is = 5000
+    GetArrayIndex_TO = 20 + OffsetBands
+    Case Is = 6300
+    GetArrayIndex_TO = 21 + OffsetBands
+    Case Is = 8000
+    GetArrayIndex_TO = 22 + OffsetBands
+    Case Is = 10000
+    GetArrayIndex_TO = 23 + OffsetBands
+    Case Is = 12500
+    GetArrayIndex_TO = 23 + OffsetBands
+    Case Is = 16000
+    GetArrayIndex_TO = 24 + OffsetBands
+    Case Is = 20000
+    GetArrayIndex_TO = 25 + OffsetBands
+    Case Else
+    GetArrayIndex_TO = -1
     End Select
 End Function
 
+'==============================================================================
+' Name:     MapOneThird2Oct
+' Author:   PS
+' Desc:     Returns index of octave bands, based on groupings of one-third bands
+' Args:     f_input, one third octave band centre frequency
+' Comments: (1) Set to 50Hz, could make this more flexible?
+'==============================================================================
+Function MapOneThird2Oct(f_input As Double)
+'map a 1/3 octave centre frequency to the relevant 1/1 octave band centre frequency
+'OR get column index of octave band centre frequencies
+    Select Case f_input
+    Case Is = 50
+    MapOneThird2Oct = 0
+    Case Is = 63
+    MapOneThird2Oct = 0
+    Case Is = 80
+    MapOneThird2Oct = 0
+    Case Is = 100
+    MapOneThird2Oct = 1
+    Case Is = 125
+    MapOneThird2Oct = 1
+    Case Is = 160
+    MapOneThird2Oct = 1
+    Case Is = 200
+    MapOneThird2Oct = 2
+    Case Is = 250
+    MapOneThird2Oct = 2
+    Case Is = 315
+    MapOneThird2Oct = 2
+    Case Is = 400
+    MapOneThird2Oct = 3
+    Case Is = 500
+    MapOneThird2Oct = 3
+    Case Is = 630
+    MapOneThird2Oct = 3
+    Case Is = 800
+    MapOneThird2Oct = 4
+    Case Is = 1000
+    MapOneThird2Oct = 4
+    Case Is = 1250
+    MapOneThird2Oct = 4
+    Case Is = 1600
+    MapOneThird2Oct = 5
+    Case Is = 2000
+    MapOneThird2Oct = 5
+    Case Is = 2500
+    MapOneThird2Oct = 5
+    Case Is = 3150
+    MapOneThird2Oct = 6
+    Case Is = 4000
+    MapOneThird2Oct = 6
+    Case Is = 5000
+    MapOneThird2Oct = 6
+    Case Else 'catch array errors with this line
+    MapOneThird2Oct = -1
+    End Select
+End Function
+
+'==============================================================================
+' Name:     SPLSUM
+' Author:   PS
+' Desc:     Logarithmically adds all cells in the input range rng1
+' Args:     rng1, an array of cells
+' Comments: (1) Built to be flexible and useful.
+'==============================================================================
 Public Function SPLSUM(ParamArray rng1() As Variant) As Variant
 On Error Resume Next
 
-Dim C As Range
+Dim c As Range
 Dim i As Long
 
 SPLSUM = -99
-For i = LBound(rng1) To UBound(rng1)
-'Debug.Print TypeName(Rng1(i))
-    If TypeName(rng1(i)) = "Double" Then
-        If rng1(i) > 0 Then 'negative values are ignored
-        SPLSUM = 10 * Application.WorksheetFunction.Log10((10 ^ (SPLSUM / 10)) + (10 ^ (rng1(i) / 10)))
-        End If
-    ElseIf TypeName(rng1(i)) = "Range" Then
-        For Each C In rng1(i).Cells
-            If C.Value <> Empty Then
-            SPLSUM = 10 * Application.WorksheetFunction.Log10((10 ^ (SPLSUM / 10)) + (10 ^ (C.Value / 10)))
+    For i = LBound(rng1) To UBound(rng1)
+    'Debug.Print TypeName(Rng1(i))
+        If TypeName(rng1(i)) = "Double" Then
+            If rng1(i) > 0 Then 'negative values are ignored
+            SPLSUM = 10 * Application.WorksheetFunction.Log10( _
+                (10 ^ (SPLSUM / 10)) + (10 ^ (rng1(i) / 10)))
             End If
-        Next C
-    End If
-Next i
-
-''check for negative
-'If SPLSUM < -5 Then
-'SPLSUM = ""
-'End If
+        ElseIf TypeName(rng1(i)) = "Range" Then
+            For Each c In rng1(i).Cells
+                If c.Value <> Empty Then
+                SPLSUM = 10 * Application.WorksheetFunction.Log10( _
+                    (10 ^ (SPLSUM / 10)) + (10 ^ (c.Value / 10)))
+                End If
+            Next c
+        End If
+    Next i
 
 End Function
 
+'==============================================================================
+' Name:     SPLAV
+' Author:   PS
+' Desc:     Logarithmically averages all cells in the input range rng1
+' Args:     rng1, an array of cells
+' Comments: (1) Built to be flexible and useful.
+'==============================================================================
 Public Function SPLAV(ParamArray rng1() As Variant) As Variant
 On Error Resume Next
 
-Dim C As Range
+Dim c As Range
 Dim i As Long
-Dim N As Integer
+Dim n As Integer 'number of values
 SPLAV = -99
-N = 0
-For i = LBound(rng1) To UBound(rng1)
-'Debug.Print TypeName(Rng1(i))
-    If TypeName(rng1(i)) = "Double" Then
-        If rng1(i) > 0 Then 'negative values are ignored
-        SPLAV = 10 * Application.WorksheetFunction.Log10((10 ^ (SPLAV / 10)) + (10 ^ (rng1(i) / 10)))
-        N = N + 1
-        End If
-    ElseIf TypeName(rng1(i)) = "Range" Then
-        For Each C In rng1(i).Cells
-            If C.Value <> Empty And IsNumeric(C.Value) Then
-            SPLAV = 10 * Application.WorksheetFunction.Log10((10 ^ (SPLAV / 10)) + (10 ^ (C.Value / 10)))
-            N = N + 1
+n = 0
+    For i = LBound(rng1) To UBound(rng1)
+    'Debug.Print TypeName(Rng1(i))
+        If TypeName(rng1(i)) = "Double" Then
+            If rng1(i) > 0 Then 'negative values are ignored
+            SPLAV = 10 * Application.WorksheetFunction.Log10( _
+                (10 ^ (SPLAV / 10)) + (10 ^ (rng1(i) / 10)))
+            n = n + 1
             End If
-        Next C
-    End If
-Next i
+        ElseIf TypeName(rng1(i)) = "Range" Then
+            For Each c In rng1(i).Cells
+                If c.Value <> Empty And IsNumeric(c.Value) Then
+                SPLAV = 10 * Application.WorksheetFunction.Log10( _
+                    (10 ^ (SPLAV / 10)) + (10 ^ (c.Value / 10)))
+                n = n + 1
+                End If
+            Next c
+        End If
+    Next i
 
 'Average +10log(1/n) in log domain
-SPLAV = SPLAV + 10 * Application.WorksheetFunction.Log10(1 / N)
-
-''check for negative
-'If SPLSUM < -5 Then
-'SPLSUM = ""
-'End If
+SPLAV = SPLAV + 10 * Application.WorksheetFunction.Log10(1 / n)
 
 End Function
 
+'==============================================================================
+' Name:     SPLMINUS
+' Author:   PS
+' Desc:     Logarithmically subtraces one cell from another
+' Args:     SPLtotal, SPL2 (the one to be subtracted)
+' Comments: (1) One line macros ftw!
+'==============================================================================
 Public Function SPLMINUS(SPLtotal As Double, SPL2 As Double) As Variant
 On Error Resume Next
-
-SPLMINUS = 10 * Application.WorksheetFunction.Log10((10 ^ (SPLtotal / 10)) - (10 ^ (SPL2 / 10)))
-
+SPLMINUS = 10 * Application.WorksheetFunction.Log10( _
+    (10 ^ (SPLtotal / 10)) - (10 ^ (SPL2 / 10)))
 End Function
 
+'==============================================================================
+' Name:     TL_ThirdsToOctave
+' Author:   PS
+' Desc:     Converts transmission losses from 1/3 octave to 1/1 octave bands
+' Args:     rngInput, the three cell array of TLs
+' Comments: (1) Assumes the values come in as a horizontal array of cells
+'           (2) can cope with negative inputs, and returns negative values
+'           back, as per the Trace convention
+'==============================================================================
 Public Function TL_ThirdsToOctave(rngInput As Range) As Variant
 
 Dim isNegative As Boolean
-Dim TL1 As Single, TL2 As Single, TL3 As Single
+Dim TL1 As Single, TL2 As Single, TL3 As Single 'values for each band
+
+'Debug.Print TypeName(rngInput.Cells(1, 1).Value)
 
 TL1 = rngInput.Cells(1, 1).Value
 TL2 = rngInput.Cells(1, 2).Value
@@ -251,54 +458,64 @@ TL3 = rngInput.Cells(1, 3).Value
     
 
     If isNegative Then 'return result as negative
-    TL_ThirdsToOctave = 10 * Application.WorksheetFunction.Log10((1 / 3) * ((10 ^ (-TL1 / 10)) + (10 ^ (-TL2 / 10)) + (10 ^ (-TL3 / 10))))
+    TL_ThirdsToOctave = 10 * Application.WorksheetFunction.Log10((1 / 3) * _
+        ((10 ^ (-TL1 / 10)) + (10 ^ (-TL2 / 10)) + (10 ^ (-TL3 / 10))))
     Else 'return result as positive
-    TL_ThirdsToOctave = -10 * Application.WorksheetFunction.Log10((1 / 3) * ((10 ^ (-TL1 / 10)) + (10 ^ (-TL2 / 10)) + (10 ^ (-TL3 / 10))))
+    TL_ThirdsToOctave = -10 * Application.WorksheetFunction.Log10((1 / 3) * _
+        ((10 ^ (-TL1 / 10)) + (10 ^ (-TL2 / 10)) + (10 ^ (-TL3 / 10))))
     End If
 
 End Function
 
+'==============================================================================
+' Name:     CompositeTL
+' Author:   PS
+' Desc:     Calculates the composite transmission loss given input TLs and
+'           areas of each element
+' Args:     TL_Range (TL spectrum), AreaRange (Surface areas of each element)
+' Comments: (1) Function Incomplete?
+'==============================================================================
 Public Function CompositeTL(TL_Range As Range, AreaRange As Range) As Variant
 
 Dim TotalArea As Double
-Dim TL_Calc_Range() As Double
+Dim TotalWeightedTL As Double
+Dim Switch As Integer
 
-'original formula
-'=-10*LOG(SUM($N$42:$O$45)/(($N$42*(10^(F$42/10)))+($N$43*(10^(F$43/10)))+($N$44*(10^(F$44/10)))+($N$45*(10^(F$45/10)))))
-
-'Debug.Print TypeName(TL_Range)
 TotalArea = 0
-
-    For a = 1 To AreaRange.Rows.Count '<- TODO for each???
-        If AreaRange(a, 1).Value <> "" Then
-        TotalArea = TotalArea + AreaRange(a, 1)
-        End If
-    Next a
-
-    For i = 1 To TL_Range.Rows.Count
-    'Debug.Print TL_Range(i, 1).Text
-    ReDim Preserve TL_Calc_Range(i)
-        If TL_Range(i, 1).Text = "" Then
-        TL_Calc_Range(i) = -99 'how low can you go!
-        Else
-        TL_Calc_Range(i) = TL_Range(i, 1) 'how low can you go!
-        End If
-    Next i
-
-WeightedSum = 0
-    For elem = 0 To UBound(TL_Calc_Range)
-    'add 'em up!
-    Next elem
+TotalWeightedTL = 0
+i = 1
+    If TL_Range(1) < 0 Then 'TL is negative values
+    Switch = 1
+    Else
+    Switch = -1
+    End If
     
-CompositeTL = -1 * 10 * Application.WorksheetFunction.Log(TotalArea / (Area1 * 10 ^ (TL1 / 10) + Area2 * 10 ^ (TL2 / 10) + Area3 * 10 ^ (TL3 / 10) + Area3 * 10 ^ (TL3 / 10) + _
-Area4 * 10 ^ (TL4 / 10) + Area5 * 10 ^ (TL5 / 10) + Area6 * 10 ^ (TL6 / 10) + Area7 * 10 ^ (TL7 / 10) + Area8 * 10 ^ (TL8 / 10)))
+    For Each A In AreaRange
+    TotalArea = TotalArea + A
+    TotalWeightedTL = TotalWeightedTL + A * (10 ^ (Switch * TL_Range(i) / 10))
+    i = i + 1
+    Next A
+
+CompositeTL = (Switch * -1) * 10 * Application.WorksheetFunction.Log _
+    (TotalArea / TotalWeightedTL)
 
 End Function
 
-Function SPLSUMIF(SumRange As Range, Condition As String, Optional ConditionRange As Variant)
+'==============================================================================
+' Name:     SPLSUMIF
+' Author:   PS
+' Desc:     Logarithmically adds values, if a criterion is met
+' Args:     SumRange (values to be added), Condition (the type of criterion to be
+'           evaluated), and ConditionRange (values to be evaluated, if not the
+'           sum range itself)
+' Comments: (1) Currently supports > >= < <= and =, no wildcard matching
+'==============================================================================
+Function SPLSUMIF(SumRange As Range, Condition As String, _
+    Optional ConditionRange As Variant)
 
 Dim IfRange As Range
 Dim TypeFound As Boolean
+Dim SheetNm As String 'name of sheet
 
     'Check which Range will be evaluating the IF function
     If IsMissing(ConditionRange) Then
@@ -312,12 +529,13 @@ If ConditionType = "" Then TypeFound = False
     
 'initialise function
 SPLSUMIF = -99
+SheetNm = IfRange.Worksheet.Name
 
-    For Each C In IfRange.Cells
+    For Each c In IfRange.Cells
     
 '    Debug.Print "row: "; C.Row; "column: "; C.Column
 '    Debug.Print "Condition test: "; ConditionType; " "; C.Value
-'    Debug.Print "Cell value: "; SumRange(C.Row, C.Column).Value
+'    Debug.Print "Cell value: "; Sheets(SheetNm).Cells(C.Row, C.Column).Value
 '    Debug.Print ""
     
     rw = IfRange.Row - SumRange.Row
@@ -325,39 +543,60 @@ SPLSUMIF = -99
     
         Select Case ConditionType
         Case Is = "GreaterThan"
-            If C.Value > ConditionValue Then
-            SPLSUMIF = 10 * Application.WorksheetFunction.Log10((10 ^ (SPLSUMIF / 10)) + (10 ^ (Cells(C.Row - rw, C.Column - clmn).Value / 10)))
+            If c.Value > ConditionValue Then
+            SPLSUMIF = 10 * Application.WorksheetFunction.Log10( _
+                (10 ^ (SPLSUMIF / 10)) + _
+                (10 ^ (Sheets(SheetNm).Cells(c.Row - rw, c.Column - clmn).Value / 10)))
             End If
         Case Is = "GreaterThanEqualTo"
-            If C.Value >= ConditionValue Then
-            SPLSUMIF = 10 * Application.WorksheetFunction.Log10((10 ^ (SPLSUMIF / 10)) + (10 ^ (Cells(C.Row - rw, C.Column - clmn).Value / 10)))
+            If c.Value >= ConditionValue Then
+            SPLSUMIF = 10 * Application.WorksheetFunction.Log10( _
+                (10 ^ (SPLSUMIF / 10)) + _
+                (10 ^ (Sheets(SheetNm).Cells(c.Row - rw, c.Column - clmn).Value / 10)))
             End If
         Case Is = "LessThan"
-            If C.Value < ConditionValue Then
-            SPLSUMIF = 10 * Application.WorksheetFunction.Log10((10 ^ (SPLSUMIF / 10)) + (10 ^ (Cells(C.Row - rw, C.Column - clmn).Value / 10)))
+            If c.Value < ConditionValue Then
+            SPLSUMIF = 10 * Application.WorksheetFunction.Log10( _
+                (10 ^ (SPLSUMIF / 10)) + _
+                (10 ^ (Sheets(SheetNm).Cells(c.Row - rw, c.Column - clmn).Value / 10)))
             End If
         Case Is = "LessThanEqualTo"
-            If C.Value <= ConditionValue Then
-            SPLSUMIF = 10 * Application.WorksheetFunction.Log10((10 ^ (SPLSUMIF / 10)) + (10 ^ (Cells(C.Row - rw, C.Column - clmn).Value / 10)))
+            If c.Value <= ConditionValue Then
+            SPLSUMIF = 10 * Application.WorksheetFunction.Log10( _
+                (10 ^ (SPLSUMIF / 10)) + _
+                (10 ^ (Sheets(SheetNm).Cells(c.Row - rw, c.Column - clmn).Value / 10)))
             End If
         Case Is = "Equals"
-            If C.Value = ConditionValue Then
-            SPLSUMIF = 10 * Application.WorksheetFunction.Log10((10 ^ (SPLSUMIF / 10)) + (10 ^ (Cells(C.Row - rw, C.Column - clmn).Value / 10)))
+            If c.Value = ConditionValue Then
+            SPLSUMIF = 10 * Application.WorksheetFunction.Log10( _
+                (10 ^ (SPLSUMIF / 10)) + _
+                (10 ^ (Sheets(SheetNm).Cells(c.Row - rw, c.Column - clmn).Value / 10)))
             End If
         Case Is = "" 'no condtion type
             SPLSUMIF = -99
         End Select
-    Next C
+    Next c
 
 End Function
 
-Function SPLAVIF(SumRange As Range, ConditionStr As String, Optional ConditionRange As Variant)
+'==============================================================================
+' Name:     SPLAVIF
+' Author:   PS
+' Desc:     Logarithmically averages values, if a criterion is met
+' Args:     SumRange (values to be added), Condition (the type of criterion to be
+'           evaluated), and ConditionRange (values to be evaluated, if not the
+'           sum range itself)
+' Comments: (1) Currently supports > >= < <= and =, no wildcard matching
+'==============================================================================
+Function SPLAVIF(SumRange As Range, ConditionStr As String, _
+    Optional ConditionRange As Variant)
 
 Dim IfRange As Range
 Dim TypeFound As Boolean
 Dim numVals As Integer
 Dim ConditionType As String
 Dim SPLSUM As Single
+Dim SheetNm As String 'name of sheet
 
     'Check which Range will be evaluating the IF function
     If IsMissing(ConditionRange) Then
@@ -374,7 +613,7 @@ SPLSUM = -99
 SPLAVIF = -99
 numVals = 0
 
-    For Each C In IfRange.Cells
+    For Each c In IfRange.Cells
     
 '    Debug.Print "row: "; C.Row; "column: "; C.Column
 '    Debug.Print "Condition test: "; ConditionType; " "; C.Value
@@ -386,40 +625,58 @@ numVals = 0
     
         Select Case ConditionType
         Case Is = "GreaterThan"
-            If C.Value > ConditionValue Then
-            SPLSUM = 10 * Application.WorksheetFunction.Log10((10 ^ (SPLSUM / 10)) + (10 ^ (Cells(C.Row - rw, C.Column - clmn).Value / 10)))
+            If c.Value > ConditionValue Then
+            SPLSUM = 10 * Application.WorksheetFunction.Log10( _
+                (10 ^ (SPLSUM / 10)) + _
+                (10 ^ (Cells(c.Row - rw, c.Column - clmn).Value / 10)))
             numVals = numVals + 1
             End If
         Case Is = "GreaterThanEqualTo"
-            If C.Value >= ConditionValue Then
-            SPLSUM = 10 * Application.WorksheetFunction.Log10((10 ^ (SPLSUM / 10)) + (10 ^ (Cells(C.Row - rw, C.Column - clmn).Value / 10)))
+            If c.Value >= ConditionValue Then
+            SPLSUM = 10 * Application.WorksheetFunction.Log10( _
+                (10 ^ (SPLSUM / 10)) + _
+                (10 ^ (Cells(c.Row - rw, c.Column - clmn).Value / 10)))
             numVals = numVals + 1
             End If
         Case Is = "LessThan"
-            If C.Value < ConditionValue Then
-            SPLSUM = 10 * Application.WorksheetFunction.Log10((10 ^ (SPLSUM / 10)) + (10 ^ (Cells(C.Row - rw, C.Column - clmn).Value / 10)))
+            If c.Value < ConditionValue Then
+            SPLSUM = 10 * Application.WorksheetFunction.Log10( _
+                (10 ^ (SPLSUM / 10)) + _
+                (10 ^ (Cells(c.Row - rw, c.Column - clmn).Value / 10)))
             numVals = numVals + 1
             End If
         Case Is = "LessThanEqualTo"
-            If C.Value <= ConditionValue Then
-            SPLSUM = 10 * Application.WorksheetFunction.Log10((10 ^ (SPLSUM / 10)) + (10 ^ (Cells(C.Row - rw, C.Column - clmn).Value / 10)))
+            If c.Value <= ConditionValue Then
+            SPLSUM = 10 * Application.WorksheetFunction.Log10( _
+                (10 ^ (SPLSUM / 10)) + _
+                (10 ^ (Cells(c.Row - rw, c.Column - clmn).Value / 10)))
             numVals = numVals + 1
             End If
         Case Is = "Equals"
-            If C.Value = ConditionValue Then
-            SPLSUM = 10 * Application.WorksheetFunction.Log10((10 ^ (SPLSUM / 10)) + (10 ^ (Cells(C.Row - rw, C.Column - clmn).Value / 10)))
+            If c.Value = ConditionValue Then
+            SPLSUM = 10 * Application.WorksheetFunction.Log10( _
+                (10 ^ (SPLSUM / 10)) + _
+                (10 ^ (Cells(c.Row - rw, c.Column - clmn).Value / 10)))
             numVals = numVals + 1
             End If
         Case Is = "" 'no condtion type
             SPLSUM = -99
         End Select
-    Next C
+    Next c
     
 'Debug.Print numVals; "Values:"
-SPLAVIF = SPLSUM - (10 * Application.WorksheetFunction.Log(numVals)) '-10log(n) to average
+'subtract 10log(n) to average the result
+SPLAVIF = SPLSUM - (10 * Application.WorksheetFunction.Log(numVals))
 
 End Function
 
+'==============================================================================
+' Name:     FindConditionType
+' Author:   PS
+' Desc:     Filters conditions for SPLSUMIF and SPLAVIF
+' Args:     inputFormula
+' Comments: (1) Currently supports > >= < <= and =, no wildcard matching
+'==============================================================================
 Function FindConditionType(inputFormula As String)
   
     If Left(inputFormula, 2) = ">=" Then
@@ -449,10 +706,22 @@ Function FindConditionType(inputFormula As String)
     
 End Function
 
-
-Public Function FitzroyRT(X As Long, Y As Long, Z As Long, S_i As Range, Direction As Range, alpha_i As Range)
-
-Dim a_x As Single 'a_x is alpha-bar x, ie the averabe absorption for surfaces in the x direction
+'==============================================================================
+' Name:     FitztroyRT
+' Author:   PS
+' Desc:     Calculates the reverberation time according to Fitzroy's method
+' Args:     Dimensions of room (x/y/z) in metres
+'           Si - surface area of each element in m^2
+'           Direction (assignment of each surface)
+'           alpha_i - absorption value, alpha of that element
+' Comments: (1) Watch out for the averaging formula, not always defined in the
+'           textbooks.
+'           (2) Includes an error catch so you never try and evaluate Ln(0)
+'==============================================================================
+Public Function FitzroyRT(X As Long, Y As Long, z As Long, S_i As Range, _
+    Direction As Range, alpha_i As Range)
+'a_x is alpha-bar x, ie the average absorption for surfaces in the x-direction
+Dim a_x As Single
 Dim a_y As Single
 Dim a_z As Single
 Dim Sx_total As Single
@@ -503,62 +772,110 @@ If a_x = 1 Then a_x = 0.99999
 If a_y = 1 Then a_y = 0.99999
 If a_z = 1 Then a_z = 0.99999
 
-Volume = X * Y * Z
+Volume = X * Y * z
 
 'Debug.Print "ax:"; a_x; "   ay:"; a_y; "   az"; a_z
 
 FitzroyRT = (0.161 * Volume / S_total ^ 2) * _
-(((-Sx_total / Application.WorksheetFunction.Ln(1 - a_x)) + _
-(-Sy_total / Application.WorksheetFunction.Ln(1 - a_y)) + _
-(-Sz_total / Application.WorksheetFunction.Ln(1 - a_z))))
+    (((-Sx_total / Application.WorksheetFunction.Ln(1 - a_x)) + _
+    (-Sy_total / Application.WorksheetFunction.Ln(1 - a_y)) + _
+    (-Sz_total / Application.WorksheetFunction.Ln(1 - a_z))))
 
 End Function
 
-Function GetSpeedOfSound(temp As Long, Optional IsKelvin As Boolean)
+'==============================================================================
+' Name:     SpeedOfSound
+' Author:   PS
+' Desc:     Returns speed of sound in air
+' Args:     Temperature, and optional switch for degrees Kelvin (assumed false)
+' Comments: (1) Perhaps there's a more advanced method, but this'll do for now
+'==============================================================================
+Function SpeedOfSound(temp As Long, Optional IsKelvin As Boolean)
     If IsKelvin = False Then 'convert to kelvin, not hobbs
     temp = temp + 273.15
     End If
-GetSpeedOfSound = (1.4 * 287.1848 * temp) ^ 0.5 'square root of Gamma * R * Temp for air
+SpeedOfSound = (1.4 * 287.1848 * temp) ^ 0.5 'square root of Gamma * R * Temp for air
 End Function
 
-Function GetWavelength(fstr As String, SoundSpeed As Long)
-f = freqStr2Num(fstr)
-GetWavelength = SoundSpeed / f
+'==============================================================================
+' Name:     Wavelength
+' Author:   PS
+' Desc:     Returns wavelength for an input frequency and speed of sound
+' Args:     fstr, SoundSpeed
+' Comments: (1) Simple, yeah?
+'==============================================================================
+Function Wavelength(fStr As String, SoundSpeed As Long)
+f = freqStr2Num(fStr)
+Wavelength = SoundSpeed / f
 End Function
 
-Function FrequencyBandCutoff(freq As String, Mode As String, Optional bandwidth As Double, Optional baseTen As Boolean)
+'==============================================================================
+' Name:     GetBandwidthIndex
+' Author:   PS
+' Desc:     Returns bandwidth index according to ANSI S1.11
+' Args:     f - one third octave band nominal frequency
+' Comments: (1) Simple, yeah?
+'==============================================================================
+Function GetBandwidthIndex(f As Double)
+FrequencyArray = Array(1, 1.25, 1.6, 2, 2.5, 3.15, 4, 5, 6.3, 8, 10, 12.5, 16, 20, _
+25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000, _
+1250, 1600, 2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000, 12500, 16000, 20000)
+    For i = LBound(FrequencyArray) To UBound(FrequencyArray) + 1
+        If FrequencyArray(i) = f Then
+        GetBandwidthIndex = i
+        Exit Function
+        End If
+    Next i
+End Function
 
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-'As Specified in:
-'ANSI S1.11: Specification for Octave, Half-Octave, and Third Octave Band Filter Sets
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'==============================================================================
+' Name:     FrequencyBandCutoff
+' Author:   PS
+' Desc:     Cutoff frequencies for band filters, as defined in ANSI S1.11:
+'           Specification for Octave, Half-Octave, and Third Octave Band
+'           Filter Sets
+' Args:     fStr - centre frequency of band, Hz
+'           Mode - "upper" or "lower"
+'           Bandwidth - 1 and 3 for oct and 1/3 oct (defaults as 1/3 oct)
+'           baseTen - boolean (defaults to TRUE)
+' Comments: (1) Also known as the crossover frequency
+'==============================================================================
+Function FrequencyBandCutoff(fStr As String, Mode As String, _
+Optional bandwidth As Integer, Optional baseTen As Boolean)
 
-Dim G As Double
-Dim f As Single
+Dim G As Double 'gain
+Dim f As Double 'frequency
+Dim fr As Double 'reference frequency
+Dim b As Integer 'bandwidth denominator
+Dim X As Double
+'TODO: sort out this function
 
-f = freqStr2Num(freq)
+f = freqStr2Num(fStr)
+fr = 1000
+b = GetBandwidthIndex(f)
 
-    If bandwidth = Empty Then bandwidth = 3 'default to one thirds?
+    If bandwidth = Empty Then bandwidth = 3 'default to one thirds
     
-    If baseTen = Empty Then 'catch optional variable
+    'catch optional variable, default to Base 10
+    If IsEmpty(baseTen) Then
     baseTen = True
-    Else
-    baseTen = False
     End If
-
+    
+    'set value of G for different modes
     If baseTen = True Then
     G = 10 ^ (3 / 10)
-    Else
+    Else 'baseten=false
     G = 2
     End If
-
-fr = 1000
     
-    If bandwidth Mod 2 = 1 Then 'odd
-    X = Round(bandwidth * Application.WorksheetFunction.Log(f / fr) / Application.WorksheetFunction.Log(G), 1)
+    If b Mod 2 = 1 Then 'odd bandwidth number
+    'If bandwidth Mod 2 = 1 Then 'odd
+    X = Round(bandwidth * Application.WorksheetFunction.Log(f / fr) / _
+        Application.WorksheetFunction.Log(G), 1)
     fm = fr * G ^ (X / bandwidth)
     Else 'even
-    X = (2 * bandwidth * Application.WorksheetFunction.Log(f / fr) / Application.WorksheetFunction.Log(G) - 1) / 2
+    X = (2 * bandwidth * Application.WorksheetFunction.Log(f / fr) / _
+        Application.WorksheetFunction.Log(G) - 1) / 2
     fm = fr * G ^ ((2 * X + 1) / (2 * bandwidth))
     End If
 
@@ -573,16 +890,21 @@ fr = 1000
 
 End Function
 
-
-Function RangeAddressSheetExtents(AddrStr As String, SheetType As String) As String()
-Dim Addresses()  As String
-
-splitStr = Split(AddrStr, ",", Len(AddrStr), vbTextCompare)
-
-
-
+'==============================================================================
+' Name:     ExtractRefElement
+' Author:   PS
+' Desc:     Get the first and last rows of  arange that's been input, assumes
+'           the string contains relative references, and therefore '$' signs
+' Args:     AddressStr (String of a range), elemNo (which element number to extract
+' Comments: (1) Used for form frmBasic. A little hacky but it works.
+'==============================================================================
+Function ExtractRefElement(AddressStr As String, elemNo As Integer)
+Dim SplitStr() As String
+SplitStr = Split(AddressStr, "$", Len(AddressStr), vbTextCompare)
+    If elemNo <= UBound(SplitStr) Then
+    ExtractRefElement = SplitStr(elemNo)
+    End If
 End Function
-
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -592,10 +914,22 @@ End Function
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-
-Sub InsertBasicFunction(SheetType As String, functionName As String)
+'==============================================================================
+' Name:     InsertBasicFunction
+' Author:   PS
+' Desc:     Inserts function, based on the user inputs in frmBasic
+' Args:     functionName (depending on which function gets selected from the
+'           ribbon.
+' Comments: (1) currently supported functions: SUM, SPLSUM, SPLAV, SPLMINUS,
+'           SPLSUMIF, SPLAVIF
+'==============================================================================
+Sub InsertBasicFunction(functionName As String)
 Dim FirstRow As String
 Dim LastRow As String
+Dim FirstRow2 As String
+Dim LastRow2 As String
+Dim ColumnLetter As String
+Dim NeedsTwoRanges As Boolean
 
     Select Case functionName
     Case Is = "SUM"
@@ -612,110 +946,132 @@ Dim LastRow As String
     frmBasicFunctions.optSPLAVIF.Value = True
     End Select
 
-frmBasicFunctions.chkApplyToSheetType.Caption = "Apply for Sheet Type: " & SheetType
+frmBasicFunctions.chkApplyToSheetType.Caption = "Apply for Sheet Type: " & _
+    T_SheetType
 
 frmBasicFunctions.Show
 
 If btnOkPressed = False Then End
-
-    If functionName = "SPLMINUS" Or functionName = "SPLSUMIF" Or functionName = "SPLAVIF" Then 'no need to check
+    
+    'check for a secondary range, which is needed for some functions
+    If functionName = "SPLMINUS" Or _
+        functionName = "SPLSUMIF" Or _
+        functionName = "SPLAVIF" Then
+        
+    NeedsTwoRanges = True
+    
         If Range2Selection = "" Then
-        msg = MsgBox("Error - you must select a secondary Range", vbOKOnly, "Two is better than one.")
+        msg = MsgBox("Error - you must select a secondary Range", _
+            vbOKOnly, "Two is better than one.")
         End  'if no ranges selected then skip
+        Else 'get rows for the other range
+        FirstRow2 = ExtractRefElement(Range2Selection, 2)
+        LastRow2 = ExtractRefElement(Range2Selection, 4)
         End If
+        
     End If
+   
+'set description
+Cells(Selection.Row, T_Description).Value = BasicFunctionType
+'Cells(Selection.Row, 1).Value = ChrW(931)'sigma <---------------TODO: add characters to column 1
 
-    If FitToSheetType = True Then
+    'build formula
+    If ApplyToSheetType = True Then
     FirstRow = ExtractRefElement(RangeSelection, 2)
     LastRow = ExtractRefElement(RangeSelection, 4)
-    End If
-
-    If Left(SheetType, 3) = "OCT" Then
-        If FitToSheetType = True Then
-        Cells(Selection.Row, 5).Value = "=" & BasicFunctionType & "(E" & FirstRow & "E" & LastRow & ")"
+    ColumnLetter = ColNum2Str(T_LossGainStart)
+        If NeedsTwoRanges = True Then
+        'note, only single line inputs for functions with two ranges
+        Cells(Selection.Row, T_LossGainStart).Value = "=" & BasicFunctionType & _
+            "(" & ColumnLetter & FirstRow & "," & _
+            ColumnLetter & FirstRow2 & ")"
         Else
-        Cells(Selection.Row, 5).Value = "=" & BasicFunctionType & "(" & RangeSelection & ")"
+        Cells(Selection.Row, T_LossGainStart).Value = "=" & BasicFunctionType & _
+            "(" & ColumnLetter & FirstRow & ColumnLetter & LastRow & ")"
         End If
-        'Cells(Selection.Row, 5).Value = "=" & BasicFunctionType & "(E$6,N" & Selection.Row & ")"
-    ElseIf Left(SheetType, 2) = "TO" Then
-    'Cells(Selection.Row, 5).Value = "=" & BasicFunctionType & "(E$6,Z" & Selection.Row & ")"
-    Cells(Selection.Row, 5).Value = "=" & BasicFunctionType & "(" & RangeSelection & ")"
+    ExtendFunction
     Else
-    ErrorOctOnly
+    Cells(Selection.Row, T_LossGainStart).Value = "=" & BasicFunctionType & _
+        "(" & RangeSelection & ")"
     End If
 
-Cells(Selection.Row, 2).Value = functionName
-
-ExtendFunction (SheetType)
 
     'apply style
     If BasicsApplyStyle <> "" Then
-    ApplyTraceStyle "Trace " & BasicsApplyStyle, SheetType, Selection.Row
+    SetTraceStyle BasicsApplyStyle
     End If
 
 End Sub
 
-
-Sub BandCutoff(SheetType As String)
-
-End Sub
-
-Function ExtractRefElement(AddressStr As String, elemNo As Integer)
-Dim splitStr() As String
-splitStr = Split(AddressStr, "$", Len(AddressStr), vbTextCompare)
-    If elemNo <= UBound(splitStr) Then
-    ExtractRefElement = splitStr(elemNo)
-    End If
-End Function
-
-Sub Wavelength(SheetType As String)
-Dim Col As Integer
-Dim ParamCol1 As Integer
-Dim ParamCol2 As Integer
-
-CheckRow (Selection.Row) 'CHECK FOR NON HEADER ROWS
-Cells(Selection.Row, 2).Value = "Wavelength"
-Cells(Selection.Row, 3).Value = ""
-Cells(Selection.Row, 4).Value = ""
-
-    If Left(SheetType, 3) = "OCT" Then
-    Cells(Selection.Row, 14).Value = "=GetSpeedOfSound($O" & Selection.Row & ")"
-    Cells(Selection.Row, 5).Value = "=GetWavelength(E$6,$N" & Selection.Row & ")"
-    ParamCol1 = 14
-    ParamCol2 = 15
-    Range(Cells(Selection.Row, 5), Cells(Selection.Row, 13)).NumberFormat = "0.00"
-    
-    ElseIf Left(SheetType, 2) = "TO" Then
-    Cells(Selection.Row, 26).Value = "=GetSpeedOfSound($AA" & Selection.Row & ")"
-    Cells(Selection.Row, 5).Value = "=GetWavelength(E$6,$Z" & Selection.Row & ")"
-    ParamCol1 = 26
-    ParamCol2 = 27
-    Range(Cells(Selection.Row, 5), Cells(Selection.Row, 25)).NumberFormat = "0.00"
-    
-    ElseIf Left(SheetType, 5) = "LF_TO" Then
-    Cells(Selection.Row, 32).Value = "=GetSpeedOfSound($AG" & Selection.Row & ")"
-    Cells(Selection.Row, 5).Value = "=GetWavelength(E$6,$AF" & Selection.Row & ")"
-    ParamCol1 = 32
-    ParamCol2 = 33
-    Range(Cells(Selection.Row, 5), Cells(Selection.Row, 31)).NumberFormat = "0.0"
-    
+'==============================================================================
+' Name:     BandCutoff
+' Author:   PS
+' Desc:     Inserts band cutoff formula for SheetType
+' Args:     None
+' Comments: (1) includes code for setting up frmFrequencyBandCutoff
+'==============================================================================
+Sub BandCutoff()
+    'set default values in the form, based on the Sheet Type
+    If T_SheetType = "TO" Or T_SheetType = "TOA" Or T_SheetType = "LF_TO" Then
+    frmFrequencyBandCutoff.optBand3 = True
     Else
-    ErrorTypeCode
+    frmFrequencyBandCutoff.optBand1 = True
     End If
-
-Cells(Selection.Row, ParamCol2).Value = 20 'default to 20 degrees celcius
-
-ExtendFunction (SheetType)
-'Formatting
-Cells(Selection.Row, ParamCol1).NumberFormat = """""#""m/s"";""""# ""m/s"""
-Cells(Selection.Row, ParamCol2).NumberFormat = """""0""°C """
-fmtUserInput SheetType, True
-
+frmFrequencyBandCutoff.Show
+If btnOkPressed = False Then End
+Cells(Selection.Row, T_Description).Value = "Frequency Band Cutoff (" & _
+    FBC_mode & ", Hz)"
+Cells(Selection.Row, T_LossGainStart).Value = "=FrequencyBandCutoff(" & _
+    T_FreqStartRng & ",""" & FBC_mode & """," & FBC_bandwidth & "," & _
+    FBC_baseTen & ")"
+ExtendFunction
 End Sub
 
+'==============================================================================
+' Name:     PutWavelength
+' Author:   PS
+' Desc:     Inserts formula for wavelength & speed of sound (in parameter col)
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub PutWavelength()
 
+Cells(Selection.Row, T_Description).Value = "Wavelength (m)"
 
-Sub SpeedOfSound(SheetType As String)
+Cells(Selection.Row, T_ParamStart + 1).Value = 20 'default to 20 degrees celcius
+Cells(Selection.Row, T_ParamStart).Value = "=SpeedOfSound(" & T_ParamRng(1) & ")"
+Cells(Selection.Row, T_LossGainStart).Value = "=Wavelength(" & T_FreqStartRng & "," _
+    & T_ParamRng(0) & ")"
+ExtendFunction
 
+'Formatting
+Range(Cells(Selection.Row, T_LossGainStart), _
+    Cells(Selection.Row, T_LossGainEnd)).NumberFormat = "0.00"
+SetUnits "mps", T_ParamStart
+Cells(Selection.Row, T_ParamStart + 1).NumberFormat = """""0""°C """
+SetTraceStyle "Input", True
+End Sub
+
+'==============================================================================
+' Name:     PutSpeedofSound
+' Author:   PS
+' Desc:     Inserts formula for wavelength & speed of sound (in parameter col)
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub PutSpeedOfSound()
+
+Cells(Selection.Row, T_Description).Value = "Speed of Sound"
+
+Cells(Selection.Row, T_ParamStart + 1).Value = 20 'default to 20 degrees celcius
+Cells(Selection.Row, T_ParamStart).Value = "=SpeedOfSound(" & T_ParamRng(1) & ")"
+'Cells(Selection.Row, T_LossGainStart).Value = "=Wavelength(" & T_FreqStartRng & "," _
+'    & T_ParamRng(0) & ")"
+'ExtendFunction
+
+'Formatting
+SetUnits "mps", T_ParamStart
+Cells(Selection.Row, T_ParamStart + 1).NumberFormat = """""0""°C """
+SetTraceStyle "Input", True
 End Sub
 

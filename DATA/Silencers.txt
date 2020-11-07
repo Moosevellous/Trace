@@ -82,62 +82,62 @@
 15F	2100	-7	-15	-31	-49	-50	-50	-37	-24	43	RS15F	Fantech RS series	
 15G	2400	-8	-18	-35	-50	-50	-50	-41	-26	43	RS15G	Fantech RS series	
 *Rectangular Tapered Q-seal													
-07A	600	-3	-5	-10	-18	-20	-18	-12	-9	27	RT07AQS	Fantech RT series, with Q-seals	
-07B	900	-4	-7	-14	-25	-28	-25	-17	-13	27	RT07BQS	Fantech RT series, with Q-seals	
-07C	1200	-5	-10	-20	-32	-38	-32	-22	-16	27	RT07CQS	Fantech RT series, with Q-seals	
-07D	1500	-7	-13	-26	-40	-48	-38	-27	-20	27	RT07DQS	Fantech RT series, with Q-seals	
-07E	1800	-7	-13	-26	-40	-48	-38	-27	-20	27	RT07EQS	Fantech RT series, with Q-seals	
-07F	2100	-9	-19	-34	-46	-51	-44	-33	-25	27	RT07FQS	Fantech RT series, with Q-seals	
-07G	2400	-10	-22	-38	-49	-52	-47	-35	-27	27	RT07GQS	Fantech RT series, with Q-seals	
-10A	600	-3	-5	-9	-15	-17	-14	-10	-8	33	RT10AQS	Fantech RT series, with Q-seals	
-10B	900	-4	-7	-13	-22	-24	-20	-14	-11	33	RT10BQS	Fantech RT series, with Q-seals	
-10C	1200	-5	-9	-17	-28	-32	-25	-17	-13	33	RT10CQS	Fantech RT series, with Q-seals	
-10D	1500	-6	-12	-21	-34	-40	-30	-21	-15	33	RT10DQS	Fantech RT series, with Q-seals	
-10E	1800	-7	-15	-26	-39	-43	-35	-24	-17	33	RT10EQS	Fantech RT series, with Q-seals	
-10F	2100	-8	-17	-29	-42	-46	-38	-26	-19	33	RT10FQS	Fantech RT series, with Q-seals	
-10G	2400	-8	-19	-33	-46	-48	-42	-29	-20	33	RT10GQS	Fantech RT series, with Q-seals	
-12A	600	-3	-4	-8	-14	-14	-12	-8	-7	38	RT12AQS	Fantech RT series, with Q-seals	
-12B	900	-4	-6	-11	-20	-21	-17	-11	-10	38	RT12BQS	Fantech RT series, with Q-seals	
-12C	1200	-4	-8	-15	-26	-28	-22	-15	-11	38	RT12CQS	Fantech RT series, with Q-seals	
-12D	1500	-5	-10	-18	-32	-35	-27	-18	-12	38	RT12DQS	Fantech RT series, with Q-seals	
-12E	1800	-6	-12	-22	-36	-39	-32	-21	-14	38	RT12EQS	Fantech RT series, with Q-seals	
-12F	2100	-7	-13	-26	-40	-43	-35	-23	-16	38	RT12FQS	Fantech RT series, with Q-seals	
-12G	2400	-8	-15	-29	-43	-46	-39	-25	-18	38	RT12GQS	Fantech RT series, with Q-seals	
-15A	600	-2	-3	-7	-13	-13	-10	-7	-6	43	RT15AQS	Fantech RT series, with Q-seals	
-15B	900	-3	-5	-10	-18	-19	-14	-10	-9	43	RT15BQS	Fantech RT series, with Q-seals	
-15C	1200	-3	-6	-13	-24	-25	-19	-13	-10	43	RT15CQS	Fantech RT series, with Q-seals	
-15D	1500	-3	-8	-17	-30	-31	-24	-16	-10	43	RT15DQS	Fantech RT series, with Q-seals	
-15E	1800	-4	-10	-21	-34	-35	-28	-18	-12	43	RT15EQS	Fantech RT series, with Q-seals	
-15F	2100	-5	-12	-24	-38	-39	-31	-19	-14	43	RT15FQS	Fantech RT series, with Q-seals	
-15G	2400	-6	-13	-27	-41	-42	-34	-21	-16	43	RT15GQS	Fantech RT series, with Q-seals	
-17A	600	-2	-3	-6	-11	-12	-9	-6	-5	47	RT17AQS	Fantech RT series, with Q-seals	
-17B	900	-3	-4	-9	-16	-17	-12	-8	-7	47	RT17BQS	Fantech RT series, with Q-seals	
-17C	1200	-3	-6	-12	-22	-22	-16	-10	-7	47	RT17CQS	Fantech RT series, with Q-seals	
-17D	1500	-3	-7	-16	-27	-28	-20	-12	-8	47	RT17DQS	Fantech RT series, with Q-seals	
-17E	1800	-3	-9	-19	-32	-33	-24	-14	-9	47	RT17EQS	Fantech RT series, with Q-seals	
-17F	2100	-4	-10	-21	-35	-36	-26	-16	-10	47	RT17FQS	Fantech RT series, with Q-seals	
-17G	2400	-4	-11	-24	-39	-40	-29	-18	-11	47	RT17GQS	Fantech RT series, with Q-seals	
-20A	600	-1	-3	-6	-10	-10	-7	-5	-4	50	RT20AQS	Fantech RT series, with Q-seals	
-20B	900	-2	-4	-9	-15	-15	-10	-7	-6	50	RT20BQS	Fantech RT series, with Q-seals	
-20C	1200	-2	-5	-12	-20	-19	-14	-8	-6	50	RT20CQS	Fantech RT series, with Q-seals	
-20D	1500	-2	-6	-15	-26	-23	-18	-8	-7	50	RT20DQS	Fantech RT series, with Q-seals	
-20E	1800	-3	-8	-18	-30	-28	-21	-11	-8	50	RT20EQS	Fantech RT series, with Q-seals	
-20F	2100	-3	-9	-20	-34	-32	-23	-13	-9	50	RT20FQS	Fantech RT series, with Q-seals	
-20G	2400	-3	-10	-22	-37	-36	-25	-15	-10	50	RT20GQS	Fantech RT series, with Q-seals	
-22A	600	-1	-2	-5	-9	-9	-6	-4	-4	53	RT22AQS	Fantech RT series, with Q-seals	
-22B	900	-2	-3	-7	-13	-13	-8	-6	-5	53	RT22BQS	Fantech RT series, with Q-seals	
-22C	1200	-2	-4	-10	-18	-17	-12	-7	-5	53	RT22CQS	Fantech RT series, with Q-seals	
-22D	1500	-2	-5	-12	-23	-21	-15	-7	-5	53	RT22DQS	Fantech RT series, with Q-seals	
-22E	1800	-2	-6	-15	-28	-26	-18	-9	-6	53	RT22EQS	Fantech RT series, with Q-seals	
-22F	2100	-2	-7	-18	-31	-30	-20	-11	-7	53	RT22FQS	Fantech RT series, with Q-seals	
-22G	2400	-3	-10	-22	-37	-36	-25	-15	-10	53	RT22GQS	Fantech RT series, with Q-seals	
-25A	600	-1	-2	-5	-8	-8	-5	-3	-3	56	RT25AQS	Fantech RT series, with Q-seals	
-25B	900	-1	-3	-7	-12	-11	-7	-5	-4	56	RT25BQS	Fantech RT series, with Q-seals	
-25C	1200	-1	-4	-9	-16	-15	-10	-5	-4	56	RT25CQS	Fantech RT series, with Q-seals	
-25D	1500	-1	-5	-11	-21	-18	-13	-6	-4	56	RT25DQS	Fantech RT series, with Q-seals	
-25E	1800	-2	-5	-14	-26	-23	-16	-8	-5	56	RT25EQS	Fantech RT series, with Q-seals	
-25F	2100	-2	-6	-16	-29	-27	-18	-9	-6	56	RT25FQS	Fantech RT series, with Q-seals	
-25G	2400	-2	-7	-18	-33	-31	-20	-11	-7	56	RT25GQS	Fantech RT series, with Q-seals	
+07A	600	-3	-5	-10	-18	-20	-18	-12	-9	27	RT07AQS	"Fantech RT series, with Q-seals"	
+07B	900	-4	-7	-14	-25	-28	-25	-17	-13	27	RT07BQS	"Fantech RT series, with Q-seals"	
+07C	1200	-5	-10	-20	-32	-38	-32	-22	-16	27	RT07CQS	"Fantech RT series, with Q-seals"	
+07D	1500	-7	-13	-26	-40	-48	-38	-27	-20	27	RT07DQS	"Fantech RT series, with Q-seals"	
+07E	1800	-7	-13	-26	-40	-48	-38	-27	-20	27	RT07EQS	"Fantech RT series, with Q-seals"	
+07F	2100	-9	-19	-34	-46	-51	-44	-33	-25	27	RT07FQS	"Fantech RT series, with Q-seals"	
+07G	2400	-10	-22	-38	-49	-52	-47	-35	-27	27	RT07GQS	"Fantech RT series, with Q-seals"	
+10A	600	-3	-5	-9	-15	-17	-14	-10	-8	33	RT10AQS	"Fantech RT series, with Q-seals"	
+10B	900	-4	-7	-13	-22	-24	-20	-14	-11	33	RT10BQS	"Fantech RT series, with Q-seals"	
+10C	1200	-5	-9	-17	-28	-32	-25	-17	-13	33	RT10CQS	"Fantech RT series, with Q-seals"	
+10D	1500	-6	-12	-21	-34	-40	-30	-21	-15	33	RT10DQS	"Fantech RT series, with Q-seals"	
+10E	1800	-7	-15	-26	-39	-43	-35	-24	-17	33	RT10EQS	"Fantech RT series, with Q-seals"	
+10F	2100	-8	-17	-29	-42	-46	-38	-26	-19	33	RT10FQS	"Fantech RT series, with Q-seals"	
+10G	2400	-8	-19	-33	-46	-48	-42	-29	-20	33	RT10GQS	"Fantech RT series, with Q-seals"	
+12A	600	-3	-4	-8	-14	-14	-12	-8	-7	38	RT12AQS	"Fantech RT series, with Q-seals"	
+12B	900	-4	-6	-11	-20	-21	-17	-11	-10	38	RT12BQS	"Fantech RT series, with Q-seals"	
+12C	1200	-4	-8	-15	-26	-28	-22	-15	-11	38	RT12CQS	"Fantech RT series, with Q-seals"	
+12D	1500	-5	-10	-18	-32	-35	-27	-18	-12	38	RT12DQS	"Fantech RT series, with Q-seals"	
+12E	1800	-6	-12	-22	-36	-39	-32	-21	-14	38	RT12EQS	"Fantech RT series, with Q-seals"	
+12F	2100	-7	-13	-26	-40	-43	-35	-23	-16	38	RT12FQS	"Fantech RT series, with Q-seals"	
+12G	2400	-8	-15	-29	-43	-46	-39	-25	-18	38	RT12GQS	"Fantech RT series, with Q-seals"	
+15A	600	-2	-3	-7	-13	-13	-10	-7	-6	43	RT15AQS	"Fantech RT series, with Q-seals"	
+15B	900	-3	-5	-10	-18	-19	-14	-10	-9	43	RT15BQS	"Fantech RT series, with Q-seals"	
+15C	1200	-3	-6	-13	-24	-25	-19	-13	-10	43	RT15CQS	"Fantech RT series, with Q-seals"	
+15D	1500	-3	-8	-17	-30	-31	-24	-16	-10	43	RT15DQS	"Fantech RT series, with Q-seals"	
+15E	1800	-4	-10	-21	-34	-35	-28	-18	-12	43	RT15EQS	"Fantech RT series, with Q-seals"	
+15F	2100	-5	-12	-24	-38	-39	-31	-19	-14	43	RT15FQS	"Fantech RT series, with Q-seals"	
+15G	2400	-6	-13	-27	-41	-42	-34	-21	-16	43	RT15GQS	"Fantech RT series, with Q-seals"	
+17A	600	-2	-3	-6	-11	-12	-9	-6	-5	47	RT17AQS	"Fantech RT series, with Q-seals"	
+17B	900	-3	-4	-9	-16	-17	-12	-8	-7	47	RT17BQS	"Fantech RT series, with Q-seals"	
+17C	1200	-3	-6	-12	-22	-22	-16	-10	-7	47	RT17CQS	"Fantech RT series, with Q-seals"	
+17D	1500	-3	-7	-16	-27	-28	-20	-12	-8	47	RT17DQS	"Fantech RT series, with Q-seals"	
+17E	1800	-3	-9	-19	-32	-33	-24	-14	-9	47	RT17EQS	"Fantech RT series, with Q-seals"	
+17F	2100	-4	-10	-21	-35	-36	-26	-16	-10	47	RT17FQS	"Fantech RT series, with Q-seals"	
+17G	2400	-4	-11	-24	-39	-40	-29	-18	-11	47	RT17GQS	"Fantech RT series, with Q-seals"	
+20A	600	-1	-3	-6	-10	-10	-7	-5	-4	50	RT20AQS	"Fantech RT series, with Q-seals"	
+20B	900	-2	-4	-9	-15	-15	-10	-7	-6	50	RT20BQS	"Fantech RT series, with Q-seals"	
+20C	1200	-2	-5	-12	-20	-19	-14	-8	-6	50	RT20CQS	"Fantech RT series, with Q-seals"	
+20D	1500	-2	-6	-15	-26	-23	-18	-8	-7	50	RT20DQS	"Fantech RT series, with Q-seals"	
+20E	1800	-3	-8	-18	-30	-28	-21	-11	-8	50	RT20EQS	"Fantech RT series, with Q-seals"	
+20F	2100	-3	-9	-20	-34	-32	-23	-13	-9	50	RT20FQS	"Fantech RT series, with Q-seals"	
+20G	2400	-3	-10	-22	-37	-36	-25	-15	-10	50	RT20GQS	"Fantech RT series, with Q-seals"	
+22A	600	-1	-2	-5	-9	-9	-6	-4	-4	53	RT22AQS	"Fantech RT series, with Q-seals"	
+22B	900	-2	-3	-7	-13	-13	-8	-6	-5	53	RT22BQS	"Fantech RT series, with Q-seals"	
+22C	1200	-2	-4	-10	-18	-17	-12	-7	-5	53	RT22CQS	"Fantech RT series, with Q-seals"	
+22D	1500	-2	-5	-12	-23	-21	-15	-7	-5	53	RT22DQS	"Fantech RT series, with Q-seals"	
+22E	1800	-2	-6	-15	-28	-26	-18	-9	-6	53	RT22EQS	"Fantech RT series, with Q-seals"	
+22F	2100	-2	-7	-18	-31	-30	-20	-11	-7	53	RT22FQS	"Fantech RT series, with Q-seals"	
+22G	2400	-3	-10	-22	-37	-36	-25	-15	-10	53	RT22GQS	"Fantech RT series, with Q-seals"	
+25A	600	-1	-2	-5	-8	-8	-5	-3	-3	56	RT25AQS	"Fantech RT series, with Q-seals"	
+25B	900	-1	-3	-7	-12	-11	-7	-5	-4	56	RT25BQS	"Fantech RT series, with Q-seals"	
+25C	1200	-1	-4	-9	-16	-15	-10	-5	-4	56	RT25CQS	"Fantech RT series, with Q-seals"	
+25D	1500	-1	-5	-11	-21	-18	-13	-6	-4	56	RT25DQS	"Fantech RT series, with Q-seals"	
+25E	1800	-2	-5	-14	-26	-23	-16	-8	-5	56	RT25EQS	"Fantech RT series, with Q-seals"	
+25F	2100	-2	-6	-16	-29	-27	-18	-9	-6	56	RT25FQS	"Fantech RT series, with Q-seals"	
+25G	2400	-2	-7	-18	-33	-31	-20	-11	-7	56	RT25GQS	"Fantech RT series, with Q-seals"	
 *Circular Open 1D													
 -31	300	-1	-3	-5	-9	-13	-10	-8	-7		C1-031	Fantech Circular Open series	
 -35	300	-2	-3	-5	-9	-13	-10	-8	-7		C1-035	Fantech Circular Open series	
@@ -392,3 +392,202 @@ H50/300	3000	-12	-19	-36	-43	-47	-28	-18	-16	50	H50/300	NAP H_series	600
 1220CSP-2D	1220		-13	-24	-30	-37	-33	-19	-13		1220CSP-2D	NAP Circular with pod	
 1525CSP-2D	1525		-18	-25	-33	-36	-26	-17	-13		1525CSP-2D	NAP Circular with pod	
 2415CSP-2D	2415		-22	-27	-36	-30	-17	-12	-11		2415CSP-2D	NAP Circular with pod	
+*Fantech AirLay Silencers													
+05A	600	-9	-12	-23	-39	-41	-40	-35	-27		nsa05A	Fantech AirLay Silencer	50
+05B	900	-10	-16	-30	-45	-48	-47	-39	-30		nsa05B	Fantech AirLay Silencer	50
+05C	1200	-11	-21	-38	-50	-50	-50	-43	-34		nsa05C	Fantech AirLay Silencer	50
+05C2	1400	-12	-24	-43	-50	-50	-50	-46	-37		nsa05C2	Fantech AirLay Silencer	50
+05D	1500	-12	-25	-45	-50	-50	-50	-47	-38		nsa05D	Fantech AirLay Silencer	50
+05E	1800	-14	-29	-48	-50	-50	-50	-48	-41		nsa05E	Fantech AirLay Silencer	50
+05F	2100	-16	-33	-50	-50	-50	-50	-50	-45		nsa05F	Fantech AirLay Silencer	50
+05G	2400	-18	-39	-50	-50	-50	-50	-50	-49		nsa05G	Fantech AirLay Silencer	50
+05H	2700	-20	-44	-50	-50	-50	-50	-50	-50		nsa05H	Fantech AirLay Silencer	50
+05I	3000	-22	-50	-50	-50	-50	-50	-50	-50		nsa05I	Fantech AirLay Silencer	50
+05J	3300	-24	-50	-50	-50	-50	-50	-50	-50		nsa05J	Fantech AirLay Silencer	50
+05K	3600	-26	-50	-50	-50	-50	-50	-50	-50		nsa05K	Fantech AirLay Silencer	50
+07A	600	-8	-11	-16	-29	-36	-34	-29	-25		nsa07A	Fantech AirLay Silencer	75
+07B	900	-9	-13	-23	-38	-45	-42	-34	-27		nsa07B	Fantech AirLay Silencer	75
+07C	1200	-9	-16	-30	-47	-50	-50	-40	-30		nsa07C	Fantech AirLay Silencer	75
+07C2	1400	-10	-19	-35	-48	-50	-50	-43	-32		nsa07C2	Fantech AirLay Silencer	75
+07D	1500	-10	-20	-37	-48	-50	-50	-44	-33		nsa07D	Fantech AirLay Silencer	75
+07E	1800	-11	-23	-45	-49	-50	-50	-48	-36		nsa07E	Fantech AirLay Silencer	75
+07F	2100	-13	-28	-47	-50	-50	-50	-50	-38		nsa07F	Fantech AirLay Silencer	75
+07G	2400	-14	-34	-50	-50	-50	-50	-50	-40		nsa07G	Fantech AirLay Silencer	75
+07H	2700	-16	-37	-50	-50	-50	-50	-50	-43		nsa07H	Fantech AirLay Silencer	75
+07I	3000	-18	-43	-50	-50	-50	-50	-50	-46		nsa07I	Fantech AirLay Silencer	75
+07J	3300	-19	-45	-50	-50	-50	-50	-50	-47		nsa07J	Fantech AirLay Silencer	75
+07K	3600	-20	-47	-50	-50	-50	-50	-50	-48		nsa07K	Fantech AirLay Silencer	75
+10A	600	-7	-10	-15	-27	-31	-29	-24	-20		nsa10A	Fantech AirLay Silencer	100
+10B	900	-8	-12	-21	-35	-37	-36	-28	-23		nsa10B	Fantech AirLay Silencer	100
+10C	1200	-9	-14	-27	-44	-46	-44	-36	-26		nsa10C	Fantech AirLay Silencer	100
+10C2	1400	-10	-16	-31	-46	-49	-48	-39	-27		nsa10C2	Fantech AirLay Silencer	100
+10D	1500	-10	-17	-33	-47	-50	-50	-40	-28		nsa10D	Fantech AirLay Silencer	100
+10E	1800	-10	-20	-39	-50	-50	-50	-45	-30		nsa10E	Fantech AirLay Silencer	100
+10F	2100	-11	-23	-45	-50	-50	-50	-46	-32		nsa10F	Fantech AirLay Silencer	100
+10G	2400	-12	-27	-50	-50	-50	-50	-47	-34		nsa10G	Fantech AirLay Silencer	100
+10H	2700	-13	-31	-50	-50	-50	-50	-50	-36		nsa10H	Fantech AirLay Silencer	100
+10I	3000	-14	-36	-50	-50	-50	-50	-50	-39		nsa10I	Fantech AirLay Silencer	100
+10J	3300	-16	-38	-50	-50	-50	-50	-50	-40		nsa10J	Fantech AirLay Silencer	100
+10K	3600	-17	-40	-50	-50	-50	-50	-50	-41		nsa10K	Fantech AirLay Silencer	100
+12A	600	-6	-9	-14	-24	-28	-25	-21	-18		nsa12A	Fantech AirLay Silencer	125
+12B	900	-7	-11	-19	-33	-35	-31	-24	-20		nsa12B	Fantech AirLay Silencer	125
+12C	1200	-8	-13	-24	-41	-41	-37	-30	-22		nsa12C	Fantech AirLay Silencer	125
+12C2	1400	-9	-15	-28	-44	-45	-40	-32	-23		nsa12C2	Fantech AirLay Silencer	125
+12D	1500	-9	-16	-30	-45	-47	-42	-33	-24		nsa12D	Fantech AirLay Silencer	125
+12E	1800	-9	-18	-35	-49	-50	-48	-36	-26		nsa12E	Fantech AirLay Silencer	125
+12F	2100	-10	-21	-40	-50	-50	-50	-39	-28		nsa12F	Fantech AirLay Silencer	125
+12G	2400	-11	-24	-45	-50	-50	-50	-41	-29		nsa12G	Fantech AirLay Silencer	125
+12H	2700	-12	-26	-50	-50	-50	-50	-45	-31		nsa12H	Fantech AirLay Silencer	125
+12I	3000	-13	-29	-50	-50	-50	-50	-49	-32		nsa12I	Fantech AirLay Silencer	125
+12J	3300	-14	-30	-50	-50	-50	-50	-50	-35		nsa12J	Fantech AirLay Silencer	125
+12K	3600	-15	-33	-50	-50	-50	-50	-50	-36		nsa12K	Fantech AirLay Silencer	125
+15A	600	-6	-9	-12	-22	-25	-21	-18	-16		nsa15A	Fantech AirLay Silencer	150
+15B	900	-6	-10	-17	-30	-33	-26	-20	-17		nsa15B	Fantech AirLay Silencer	150
+15C	1200	-6	-12	-21	-38	-39	-34	-23	-18		nsa15C	Fantech AirLay Silencer	150
+15C2	1400	-7	-13	-24	-41	-43	-37	-25	-19		nsa15C2	Fantech AirLay Silencer	150
+15D	1500	-7	-14	-26	-43	-45	-39	-26	-20		nsa15D	Fantech AirLay Silencer	150
+15E	1800	-8	-16	-31	-48	-50	-44	-29	-22		nsa15E	Fantech AirLay Silencer	150
+15F	2100	-9	-18	-36	-49	-50	-47	-32	-23		nsa15F	Fantech AirLay Silencer	150
+15G	2400	-10	-20	-40	-50	-50	-49	-35	-24		nsa15G	Fantech AirLay Silencer	150
+15H	2700	-11	-23	-45	-50	-50	-50	-39	-26		nsa15H	Fantech AirLay Silencer	150
+15I	3000	-12	-25	-50	-50	-50	-50	-43	-27		nsa15I	Fantech AirLay Silencer	150
+15J	3300	-12	-27	-50	-50	-50	-50	-44	-28		nsa15J	Fantech AirLay Silencer	150
+15K	3600	-13	-28	-50	-50	-50	-50	-45	-30		nsa15K	Fantech AirLay Silencer	150
+17A	600	-5	-8	-12	-20	-24	-21	-16	-16		nsa17A	Fantech AirLay Silencer	175
+17B	900	-6	-10	-16	-27	-30	-25	-18	-17		nsa17B	Fantech AirLay Silencer	175
+17C	1200	-6	-12	-20	-35	-38	-32	-21	-17		nsa17C	Fantech AirLay Silencer	175
+17C2	1400	-7	-13	-23	-38	-41	-35	-22	-18		nsa17C2	Fantech AirLay Silencer	175
+17D	1500	-7	-13	-24	-40	-43	-37	-23	-19		nsa17D	Fantech AirLay Silencer	175
+17E	1800	-7	-15	-29	-46	-50	-42	-26	-20		nsa17E	Fantech AirLay Silencer	175
+17F	2100	-8	-17	-33	-48	-50	-45	-29	-21		nsa17F	Fantech AirLay Silencer	175
+17G	2400	-9	-19	-37	-50	-50	-48	-32	-22		nsa17G	Fantech AirLay Silencer	175
+17H	2700	-10	-21	-41	-50	-50	-50	-35	-23		nsa17H	Fantech AirLay Silencer	175
+17I	3000	-11	-22	-45	-50	-50	-50	-38	-24		nsa17I	Fantech AirLay Silencer	175
+17J	3300	-11	-24	-47	-50	-50	-50	-39	-25		nsa17J	Fantech AirLay Silencer	175
+17K	3600	-12	-27	-50	-50	-50	-50	-40	-26		nsa17K	Fantech AirLay Silencer	175
+20A	600	-5	-8	-11	-18	-19	-18	-14	-14		nsa20A	Fantech AirLay Silencer	200
+20B	900	-5	-10	-15	-25	-24	-22	-16	-16		nsa20B	Fantech AirLay Silencer	200
+20C	1200	-6	-11	-19	-32	-30	-25	-18	-17		nsa20C	Fantech AirLay Silencer	200
+20C2	1400	-6	-12	-22	-35	-33	-28	-20	-18		nsa20C2	Fantech AirLay Silencer	200
+20D	1500	-6	-13	-23	-37	-35	-29	-21	-18		nsa20D	Fantech AirLay Silencer	200
+20E	1800	-6	-14	-26	-43	-40	-32	-23	-18		nsa20E	Fantech AirLay Silencer	200
+20F	2100	-7	-16	-30	-46	-44	-36	-26	-19		nsa20F	Fantech AirLay Silencer	200
+20G	2400	-8	-17	-34	-50	-50	-40	-28	-20		nsa20G	Fantech AirLay Silencer	200
+20H	2700	-10	-19	-38	-50	-50	-45	-29	-20		nsa20H	Fantech AirLay Silencer	200
+20I	3000	-12	-21	-43	-50	-50	-48	-30	-21		nsa20I	Fantech AirLay Silencer	200
+20J	3300	-12	-23	-45	-50	-50	-49	-31	-22		nsa20J	Fantech AirLay Silencer	200
+20K	3600	-13	-25	-47	-50	-50	-50	-32	-23		nsa20K	Fantech AirLay Silencer	200
+22A	600	-5	-8	-10	-17	-18	-16	-13	-14		nsa22A	Fantech AirLay Silencer	225
+22B	900	-5	-9	-14	-23	-22	-20	-15	-15		nsa22B	Fantech AirLay Silencer	225
+22C	1200	-6	-11	-18	-29	-26	-23	-17	-16		nsa22C	Fantech AirLay Silencer	225
+22C2	1400	-6	-12	-20	-33	-29	-25	-18	-16		nsa22C2	Fantech AirLay Silencer	225
+22D	1500	-6	-12	-21	-35	-30	-26	-19	-16		nsa22D	Fantech AirLay Silencer	225
+22E	1800	-6	-13	-25	-40	-36	-29	-21	-17		nsa22E	Fantech AirLay Silencer	225
+22F	2100	-7	-15	-28	-44	-40	-32	-23	-17		nsa22F	Fantech AirLay Silencer	225
+22G	2400	-7	-16	-32	-48	-42	-36	-26	-17		nsa22G	Fantech AirLay Silencer	225
+22H	2700	-8	-17	-35	-50	-45	-39	-28	-18		nsa22H	Fantech AirLay Silencer	225
+22I	3000	-9	-19	-38	-50	-48	-42	-30	-18		nsa22I	Fantech AirLay Silencer	225
+22J	3300	-9	-20	-41	-50	-50	-45	-30	-19		nsa22J	Fantech AirLay Silencer	225
+22K	3600	-10	-22	-43	-50	-50	-47	-31	-20		nsa22K	Fantech AirLay Silencer	225
+25A	600	-5	-7	-10	-16	-16	-15	-12	-12		nsa25A	Fantech AirLay Silencer	250
+25B	900	-5	-9	-13	-21	-20	-19	-14	-13		nsa25B	Fantech AirLay Silencer	250
+25C	1200	-5	-10	-17	-27	-25	-21	-16	-14		nsa25C	Fantech AirLay Silencer	250
+25C2	1400	-5	-11	-19	-30	-28	-23	-17	-15		nsa25C2	Fantech AirLay Silencer	250
+25D	1500	-5	-11	-20	-32	-29	-24	-17	-15		nsa25D	Fantech AirLay Silencer	250
+25E	1800	-6	-12	-23	-37	-32	-26	-19	-15		nsa25E	Fantech AirLay Silencer	250
+25F	2100	-6	-13	-26	-42	-36	-29	-21	-15		nsa25F	Fantech AirLay Silencer	250
+25G	2400	-7	-15	-29	-46	-40	-32	-23	-15		nsa25G	Fantech AirLay Silencer	250
+25H	2700	-7	-16	-33	-50	-44	-35	-25	-15		nsa25H	Fantech AirLay Silencer	250
+25I	3000	-8	-18	-37	-50	-47	-39	-27	-15		nsa25I	Fantech AirLay Silencer	250
+25J	3300	-8	-19	-40	-50	-50	-42	-28	-16		nsa25J	Fantech AirLay Silencer	250
+25K	3600	-9	-21	-42	-50	-50	-45	-30	-17		nsa25K	Fantech AirLay Silencer	250
+05C	1200	-8	-15	-23	-39	-40	-41	-32	-25		nta05C	Fantech AirLay Silencer	50
+05C2	1400	-9	-18	-28	-43	-44	-46	-34	-28		nta05C2	Fantech AirLay Silencer	50
+05D	1500	-9	-20	-30	-45	-46	-48	-35	-29		nta05D	Fantech AirLay Silencer	50
+05E	1800	-11	-25	-38	-50	-50	-50	-38	-32		nta05E	Fantech AirLay Silencer	50
+05F	2100	-12	-29	-45	-50	-50	-50	-44	-36		nta05F	Fantech AirLay Silencer	50
+05G	2400	-15	-34	-48	-50	-50	-50	-46	-39		nta05G	Fantech AirLay Silencer	50
+05H	2700	-16	-39	-50	-50	-50	-50	-50	-43		nta05H	Fantech AirLay Silencer	50
+05I	3000	-17	-45	-50	-50	-50	-50	-50	-48		nta05I	Fantech AirLay Silencer	50
+05J	3300	-20	-50	-50	-50	-50	-50	-50	-50		nta05J	Fantech AirLay Silencer	50
+05K	3600	-22	-50	-50	-50	-50	-50	-50	-50		nta05K	Fantech AirLay Silencer	50
+07C	1200	-7	-14	-21	-29	-35	-35	-26	-23		nta07C	Fantech AirLay Silencer	75
+07C2	1400	-8	-16	-25	-34	-40	-40	-29	-25		nta07C2	Fantech AirLay Silencer	75
+07D	1500	-8	-17	-27	-37	-42	-43	-30	-26		nta07D	Fantech AirLay Silencer	75
+07E	1800	-9	-20	-33	-46	-50	-50	-35	-28		nta07E	Fantech AirLay Silencer	75
+07F	2100	-11	-24	-40	-48	-50	-50	-41	-31		nta07F	Fantech AirLay Silencer	75
+07G	2400	-12	-28	-47	-50	-50	-50	-46	-33		nta07G	Fantech AirLay Silencer	75
+07H	2700	-13	-34	-49	-50	-50	-50	-50	-36		nta07H	Fantech AirLay Silencer	75
+07I	3000	-13	-40	-50	-49	-50	-50	-50	-39		nta07I	Fantech AirLay Silencer	75
+07J	3300	-16	-43	-50	-50	-50	-50	-50	-42		nta07J	Fantech AirLay Silencer	75
+07K	3600	-18	-49	-50	-50	-50	-50	-50	-45		nta07K	Fantech AirLay Silencer	75
+10C	1200	-7	-12	-19	-26	-29	-29	-23	-20		nta10C	Fantech AirLay Silencer	100
+10C2	1400	-8	-14	-22	-32	-34	-34	-26	-21		nta10C2	Fantech AirLay Silencer	100
+10D	1500	-8	-15	-24	-35	-36	-37	-27	-22		nta10D	Fantech AirLay Silencer	100
+10E	1800	-8	-18	-29	-44	-43	-44	-31	-25		nta10E	Fantech AirLay Silencer	100
+10F	2100	-9	-20	-34	-47	-50	-49	-35	-27		nta10F	Fantech AirLay Silencer	100
+10G	2400	-10	-23	-40	-50	-50	-50	-39	-29		nta10G	Fantech AirLay Silencer	100
+10H	2700	-11	-27	-46	-50	-50	-50	-44	-31		nta10H	Fantech AirLay Silencer	100
+10I	3000	-12	-31	-50	-50	-50	-50	-50	-33		nta10I	Fantech AirLay Silencer	100
+10J	3300	-13	-35	-50	-50	-50	-50	-50	-35		nta10J	Fantech AirLay Silencer	100
+10K	3600	-14	-40	-50	-50	-50	-50	-50	-38		nta10K	Fantech AirLay Silencer	100
+12C	1200	-7	-12	-17	-23	-25	-26	-21	-17		nta12C	Fantech AirLay Silencer	125
+12C2	1400	-7	-13	-20	-29	-30	-30	-23	-18		nta12C2	Fantech AirLay Silencer	125
+12D	1500	-7	-14	-21	-32	-32	-32	-24	-19		nta12D	Fantech AirLay Silencer	125
+12E	1800	-8	-17	-26	-41	-39	-38	-27	-21		nta12E	Fantech AirLay Silencer	125
+12F	2100	-9	-19	-31	-45	-47	-43	-30	-23		nta12F	Fantech AirLay Silencer	125
+12G	2400	-10	-21	-36	-48	-50	-48	-34	-25		nta12G	Fantech AirLay Silencer	125
+12H	2700	-10	-25	-41	-50	-50	-50	-38	-26		nta12H	Fantech AirLay Silencer	125
+12I	3000	-11	-28	-46	-50	-50	-50	-43	-28		nta12I	Fantech AirLay Silencer	125
+12J	3300	-12	-30	-50	-50	-50	-50	-46	-30		nta12J	Fantech AirLay Silencer	125
+12K	3600	-13	-33	-50	-50	-50	-50	-50	-31		nta12K	Fantech AirLay Silencer	125
+15C	1200	-7	-12	-15	-21	-21	-22	-18	-15		nta15C	Fantech AirLay Silencer	150
+15C2	1400	-7	-13	-18	-26	-26	-25	-19	-16		nta15C2	Fantech AirLay Silencer	150
+15D	1500	-7	-14	-19	-29	-29	-27	-20	-16		nta15D	Fantech AirLay Silencer	150
+15E	1800	-7	-16	-23	-37	-37	-32	-23	-18		nta15E	Fantech AirLay Silencer	150
+15F	2100	-8	-18	-27	-42	-45	-37	-26	-19		nta15F	Fantech AirLay Silencer	150
+15G	2400	-9	-20	-32	-47	-50	-42	-29	-20		nta15G	Fantech AirLay Silencer	150
+15H	2700	-9	-22	-36	-49	-50	-46	-32	-21		nta15H	Fantech AirLay Silencer	150
+15I	3000	-9	-24	-40	-50	-50	-50	-36	-22		nta15I	Fantech AirLay Silencer	150
+15J	3300	-11	-27	-45	-50	-50	-50	-39	-24		nta15J	Fantech AirLay Silencer	150
+15K	3600	-12	-29	-50	-50	-50	-50	-43	-25		nta15K	Fantech AirLay Silencer	150
+17C	1200	-6	-12	-14	-20	-20	-21	-17	-15		nta17C	Fantech AirLay Silencer	175
+17C2	1400	-7	-13	-17	-25	-24	-24	-18	-16		nta17C2	Fantech AirLay Silencer	175
+17D	1500	-7	-13	-18	-27	-26	-25	-19	-16		nta17D	Fantech AirLay Silencer	175
+17E	1800	-7	-15	-22	-35	-31	-29	-21	-17		nta17E	Fantech AirLay Silencer	175
+17F	2100	-7	-17	-26	-40	-37	-33	-24	-18		nta17F	Fantech AirLay Silencer	175
+17G	2400	-8	-18	-29	-45	-45	-38	-26	-19		nta17G	Fantech AirLay Silencer	175
+17H	2700	-8	-20	-33	-48	-50	-41	-29	-20		nta17H	Fantech AirLay Silencer	175
+17I	3000	-8	-22	-37	-50	-50	-45	-32	-20		nta17I	Fantech AirLay Silencer	175
+17J	3300	-10	-24	-41	-50	-50	-48	-35	-21		nta17J	Fantech AirLay Silencer	175
+17K	3600	-11	-25	-45	-50	-50	-50	-38	-22		nta17K	Fantech AirLay Silencer	175
+20C	1200	-6	-12	-13	-18	-19	-19	-16	-16		nta20C	Fantech AirLay Silencer	200
+20C2	1400	-6	-13	-16	-23	-22	-21	-17	-16		nta20C2	Fantech AirLay Silencer	200
+20D	1500	-6	-13	-17	-25	-23	-22	-18	-16		nta20D	Fantech AirLay Silencer	200
+20E	1800	-6	-15	-20	-32	-28	-26	-19	-17		nta20E	Fantech AirLay Silencer	200
+20F	2100	-7	-16	-24	-37	-34	-29	-22	-18		nta20F	Fantech AirLay Silencer	200
+20G	2400	-7	-17	-27	-43	-38	-33	-24	-18		nta20G	Fantech AirLay Silencer	200
+20H	2700	-7	-19	-31	-46	-43	-37	-26	-19		nta20H	Fantech AirLay Silencer	200
+20I	3000	-7	-20	-34	-50	-47	-40	-29	-19		nta20I	Fantech AirLay Silencer	200
+20J	3300	-10	-22	-38	-50	-49	-45	-29	-20		nta20J	Fantech AirLay Silencer	200
+20K	3600	-12	-24	-43	-50	-50	-48	-30	-21		nta20K	Fantech AirLay Silencer	200
+22C	1200	-6	-11	-12	-17	-16	-18	-14	-14		nta22C	Fantech AirLay Silencer	225
+22C2	1400	-6	-12	-14	-21	-19	-20	-15	-14		nta22C2	Fantech AirLay Silencer	225
+22D	1500	-6	-12	-15	-23	-21	-21	-16	-14		nta22D	Fantech AirLay Silencer	225
+22E	1800	-6	-13	-19	-29	-25	-23	-18	-15		nta22E	Fantech AirLay Silencer	225
+22F	2100	-6	-15	-22	-34	-30	-27	-20	-16		nta22F	Fantech AirLay Silencer	225
+22G	2400	-6	-16	-26	-40	-35	-30	-22	-16		nta22G	Fantech AirLay Silencer	225
+22H	2700	-6	-17	-29	-44	-39	-33	-24	-17		nta22H	Fantech AirLay Silencer	225
+22I	3000	-7	-19	-32	-48	-43	-36	-25	-17		nta22I	Fantech AirLay Silencer	225
+22J	3300	-8	-20	-35	-50	-45	-39	-28	-18		nta22J	Fantech AirLay Silencer	225
+22K	3600	-9	-22	-38	-50	-48	-42	-30	-18		nta22K	Fantech AirLay Silencer	225
+25C	1200	-5	-10	-11	-15	-14	-17	-12	-11		nta25C	Fantech AirLay Silencer	250
+25C2	1400	-5	-11	-13	-18	-17	-18	-13	-12		nta25C2	Fantech AirLay Silencer	250
+25D	1500	-5	-11	-14	-20	-18	-19	-14	-12		nta25D	Fantech AirLay Silencer	250
+25E	1800	-6	-12	-17	-26	-21	-21	-16	-13		nta25E	Fantech AirLay Silencer	250
+25F	2100	-5	-14	-21	-31	-25	-24	-18	-14		nta25F	Fantech AirLay Silencer	250
+25G	2400	-5	-15	-24	-37	-29	-27	-20	-14		nta25G	Fantech AirLay Silencer	250
+25H	2700	-6	-16	-27	-42	-33	-30	-21	-15		nta25H	Fantech AirLay Silencer	250
+25I	3000	-6	-18	-30	-46	-37	-32	-22	-15		nta25I	Fantech AirLay Silencer	250
+25J	3300	-7	-19	-33	-50	-41	-35	-25	-15		nta25J	Fantech AirLay Silencer	250
+25K	3600	-8	-21	-37	-50	-45	-39	-27	-16		nta25K	Fantech AirLay Silencer	250
