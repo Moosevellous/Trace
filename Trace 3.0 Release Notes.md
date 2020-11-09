@@ -1,6 +1,6 @@
 # Trace 3.0 Release Notes
 
-[[Trace]] 3.0 has been a massive effort for the Working Group, with the back-end code rewritten and documented as fully than ever before. The last release was in January so the list of changes has certainly grown quite long.
+[[Trace]] 3.0 has been a massive effort for the Working Group, with the back-end code rewritten and documented better than ever before. The last release was in January so the list of changes has certainly grown quite long.
 
 ## New features
 The new release offers many new features, let's take a look at them now. 
