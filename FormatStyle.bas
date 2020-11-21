@@ -110,12 +110,12 @@ End Sub
 '           colEnd - last column of range
 ' Comments: (1) Replaces a bunch of individual subroutines
 '==============================================================================
-Sub SetUnits(UnitType As String, colStart As Integer, _
-    Optional numDigits As Integer, Optional colEnd As Integer)
+Sub SetUnits(UnitType As String, ColStart As Integer, _
+    Optional numDigits As Integer, Optional ColEnd As Integer)
     
 Dim fmtString As String
 
-    If colEnd = 0 Then colEnd = colStart
+    If ColEnd = 0 Then ColEnd = ColStart
 fmtString = "NotSet" 'for error catching
     'set fmtString
     Select Case UnitType
@@ -153,8 +153,8 @@ fmtString = "NotSet" 'for error catching
 If fmtString = "NotSet" Then fmtString = "General"
 
 'set format to all selected rows
-Range(Cells(Selection.Row, colStart), _
-    Cells(Selection.Row + Selection.Rows.Count - 1, colEnd)) _
+Range(Cells(Selection.Row, ColStart), _
+    Cells(Selection.Row + Selection.Rows.Count - 1, ColEnd)) _
     .NumberFormat = fmtString
 
 End Sub
@@ -317,8 +317,8 @@ End Sub
 '           ValidationOptionsStr - String of options to be set
 ' Comments: (1)
 '==============================================================================
-Sub SetDataValidation(col As Integer, ValidationOptionStr As String)
-    With Cells(Selection.Row, col).Validation
+Sub SetDataValidation(Col As Integer, ValidationOptionStr As String)
+    With Cells(Selection.Row, Col).Validation
     .Delete
     .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
     xlBetween, Formula1:=ValidationOptionStr
@@ -343,10 +343,10 @@ End Sub
 '           append - set to TRUE to append the comment to the existing comment
 ' Comments: (1) Deletes previous comment unless append is TRUE
 '==============================================================================
-Sub InsertComment(CommentStr As String, col As Integer, Optional append As Boolean)
+Sub InsertComment(CommentStr As String, Col As Integer, Optional append As Boolean)
 Dim CheckRng As Range
 'add comment with more detail
-Set CheckRng = Cells(Selection.Row, col)
+Set CheckRng = Cells(Selection.Row, Col)
 
     If Not CheckRng.Comment Is Nothing Then
         If append = False Then 'delete!

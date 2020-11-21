@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmElbowBend 
    Caption         =   "Elbow/Bend Loss"
-   ClientHeight    =   7470
+   ClientHeight    =   7680
    ClientLeft      =   45
    ClientTop       =   390
    ClientWidth     =   5775
@@ -67,12 +67,13 @@ End Sub
 Private Sub btnCancel_Click()
 btnOkPressed = False
 Me.Hide
+Unload Me
 End Sub
 
 Private Sub btnOK_Click()
-
+'set public variables
 ductW = txtW.Value
-
+    
     If Me.optLined.Value Then
     elbowLining = "Lined"
     Else
@@ -86,13 +87,20 @@ ductW = txtW.Value
     End If
     
     If Me.optVanes.Value Then
-    elbowVanes = "Vanes"
+    ElbowVanes = "Vanes"
     Else
-    elbowVanes = "No Vanes"
+    ElbowVanes = "No Vanes"
+    End If
+    
+    If Me.chkCalcRegen.Value = True Then
+    CalcRegen = True
+    Else
+    CalcRegen = False
     End If
     
 btnOkPressed = True
 Me.Hide
+Unload Me
 End Sub
 
 Sub PreviewElbowLoss()

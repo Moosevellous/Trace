@@ -27,16 +27,24 @@ End Sub
 
 Private Sub btnInsertIntoExisting_Click()
 ImportSheetName = getSelectedOption
-ImportAsTabs = True
-Me.Hide
-btnOkPressed = True
+    If ImportSheetName = "" Then
+    msg = MsgBox("Nothing selected, try again?", vbOKOnly, "Huh?")
+    Else
+    ImportAsTabs = True
+    Me.Hide
+    btnOkPressed = True
+    End If
 End Sub
 
 Private Sub btnLoadStandardCalc_Click()
 ImportSheetName = getSelectedOption
-ImportAsTabs = False
-Me.Hide
-btnOkPressed = True
+    If ImportSheetName = "" Then
+    msg = MsgBox("Nothing selected, try again?", vbOKOnly, "Huh?")
+    Else
+    ImportAsTabs = False
+    Me.Hide
+    btnOkPressed = True
+    End If
 End Sub
 
 Private Sub UserForm_Activate()

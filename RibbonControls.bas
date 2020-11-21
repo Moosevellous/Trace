@@ -76,7 +76,7 @@ Sub TraceFunction(control As IRibbonControl)
 Dim FuncName As String
 
 On Error GoTo errorCatch
-'Debug.Print TypeName(Selection)
+'Debug.Print "TypeName: "; TypeName(Selection)
 
     If TypeName(Selection) = "Range" Then
         'Skip controls for certain functions
@@ -87,6 +87,8 @@ On Error GoTo errorCatch
         FuncName = control.Tag
         SetSheetTypeControls 'set sheet control variables
         End If
+    ElseIf TypeName(Selection) = "ChartArea" Then 'chart object selected
+    FuncName = control.Tag
     End If
     
 Application.Run FuncName
@@ -151,7 +153,8 @@ End Sub
 
 Sub btnUnits(control As IRibbonControl)
 SetSheetTypeControls
-SetUnits control.Tag, Selection.Column, 0, Selection.Column + Selection.Columns.Count - 1
+SetUnits control.Tag, Selection.Column, 0, _
+    Selection.Column + Selection.Columns.Count - 1
 End Sub
 
 Sub btnStyle(control As IRibbonControl)

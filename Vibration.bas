@@ -182,7 +182,7 @@ Curve_Accel_combined = Array(0.0036, 0.0036, 0.0036, 0.0036, 0.00372, _
     0.00387, 0.00407, 0.0043, 0.0046, 0.005, 0.0063, 0.0078, 0.01, 0.0125, _
     0.0156, 0.0197, 0.025, 0.0313, 0.0394, 0.05)
 
-'Reference vibration curves - VELOCITY for multipliers {1, 1.4, 2, 4, 8}
+'Reference vibration curves - VELOCITY (RMS) for multipliers {1, 1.4, 2, 4, 8}
 '1hz, 1.25hz, 1.6hz, 2hz, 2.5hz, 3.15hz, 4hz, 5hz, 6.3hz, 8hz, 10hz, 12.5hz,
 '   16hz, 20hz, 25hz, 31.5hz, 40hz, 50hz, 63hz, 80hz
 Curve_Vel_z = Array(0.00159, 0.00113, 0.000796, 0.000557, 0.000401, 0.000288, _
@@ -234,8 +234,8 @@ AS2670_Curve = "-"
 
 ' Find vibration corresponding to freq to display
 f = freqStr2Num(freq)
-i = GetArrayIndex_TO(f, 14) '14 bands offset from 50Hz to 2Hz
-    If i > 0 And i < UBound(ChosenCurve) + 1 Then
+i = GetArrayIndex_TO(f, 17) '17 bands offset from 50Hz to 1Hzo
+    If i >= 0 And i < UBound(ChosenCurve) + 1 Then
     AS2670_Curve = ChosenCurve(i)
     End If
 
@@ -606,7 +606,7 @@ Cells(Selection.Row, T_ParamStart) = AS2670_Axis
 SetDataValidation T_ParamStart, "z, xy, comb."
 
 ' Parameter column 2 (Column AG) format
-Cells(Selection.Row, T_ParamStart + 1).NumberFormat = "xlGeneral"
+SetUnits "General", T_ParamStart + 1
 
     ' Parameter column 2 (Column AG) contents. If "Rate existing curve" button
     ' in the AS2670 form is selected, rate the row above the current row,
@@ -616,7 +616,7 @@ Cells(Selection.Row, T_ParamStart + 1).NumberFormat = "xlGeneral"
             & Range(Cells(Selection.Row - 1, T_LossGainStart), _
             Cells(Selection.Row - 1, T_ParamStart - 1)).Address(False, True) _
             & "," & Range(Cells(6, T_LossGainStart), _
-            Cells(6, T_ParamStart - 1)).Address(True, True) & "," _
+            Cells(6, T_LossGainEnd)).Address(True, True) & "," _
             & Cells(Selection.Row, T_ParamStart).Address(False, True) & "," _
             & """" & AS2670_Order & """" & "," & """" & Mode & """" & ")"
         ' Formatting

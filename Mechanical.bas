@@ -19,7 +19,7 @@ Public ductSplitType As String
 'bend/elbows
 Public elbowLining As String
 Public elbowShape As String
-Public elbowVanes As String
+Public ElbowVanes As String
 
 'End Reflection Loss
 Public ERL_Area As Single
@@ -73,11 +73,13 @@ Public SilW As Double 'Silencer width in mm
 Public BendH As Double 'bend height in mm
 Public BendW As Double 'bend width in mm
 Public BendCordLength As Double 'bend chord length in mm
-Public FlowRate As Double 'm3/s
+Public FlowRate As Double 'air flow rate in m3/s
 Public FlowUnitsM3ps As Boolean 'set to TRUE for m3/s, otherwise it's L/s
 Public PFA As Double 'percentage free area, between 0 and 100
 Public numModules As Integer
 Public DuctVelocity As Double 'speed of air in duct in m2/s
+Public ElbowHasVanes As Boolean 'set to true if the elbow has vanes
+Public ElbowNumVanes As Integer 'number of vanes in an elbow
 
 ''==============================================================================
 '' Name:     GetASHRAE
@@ -123,7 +125,7 @@ Dim CurrentType As String 'same rules as DuctType, set at lines which contain '*
 Dim InputArea As Double 'cross sectional area of duct in mm^2
 Dim ReadArea As Double 'cross sectional area of duct from file in mm^2
 Dim found As Boolean 'trigger to escape the read loop
-Dim col As Integer 'index for each column
+Dim Col As Integer 'index for each column
 
 'Get Array from text
 Close #1
@@ -145,15 +147,15 @@ Open ASHRAE_DUCT For Input As #1  'public variable points to te file
         If Left(SplitStr(0), 1) <> "*" Then
         
             'convert SplitString from Strings to Values
-            For col = 0 To UBound(SplitStr)
-                If SplitStr(col) <> "" Then
-                ReDim Preserve SplitVal(col)
-                SplitVal(col) = CDbl(SplitStr(col))
+            For Col = 0 To UBound(SplitStr)
+                If SplitStr(Col) <> "" Then
+                ReDim Preserve SplitVal(Col)
+                SplitVal(Col) = CDbl(SplitStr(Col))
                 End If
-            Next col
+            Next Col
             
             'resize array
-            ReDim Preserve SplitVal(col + 1)
+            ReDim Preserve SplitVal(Col + 1)
             
                 If Right(DuctType, 1) = "R" Then 'RECTANGULAR DUCT
                 ReadArea = SplitVal(0) * SplitVal(1)
@@ -504,7 +506,7 @@ Dim ReadStr() As String 'array for holding daat from text file
 Dim i As Integer 'counter for each line
 Dim SplitStr() As String 'splits text file into substrings
 Dim SplitVal() As Double 'converted to values
-Dim col As Integer 'counter for each column
+Dim Col As Integer 'counter for each column
 Dim found As Boolean 'switch for when match found
 
 Call GetSettings
@@ -523,14 +525,14 @@ i = 0 '<-line number
         If Left(SplitStr(0), 1) <> "*" Then 'asterisk detotes titles
         
             'convert to values
-            For col = 0 To UBound(SplitStr)
-                If SplitStr(col) <> "" Then
-                ReDim Preserve SplitVal(col)
-                SplitVal(col) = CDbl(SplitStr(col))
+            For Col = 0 To UBound(SplitStr)
+                If SplitStr(Col) <> "" Then
+                ReDim Preserve SplitVal(Col)
+                SplitVal(Col) = CDbl(SplitStr(Col))
                 End If
-            Next col
+            Next Col
             
-            ReDim Preserve SplitVal(col + 1)
+            ReDim Preserve SplitVal(Col + 1)
             
                 If SplitVal(0) = dia And SplitVal(1) = L Then
                     Select Case freq
@@ -697,7 +699,7 @@ On Error GoTo closefile
 Dim ReadStr() As String 'string for holding data from text file
 Dim SplitStr() As String 'Array for holding sub strings from text file
 Dim SplitVal() As Double 'converted to values
-Dim col As Integer 'counter for each column of data
+Dim Col As Integer 'counter for each column of data
 Dim found As Boolean 'switch for matching data
 Dim i As Integer 'counter for each line of text file
 
@@ -722,12 +724,12 @@ Open ASHRAE_REGEN For Input As #1  'public variable
                 If SplitStr(0) = Condition And CDbl(SplitStr(1)) = Velocity Then
                 
                     'convert to values
-                    For col = 1 To UBound(SplitStr)
-                        If SplitStr(col) <> "" Then
-                        ReDim Preserve SplitVal(col)
-                        SplitVal(col) = CDbl(SplitStr(col))
+                    For Col = 1 To UBound(SplitStr)
+                        If SplitStr(Col) <> "" Then
+                        ReDim Preserve SplitVal(Col)
+                        SplitVal(Col) = CDbl(SplitStr(Col))
                         End If
-                    Next col
+                    Next Col
                 
                     Select Case freq
                     Case Is = "63"
@@ -1797,7 +1799,7 @@ Dim ReadStr() As String 'for holding values from text file
 Dim SplitStr() As String 'for splitting into array
 Dim SplitVal() As Double 'for holding array as values
 Dim i As Integer 'counter for text line number
-Dim col As Integer 'counter for each column of results
+Dim Col As Integer 'counter for each column of results
 Dim found As Boolean 'switch for matching inputs to values from text file
 
 Call GetSettings 'set public variables, including text file location
@@ -1817,15 +1819,15 @@ Open DUCT_DIRLOSS For Input As #1
         If Left(SplitStr(0), 1) <> "*" Then
         
             'convert to values
-            For col = 0 To UBound(SplitStr)
-                If SplitStr(col) <> "" Then
-                ReDim Preserve SplitVal(col)
-                SplitVal(col) = CDbl(SplitStr(col))
+            For Col = 0 To UBound(SplitStr)
+                If SplitStr(Col) <> "" Then
+                ReDim Preserve SplitVal(Col)
+                SplitVal(Col) = CDbl(SplitStr(Col))
                 End If
-            Next col
+            Next Col
             
-            ReDim Preserve SplitVal(col + 1)
-            
+            ReDim Preserve SplitVal(Col + 1)
+            '<-TODO, simplify this lookup with the getoctindex function
                If SplitVal(0) = diameter And SplitVal(1) = angle Then
                 Select Case freq 'catch for both kinds of header
                 Case Is = "63"
@@ -1877,6 +1879,7 @@ End Function
 '           DuctHeight - in mm
 '           DuctWidth - in mm
 '           MultiBlade - set to TRUE for multi-blade dampers
+'           mCubedPerSection - set to TRUE for m^3/s flow rates
 ' Comments: (1)
 '==============================================================================
 Function DamperRegen_NEBB(fStr As String, FlowRate As Double, PressureLoss As Double, _
@@ -1951,7 +1954,7 @@ DamperRegen_NEBB = Kd + (10 * Application.WorksheetFunction.Log10(f / 63)) + _
 End Function
 
 '==============================================================================
-' Name:     RegenElbowWithVanes_NEBB
+' Name:     ElbowWithVanesRegen_NEBB
 ' Author:   AA
 ' Desc:     Calculates elbow (with vanes) regenerated noise according to the
 '           NEBB method.
@@ -1962,11 +1965,12 @@ End Function
 '           DuctHeight - Duct Height parallel to vane axis (mm, double)
 '           CordLength - cord length of a typical vane (mm, double)
 '           n - number of turning vanes (integer)
+'           mCubedPerSection - set to TRUE for m^3/s flow rates
 ' Comments: (1)
 '==============================================================================
-Function RegenElbowWithVanes_NEBB(fStr As String, FlowRate As Double, _
+Function ElbowWithVanesRegen_NEBB(fStr As String, FlowRate As Double, _
     dP As Double, DuctWidth As Double, DuctHeight As Double, _
-    CordLength As Double, numVanes As Integer)
+    CordLength As Double, numVanes As Integer, Optional mCubedPerSecond As Boolean)
 
 Dim f As Single 'frequency band (Hz)
 Dim S As Double 'duct cross-sectional area (m^2)
@@ -1979,13 +1983,15 @@ Dim Kt As Double 'characteristic spectrum
 'General setup and error catching
 f = freqStr2Num(fStr)
     If f < 63 Or f > 8000 Then
-    RegenElbowWithVanes_NEBB = "-"
+    ElbowWithVanesRegen_NEBB = "-"
     Exit Function
     End If
 
 DuctWidth = DuctWidth / 1000 'convert to m
 DuctHeight = DuctHeight / 1000 'convert to m
 S = DuctWidth * DuctHeight 'calc duct cross-sectional area
+
+    If mCubedPerSecond = True Then FlowRate = FlowRate * 1000
 
 'Step 1: Calculate pressure loss coefficient, C
 c = 16.4 * 100000 * dP * (1 / ((FlowRate / S) ^ 2))
@@ -2004,11 +2010,12 @@ Uc = 0.001 * (FlowRate / (S * BF))
 St = (f * DuctHeight) / Uc
 
 'Step 5: Calculate characteristic spectrum, Kt
-
-Kt = -47.4 - (7.69 * (Application.WorksheetFunction.Log10(St) ^ 2.5))
+    If St > 1 Then
+    Kt = -47.4 - (7.69 * (Application.WorksheetFunction.Log10(St) ^ 2.5))
+    End If
 
 'FINAL: Calculate elbow (with vanes) regen
-RegenElbowWithVanes_NEBB = Kt + 10 * Application.WorksheetFunction.Log10(f / 63) _
+ElbowWithVanesRegen_NEBB = Kt + 10 * Application.WorksheetFunction.Log10(f / 63) _
     + 50 * Application.WorksheetFunction.Log10(3.28 * Uc) _
     + 10 * Application.WorksheetFunction.Log10(10.76 * S) _
     + 10 * Application.WorksheetFunction.Log10(0.039 * CordLength) _
@@ -2017,24 +2024,26 @@ RegenElbowWithVanes_NEBB = Kt + 10 * Application.WorksheetFunction.Log10(f / 63)
 End Function
 
 '==============================================================================
-' Name:     RegenElbowOrJunction_NEBB
+' Name:     ElbowOrJunctionRegen_NEBB
 ' Author:   AA
 ' Desc:     Calculates elbow (without vanes) or junction regenerated noise
 '           according to the NEBB method.
 ' Args:     fstr - Octave band centre frequency (Hz, string)
-'           Qm - main duct volumetric flow rate (L/s)
+'           FlowRate - main duct volumetric flow rate (L/s)
 '           Tm - main duct shape ({1,2}, integer)
 '               1: rectangular
 '               2: circular
-'           Dm - diameter or width of main duct
-'           DmH - height of main duct, if Tm is circular this remains unused
-'           Qb - branch duct volumetric flow rate (L/s)
+'           DuctWidth - diameter or width of main duct (mm, Double)
+'           DuctHeight - height of main duct, if Tm is circular this remains
+'               unused (mm, Double)
+'           BranchFlowRate - branch duct volumetric flow rate (L/s)
 '           Tb - branch duct shape ({1,2}, integer)
 '               1: rectangular
 '               2: circular
-'           Db - diameter or width of branch duct
-'           DbH - height of branch duct, if Tb is circular this remains unused
-'           R - radius of bend or elbow (m)
+'           DuctBranchWidth - diameter or width of branch duct(mm, Double)
+'           DuctBranchHeight - height of branch duct, if Tb is circular this
+'               remains unused(mm, Double)
+'           Radius - radius of bend or elbow (mm)
 '           turb - whether turbulence is present. Correction applied if damper,
 '               elbow, or takeoff upstream within 5 main duct diameters of turn
 '               TRUE: turbulence present
@@ -2047,121 +2056,119 @@ End Function
 '           Mode - desired result location, ({1,2}, integer)
 '               1: main duct
 '               2: branch duct
+'           mCubedPerSection - set to TRUE for m^3/s flow rates
 ' Comments: (1)
 '==============================================================================
-Function RegenElbowOrJunction_NEBB(fStr As String, _
-    Qm As Double, Tm As Integer, Dm As Double, DmH As Double, _
-    Qb As Double, Tb As Integer, Db As Double, DbH As Double, _
-    R As Double, turb As Boolean, Junction As Integer, Mode As Integer)
+Function ElbowOrJunctionRegen_NEBB(fStr As String, _
+    FlowRate As Double, Tm As Integer, DuctWidth As Double, DuctHeight As Double, _
+    BranchFlowRate As Double, Tb As Integer, DuctBranchWidth As Double, _
+    DuctBranchHeight As Double, Radius As Double, turb As Boolean, _
+    Junction As Integer, Mode As Integer, Optional mCubedPerSecond As Boolean)
 
-Dim f As Single 'frequency band (Hz)
-Dim Sm As Double 'main duct cross-sectional area (m^2)
-Dim Sb As Double 'branch duct cross-sectional area (m^2)
+Dim f As Single  'frequency band (Hz)
+Dim MainDuctArea As Double 'main duct cross-sectional area (m^2)
+Dim BranchDuctArea As Double 'branch duct cross-sectional area (m^2)
 Dim Um As Double 'main duct flow velocity (m/s)
 Dim Ub As Double 'branch duct flow velocity (m/s)
-Dim mD As Double 'ratio of Dm/Db, diameters of main and branch ducts
-Dim mU As Double 'ratio of Um/Ub, flow velocities of main and branch ducts
-Dim RD As Double 'rounding parameter for use in calculating dr
-Dim dr As Double 'correction term that quantifies the effect of the size of
+Dim WidthRatio As Double 'ratio of DuctWidth/DuctBranchWidth, diameters of main and branch ducts
+Dim VelocityRatio As Double 'ratio of Um/Ub, flow velocities of main and branch ducts
+Dim RD As Double 'rounding parameter for use in calculating RadiusCorrection
+Dim RadiusCorrection As Double 'correction term that quantifies the effect of the size of
 '                 the radius of the bend/elbow associated with the turn/junction
-Dim dT As Double 'correction term quantifying effect of turbulence. Refer to
+Dim TurbCorrection As Double 'correction term quantifying effect of turbulence. Refer to
 '                 turb in preamble for extra information
-Dim Kj As Double 'characteristic spectrum
-Dim Lb As Double 'branch SWL result
-Dim Lm As Double 'main duct SWL result
+Dim Kj As Double 'characteristic spectrum, dB
+Dim Lb As Double 'branch SWL result, dB
+Dim Lm As Double 'main duct SWL result, dB
 
 ' GENERAL SETUP
 f = freqStr2Num(fStr)
 If freqStr2Num(fStr) < 63 Or freqStr2Num(fStr) > 8000 Then
-    RegenElbowOrJunction_NEBB = "-"
+    ElbowOrJunctionRegen_NEBB = "-"
     Exit Function
 End If
 
-'convert dimensions to mm
-Dm = Dm / 1000
-DmH = DmH / 1000
-Db = Db / 1000
-DbH = DbH / 1000
+'convert dimensions to metres
+DuctWidth = DuctWidth / 1000
+DuctHeight = DuctHeight / 1000
+DuctBranchWidth = DuctBranchWidth / 1000
+DuctBranchHeight = DuctBranchHeight / 1000
+Radius = Radius / 1000
 
-    'Determine/calc cross-sectional area, Sm and Sb
-    If Tm = 2 Then
-    Sm = WorksheetFunction.Pi * (Dm) ^ 2
-    ElseIf Tm = 1 Then
-    Sm = Dm * DmH
+    If mCubedPerSecond = True Then FlowRate = FlowRate * 1000
+
+    'Determine/calc cross-sectional area, MainDuctArea and BranchDuctArea
+    If Tm = 2 Then 'circular duct
+    MainDuctArea = WorksheetFunction.Pi * (DuctWidth) ^ 2
+    Else  'rectangular duct
+    MainDuctArea = DuctWidth * DuctHeight
+    DuctWidth = (4 * MainDuctArea / WorksheetFunction.Pi) ^ 0.5
+    End If
+    
+    'branch parameters
+    If Tb = 2 Then 'circular duct
+    BranchDuctArea = WorksheetFunction.Pi * (DuctBranchWidth) ^ 2
+    Else 'rectangular duct
+    BranchDuctArea = DuctBranchWidth * DuctBranchHeight
+    DuctBranchWidth = (4 * BranchDuctArea / WorksheetFunction.Pi) ^ 0.5
     End If
 
-    If Tb = 2 Then
-    Sb = WorksheetFunction.Pi * (Db) ^ 2
-    ElseIf Tb = 1 Then
-    Sb = Db * DbH
-    End If
-
-    ' Step 1: Determine Dm and Db for main and branch ducts
-    If Tm = 2 Then
-    'nothing
-    ElseIf Tm = 1 Then
-    Dm = (4 * Sm / WorksheetFunction.Pi) ^ 0.5
-    End If
-
-    If Tb = 2 Then
-    'nothing
-    ElseIf Tb = 1 Then
-    Db = (4 * Sb / WorksheetFunction.Pi) ^ 0.5
-    End If
 
 ' Step 2: Determine Um and Ub for branch and main ducts
-Um = 0.001 * Qm / Sm
-Ub = 0.001 * Qb / Sb
+Um = 0.001 * FlowRate / MainDuctArea
+Ub = 0.001 * BranchFlowRate / BranchDuctArea
 
-' Step 3: Determine ratios mD and m_U
-mD = Dm / Db
-mU = Um / Ub
+' Step 3: Determine ratios WidthRatio and m_U
+WidthRatio = DuctWidth / DuctBranchWidth
+VelocityRatio = Um / Ub
 
 ' Step 4: Determine rounding parameter, RD
-RD = R / Db
+RD = Radius / DuctBranchWidth
 
 ' Step 5: Determine Strouhal number, St
-St = f * Db / Ub
+St = f * DuctBranchWidth / Ub
 
-' Step 6: Determine radius correction term, dr
-dr = (1 - RD / 0.15) * (6.793 - 1.86 * Application.WorksheetFunction.Log10(St))
+' Step 6: Determine radius correction term, RadiusCorrection
+RadiusCorrection = (1 - RD / 0.15) * (6.793 - 1.86 * Application.WorksheetFunction.Log10(St))
 
-' Step 7: If turbulence is present, determine, dT
+' Step 7: If turbulence is present, determine, TurbCorrection
 If turb = True Then
-    dT = -1.667 + 1.8 * mU - 0.1333 * mU ^ 2
+    TurbCorrection = -1.667 + 1.8 * VelocityRatio - 0.1333 * VelocityRatio ^ 2
 Else
-    dT = 0
+    TurbCorrection = 0
 End If
 
 ' Step 8: Determine characteristic spectrum, Kj
-Kj = -21.6 + 12.388 * mU ^ 0.673 _
-    - 16.482 * mU ^ -0.303 * Application.WorksheetFunction.Log10(St) _
-    - 5.047 * mU ^ -0.254 * (Application.WorksheetFunction.Log10(St)) ^ 2
+Kj = -21.6 + 12.388 * VelocityRatio ^ 0.673 _
+    - 16.482 * VelocityRatio ^ -0.303 * Application.WorksheetFunction.Log10(St) _
+    - 5.047 * VelocityRatio ^ -0.254 * (Application.WorksheetFunction.Log10(St)) ^ 2
 
 ' Step 9: Determine the branch SWL, Lb
 Lb = Kj + 10 * Application.WorksheetFunction.Log10(f / 63) _
     + 50 * Application.WorksheetFunction.Log10(3.28 * Ub) _
-    + 10 * Application.WorksheetFunction.Log10(10.76 * Sb) _
-    + 10 * Application.WorksheetFunction.Log10(3.28 * Db) _
-    + dr + dT
+    + 10 * Application.WorksheetFunction.Log10(10.76 * BranchDuctArea) _
+    + 10 * Application.WorksheetFunction.Log10(3.28 * DuctBranchWidth) _
+    + RadiusCorrection + TurbCorrection
 
 ' Step 10: (Optional) Specify junction type, and determine main duct SWL, Lm.
 '           If only the branch is desired, just return Lb
-If Mode = 1 Then 'if main level desired
-    Select Case Junction
+    If Mode = 1 Then 'if main level desired
+        Select Case Junction
         Case 1 'elbow
-            Lm = Lb
+        Lm = Lb
         Case 2  '90 degree branch takeoff
-            Lm = Lb + 20 * Application.WorksheetFunction.Log10(mD)
+        Lm = Lb + 20 * Application.WorksheetFunction.Log10(WidthRatio)
         Case 3 'T-Junction
-            Lm = Lb + 3
+        Lm = Lb + 3
         Case 4 'X-Junction
-            Lm = Lb + 20 * Application.WorksheetFunction.Log10(mD) + 3
-    End Select
-    RegenElbowOrJunction_NEBB = Lm
-ElseIf Mode = 2 Then 'if branch level desired
-    RegenElbowOrJunction_NEBB = Lb
-End If
+        Lm = Lb + 20 * Application.WorksheetFunction.Log10(WidthRatio) + 3
+        End Select
+    ElbowOrJunctionRegen_NEBB = Lm
+    ElseIf Mode = 2 Then 'if branch level desired
+    ElbowOrJunctionRegen_NEBB = Lb
+    Else
+    ElbowOrJunctionRegen_NEBB = "-"
+    End If
 
 End Function
 
@@ -2498,7 +2505,7 @@ Cells(Selection.Row, T_ParamStart + 1) = elbowLining
 
 Cells(Selection.Row, T_LossGainStart).Value = "=ElbowLoss_ASHRAE(" & _
     T_FreqStartRng & "," & T_ParamRng(0) & ",""" & elbowShape & """," & _
-    T_ParamRng(1) & ",""" & elbowVanes & """)"
+    T_ParamRng(1) & ",""" & ElbowVanes & """)"
 ExtendFunction
 
 'formatting
@@ -2509,7 +2516,13 @@ SetTraceStyle "Input", True
 SetDataValidation T_ParamStart + 1, "Lined,Unlined"
     
 Cells(Selection.Row, T_Description).Value = "Elbow Loss - " & elbowShape
-    
+
+    'calc regenerated noise from element
+    If CalcRegen = True Then
+    SelectNextRow 'move down one row
+    PutElbowRegen
+    End If
+
 End Sub
 
 '==============================================================================
@@ -2535,9 +2548,9 @@ Cells(SolverRow, T_LossGainStart).ClearContents 'clear 31.5Hz octave band
     'check first frequency band
     If Range(T_FreqStartRng).Value <> 31.5 Then ErrorFrequencyBand
 
-    For col = 0 To 7 '8 columns
-    Cells(SolverRow, T_LossGainStart + 1 + col).Value = SilencerIL(col)
-    Next col
+    For Col = 0 To 7 '8 columns
+    Cells(SolverRow, T_LossGainStart + 1 + Col).Value = SilencerIL(Col)
+    Next Col
     
 'parameter column
 ParameterMerge (Selection.Row)
@@ -2580,9 +2593,9 @@ Cells(Selection.Row, T_Description).Value = "Acoustic Louvres: " & LouvreModel
 
 If T_BandType <> "oct" Then ErrorOctOnly
 
-    For col = 0 To 7 '8 columns
-    Cells(Selection.Row, T_LossGainStart + 1 + col).Value = LouvreIL(col)
-    Next col
+    For Col = 0 To 7 '8 columns
+    Cells(Selection.Row, T_LossGainStart + 1 + Col).Value = LouvreIL(Col)
+    Next Col
 'parameter cells
 ParameterMerge (Selection.Row)
 Cells(Selection.Row, T_ParamStart) = LouvreLength

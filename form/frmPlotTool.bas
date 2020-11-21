@@ -18,7 +18,7 @@ Attribute VB_Exposed = False
 'INITIALISE
 '''''''''''''''
 
-Dim FirstRun As Boolean
+Dim FirstRun As Boolean 'switch for initialising form, set to false after initial setup
 
 Sub GetCurrentChartValues()
 
@@ -45,9 +45,11 @@ FirstRun = True
     If ActiveChart.FullSeriesCollection(1).MarkerStyle = -4142 Then 'no markers
     Me.chkShowMarkers.Value = False
     Else
+    'Me.cBoxMarkerStyle.ListIndex = ActiveChart.FullSeriesCollection(1).MarkerStyle - 1 'list item number 1 is marker style 0?
     Me.chkShowMarkers.Value = True
-    Me.cBoxMarkerStyle.ListIndex = ActiveChart.FullSeriesCollection(1).MarkerStyle - 1 'list item number 1 is marker style 0?
+    Me.cBoxMarkerStyle.ListIndex = MarkerListBoxIndex(ActiveChart.FullSeriesCollection(1).MarkerStyle)
     Me.txtMarkerSize.Value = ActiveChart.FullSeriesCollection(1).MarkerSize
+    
     End If
     
     'lines
@@ -186,8 +188,8 @@ FirstRun = True
     Else
     Me.optLegendNone.Value = True
     End If
-        
-    FirstRun = False 'end of setup
+    
+FirstRun = False 'end of setup
     
 End Sub
 
@@ -383,6 +385,9 @@ ApplyMinorGridlines
 End Sub
 
 Private Sub chkShowMarkers_Click()
+    If FirstRun Then
+    Me.cBoxMarkerStyle.ListIndex = MarkerListBoxIndex(ActiveChart.FullSeriesCollection(1).MarkerStyle)
+    End If
     If Len(Me.cBoxMarkerStyle.Value) = 0 Then
     Me.cBoxMarkerStyle.Value = "1 - Square" 'default to square
     End If
@@ -656,6 +661,8 @@ Sub ApplyMarkerSize()
 End Sub
 
 Sub ApplyMarkerStyle()
+Dim getMarkerIndex() As String
+'split cBox into array
 getMarkerIndex = Split(Me.cBoxMarkerStyle.Value, " ", Len(Me.cBoxMarkerStyle.Value), vbTextCompare)
 
     If UBound(getMarkerIndex) <> -1 Then 'nothing selected
@@ -666,11 +673,11 @@ getMarkerIndex = Split(Me.cBoxMarkerStyle.Value, " ", Len(Me.cBoxMarkerStyle.Val
         End If
     End If
     
+    'set sizes, loop through all series
     For i = 1 To ActiveChart.FullSeriesCollection.Count
-        With ActiveChart.FullSeriesCollection(i)
-        .MarkerStyle = m_style
-        End With
+    ActiveChart.FullSeriesCollection(i).MarkerStyle = m_style
     Next i
+    
 End Sub
 
 Sub ApplyMarkerFill()
@@ -856,3 +863,46 @@ Sub MakeYaxisLogScale()
     End If
 End Sub
 
+
+Function MarkerListBoxIndex(MarkerType As Long)
+Dim SelectedValue As Long
+SelectedValue = -1 'catch errors
+    Select Case MarkerType
+    Case 1 'square
+    SelectedValue = 1
+    Case 2 'diamond
+    SelectedValue = 2
+    Case 3 'triangle
+    SelectedValue = 3
+    Case -4168 'square markers with X
+    SelectedValue = 4
+    Case 5 'square with asterisk
+    SelectedValue = 5
+    Case 8 'circle
+    SelectedValue = 8
+    Case 9 'square with plus
+    SelectedValue = 8
+    Case -4105 'automatic
+    SelectedValue = 10
+    Case -4115 'long bar
+    SelectedValue = 7
+    Case -4118 'short bar markers
+    SelectedValue = 6
+    Case -4142 'none
+    SelectedValue = 0
+    Case -4147 'picture markers
+    SelectedValue = -1
+
+    End Select
+MarkerListBoxIndex = SelectedValue - 1 'stupid list indeces
+End Function
+
+'Me.cBoxMarkerStyle.AddItem ("1 - Square")
+'Me.cBoxMarkerStyle.AddItem ("2 - Diamond")
+'Me.cBoxMarkerStyle.AddItem ("3 - Triangle")
+'Me.cBoxMarkerStyle.AddItem ("4 - Cross")
+'Me.cBoxMarkerStyle.AddItem ("5 - Asterisk")
+'Me.cBoxMarkerStyle.AddItem ("6 - Dash")
+'Me.cBoxMarkerStyle.AddItem ("7 - Big Dash")
+'Me.cBoxMarkerStyle.AddItem ("8 - Circle")
+'Me.cBoxMarkerStyle.AddItem ("9 - Plus")

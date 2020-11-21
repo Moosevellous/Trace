@@ -341,14 +341,14 @@ Set TemplateBook = ActiveWorkbook
 '<----BUT is it required if we implement databases?
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+'51 = xlOpenXMLWorkbook (without macro's in 2007-2013, xlsx)
+'52 = xlOpenXMLWorkbookMacroEnabled (with or without macro's in 2007-2013, xlsm)
     Select Case TemplateBook.FileFormat
     Case Is = 51
     FilterIndexValue = 1
     Case Is = 52
     FilterIndexValue = 2
     End Select
-'51 = xlOpenXMLWorkbook (without macro's in 2007-2013, xlsx)
-'52 = xlOpenXMLWorkbookMacroEnabled (with or without macro's in 2007-2013, xlsm)
 
     If ImportAsTabs = False Then
     Application.StatusBar = "Saving sheet..."

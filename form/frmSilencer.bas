@@ -330,17 +330,17 @@ Application.Calculation = xlCalculationManual
 
     'search for compliant silencers
         'place in cells
-        For rw = 2 To UBound(SilencerArray)
+        For Rw = 2 To UBound(SilencerArray)
         
-            For col = 6 To 13
+            For Col = 6 To 13
             'Debug.Print SilencerArray(rw, Col - 4)
-            Cells(silRw, col).Value = SilencerArray(rw, col - 4)
-            Next col
+            Cells(silRw, Col).Value = SilencerArray(Rw, Col - 4)
+            Next Col
             
         'Debug.Print UBound(SilNameArray)
-            If UBound(SilNameArray) >= rw Then
-            Cells(silRw, 2).Value = SilNameArray(rw)
-            Me.lblStatus.Caption = "Checking: " & SilNameArray(rw)
+            If UBound(SilNameArray) >= Rw Then
+            Cells(silRw, 2).Value = SilNameArray(Rw)
+            Me.lblStatus.Caption = "Checking: " & SilNameArray(Rw)
             Else
             Me.lblStatus.Caption = ""
             End If
@@ -356,22 +356,22 @@ Application.Calculation = xlCalculationManual
         End If
         
         If TestLevel <= NoiseGoal And TestLevel >= (NoiseGoal - CDbl(Me.txtDesignTolerance.Value)) Then 'silencer achieves target, but doesn't overshoot
-        Me.lstOptions.AddItem (SilNameArray(rw))
+        Me.lstOptions.AddItem (SilNameArray(Rw))
         ResizeArray (Me.lstOptions.ListCount)
-        IL63(Me.lstOptions.ListCount - 1) = SilencerArray(rw, 2)
-        IL125(Me.lstOptions.ListCount - 1) = SilencerArray(rw, 3)
-        IL250(Me.lstOptions.ListCount - 1) = SilencerArray(rw, 4)
-        IL500(Me.lstOptions.ListCount - 1) = SilencerArray(rw, 5)
-        IL1k(Me.lstOptions.ListCount - 1) = SilencerArray(rw, 6)
-        IL2k(Me.lstOptions.ListCount - 1) = SilencerArray(rw, 7)
-        IL4k(Me.lstOptions.ListCount - 1) = SilencerArray(rw, 8)
-        IL8k(Me.lstOptions.ListCount - 1) = SilencerArray(rw, 9)
-        FA(Me.lstOptions.ListCount - 1) = SilencerArray(rw, 10)
-        Length(Me.lstOptions.ListCount - 1) = SilencerArray(rw, 1)
-        Series(Me.lstOptions.ListCount - 1) = SilSeriesArray(rw)
+        IL63(Me.lstOptions.ListCount - 1) = SilencerArray(Rw, 2)
+        IL125(Me.lstOptions.ListCount - 1) = SilencerArray(Rw, 3)
+        IL250(Me.lstOptions.ListCount - 1) = SilencerArray(Rw, 4)
+        IL500(Me.lstOptions.ListCount - 1) = SilencerArray(Rw, 5)
+        IL1k(Me.lstOptions.ListCount - 1) = SilencerArray(Rw, 6)
+        IL2k(Me.lstOptions.ListCount - 1) = SilencerArray(Rw, 7)
+        IL4k(Me.lstOptions.ListCount - 1) = SilencerArray(Rw, 8)
+        IL8k(Me.lstOptions.ListCount - 1) = SilencerArray(Rw, 9)
+        FA(Me.lstOptions.ListCount - 1) = SilencerArray(Rw, 10)
+        Length(Me.lstOptions.ListCount - 1) = SilencerArray(Rw, 1)
+        Series(Me.lstOptions.ListCount - 1) = SilSeriesArray(Rw)
         End If
         
-        Next rw
+        Next Rw
     End If 'ubound close loop
     
 If Me.lstOptions.ListCount > 0 Then

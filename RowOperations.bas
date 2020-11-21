@@ -76,7 +76,7 @@ End Function
 '           (2) SkipUserInput defaults to false
 '==============================================================================
 Sub ClearRow(Optional SkipUserInput As Boolean)
-Dim rw As Integer
+Dim Rw As Integer
 Dim P As Integer
 Dim i As Integer
     
@@ -92,60 +92,60 @@ Dim i As Integer
 Application.ScreenUpdating = False
     
     'loop for clearing data, works
-    For rw = Selection.Row To Selection.Row + Selection.Rows.Count - 1
+    For Rw = Selection.Row To Selection.Row + Selection.Rows.Count - 1
     
     'Description
-    Cells(rw, T_Description).ClearContents
-    Cells(rw, T_Description).ClearComments
-    Cells(rw, T_Description).Validation.Delete 'for dropdown boxes
+    Cells(Rw, T_Description).ClearContents
+    Cells(Rw, T_Description).ClearComments
+    Cells(Rw, T_Description).Validation.Delete 'for dropdown boxes
         
     'LossGain values
-    Range(Cells(rw, T_LossGainStart), Cells(rw, T_LossGainEnd)).ClearContents
+    Range(Cells(Rw, T_LossGainStart), Cells(Rw, T_LossGainEnd)).ClearContents
         
         'Regenerated noise columns
         If T_RegenStart <> -1 Then
-        Range(Cells(rw, T_RegenStart), Cells(rw, T_RegenEnd)).ClearContents
+        Range(Cells(Rw, T_RegenStart), Cells(Rw, T_RegenEnd)).ClearContents
         End If
        
         'Comment
         If T_Comment <> -1 Then
-        Cells(rw, T_Comment).ClearContents
+        Cells(Rw, T_Comment).ClearContents
         End If
     
         'Parameter columns
         If T_ParamStart >= 0 Then
-        ParameterUnmerge (rw)
+        ParameterUnmerge (Rw)
             For P = T_ParamStart To T_ParamEnd
-            Cells(rw, P).Validation.Delete
-            Cells(rw, P).ClearContents
-            Cells(rw, P).ClearComments
-            Cells(rw, P).NumberFormat = "General"
+            Cells(Rw, P).Validation.Delete
+            Cells(Rw, P).ClearContents
+            Cells(Rw, P).ClearComments
+            Cells(Rw, P).NumberFormat = "General"
             Next P
             
             'sparklines
             For i = 0 To 3
-            Cells(rw, T_ParamStart + i).SparklineGroups.Clear
+            Cells(Rw, T_ParamStart + i).SparklineGroups.Clear
             Next i
         End If
         
     'remove heatmap
-    Range(Cells(rw, T_Description), Cells(rw, T_LossGainEnd)).FormatConditions.Delete
+    Range(Cells(Rw, T_Description), Cells(Rw, T_LossGainEnd)).FormatConditions.Delete
     
     'apply styles and reset units
-    ApplyTraceStyle "Trace Normal", rw
+    ApplyTraceStyle "Trace Normal", Rw
     SetUnits "Clear", T_LossGainStart, 0, T_LossGainEnd
     'styles for parameter columns
         If T_ParamStart >= 0 Then
-        ApplyTraceStyle "Trace Normal", rw, True
+        ApplyTraceStyle "Trace Normal", Rw, True
         End If
         
     'bold to overall column
-    Cells(rw, T_LossGainStart - 1).Font.Bold = True
+    Cells(Rw, T_LossGainStart - 1).Font.Bold = True
     
     'lock cells
-    Range(Cells(rw, T_Description), Cells(rw, T_LossGainEnd)).Locked = True
+    Range(Cells(Rw, T_Description), Cells(Rw, T_LossGainEnd)).Locked = True
     
-    Next rw
+    Next Rw
 Application.ScreenUpdating = True
 
 End Sub
@@ -159,26 +159,26 @@ End Sub
 ' Comments: (1) SkipUserInput defaults to false
 '==============================================================================
 Sub FlipSign()
-Dim rw As Integer
+Dim Rw As Integer
 Dim startCol As Integer
 Dim endCol As Integer
 
-    For rw = Selection.Row To Selection.Row + Selection.Rows.Count - 1
-        For col = T_LossGainStart To T_LossGainEnd
-            If Cells(rw, col).HasFormula Then
+    For Rw = Selection.Row To Selection.Row + Selection.Rows.Count - 1
+        For Col = T_LossGainStart To T_LossGainEnd
+            If Cells(Rw, Col).HasFormula Then
                 'check if second character of formula is minus
-                If Mid(Cells(rw, col).Formula, 2, 1) = "-" Then
-                Cells(rw, col).Formula = Replace(Cells(rw, col).Formula, _
-                    "=-", "=", 1, Len(Cells(rw, col).Formula), vbTextCompare)
+                If Mid(Cells(Rw, Col).Formula, 2, 1) = "-" Then
+                Cells(Rw, Col).Formula = Replace(Cells(Rw, Col).Formula, _
+                    "=-", "=", 1, Len(Cells(Rw, Col).Formula), vbTextCompare)
                 Else
-                Cells(rw, col).Formula = Replace(Cells(rw, col).Formula, _
-                    "=", "=-", 1, Len(Cells(rw, col).Formula), vbTextCompare)
+                Cells(Rw, Col).Formula = Replace(Cells(Rw, Col).Formula, _
+                    "=", "=-", 1, Len(Cells(Rw, Col).Formula), vbTextCompare)
                 End If
             Else
-                Cells(rw, col).Value = Cells(rw, col).Value * -1
+                Cells(Rw, Col).Value = Cells(Rw, Col).Value * -1
             End If
-        Next col
-    Next rw
+        Next Col
+    Next Rw
 
 End Sub
 
@@ -768,102 +768,102 @@ End Sub
 ' Desc:     Converts one-third octave bands into octave bands. Functions are
 '           inserted for logarithmic sum or av, if required.
 ' Args:     None
-' Comments: (1)
+' Comments: (1)updated to simplify method, only implementation rather than
+'           branching for different sheet types
 '==============================================================================
 Sub OneThirdsToOctave()
 
-Dim splitAddr() As String
-Dim SheetName As String
-Dim rw As Integer
-Dim refCol As Integer
-Dim targetRange As String
+Dim splitAddr() As String 'array for extracting elements from range
+Dim SheetName As String 'for referencing the name of the sheet
+Dim WriteRw As Integer 'first row where the result is going
+Dim Rw As Integer 'row inside loop
+Dim Col As Integer 'column inside loop
+Dim RwStart As Integer 'first row to be coverted
+Dim RwEnd As Integer 'last row to be converted
+Dim ColStart As Integer 'first column result
+Dim ColEnd As Integer 'last columnt result
+Dim refCol As Integer 'input column, skips by 3 within loop
+Dim targetRange As String 'range string to feed into function, built in the loop
 
-
-    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    If Left(T_SheetType, 3) = "OCT" Then 'OCT or OCTA sheet types
-    
-    frmConvert.Show
-
-        If btnOkPressed = False Then
-        End
-        End If
-
-    If UserSelectedAddress = "" Then End 'error catch
-    
-    SheetName = GetSheetName(UserSelectedAddress)
-    FirstRow = GetFirstRow(UserSelectedAddress)
-    
-    Cells(Selection.Row, T_Description).Value = "Convert from TO"
-    Cells(Selection.Row, T_Comment).Value = "=" & SheetName & "$B" & FirstRow
-    
-    If UserSelectedAddress = "" Then End
-    
-    splitAddr = Split(UserSelectedAddress, "$", Len(UserSelectedAddress), vbTextCompare)
-    
-    SheetName = splitAddr(LBound(splitAddr)) 'sheet is the first element
-    rw = CInt(splitAddr(UBound(splitAddr))) 'row is the last element
-    
-        refCol = 5
-        For col = T_LossGainStart To T_LossGainEnd
-        targetRange = Range(Cells(rw, refCol), Cells(rw, refCol + 2)).Address(False, False)
-            Select Case SumAverageMode 'selected from radio boxes in form frmConvert
-            Case Is = "Sum"
-            Cells(Selection.Row, col).Value = "=SPLSUM(" & SheetName & targetRange & ")"
-            Case Is = "Average"
-            Cells(Selection.Row, col).Value = "=AVERAGE(" & SheetName & targetRange & ")"
-            Case Is = "Log Av"
-            Cells(Selection.Row, col).Value = "=SPLAV(" & SheetName & targetRange & ")"
-            Case Is = "TL" 'positive spectra returned as positive
-            Cells(Selection.Row, col).Value = "=TL_ThirdsToOctave(" & SheetName & targetRange & ")"
-            End Select
-        refCol = refCol + 3
-        Next col
-        
-    'apply reference style
-    SetTraceStyle "Reference"
-    
-    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    ElseIf T_SheetType = "CVT" Then
-    
-    frmConvert.refRangeSelector.Enabled = False
-    frmConvert.refRangeSelector.Value = Selection.Address  'OLD VERSION: "'" & ActiveSheet.Name & "'!" & Selection.Address
-    frmConvert.Show
-
-        If btnOkPressed = False Then
-        End
-        End If
-    
-    If UserSelectedAddress = "" Then End
-    
-    splitAddr = Split(UserSelectedAddress, "$", Len(UserSelectedAddress), vbTextCompare)
-    
-    'SheetName = splitAddr(LBound(splitAddr)) 'sheet is the first element
-    rw = CInt(splitAddr(UBound(splitAddr))) 'row is the last element, eg $A$1
-    
-        refCol = 5
-        For col = T_RegenStart To T_RegenEnd
-        targetRange = Range(Cells(rw, refCol), Cells(rw, refCol + 2)).Address(False, False)
-            Select Case SumAverageMode 'selected from radio boxes in form frmConvert
-            Case Is = "Sum"
-            Cells(Selection.Row, col).Value = "=SPLSUM(" & SheetName & targetRange & ")"
-            Case Is = "Average"
-            Cells(Selection.Row, col).Value = "=AVERAGE(" & SheetName & targetRange & ")"
-            Case Is = "Log Av"
-            Cells(Selection.Row, col).Value = "=SPLAV(" & SheetName & targetRange & ")"
-            Case Is = "TL" 'positive spectra returned as positive
-            Cells(Selection.Row, col).Value = "=TL_ThirdsToOctave(" & SheetName & targetRange & ")"
-            End Select
-        refCol = refCol + 3
-        Next col
-        
-    'apply reference style ''''''''''''''maybe dont for CVT sheet?
-    
-    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    ElseIf Left(T_SheetType, 2) = "TO" Then 'TO or TOA
-    msg = MsgBox("Imports into OCT or OCTA", vbOKOnly, "WRONG WAY GO BACK!")
-    Else
+    'check for sheet types
+    If Left(T_SheetType, 3) <> "OCT" And T_SheetType <> "CVT" Then
     ErrorTypeCode
     End If
+    
+    'set form controls
+    If T_SheetType = "CVT" Then
+    frmConvert.refRangeSelector.Enabled = False
+    frmConvert.refRangeSelector.Value = Selection.Address
+    Else
+    frmConvert.refRangeSelector.Enabled = True
+    End If
+
+'call the form
+frmConvert.Show
+
+    'catch errors from frmConvert
+    If btnOkPressed = False Then End
+    If UserSelectedAddress = "" Then End
+
+splitAddr = Split(UserSelectedAddress, "$", Len(UserSelectedAddress), vbTextCompare)
+
+SheetName = splitAddr(LBound(splitAddr)) 'sheet is the first element
+
+'set initial row
+WriteRw = Selection.Row
+
+    'set range of rows
+    If UBound(splitAddr) >= 3 Then 'range of cells, not just a single cell
+    RwStart = CInt(Left(splitAddr(2), Len(splitAddr(2)) - 1))
+    RwEnd = CInt(splitAddr(4))
+    Else
+    RwStart = CInt(splitAddr(2))
+    RwEnd = RwStart
+    End If
+    
+    'loop through each row
+    For Rw = RwStart To RwEnd
+    
+        'reset ColStart and CoEnd to start and of bands
+        If T_SheetType = "OCT" Then
+        ColStart = T_RegenStart + 1 'start one band over becase TO starts from 50Hz band
+        ColEnd = T_RegenEnd - 1 'finish one band early for the same reason
+        Else
+        ColStart = T_RegenStart
+        ColEnd = T_RegenEnd
+        End If
+        
+    'reset refCol
+    refCol = T_LossGainStart
+    
+    Cells(WriteRw, T_Description).Value = "Conversion from one-thirds"
+    
+        'loop through each column
+        For Col = ColStart To ColEnd
+        
+        targetRange = Range(Cells(Rw, refCol), _
+            Cells(Rw, refCol + 2)).Address(False, False)
+            
+            'build formula based on the mode
+            Select Case SumAverageMode 'selected from radio boxes in form frmConvert
+            Case Is = "Sum"
+            Cells(WriteRw, Col).Value = "=SPLSUM(" & SheetName & targetRange & ")"
+            Case Is = "Average"
+            Cells(WriteRw, Col).Value = "=AVERAGE(" & SheetName & targetRange & ")"
+            Case Is = "Log Av"
+            Cells(WriteRw, Col).Value = "=SPLAV(" & SheetName & targetRange & ")"
+            Case Is = "TL"
+            Cells(WriteRw, Col).Value = "=TL_ThirdsToOctave(" & SheetName & targetRange & ")"
+            End Select
+            
+        refCol = refCol + 3
+        
+        Next Col
+    WriteRw = WriteRw + 1
+    Next Rw
+    
+'apply styles
+If T_SheetType <> "CVT" Then SetTraceStyle "Reference"
 
 End Sub
 
@@ -986,7 +986,7 @@ End Sub
 '           NumCols - defaults to 2, can change when requested
 ' Comments: (1) Neat.
 '==============================================================================
-Sub ParameterMerge(rw As Integer, Optional NumCols As Integer)
+Sub ParameterMerge(Rw As Integer, Optional NumCols As Integer)
 '<-TODO update this function for preset sheet types
     If IsMissing(NumCols) Or NumCols < 2 Then NumCols = 2
     
@@ -1003,11 +1003,11 @@ End Sub
 ' Args:     rw - row number
 ' Comments: (1) Neat.
 '==============================================================================
-Sub ParameterUnmerge(rw As Integer)
+Sub ParameterUnmerge(Rw As Integer)
 
-Range(Cells(rw, T_ParamStart), Cells(rw, T_ParamEnd)).UnMerge
+Range(Cells(Rw, T_ParamStart), Cells(Rw, T_ParamEnd)).UnMerge
 
-    With Range(Cells(rw, T_ParamStart), Cells(rw, T_ParamEnd))
+    With Range(Cells(Rw, T_ParamStart), Cells(Rw, T_ParamEnd))
     .Borders.LineStyle = xlContinuous
     .Borders(xlInsideVertical).LineStyle = xlContinuous
     .Borders(xlInsideVertical).Weight = xlHairline
@@ -1035,26 +1035,26 @@ End Sub
 '           p_index - parameter index number, usually 0 to 3
 ' Comments: (1)
 '==============================================================================
-Sub CreateSparkline(rw As Integer, p_index As Integer, Optional colorIndex As Integer)
+Sub CreateSparkline(Rw As Integer, p_index As Integer, Optional colorIndex As Integer)
 
 Dim DataRangeStr As String
 
     If p_index <= UBound(T_ParamRng) Then
         'Set where the data to be graphed is
         If T_SheetType = "MECH" Then
-        DataRangeStr = Range(Cells(rw, T_RegenStart), _
-            Cells(rw, T_RegenEnd)).Address
+        DataRangeStr = Range(Cells(Rw, T_RegenStart), _
+            Cells(Rw, T_RegenEnd)).Address
         Else
-        DataRangeStr = Range(Cells(rw, T_LossGainStart), _
-            Cells(rw, T_LossGainEnd)).Address
+        DataRangeStr = Range(Cells(Rw, T_LossGainStart), _
+            Cells(Rw, T_LossGainEnd)).Address
         End If
         
     'add the sparkline
-    Cells(rw, T_ParamStart + p_index).SparklineGroups.Add _
+    Cells(Rw, T_ParamStart + p_index).SparklineGroups.Add _
         Type:=xlSparkLine, SourceData:=DataRangeStr
         
         'formatting etc
-        With Cells(rw, T_ParamStart + p_index).SparklineGroups.Item(1)
+        With Cells(Rw, T_ParamStart + p_index).SparklineGroups.Item(1)
         .SeriesColor.Color = colorIndex 'defaults to 0
         .SeriesColor.TintAndShade = 0
         End With
@@ -1104,11 +1104,11 @@ WriteRw = Selection.Row 'start from here
         Sheets("SUMMARY").Cells(WriteRw, T_Description).Value = FormulaStr
             
             'Values
-            For col = 2 To 7
-            Sheets("SUMMARY").Cells(WriteRw, col + 5).Value = _
-                "='" & Sheets(sh).Name & "'!" & Cells(29, col + 5).Address
-            Sheets("SUMMARY").Cells(WriteRw, col + 5).NumberFormat = "0.0"
-            Next col
+            For Col = 2 To 7
+            Sheets("SUMMARY").Cells(WriteRw, Col + 5).Value = _
+                "='" & Sheets(sh).Name & "'!" & Cells(29, Col + 5).Address
+            Sheets("SUMMARY").Cells(WriteRw, Col + 5).NumberFormat = "0.0"
+            Next Col
             
             'finishes
             FinishesStr = ""

@@ -1,9 +1,8 @@
 ﻿<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui">
-<!--<customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui">-->
 	<ribbon>
 		<tabs>
-			<tab id="customTab" label="Trace v3.0" insertAfterMso="TabView" keytip="X">
-<!--EDIT DATE 20201026-->
+			<tab id="customTab" label="Trace v3.01" insertAfterMso="TabView" keytip="X">
+<!--EDIT DATE 20201121 -->
 <!--'tag' is the function to be called by the Universal Builder, the 'id' is the function input, if required -->
 
 				<group id="gNew" label="New" insertAfterMso="GroupEditingExcel">
@@ -231,7 +230,7 @@
                         <menu id="mFixReferences" keytip="TR">
                         <button id="FixReferencesAll" label="Fix all sheets" onAction="TraceFunctionWithInput" tag="`FixReferences" imageMso="ColorRed" screentip="Sheet Tools > Fix References" supertip="Replaces references to an external workbook with a blank string, restoring to the installed version of Trace." />
                         <button id="FixReferences" label="Fix current sheet only"  onAction="TraceFunctionWithInput" tag="`FixReferences" imageMso="ColorRed" screentip="Sheet Tools > Fix References" supertip="Replaces references to an external workbook with a blank string, restoring to the installed version of Trace." />
-                        <button id="FixLegacyFormulas" label="Fix legacy formulas" onAction="TraceFunction" tag="FixLegacyFunctions" imageMso="ColorMaroon" screentip="Sheet Tools > Fix Legacy Formulas" supertip="Some functions have been renamed, this finds all instances of old function and replaces them with the new function name." />
+                        <button id="FixLegacyFormulas" label="Fix legacy formulas" onAction="TraceFunction" tag="`FixLegacyFunctions" imageMso="ColorMaroon" screentip="Sheet Tools > Fix Legacy Formulas" supertip="Some functions have been renamed, this finds all instances of old function and replaces them with the new function name." />
                         </menu>
                         </splitButton>
 				</group>

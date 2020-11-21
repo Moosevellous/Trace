@@ -243,9 +243,11 @@ If IsMissing(SearchType) Then SearchType = vbNormal
     If Dir(PathStr, SearchType) = "" Then
     TestLocation = False
         If SearchType = vbDirectory Then
-        msg = MsgBox("Directory '" & PathStr & " not found!", vbOKOnly, "Trace Error - Missing data file!")
+        msg = MsgBox("Directory '" & PathStr & " not found!", _
+            vbOKOnly, "Trace Error - Missing data file!")
         Else
-        msg = MsgBox("File '" & PathStr & " not found!", vbOKOnly, "Trace Error - Missing data file!")
+        msg = MsgBox("File '" & PathStr & " not found!", _
+            vbOKOnly, "Trace Error - Missing data file!")
         End If
         
 '    '***********
@@ -335,12 +337,12 @@ End Sub
 '           These rows are protected by this function.
 '           None shall Pass.
 '==============================================================================
-Public Sub CheckTemplateRow(rw As Integer)
+Public Sub CheckTemplateRow(Rw As Integer)
 Dim MoveToCalcRow As Long
 Dim FirstRow As Integer
     
     'set first row number
-    If T_SheetType = "MECH" And rw > 38 Then
+    If T_SheetType = "MECH" And Rw > 38 Then
     '********************
     End 'stop everything!
     '********************
@@ -349,7 +351,7 @@ Dim FirstRow As Integer
     End If
 
     'check if it's too far up
-    If rw <= FirstRow Then
+    If Rw <= FirstRow Then
     MoveToCalcRow = MsgBox("Looks like your cursor is in the header block. " & _
         chr(10) & "Do you want to move down to the first calculation row?", _
         vbYesNo, "Down down....")

@@ -538,7 +538,7 @@ SheetNm = IfRange.Worksheet.Name
 '    Debug.Print "Cell value: "; Sheets(SheetNm).Cells(C.Row, C.Column).Value
 '    Debug.Print ""
     
-    rw = IfRange.Row - SumRange.Row
+    Rw = IfRange.Row - SumRange.Row
     clmn = IfRange.Column - SumRange.Column
     
         Select Case ConditionType
@@ -546,31 +546,31 @@ SheetNm = IfRange.Worksheet.Name
             If c.Value > ConditionValue Then
             SPLSUMIF = 10 * Application.WorksheetFunction.Log10( _
                 (10 ^ (SPLSUMIF / 10)) + _
-                (10 ^ (Sheets(SheetNm).Cells(c.Row - rw, c.Column - clmn).Value / 10)))
+                (10 ^ (Sheets(SheetNm).Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
             End If
         Case Is = "GreaterThanEqualTo"
             If c.Value >= ConditionValue Then
             SPLSUMIF = 10 * Application.WorksheetFunction.Log10( _
                 (10 ^ (SPLSUMIF / 10)) + _
-                (10 ^ (Sheets(SheetNm).Cells(c.Row - rw, c.Column - clmn).Value / 10)))
+                (10 ^ (Sheets(SheetNm).Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
             End If
         Case Is = "LessThan"
             If c.Value < ConditionValue Then
             SPLSUMIF = 10 * Application.WorksheetFunction.Log10( _
                 (10 ^ (SPLSUMIF / 10)) + _
-                (10 ^ (Sheets(SheetNm).Cells(c.Row - rw, c.Column - clmn).Value / 10)))
+                (10 ^ (Sheets(SheetNm).Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
             End If
         Case Is = "LessThanEqualTo"
             If c.Value <= ConditionValue Then
             SPLSUMIF = 10 * Application.WorksheetFunction.Log10( _
                 (10 ^ (SPLSUMIF / 10)) + _
-                (10 ^ (Sheets(SheetNm).Cells(c.Row - rw, c.Column - clmn).Value / 10)))
+                (10 ^ (Sheets(SheetNm).Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
             End If
         Case Is = "Equals"
             If c.Value = ConditionValue Then
             SPLSUMIF = 10 * Application.WorksheetFunction.Log10( _
                 (10 ^ (SPLSUMIF / 10)) + _
-                (10 ^ (Sheets(SheetNm).Cells(c.Row - rw, c.Column - clmn).Value / 10)))
+                (10 ^ (Sheets(SheetNm).Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
             End If
         Case Is = "" 'no condtion type
             SPLSUMIF = -99
@@ -620,7 +620,7 @@ numVals = 0
 '    Debug.Print "Cell value: "; SumRange(C.Row, C.Column).Value
 '    Debug.Print ""
     
-    rw = IfRange.Row - SumRange.Row
+    Rw = IfRange.Row - SumRange.Row
     clmn = IfRange.Column - SumRange.Column
     
         Select Case ConditionType
@@ -628,35 +628,35 @@ numVals = 0
             If c.Value > ConditionValue Then
             SPLSUM = 10 * Application.WorksheetFunction.Log10( _
                 (10 ^ (SPLSUM / 10)) + _
-                (10 ^ (Cells(c.Row - rw, c.Column - clmn).Value / 10)))
+                (10 ^ (Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
             numVals = numVals + 1
             End If
         Case Is = "GreaterThanEqualTo"
             If c.Value >= ConditionValue Then
             SPLSUM = 10 * Application.WorksheetFunction.Log10( _
                 (10 ^ (SPLSUM / 10)) + _
-                (10 ^ (Cells(c.Row - rw, c.Column - clmn).Value / 10)))
+                (10 ^ (Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
             numVals = numVals + 1
             End If
         Case Is = "LessThan"
             If c.Value < ConditionValue Then
             SPLSUM = 10 * Application.WorksheetFunction.Log10( _
                 (10 ^ (SPLSUM / 10)) + _
-                (10 ^ (Cells(c.Row - rw, c.Column - clmn).Value / 10)))
+                (10 ^ (Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
             numVals = numVals + 1
             End If
         Case Is = "LessThanEqualTo"
             If c.Value <= ConditionValue Then
             SPLSUM = 10 * Application.WorksheetFunction.Log10( _
                 (10 ^ (SPLSUM / 10)) + _
-                (10 ^ (Cells(c.Row - rw, c.Column - clmn).Value / 10)))
+                (10 ^ (Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
             numVals = numVals + 1
             End If
         Case Is = "Equals"
             If c.Value = ConditionValue Then
             SPLSUM = 10 * Application.WorksheetFunction.Log10( _
                 (10 ^ (SPLSUM / 10)) + _
-                (10 ^ (Cells(c.Row - rw, c.Column - clmn).Value / 10)))
+                (10 ^ (Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
             numVals = numVals + 1
             End If
         Case Is = "" 'no condtion type

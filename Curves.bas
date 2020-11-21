@@ -208,7 +208,7 @@ Dim A_f As Variant
 Dim B_f As Variant
 Dim NR_f, NR As Double
 Dim NRTemp As Double
-Dim IStart, col As Integer
+Dim IStart, Col As Integer
 
     If DataTable.Rows.Count <> 1 Then
         NR_rate = "ERROR!"
@@ -229,15 +229,15 @@ B_f = Array(0.681, 0.79, 0.87, 0.93, 0.974, 1, 1.015, 1.025, 1.03)
 IStart = GetArrayIndex_OCT(fStr, 1)
     
     'Debug.Print DataTable.Columns.Count
-    For col = 1 To DataTable.Columns.Count
-        If IsNumeric(DataTable(1, col)) Then
-            NR_f = (DataTable(1, col) - A_f(IStart + col - 1)) / _
-                B_f(IStart + col - 1) 'get the NR for that octave band
+    For Col = 1 To DataTable.Columns.Count
+        If IsNumeric(DataTable(1, Col)) Then
+            NR_f = (DataTable(1, Col) - A_f(IStart + Col - 1)) / _
+                B_f(IStart + Col - 1) 'get the NR for that octave band
             If NR_f > NR Then 'if greater than highest NR found so far
                 NR = NR_f
             End If
         End If
-    Next col
+    Next Col
     
     If NR > 100 Then
         NR_rate = "OVER 100!"
@@ -366,7 +366,7 @@ Function NCrate(DataTable As Variant, Optional fStr As String)
 Dim NC As Double
 Dim freq As Double
 Dim IStart As Integer
-Dim col As Integer
+Dim Col As Integer
 Dim NCtemp As Integer
    
    If DataTable.Rows.Count <> 1 Then
@@ -392,17 +392,17 @@ IStart = GetArrayIndex_OCT(fStr, 2)
     While found = False
     'Debug.Print "Checking NC"; i
     test_freq = octaveBands(IStart)
-        For col = 1 To DataTable.Columns.Count 'all input value
-        test_freq = octaveBands(IStart + col - 1) 'DataTable is indexed from 1, not 0
-            If IsNumeric(DataTable(1, col)) Then
+        For Col = 1 To DataTable.Columns.Count 'all input value
+        test_freq = octaveBands(IStart + Col - 1) 'DataTable is indexed from 1, not 0
+            If IsNumeric(DataTable(1, Col)) Then
             'get value of curve at that band
             NC_curve_value = NCcurve(NCtemp, CStr(test_freq))
             'Debug.Print DataTable(1, Col + 1).Value; "    NCvalue: "; NC_curve_value
-                If DataTable(1, col).Value > NC_curve_value Then
-                SumExceedances = SumExceedances + (DataTable(1, col) - NC_curve_value)
+                If DataTable(1, Col).Value > NC_curve_value Then
+                SumExceedances = SumExceedances + (DataTable(1, Col) - NC_curve_value)
                 End If
             End If
-        Next col
+        Next Col
     
         'catch error
         If NCtemp > 70 Then
@@ -566,7 +566,7 @@ End Function
 '           Buildings and of Building Elements  - Part 1: Airborne Sound
 '           Insulation
 '==============================================================================
-Function CtrRate(DataTable As Variant, rw As Integer, Optional Mode As String)
+Function CtrRate(DataTable As Variant, Rw As Integer, Optional Mode As String)
 Dim i As Integer
 Dim PartialSum As Double
 Dim A As Double
@@ -589,7 +589,7 @@ PartialSum = 0
     End If
     
 A = Round(-10 * Application.WorksheetFunction.Log10(PartialSum), 0)
-CtrRate = A - rw
+CtrRate = A - Rw
 End Function
 
 '==============================================================================
