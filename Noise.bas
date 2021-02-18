@@ -127,7 +127,7 @@ End Function
 '           ok for office type spaces, but it would be great to verify where
 '           they apply and where they don't. <--TODO: this
 '==============================================================================
-Function RoomLossTypical(fStr As String, L As Double, W As Double, H As Double, _
+Function RoomLossTypical(fstr As String, L As Double, W As Double, H As Double, _
 roomType As String)
 
 Dim alpha() As Variant
@@ -136,7 +136,7 @@ Dim Rc As Double
 Dim bandIndex As Integer
 
     alpha = RoomAlphaDefault(roomType)
-    bandIndex = GetArrayIndex_OCT(fStr, 1)
+    bandIndex = GetArrayIndex_OCT(fstr, 1)
 
     If bandIndex = 999 Or bandIndex = -1 Then
     RoomLossTypical = "-" 'no band, no result!
@@ -167,7 +167,7 @@ End Function
 '           RT_Type - reverberance length as text descriptor (set in form)
 ' Comments: (1)
 '==============================================================================
-Function RoomLossTypicalRT(fStr As String, L As Double, W As Double, H As Double, _
+Function RoomLossTypicalRT(fstr As String, L As Double, W As Double, H As Double, _
 RT_Type As String)
 
 Dim alpha() As Variant
@@ -177,7 +177,7 @@ Dim bandIndex As Integer
 
 alpha = RoomAlphaRTcurves(RT_Type)
 
-bandIndex = GetArrayIndex_OCT(fStr, 1)
+bandIndex = GetArrayIndex_OCT(fstr, 1)
 
 S_total = (L * W * 2) + (L * H * 2) + (W * H * 2)
 
@@ -224,7 +224,7 @@ End Function
 '==============================================================================
 Sub DistancePoint()
 
-Cells(Selection.Row, T_Description).Value = "Distance Attenuation - point"
+SetDescription "Distance Attenuation - point"
 
 Cells(Selection.Row, T_LossGainStart).Value = "=10*LOG(" & T_ParamRng(1) & _
     "/(4*PI()*" & T_ParamRng(0) & "^2))"
@@ -253,7 +253,7 @@ End Sub
 '==============================================================================
 Sub DistanceLine()
 
-Cells(Selection.Row, T_Description).Value = "Distance Attenuation - line"
+SetDescription "Distance Attenuation - line"
 
 Cells(Selection.Row, T_LossGainStart).Value = "=10*LOG(" & T_ParamRng(1) & _
     "/(2*PI()*" & T_ParamRng(0) & "))"
@@ -298,7 +298,7 @@ frmPlaneSource.Show
 
 If btnOkPressed = False Then End 'catch cancel
 
-Cells(Selection.Row, T_Description).Value = "Distance Attenuation - plane"
+SetDescription "Distance Attenuation - plane"
 
 Cells(Selection.Row, T_LossGainStart).Value = "=-10*LOG(" & PlaneH & "*" & _
     PlaneL & ")+10*LOG(ATAN((" & PlaneH & "*" & PlaneL & ")/(2*" & T_ParamRng(0) & _
@@ -326,7 +326,7 @@ Sub DistanceRatioPoint()
 Dim ParamCol1 As Integer
 Dim ParamCol2 As Integer
 
-Cells(Selection.Row, T_Description).Value = "Distance Attenuation - ratio (point)"
+SetDescription "Distance Attenuation - ratio (point)"
 
 Cells(Selection.Row, T_LossGainStart).Value = "=20*LOG(" & T_ParamRng(0) & "/" & _
     T_ParamRng(1) & ")"
@@ -352,7 +352,7 @@ Sub DistanceRatioLine()
 Dim ParamCol1 As Integer
 Dim ParamCol2 As Integer
 
-Cells(Selection.Row, T_Description).Value = "Distance Attenuation - ratio (line)"
+SetDescription "Distance Attenuation - ratio (line)"
 
 Cells(Selection.Row, T_LossGainStart).Value = "=10*LOG(" & T_ParamRng(0) & "/" & _
     T_ParamRng(1) & ")"
@@ -376,7 +376,7 @@ End Sub
 '==============================================================================
 Sub AreaCorrection()
 'description
-Cells(Selection.Row, T_Description).Value = "Area Correction: 10log(A)"
+SetDescription "Area Correction: 10log(A)"
 'set parameter
 ParameterMerge (Selection.Row)
 Cells(Selection.Row, T_ParamStart) = 2
@@ -400,7 +400,7 @@ End Sub
 Sub ParallelipipedCorrection()
 frmSoundPowerCalculator.Show
 If btnOkPressed = False Then End
-Cells(Selection.Row, T_Description).Value = "Parellelipiped Correction"
+SetDescription "Parellelipiped Correction"
 Cells(Selection.Row, T_LossGainStart).Value = "=10*LOG(" & _
     Cells(Selection.Row, T_ParamStart).Address(False, True) & ")"
 ParameterMerge (Selection.Row)
@@ -418,7 +418,7 @@ End Sub
 ' Comments: (1) Kinda the same as area, but with different formatting
 '==============================================================================
 Sub TenLogN()
-Cells(Selection.Row, T_Description).Value = "Multiple sources: 10log(n)"
+SetDescription "Multiple sources: 10log(n)"
 Cells(Selection.Row, T_LossGainStart).Value = "=10*LOG(" & _
     Cells(Selection.Row, T_ParamStart).Address(False, True) & ")"
 ParameterMerge (Selection.Row)
@@ -437,7 +437,7 @@ End Sub
 '==============================================================================
 Sub TenLogOneOnT()
 
-Cells(Selection.Row, T_Description).Value = "Time Correction: 10log(t/t0)"
+SetDescription "Time Correction: 10log(t/t0)"
 
 Cells(Selection.Row, T_LossGainStart).Value = "=10*LOG(" & _
     Cells(Selection.Row, T_ParamStart).Address(False, True) & "/" & _
@@ -480,7 +480,7 @@ frmRoomLossClassic.Show
 
     If btnOkPressed = False Then End
     
-Cells(Selection.Row, T_Description).Value = "Room Loss"
+SetDescription "Room Loss"
 
 Cells(Selection.Row, T_LossGainStart).Value = "=RoomLossTypical(" & T_FreqStartRng & _
     "," & roomL & "," & roomW & "," & roomH & "," & T_ParamRng(0) & ")"
@@ -507,7 +507,7 @@ Dim DefaultArray() As Variant
 'Nominal Rc, based on a 0.5sec RT, or something
 DefaultArray = Array(17, 19, 22, 24, 31, 39, 43)
 
-Cells(Selection.Row, T_Description).Value = "Room Constant"
+SetDescription "Room Constant"
 'set default array
 Range(Cells(Selection.Row, T_LossGainStart + 1), _
       Cells(Selection.Row, T_LossGainStart + 1 + UBound(DefaultArray))).Value _
@@ -519,7 +519,7 @@ SetTraceStyle "Input"
 Cells(Selection.Row + 1, T_LossGainStart).Select
 
 'build RC formula
-Cells(Selection.Row, T_Description).Value = "Room Loss - 10LOG(4/Rc)"
+SetDescription "Room Loss - 10LOG(4/Rc)"
 Cells(Selection.Row, T_LossGainStart).Value = "=10*LOG(4/" & _
     Cells(Selection.Row - 1, T_LossGainStart).Address(False, False) & ")"
 ExtendFunction
@@ -561,7 +561,7 @@ frmRoomLossRT.Show
 
     If btnOkPressed = False Then End
 
-Cells(Selection.Row, T_Description).Value = "Room Loss - RT"
+SetDescription "Room Loss - RT"
 
 Cells(Selection.Row, T_LossGainStart).Value = "=RoomLossTypicalRT(" & T_FreqStartRng & _
     "," & roomL & "," & roomW & "," & roomH & "," & T_ParamRng(0) & ")"
@@ -648,7 +648,7 @@ Cells(Selection.Row, T_LossGainStart).Value = "=SUM(" & _
     Cells(EndRw + 1, T_LossGainStart).Address(False, False) & ")"
     
 ExtendFunction
-Cells(Selection.Row, T_Description).Value = "Direct component"
+SetDescription "Direct component"
 SetTraceStyle "Subtotal"
 
 'move cursor
@@ -674,7 +674,7 @@ Cells(Selection.Row, T_LossGainStart).Value = "=SUM(" & _
     Cells(Selection.Row - 2, T_LossGainStart).Address(False, False) & ":" & _
     Cells(Selection.Row - 1, T_LossGainStart).Address(False, False) & ")"
 ExtendFunction
-Cells(Selection.Row, T_Description).Value = "Reverberant component"
+SetDescription "Reverberant component"
 SetTraceStyle "Subtotal"
 
 'move down
@@ -685,7 +685,7 @@ Cells(Selection.Row, T_LossGainStart).Value = "=SPLSUM(" & _
     Cells(Selection.Row - 1, T_LossGainStart).Address(False, False) & "," & _
     Cells(Selection.Row - 4, T_LossGainStart).Address(False, False) & ")"
 ExtendFunction
-Cells(Selection.Row, T_Description).Value = "Total"
+SetDescription "Total"
 SetTraceStyle "Total"
 
 End Sub

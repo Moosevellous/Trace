@@ -19,8 +19,8 @@ Public FBC_baseTen As Boolean
 ' Args:     fstr, the frequency band centre frequency as a string
 ' Comments: (1) Used almost everywhere, because '2k' beats writing '2000' etc
 '==============================================================================
-Function freqStr2Num(fStr As String) As Double
-    Select Case fStr
+Function freqStr2Num(fstr As String) As Double
+    Select Case fstr
     Case Is = "1"
     freqStr2Num = 1
     Case Is = "1.25"
@@ -150,10 +150,10 @@ End Function
 '           OffsetBands - positive value=index up for a given band
 ' Comments: (1) Used a lot in ISO9613 but also elsewhere
 '==============================================================================
-Function GetArrayIndex_OCT(fStr As String, Optional OffsetBands As Integer)
+Function GetArrayIndex_OCT(fstr As String, Optional OffsetBands As Integer)
 Dim freq As Double
 
-freq = freqStr2Num(fStr) 'converts to Double
+freq = freqStr2Num(fstr) 'converts to Double
     Select Case freq
     Case Is = 16
     GetArrayIndex_OCT = -2 + OffsetBands
@@ -718,7 +718,7 @@ End Function
 '           textbooks.
 '           (2) Includes an error catch so you never try and evaluate Ln(0)
 '==============================================================================
-Public Function FitzroyRT(X As Long, Y As Long, z As Long, S_i As Range, _
+Public Function FitzroyRT(x As Long, y As Long, z As Long, S_i As Range, _
     Direction As Range, alpha_i As Range)
 'a_x is alpha-bar x, ie the average absorption for surfaces in the x-direction
 Dim a_x As Single
@@ -772,7 +772,7 @@ If a_x = 1 Then a_x = 0.99999
 If a_y = 1 Then a_y = 0.99999
 If a_z = 1 Then a_z = 0.99999
 
-Volume = X * Y * z
+Volume = x * y * z
 
 'Debug.Print "ax:"; a_x; "   ay:"; a_y; "   az"; a_z
 
@@ -804,8 +804,8 @@ End Function
 ' Args:     fstr, SoundSpeed
 ' Comments: (1) Simple, yeah?
 '==============================================================================
-Function Wavelength(fStr As String, SoundSpeed As Long)
-f = freqStr2Num(fStr)
+Function Wavelength(fstr As String, SoundSpeed As Long)
+f = freqStr2Num(fstr)
 Wavelength = SoundSpeed / f
 End Function
 
@@ -840,17 +840,17 @@ End Function
 '           baseTen - boolean (defaults to TRUE)
 ' Comments: (1) Also known as the crossover frequency
 '==============================================================================
-Function FrequencyBandCutoff(fStr As String, Mode As String, _
+Function FrequencyBandCutoff(fstr As String, Mode As String, _
 Optional bandwidth As Integer, Optional baseTen As Boolean)
 
 Dim G As Double 'gain
 Dim f As Double 'frequency
 Dim fr As Double 'reference frequency
 Dim b As Integer 'bandwidth denominator
-Dim X As Double
+Dim x As Double
 'TODO: sort out this function
 
-f = freqStr2Num(fStr)
+f = freqStr2Num(fstr)
 fr = 1000
 b = GetBandwidthIndex(f)
 
@@ -870,13 +870,13 @@ b = GetBandwidthIndex(f)
     
     If b Mod 2 = 1 Then 'odd bandwidth number
     'If bandwidth Mod 2 = 1 Then 'odd
-    X = Round(bandwidth * Application.WorksheetFunction.Log(f / fr) / _
+    x = Round(bandwidth * Application.WorksheetFunction.Log(f / fr) / _
         Application.WorksheetFunction.Log(G), 1)
-    fm = fr * G ^ (X / bandwidth)
+    fm = fr * G ^ (x / bandwidth)
     Else 'even
-    X = (2 * bandwidth * Application.WorksheetFunction.Log(f / fr) / _
+    x = (2 * bandwidth * Application.WorksheetFunction.Log(f / fr) / _
         Application.WorksheetFunction.Log(G) - 1) / 2
-    fm = fr * G ^ ((2 * X + 1) / (2 * bandwidth))
+    fm = fr * G ^ ((2 * x + 1) / (2 * bandwidth))
     End If
 
     'select mode: upper/lower
@@ -972,7 +972,7 @@ If btnOkPressed = False Then End
     End If
    
 'set description
-Cells(Selection.Row, T_Description).Value = BasicFunctionType
+SetDescription BasicFunctionType
 'Cells(Selection.Row, 1).Value = ChrW(931)'sigma <---------------TODO: add characters to column 1
 
     'build formula
@@ -1019,8 +1019,7 @@ Sub BandCutoff()
     End If
 frmFrequencyBandCutoff.Show
 If btnOkPressed = False Then End
-Cells(Selection.Row, T_Description).Value = "Frequency Band Cutoff (" & _
-    FBC_mode & ", Hz)"
+SetDescription "Frequency Band Cutoff (" & FBC_mode & ", Hz)"
 Cells(Selection.Row, T_LossGainStart).Value = "=FrequencyBandCutoff(" & _
     T_FreqStartRng & ",""" & FBC_mode & """," & FBC_bandwidth & "," & _
     FBC_baseTen & ")"
@@ -1036,7 +1035,7 @@ End Sub
 '==============================================================================
 Sub PutWavelength()
 
-Cells(Selection.Row, T_Description).Value = "Wavelength (m)"
+SetDescription "Wavelength (m)"
 
 Cells(Selection.Row, T_ParamStart + 1).Value = 20 'default to 20 degrees celcius
 Cells(Selection.Row, T_ParamStart).Value = "=SpeedOfSound(" & T_ParamRng(1) & ")"
@@ -1061,7 +1060,7 @@ End Sub
 '==============================================================================
 Sub PutSpeedOfSound()
 
-Cells(Selection.Row, T_Description).Value = "Speed of Sound"
+SetDescription "Speed of Sound"
 
 Cells(Selection.Row, T_ParamStart + 1).Value = 20 'default to 20 degrees celcius
 Cells(Selection.Row, T_ParamStart).Value = "=SpeedOfSound(" & T_ParamRng(1) & ")"

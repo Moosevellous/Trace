@@ -272,9 +272,9 @@ End Function
 ' Args:     X, flexible input
 ' Comments: (1) Used mostly in forms
 '==============================================================================
-Function ScreenInput(X As Variant) 'to screen data input into forms and functions'<-------TODO Can we use this elsewhere?
-    If IsNumeric(X) Then
-    ScreenInput = CDbl(X)
+Function ScreenInput(x As Variant) 'to screen data input into forms and functions'<-------TODO Can we use this elsewhere?
+    If IsNumeric(x) Then
+    ScreenInput = CDbl(x)
     Else
     ScreenInput = 0
     End If

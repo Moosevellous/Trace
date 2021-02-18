@@ -25,6 +25,9 @@ Cells(1, 10).Value = Now
 'Engineer
     If ENGINEER = "" Then Update_ENGINEER
 Cells(2, 11).Value = ENGINEER
+'Description
+Cells(3, 3).Value = _
+    "=MID(CELL(""filename"",A1),FIND(""]"",CELL(""filename"",A1))+1,255)"
 
 End Sub
 
@@ -289,10 +292,12 @@ Dim SeriesNo As Integer
         End If
     
     'create chart
-    '                                              Left, Top, Width, Height
-    Set TraceChartObj = ActiveSheet.ChartObjects.Add(600, 70, 340, 400)
+    '    Left, Top,                Width, Height
+    Set TraceChartObj = ActiveSheet.ChartObjects.Add _
+        (600, Cells(StartRw, 1).Top + 5, 340, 400)
     TraceChartObj.Chart.ChartType = xlLine
-    
+    TraceChartObj.Placement = xlFreeFloating 'don't resize with cells
+    TraceChartObj.ShapeRange.Line.Visible = msoFalse
     'add series
     SeriesNo = 1
         For plotrw = StartRw To EndRw
@@ -488,12 +493,14 @@ PurgeStr = Mid(inputFormula, AposPos, ExPos - AposPos + 1)
     'if all sheets, then loop through
     If Mode = "FixReferencesAll" Or Mode = "FixReferencesDefault" Then
     ReplaceFormulaReferences PurgeStr, "", False
+    'Fix Legacy Functions
+    FixLegacyFunctions False
     Else 'current sheet only, no loops
     ReplaceFormulaReferences PurgeStr, "", True
+    FixLegacyFunctions True
     End If
 
-'Fix Legacy Functions
-FixLegacyFunctions
+
 
 End Sub
 
@@ -505,52 +512,54 @@ End Sub
 ' Args:     None
 ' Comments: (1) Use to fix legacy functions etc
 '==============================================================================
-Sub FixLegacyFunctions()
+Sub FixLegacyFunctions(Optional ThisSheetOnly As Boolean)
 
 Application.ScreenUpdating = False
 
 'MECH MODULE
-ReplaceFormulaReferences "GetASHRAEDuct", "DuctAtten_ASHRAE", False
+ReplaceFormulaReferences "GetASHRAEDuct", "DuctAtten_ASHRAE", ThisSheetOnly
 
-ReplaceFormulaReferences "GetASHRAEPlenumLoss", "PlenumLoss_ASHRAE", False
+ReplaceFormulaReferences "GetASHRAEPlenumLoss", "PlenumLoss_ASHRAE", ThisSheetOnly
 
 ReplaceFormulaReferences "GetASHRAEPlenumLoss_OneThirdOctave", _
-    "PlenumLossOneThirdOctave_ASHRAE", False
+    "PlenumLossOneThirdOctave_ASHRAE", ThisSheetOnly
     
-ReplaceFormulaReferences "GetDuctBreakIn", "DuctBreakIn_NEBB", False
+ReplaceFormulaReferences "GetDuctBreakIn", "DuctBreakIn_NEBB", ThisSheetOnly
 
-ReplaceFormulaReferences "GetDuctBreakout", "DuctBreakOut_NEBB", False
+ReplaceFormulaReferences "GetDuctBreakout", "DuctBreakOut_NEBB", ThisSheetOnly
 
-ReplaceFormulaReferences "GetDuctDirectivity", "DuctDirectivity_PGD", False
+ReplaceFormulaReferences "GetDuctDirectivity", "DuctDirectivity_PGD", ThisSheetOnly
 
-ReplaceFormulaReferences "GetElbowLoss", "ElbowLoss_ASHRAE", False
+ReplaceFormulaReferences "GetElbowLoss", "ElbowLoss_ASHRAE", ThisSheetOnly
 
-ReplaceFormulaReferences "GetElbowLossASHRAE", "ElbowLoss_ASHRAE", False
+ReplaceFormulaReferences "GetElbowLossASHRAE", "ElbowLoss_ASHRAE", ThisSheetOnly
 
-ReplaceFormulaReferences "GetElbowLossNEBB", "ElbowLoss_NEBB", False
+ReplaceFormulaReferences "GetElbowLossNEBB", "ElbowLoss_NEBB", ThisSheetOnly
 
-ReplaceFormulaReferences "GetERL_ASHRAE", "ERL_ASHRAE", False
+ReplaceFormulaReferences "GetERL", "ERL_ASHRAE", ThisSheetOnly
 
-ReplaceFormulaReferences "GetERL_NEBB", "ERL_NEBB", False
+ReplaceFormulaReferences "GetERL_ASHRAE", "ERL_ASHRAE", ThisSheetOnly
 
-ReplaceFormulaReferences "GetFlexDuct", "FlexDuctAtten_ASHRAE", False
+ReplaceFormulaReferences "GetERL_NEBB", "ERL_NEBB", ThisSheetOnly
 
-ReplaceFormulaReferences "GetRegenNoise_ASHRAE", "RegenNoise_ASHRAE", False
+ReplaceFormulaReferences "GetFlexDuct", "FlexDuctAtten_ASHRAE", ThisSheetOnly
 
-ReplaceFormulaReferences "GetReynoldsDuct", "DuctAtten_Reynolds", False
+ReplaceFormulaReferences "GetRegenNoise_ASHRAE", "RegenNoise_ASHRAE", ThisSheetOnly
+
+ReplaceFormulaReferences "GetReynoldsDuct", "DuctAtten_Reynolds", ThisSheetOnly
 
 ReplaceFormulaReferences "GetReynoldsDuctCircular", _
-    "DuctAttenCircular_Reynolds", False
+    "DuctAttenCircular_Reynolds", ThisSheetOnly
 
 'NOISE MODULE
-ReplaceFormulaReferences "GetRoomLoss", "RoomLossTypical", False
+ReplaceFormulaReferences "GetRoomLoss", "RoomLossTypical", ThisSheetOnly
 
-ReplaceFormulaReferences "GetRoomLossRT", "RoomLossTypicalRT", False
+ReplaceFormulaReferences "GetRoomLossRT", "RoomLossTypicalRT", ThisSheetOnly
 
 'BASICS MODULE
-ReplaceFormulaReferences "GetSpeedOfSound", "SpeedOfSound", False
+ReplaceFormulaReferences "GetSpeedOfSound", "SpeedOfSound", ThisSheetOnly
 
-ReplaceFormulaReferences "GetWavelength", "Wavelength", False
+ReplaceFormulaReferences "GetWavelength", "Wavelength", ThisSheetOnly
 
 Application.ScreenUpdating = True
 

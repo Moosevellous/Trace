@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmRowReference 
    Caption         =   "Row Reference"
-   ClientHeight    =   3120
+   ClientHeight    =   3870
    ClientLeft      =   120
    ClientTop       =   465
    ClientWidth     =   5235
@@ -31,6 +31,7 @@ UserSelectedAddress = refRangeSelector.Value
     Else 'default to single row
     LookupMultiRow = False
     End If
+RegenDestinationRange = Me.optRegenSWL.Value 'true if true!
 btnOkPressed = True
 Me.Hide
 Unload Me

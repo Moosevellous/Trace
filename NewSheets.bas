@@ -281,6 +281,7 @@ BottomBuffer = 50 'px: space at the bottom
 
     'create radio buttons
     For Each standardSheet In ScanFolder.Files
+    'Debug.Print standardSheet.Name
         If Left(standardSheet.Name, 1) <> "~" Then
         'CheckColumn
         Set optControl = frmStandardCalc.mPageSheets.Pages(CurrentPage) _
@@ -300,7 +301,7 @@ BottomBuffer = 50 'px: space at the bottom
             CurrentCol = CurrentCol + 1
             End If
             'check for multipage
-            If CurrentCol > 2 Then
+            If CurrentCol > 1 Then 'Note: starts at 0
             frmStandardCalc.mPageSheets.Pages.Add
             CurrentPage = CurrentPage + 1
             CurrentTop = DefaultCurrentTop

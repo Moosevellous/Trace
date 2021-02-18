@@ -13,6 +13,7 @@ Public AS2670_Multiplier As Single
 Public AS2670_Order
 Public AS2670_dbUnit As Boolean
 Public AS2670_RateCurve As Boolean
+Public VibRateAddr As String 'address of range to be rated
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -331,7 +332,7 @@ frmVibUnits.Caption = "Vibration - Convert Units (Linear to dB)"
 frmVibUnits.Show
     If btnOkPressed = False Then End
 'build formula
-Cells(Selection.Row, T_Description).Value = "Convert to dB"
+SetDescription "Convert to dB"
 Cells(Selection.Row, T_LossGainStart).Value = "=20*LOG(" & _
     Cells(Selection.Row - 1, T_LossGainStart).Address(False, False) & "/" & _
     VibRef & ")"
@@ -351,7 +352,7 @@ frmVibUnits.Caption = "Vibration - Convert Units (dB to Linear)"
 frmVibUnits.Show
     If btnOkPressed = False Then End
 'build formula
-Cells(Selection.Row, T_Description).Value = "Convert to Linear"
+SetDescription "Convert to Linear"
 Cells(Selection.Row, T_LossGainStart).Value = "=" & VibRef & "*10^(" & _
     Cells(Selection.Row - 1, T_LossGainStart).Address(False, False) & "/20)"
 ExtendFunction
@@ -422,7 +423,7 @@ If btnOkPressed = False Then End
     Cells(Selection.Row, StartFreq + i).Value = -1 * SelectedLoss(i) 'negative values!
     Next i
 
-Cells(Selection.Row, T_Description).Value = "Coupling Loss: " & BuildingType
+SetDescription "Coupling Loss: " & BuildingType
     
 End Sub
 
@@ -471,8 +472,7 @@ If btnOkPressed = False Then End
         End If
     Next i
 
-Cells(Selection.Row, T_Description).Value = "Building Amplification: " & _
-    AmplificationType
+SetDescription "Building Amplification: " & AmplificationType
 
 End Sub
 
@@ -494,7 +494,7 @@ ParameterMerge (Selection.Row)
 'Low frequency third-octave sheet check
     If T_SheetType <> "LF_TO" Then ErrorLFTOOnly
 
-Cells(Selection.Row, T_Description).Value = "VC Curve"
+SetDescription "VC Curve"
 
 'build formula
 Cells(Selection.Row, T_ParamStart) = "VC-A"
@@ -539,7 +539,7 @@ Cells(Selection.Row, T_LossGainStart).Value = "=" & FormulaStr
 ExtendFunction
 Range(Cells(Selection.Row, T_LossGainStart), _
     Cells(Selection.Row, T_LossGainEnd)).NumberFormat = "0E+0"
-Cells(Selection.Row, T_Description).Value = "Vibration Conversion"
+SetDescription "Vibration Conversion"
 InsertComment VibConversionDescription, T_Description, False
 
 SelectNextRow
@@ -574,28 +574,24 @@ End Sub
 Sub PutAS2670curve()
 Dim DataTable As Variant
 Dim Mode As String, RowTitle As String, RowTitleUnit As String
+Dim RateRow As Integer
 
-'Low frequency third-octave sheet check
-If T_SheetType <> "LF_TO" Then ErrorLFTOOnly
+    'Low frequency third-octave sheet check
+    If T_SheetType <> "LF_TO" Then ErrorLFTOOnly
 
 '------------------------------------------------------------------------------
 ' INTERFACE WITH POP-UP USERFORM FOR USER INPUT
+frmAS2670.RefVibRange.Value = Cells(Selection.Row - 1, T_LossGainStart).Address
 
-' Show userform
 frmAS2670.Show
 
-    ' Userform functionality
-    If btnOkPressed = False Then
-        GoTo LastLine
-    End If
+    ' catch error
+    If btnOkPressed = False Then End
     
     ' Assign dB unit variable to local function for later use
-    If AS2670_dbUnit = True Then
-        Mode = "dB"
-    End If
+    If AS2670_dbUnit = True Then Mode = "dB"
 
 '------------------------------------------------------------------------------
-' PARAMETER COLUMNS
 
 ' Parameter columns unmerge and formatting
 ParameterUnmerge (Selection.Row)
@@ -611,65 +607,53 @@ SetUnits "General", T_ParamStart + 1
     ' Parameter column 2 (Column AG) contents. If "Rate existing curve" button
     ' in the AS2670 form is selected, rate the row above the current row,
     ' otherwise use input multiplier provided by user.
+    ' And Description title
     If AS2670_RateCurve = True Then
-        Cells(Selection.Row, T_ParamStart + 1).Value = "=AS2670_Rate(" _
-            & Range(Cells(Selection.Row - 1, T_LossGainStart), _
-            Cells(Selection.Row - 1, T_ParamStart - 1)).Address(False, True) _
-            & "," & Range(Cells(6, T_LossGainStart), _
-            Cells(6, T_LossGainEnd)).Address(True, True) & "," _
-            & Cells(Selection.Row, T_ParamStart).Address(False, True) & "," _
-            & """" & AS2670_Order & """" & "," & """" & Mode & """" & ")"
-        ' Formatting
+    RateRow = ExtractRefElement(VibRateAddr, 2)
+    Cells(Selection.Row, T_ParamStart + 1).Value = "=AS2670_Rate(" _
+        & Range(Cells(RateRow, T_LossGainStart), _
+        Cells(RateRow, T_ParamStart - 1)).Address(False, True) _
+        & "," & Range(Cells(T_FreqRow, T_LossGainStart), _
+        Cells(T_FreqRow, T_LossGainEnd)).Address(True, True) & "," _
+        & Cells(Selection.Row, T_ParamStart).Address(False, True) & "," _
+        & """" & AS2670_Order & """" & "," & """" & Mode & """" & ")"
+    
+        ' Formatting to normal
         With Cells(Selection.Row, T_ParamStart + 1)
-            .Style = "Trace Normal"
-            .Borders(xlEdgeLeft).LineStyle = xlLineStyleNone
-            .Borders(xlEdgeLeft).LineStyle = xlContinuous
+        .Style = "Trace Normal"
+        .Borders(xlEdgeLeft).LineStyle = xlLineStyleNone
+        .Borders(xlEdgeLeft).LineStyle = xlContinuous
         End With
-    Else
-        Cells(Selection.Row, T_ParamStart + 1) = AS2670_Multiplier
+    RowTitle = "AS2670 Curve (" & AS2670_Order & "): "
+    
+    Else 'no rating, just the curve as presented
+    Cells(Selection.Row, T_ParamStart + 1) = AS2670_Multiplier
+    RowTitle = "Ref. AS2670 Curve (" & AS2670_Order & "): "
     End If
 
-' -----------------------------------------------------------------------------
-' MAIN BODY CELLS
 
 ' Main body contents
 Cells(Selection.Row, T_LossGainStart).Value = "=AS2670_Curve(" _
-        & Cells(Selection.Row, T_ParamStart).Address(False, True) & "," _
-        & Cells(Selection.Row, T_ParamStart + 1).Address(False, True) & "," _
-        & Cells(6, 5).Address(True, False) & "," _
-        & """" & AS2670_Order & """" & "," & """" & Mode & """" & ")"
+    & Cells(Selection.Row, T_ParamStart).Address(False, True) & "," _
+    & Cells(Selection.Row, T_ParamStart + 1).Address(False, True) & "," _
+    & Cells(T_FreqRow, 5).Address(True, False) & "," _
+    & """" & AS2670_Order & """" & "," & """" & Mode & """" & ")"
 ExtendFunction
 
-' Main body format
+' Main body format and Title component if dB units selected
     If AS2670_dbUnit = True Then
-        Range(Cells(Selection.Row, T_LossGainStart), _
-            Cells(Selection.Row, T_ParamStart - 1)).NumberFormat = "0.0"
+    Range(Cells(Selection.Row, T_LossGainStart), _
+        Cells(Selection.Row, T_ParamStart - 1)).NumberFormat = "0.0"
+    RowTitleUnit = "dB"
     Else
-        Range(Cells(Selection.Row, T_LossGainStart), _
-            Cells(Selection.Row, T_ParamStart - 1)).NumberFormat = "0.000"
+    Range(Cells(Selection.Row, T_LossGainStart), _
+        Cells(Selection.Row, T_ParamStart - 1)).NumberFormat = "0.000"
+    RowTitleUnit = "Linear"
     End If
 
-'------------------------------------------------------------------------------
-' ROW TITLE (COLUMN B)
-
-' Title component if "Rate existing curve" box ticked
-If AS2670_RateCurve = True Then
-    RowTitle = "AS 2670 Curve (" & AS2670_Order & "): "
-Else
-    RowTitle = "Ref. AS 2670 Curve (" & AS2670_Order & "): "
-End If
-
-' Title component if dB units selected
-If AS2670_dbUnit = True Then
-    RowTitleUnit = "dB"
-Else
-    RowTitleUnit = "Linear"
-End If
-
 ' Assign title cell contents
-Cells(Selection.Row, T_Description).Value = RowTitle & RowTitleUnit
+SetDescription RowTitle & RowTitleUnit
 
-LastLine:
 End Sub
 
 

@@ -137,6 +137,8 @@ Model = Me.txtTypeCode.Value
         Me.txtFA.Value = 53
         Case Is = "25"
         Me.txtFA.Value = 56
+        Case Else
+        Me.txtFA.Value = "-"
         End Select
         
         Select Case UCase(Right(Me.txtTypeCode.Value, 1))
@@ -154,6 +156,8 @@ Model = Me.txtTypeCode.Value
         Me.txtL.Value = 2100
         Case Is = "G"
         Me.txtL.Value = 2400
+        Case Else
+        Me.txtL.Value = 0
         End Select
     Else 'NAP
     SplitModel = Split(Model, "/", Len(Model), vbTextCompare)
@@ -165,7 +169,23 @@ Model = Me.txtTypeCode.Value
             End If
         'free area
         Me.txtFA.Value = Right(SplitModel(0), 2)
+        Else
+        Me.txtL.Value = "-"
+        Me.txtFA.Value = "-"
         End If
+    End If
+
+    'show the match has been found
+    If IsNumeric(Me.txtL.Value) And Me.txtL.Value <> 0 Then
+    Me.lblMatchL.Visible = True
+    Else
+    Me.lblMatchL.Visible = False
+    End If
+        'show the match has been found
+    If IsNumeric(Me.txtFA.Value) And Me.txtFA.Value <> 0 Then
+    Me.lblMatchFA.Visible = True
+    Else
+    Me.lblMatchFA.Visible = False
     End If
 
 'Calculate Regen Sound Power

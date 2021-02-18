@@ -231,7 +231,7 @@ End Function
 '           L - Duct length in metres
 ' Comments: (1) For rectangular ducts only!
 '==============================================================================
-Function DuctAtten_Reynolds(fStr As String, H As Double, W As Double, _
+Function DuctAtten_Reynolds(fstr As String, H As Double, W As Double, _
 thickness As Double, L As Double)
 
 Dim PonA As Double 'Perimeter divided by area
@@ -255,8 +255,8 @@ P = (H * 2) + (W * 2) 'perimeter
 A = H * W 'area
 PonA = P / A
 
-f = freqStr2Num(fStr)
-i = GetArrayIndex_OCT(fStr)
+f = freqStr2Num(fstr)
+i = GetArrayIndex_OCT(fstr)
 
     'catch error: frequency bands not defined
     If i = 999 Or i = -1 Then
@@ -307,7 +307,7 @@ End Function
 '           L - Duct length in metres
 ' Comments: (1) Beware of versions of the table with incorrect values!
 '==============================================================================
-Function DuctAttenCircular_Reynolds(fStr As String, dia As Double, _
+Function DuctAttenCircular_Reynolds(fstr As String, dia As Double, _
 thickness As Double, L As Double)
 
 'declare Arrays from Table 5.8 of NEBB book
@@ -324,7 +324,7 @@ thickness = 0.039 * thickness
 dia = 0.039 * dia
 
 'freq = freqStr2Num(fStr) <----we might not need this
-i = GetArrayIndex_OCT(fStr)
+i = GetArrayIndex_OCT(fstr)
 
     If i = 999 Or i = -1 Then
     DuctAttenCircular_Reynolds = ""
@@ -357,7 +357,7 @@ End Function
 '           DuctWallThickness - thickness of wall in mm
 ' Comments: (1) NEBB method
 '==============================================================================
-Function DuctBreakOut_NEBB(fStr As String, H As Single, W As Single, L As Single, _
+Function DuctBreakOut_NEBB(fstr As String, H As Single, W As Single, L As Single, _
 MaterialDensity As Single, DuctWallThickness As Single)
 
 Dim SurfaceMass As Single 'Surface mass of duct wall in kg/m^2
@@ -366,7 +366,7 @@ Dim f As Double 'frequency in Hz
 Dim TLoutMin As Single 'in dB
 Dim TLout As Single 'in dB
 
-f = freqStr2Num(fStr)
+f = freqStr2Num(fstr)
 fL = 613000# / ((W * H) ^ 0.5)
 
 SurfaceMass = MaterialDensity * DuctWallThickness / 1000 'convert to metres
@@ -406,7 +406,7 @@ End Function
 '           DuctWallThickness - thickness of wall in mm
 ' Comments: (1)
 '==============================================================================
-Function DuctBreakIn_NEBB(fStr As String, H As Single, W As Single, L As Single, _
+Function DuctBreakIn_NEBB(fstr As String, H As Single, W As Single, L As Single, _
 MaterialDensity As Single, DuctWallThickness As Single)
 
 Dim SurfaceMass As Single 'Surface mass of duct wall in kg/m^2
@@ -419,7 +419,7 @@ Dim TLin_B As Single 'TL_in for smaller dimension
 Dim TLin1 As Single 'larger of the two TL_in values
 Dim TLout As Single 'used to calculate
 
-f = freqStr2Num(fStr) 'convert to values
+f = freqStr2Num(fstr) 'convert to values
 
     'set A as the larger dimension
     If H > W Then
@@ -434,7 +434,7 @@ F1 = (1.718 * 10 ^ 5) / A
 
 'Method relies on breakout number
 'call trace function for breakout, but make it positive
-TLout = DuctBreakOut_NEBB(fStr, H, W, L, MaterialDensity, DuctWallThickness) * -1 + _
+TLout = DuctBreakOut_NEBB(fstr, H, W, L, MaterialDensity, DuctWallThickness) * -1 + _
     10 * Application.WorksheetFunction.Log(2 * (L * 1000) * ((H + W) / (H * W)))
 
     If F1 > f Then
@@ -592,7 +592,7 @@ End Function
 '           DuctArea - Cross sectional area of duct, in m^2
 ' Comments: (1)
 '==============================================================================
-Function ERL_ASHRAE(TerminationType As String, fStr As String, DuctArea As Double)
+Function ERL_ASHRAE(TerminationType As String, fstr As String, DuctArea As Double)
 
 Dim dia As Double 'duct diameter in mm
 Dim A1 As Double 'variable in ASHRAE method (dimensionless)
@@ -604,7 +604,7 @@ Dim c0 As Double 'speed of sound
     'eqn 11 of ASHRAE - same for rectangles and circles!
     dia = (4 * DuctArea / Application.WorksheetFunction.Pi) ^ 0.5
     
-    f = freqStr2Num(fStr) 'convert to a value
+    f = freqStr2Num(fstr) 'convert to a value
     c0 = 343
     
         'table 28 of ASHRAE
@@ -633,7 +633,7 @@ End Function
 '           DuctArea - Cross sectional area of duct, in m^2
 ' Comments: (1)
 '==============================================================================
-Function ERL_NEBB(TerminationType As String, fStr As String, DuctArea As Double)
+Function ERL_NEBB(TerminationType As String, fstr As String, DuctArea As Double)
 Dim dia As Double 'duct diameter in mm
 Dim A1 As Double 'variable in ASHRAE method (dimensionless)
 Dim A2 As Double 'variable in ASHRAE method (dimensionless)
@@ -644,7 +644,7 @@ Dim c0 As Double 'speed of sound
     'eqn 5.40 of NEBB method
     dia = (4 * DuctArea / Application.WorksheetFunction.Pi) ^ 0.5
     
-    f = freqStr2Num(fStr)
+    f = freqStr2Num(fstr)
     c0 = 343
     
         If TerminationType = "Flush" Then
@@ -806,7 +806,7 @@ End Function
 '           VaneType - Vanes or No Vanes
 ' Comments: (1)
 '==============================================================================
-Function ElbowLoss_ASHRAE(fStr As String, W As Double, elbowShape As String, _
+Function ElbowLoss_ASHRAE(fstr As String, W As Double, elbowShape As String, _
 ductLining As String, VaneType As String)
 
 Dim Unlined() As Variant 'values from ASHRAE table
@@ -843,7 +843,7 @@ LinedV = Array(0, -1, -4, -7, -7)
 'table 23 of ASHRAE
 RadiusBend = Array(0, -1, -2, -3)
 
-freq = freqStr2Num(fStr)
+freq = freqStr2Num(fstr)
 FW = (freq / 1000) * W
 
     Select Case elbowShape
@@ -921,12 +921,12 @@ End Function
 '           ductLiningThickness - insulation thickness in mm
 ' Comments: (1)
 '==============================================================================
-Function ElbowLoss_NEBB(fStr As String, dia As Double, ductLiningThickness As Integer)
+Function ElbowLoss_NEBB(fstr As String, dia As Double, ductLiningThickness As Integer)
 Dim IL_DonRsquared As Double
 Dim IL As Double
 Dim R As Double
 
-f = freqStr2Num(fStr)
+f = freqStr2Num(fstr)
 f = 0.039 * f 'imperial unit correction
 
     Select Case dia
@@ -984,7 +984,7 @@ End Function
 '           OneThirdsMode - Optional switch for single one-third band
 ' Comments: (1)
 '==============================================================================
-Function PlenumLoss_ASHRAE(fStr As String, L As Long, W As Long, H As Long, _
+Function PlenumLoss_ASHRAE(fstr As String, L As Long, W As Long, H As Long, _
 DuctInL As Single, DuctInW As Single, DuctOutL As Single, DuctOutW As Single, _
 Q As Integer, r_h As Long, r_v As Long, PlenumLiningType As String, _
 UnlinedType As String, WallEffect As String, applyElbowEffect As Boolean, _
@@ -997,7 +997,7 @@ Dim Loss1 As Double
 Dim Loss2 As Double
 Dim Loss3 As Double
 
-f = freqStr2Num(fStr)
+f = freqStr2Num(fstr)
 
 If IsMissing(OneThirdsMode) Then OneThirdsMode = False
 
@@ -1576,7 +1576,7 @@ End Function
 ' Comments: (1) Reading from curves in the Fantech book, we've derived the
 '           underlying formulas with simultaneous equations!
 '==============================================================================
-Function FantechAttenRegen(fStr As String, airflow As Double, _
+Function FantechAttenRegen(fstr As String, airflow As Double, _
 percentage_free_area As Double, Width As Double, SplitterHeight As Double, _
 numModules As Integer, Optional litresPerSecond As Boolean)
 
@@ -1586,7 +1586,7 @@ Dim SWL As Double 'total SWL for all modules
 Dim AV_correction As Integer 'velocity correction
 
     'Check for errors
-    If freqStr2Num(fStr) < 63 Or freqStr2Num(fStr) > 8000 Or _
+    If freqStr2Num(fstr) < 63 Or freqStr2Num(fstr) > 8000 Or _
     percentage_free_area <= 0 Or airflow = 0 Or Width = 0 Or SplitterHeight = 0 Then
     FantechAttenRegen = "-"
     Exit Function
@@ -1605,7 +1605,7 @@ base_sound_power_level = (50.6 * Application.WorksheetFunction.Log(airwayVelocit
 SWL = base_sound_power_level + (10 * Application.WorksheetFunction.Log(numModules))
 
 'spectrum Corrections, from 63Hz octave band
-AV_correction = GetFantechAirwayVelocityCorrection(fStr, airwayVelocity)
+AV_correction = GetFantechAirwayVelocityCorrection(fstr, airwayVelocity)
 
 'Final output
 FantechAttenRegen = SWL + AV_correction
@@ -1625,7 +1625,7 @@ End Function
 ' Comments: (1) Reading from curves in the Fantech book, we've derived the
 '           underlying formulas with simultaneous equations!
 '==============================================================================
-Function NAPAttenRegen(fStr As String, airflow As Double, _
+Function NAPAttenRegen(fstr As String, airflow As Double, _
 percentage_free_area As Double, Width As Double, Height As Double, _
 Model As String, Optional litresPerSecond As Boolean)
 
@@ -1636,7 +1636,7 @@ Dim ModelCorrection As Integer 'as provided by NAP
 Dim FaceArea As Double
 
     'Check for errors
-    If freqStr2Num(fStr) < 63 Or freqStr2Num(fStr) > 8000 Or _
+    If freqStr2Num(fstr) < 63 Or freqStr2Num(fstr) > 8000 Or _
         percentage_free_area <= 0 Or percentage_free_area > 100 Or airflow = 0 Or _
         Width = 0 Or Height = 0 Then
     NAPAttenRegen = "-"
@@ -1656,7 +1656,7 @@ base_sound_power_level = (50 * Application.WorksheetFunction.Log(airwayVelocity)
     (10 * Application.WorksheetFunction.Log(FaceArea)) + 2
 
 'spectrum and model corrections
-SpectrumCorrection = GetNAPSpectrumCorrection(fStr, Model)
+SpectrumCorrection = GetNAPSpectrumCorrection(fstr, Model)
 ModelCorrection = GetNAPModelCorrection(Model)
 
 'Final output
@@ -1671,19 +1671,19 @@ End Function
 ' Args:     Model - Model type string
 ' Comments: (1) As supplied by supplier, no edits
 '==============================================================================
-Function GetNAPSpectrumCorrection(fStr As String, Model As String)
+Function GetNAPSpectrumCorrection(fstr As String, Model As String)
 
 Dcorrections = Array(-2, -6, -7, -10, -12, -16, -19, -22)
 Ecorrections = Array(-3, -5, -8, -7, -8, -10, -13, -15)
 Hcorrections = Array(-3, -6, -10, -7, -7, -8, -10, -12)
 
     'Check if appropriate column
-    If freqStr2Num(fStr) < 63 Or freqStr2Num(fStr) > 8000 Then
+    If freqStr2Num(fstr) < 63 Or freqStr2Num(fstr) > 8000 Then
     GetNAPSpectrumCorrection = "-"
     Exit Function
     End If
 
-i = GetArrayIndex_OCT(fStr)
+i = GetArrayIndex_OCT(fstr)
 
     If UCase(Left(Model, 1)) = "D" Then
     GetNAPSpectrumCorrection = Dcorrections(i)
@@ -1753,19 +1753,19 @@ End Function
 '           airwayVelocity - air speed in m/s
 ' Comments: (1) As supplied by supplier, no edits
 '==============================================================================
-Function GetFantechAirwayVelocityCorrection(fStr As String, airwayVelocity As Single)
+Function GetFantechAirwayVelocityCorrection(fstr As String, airwayVelocity As Single)
 Dim i As Integer
 LessThan8 = Array(-2, -6, -7, -10, -12, -16, -19, -22)
 EightTo32 = Array(-3, -5, -8, -7, -8, -10, -13, -15)
 MoreThan32 = Array(-3, -6, -10, -7, -7, -8, -10, -12)
 
     'Check if appropriate column
-    If freqStr2Num(fStr) < 63 Or freqStr2Num(fStr) > 8000 Then
+    If freqStr2Num(fstr) < 63 Or freqStr2Num(fstr) > 8000 Then
     GetFantechAirwayVelocityCorrection = "-"
     Exit Function
     End If
 
-i = GetArrayIndex_OCT(fStr)
+i = GetArrayIndex_OCT(fstr)
 
     If airwayVelocity < 8 Then
     GetFantechAirwayVelocityCorrection = LessThan8(i)
@@ -1882,7 +1882,7 @@ End Function
 '           mCubedPerSection - set to TRUE for m^3/s flow rates
 ' Comments: (1)
 '==============================================================================
-Function DamperRegen_NEBB(fStr As String, FlowRate As Double, PressureLoss As Double, _
+Function DamperRegen_NEBB(fstr As String, FlowRate As Double, PressureLoss As Double, _
 DuctHeight As Double, DuctWidth As Double, MultiBlade As Boolean, _
 Optional mCubedPerSecond As Boolean)
 
@@ -1894,7 +1894,7 @@ Dim Kd As Double 'Characteristic spectrum - Equation 4.6 of NEBB
 Dim f As Double 'frequency as number
 Dim CrossSectionArea As Double 'area of the duct in m^2
 
-f = freqStr2Num(fStr)
+f = freqStr2Num(fstr)
     
     'catch errors
     If FlowRate <= 0 Or PressureLoss <= 0 Or _
@@ -1968,7 +1968,7 @@ End Function
 '           mCubedPerSection - set to TRUE for m^3/s flow rates
 ' Comments: (1)
 '==============================================================================
-Function ElbowWithVanesRegen_NEBB(fStr As String, FlowRate As Double, _
+Function ElbowWithVanesRegen_NEBB(fstr As String, FlowRate As Double, _
     dP As Double, DuctWidth As Double, DuctHeight As Double, _
     CordLength As Double, numVanes As Integer, Optional mCubedPerSecond As Boolean)
 
@@ -1981,7 +1981,7 @@ Dim St As Double 'Strouhal number
 Dim Kt As Double 'characteristic spectrum
 
 'General setup and error catching
-f = freqStr2Num(fStr)
+f = freqStr2Num(fstr)
     If f < 63 Or f > 8000 Then
     ElbowWithVanesRegen_NEBB = "-"
     Exit Function
@@ -2059,7 +2059,7 @@ End Function
 '           mCubedPerSection - set to TRUE for m^3/s flow rates
 ' Comments: (1)
 '==============================================================================
-Function ElbowOrJunctionRegen_NEBB(fStr As String, _
+Function ElbowOrJunctionRegen_NEBB(fstr As String, _
     FlowRate As Double, Tm As Integer, DuctWidth As Double, DuctHeight As Double, _
     BranchFlowRate As Double, Tb As Integer, DuctBranchWidth As Double, _
     DuctBranchHeight As Double, Radius As Double, turb As Boolean, _
@@ -2082,8 +2082,8 @@ Dim Lb As Double 'branch SWL result, dB
 Dim Lm As Double 'main duct SWL result, dB
 
 ' GENERAL SETUP
-f = freqStr2Num(fStr)
-If freqStr2Num(fStr) < 63 Or freqStr2Num(fStr) > 8000 Then
+f = freqStr2Num(fstr)
+If freqStr2Num(fstr) < 63 Or freqStr2Num(fstr) > 8000 Then
     ElbowOrJunctionRegen_NEBB = "-"
     Exit Function
 End If
@@ -2190,7 +2190,7 @@ End Function
 '               2: Circular
 ' Comments: (1)
 '==============================================================================
-Function RegenDiffuser_NEBB(fStr As String, dP As Double, Q As Double, _
+Function RegenDiffuser_NEBB(fstr As String, dP As Double, Q As Double, _
     Dw As Double, Dh As Double, Shape As Integer)
 
 Dim f As Single     'usable freqency number
@@ -2206,8 +2206,8 @@ Dim A As Double     'spectrum parameter
 Dim c As Double     'shape of octave band sound spectrum
 
 ' GENERAL SETUP
-f = freqStr2Num(fStr)
-If freqStr2Num(fStr) < 63 Or freqStr2Num(fStr) > 8000 Then
+f = freqStr2Num(fstr)
+If freqStr2Num(fstr) < 63 Or freqStr2Num(fstr) > 8000 Then
     RegenDiffuser_NEBB = "-"
     Exit Function
 End If
@@ -2234,7 +2234,7 @@ Lw = 10 * Application.WorksheetFunction.Log10(10.76 * S) _
 fp = 160.1 * U
 
 'Determine spectrum parameter, F1
-F1 = GetArrayIndex_OCT(fStr, 1)
+F1 = GetArrayIndex_OCT(fstr, 1)
 
 'Determine spectrum parameter, F2
 Select Case fp
@@ -2299,7 +2299,7 @@ frmDuctAtten.Show
 
     If T_BandType <> "oct" Then ErrorOctOnly
     
-Cells(Selection.Row, T_Description).Value = "Duct Attenuation-" & ductMethod
+SetDescription "Duct Attenuation-" & ductMethod
 ParameterUnmerge (Selection.Row)
 
     If ductMethod = "Reynolds" Then
@@ -2346,7 +2346,7 @@ Sub PutFlexDuctAtten()
 Dim ParamCol1 As Integer
 Dim ParamCol2 As Integer
 
-Cells(Selection.Row, T_Description).Value = "Flex Duct - ASHRAE"
+SetDescription "Flex Duct - ASHRAE"
 
     If T_BandType <> "oct" Then ErrorOctOnly
     
@@ -2397,7 +2397,7 @@ frmDuctSplit.Show
     Cells(Selection.Row, T_LossGainStart).Value = "=10*LOG(" & T_ParamRng(1) & _
         "/(" & T_ParamRng(1) & "+" & T_ParamRng(0) & "))"
         
-    Cells(Selection.Row, T_Description).Value = "Duct Split: 10LOG(A2/(A1+A2))"
+    SetDescription "Duct Split: 10LOG(A2/(A1+A2))"
     
     Case Is = "Ratio"
     ParameterMerge (Selection.Row)
@@ -2406,7 +2406,7 @@ frmDuctSplit.Show
     
     Cells(Selection.Row, T_LossGainStart).Value = "=10*LOG(1/" & T_ParamRng(0) & ")"
     
-    Cells(Selection.Row, T_Description).Value = "Duct Split: 10LOG(1/R)"
+    SetDescription "Duct Split: 10LOG(1/R)"
     
     Case Is = "Percent"
     ParameterMerge (Selection.Row)
@@ -2415,7 +2415,7 @@ frmDuctSplit.Show
     
     Cells(Selection.Row, T_LossGainStart).Value = "=10*LOG(" & T_ParamRng(0) & ")"
     
-    Cells(Selection.Row, T_Description).Value = "Duct Split: 10LOG(P)"
+    SetDescription "Duct Split: 10LOG(P)"
     
     End Select
     
@@ -2448,7 +2448,7 @@ frmERL.Show
 
     If btnOkPressed = False Then End
 
-Cells(Selection.Row, T_Description).Value = "End Reflection Loss - " & ERL_Mode
+SetDescription "End Reflection Loss - " & ERL_Mode
 ParameterUnmerge (Selection.Row)
 
     If T_BandType <> "oct" Then ErrorOctOnly
@@ -2515,7 +2515,7 @@ SetTraceStyle "Input", True
         
 SetDataValidation T_ParamStart + 1, "Lined,Unlined"
     
-Cells(Selection.Row, T_Description).Value = "Elbow Loss - " & elbowShape
+SetDescription "Elbow Loss - " & elbowShape
 
     'calc regenerated noise from element
     If CalcRegen = True Then
@@ -2560,7 +2560,7 @@ SetUnits "mm", T_ParamStart, 0
 InsertComment SilSeries & chr(10) & "Length: " & SilLength & "mm" & _
     chr(10) & "Free Area: " & CStr(SilFA) & "%", T_ParamStart, True
 
-Cells(Selection.Row, T_Description).Value = "Silencer: " & SilencerModel
+SetDescription "Silencer: " & SilencerModel
 
 SetTraceStyle "Silencer"
 
@@ -2589,7 +2589,7 @@ frmLouvres.Show
     If Range(T_FreqStartRng).Value <> 31.5 Then ErrorFrequencyBand
 
 'description
-Cells(Selection.Row, T_Description).Value = "Acoustic Louvres: " & LouvreModel
+SetDescription "Acoustic Louvres: " & LouvreModel
 
 If T_BandType <> "oct" Then ErrorOctOnly
 
@@ -2642,7 +2642,7 @@ If btnOkPressed = False Then End
 
 ExtendFunction
 
-Cells(Selection.Row, T_Description).Value = "Plenum loss"
+SetDescription "Plenum loss"
 
 End Sub
 
@@ -2672,12 +2672,12 @@ SetUnits "mm", T_ParamStart + 1, 1
 SetTraceStyle "Input", True
 
 Cells(Selection.Row, T_LossGainStart).Value = "=DuctBreakOut_NEBB(" & _
-    T_FreqStartRng & "," & ductW & "," & ductH & ",$N" & Selection.Row & "," & _
-    MaterialDensity & ",$O" & Selection.Row & ")"
+    T_FreqStartRng & "," & ductW & "," & ductH & "," & T_ParamRng(0) & "," & _
+    MaterialDensity & "," & T_ParamRng(1) & ")"
     
 ExtendFunction
     
-Cells(Selection.Row, T_Description).Value = "Duct breakout"
+SetDescription "Duct breakout"
 
 End Sub
 
@@ -2707,12 +2707,12 @@ SetUnits "mm", T_ParamStart + 1, 1
 SetTraceStyle "Input", True
 
 Cells(Selection.Row, T_LossGainStart).Value = "=DuctBreakIn_NEBB(" & _
-    T_FreqStartRng & "," & ductW & "," & ductH & ",$N" & Selection.Row & "," & _
-    MaterialDensity & ",$O" & Selection.Row & ")"
+    T_FreqStartRng & "," & ductW & "," & ductH & "," & T_ParamRng(0) & "," & _
+    MaterialDensity & "," & T_ParamRng(1) & ")"
 
 ExtendFunction
 
-Cells(Selection.Row, T_Description).Value = "Duct break-in"
+SetDescription "Duct break-in"
 
 End Sub
 
@@ -2732,7 +2732,7 @@ Sub PutDuctDirectivity()
 Cells(Selection.Row, T_LossGainStart).Value = "=DuctDirectivity_PGD(" & _
     T_FreqStartRng & "," & T_ParamRng(0) & "," & T_ParamRng(1) & ")"
     
-Cells(Selection.Row, T_Description).Value = "Duct directivity"
+SetDescription "Duct directivity"
 ExtendFunction
 
 SetTraceStyle "Input", True
@@ -2829,7 +2829,7 @@ SetUnits "mps", T_ParamStart + 1
     .ShowError = True
     End With
 
-Cells(Selection.Row, T_Description).Value = "Regen. noise - " & regenNoiseElement
+SetDescription "Regen. noise - " & regenNoiseElement
 
 End Sub
 
@@ -2860,8 +2860,7 @@ frmSilencerRegen.Show
 If btnOkPressed = False Then End
 
 'description cell
-Cells(Selection.Row, T_Description).Value = _
-    "Regen. noise - Attenuator"
+SetDescription "Regen. noise - Attenuator"
     
 'parameter columns
 ParameterUnmerge (Selection.Row)
@@ -2908,7 +2907,7 @@ frmDamperRegen.Show
     If btnOkPressed = False Then End
 
 'description
-Cells(Selection.Row, T_Description).Value = "Regen. noise - Damper"
+SetDescription "Regen. noise - Damper"
 
 'parameter columns
 ParameterMerge (Selection.Row)
@@ -2951,7 +2950,7 @@ frmDamperRegen.Show
     If btnOkPressed = False Then End
 
 'description
-Cells(Selection.Row, T_Description).Value = "Regen. noise - Elbow/Bend"
+SetDescription "Regen. noise - Elbow/Bend"
 
 'parameter columns
 ParameterMerge (Selection.Row)

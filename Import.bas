@@ -95,7 +95,7 @@ numFiles = UBound(File)
     FanType = Cells(7, 2).Value
     Range("B33:B40").Copy
     Workbooks(WorkbookName).Activate
-    Cells(WriteRw, T_Description) = FanType & " - Inlet"
+    SetDescription FanType & " - Inlet", WriteRw
     Cells(WriteRw, PasteCol).PasteSpecial Paste:=xlValues, Transpose:=True
     CreateSparkline Selection.Row, 0
     WriteRw = WriteRw + 1
@@ -104,7 +104,7 @@ numFiles = UBound(File)
     Workbooks(RawBookName).Activate
     Range("B42:B49").Copy
     Workbooks(WorkbookName).Activate
-    Cells(WriteRw, T_Description) = FanType & " - Outlet"
+    SetDescription FanType & " - Outlet", WriteRw
     Cells(WriteRw, PasteCol).PasteSpecial Paste:=xlValues, Transpose:=True
     CreateSparkline Selection.Row, 0
     
@@ -214,7 +214,7 @@ Dim ClipData As String
             Cells(Selection.Row, PasteCol).Value = splitLine(UBound(splitLine)) 'last element of line
             PasteCol = PasteCol + 1
             ElseIf i = 22 Then 'NRC value
-            Cells(Selection.Row, T_Description).Value = "Import from ZORBA - NRC " & splitLine(UBound(splitLine))
+            SetDescription "Import from ZORBA - NRC " & splitLine(UBound(splitLine))
             Else
             'do nothing
             End If

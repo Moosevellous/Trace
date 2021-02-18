@@ -47,22 +47,22 @@ End Sub
 
 
 
-Private Sub frameSearchProduct_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+Private Sub frameSearchProduct_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
 'Debug.Print "x"; X; "y"; Y
 'check if is within one of the stars, then fill
-    If X >= Me.imgStar1.Left And X <= Me.imgStar1.Left + Me.imgStar1.Width And _
-    Y >= Me.imgStar1.Top And X <= Me.imgStar1.Top + Me.imgStar1.Height Then
+    If x >= Me.imgStar1.Left And x <= Me.imgStar1.Left + Me.imgStar1.Width And _
+    y >= Me.imgStar1.Top And x <= Me.imgStar1.Top + Me.imgStar1.Height Then
     UpdatePicture ("img/star_filled.gif")
     Else
     UpdatePicture ("img/star_hollow.gif")
     End If
 End Sub
 
-Private Sub imgStar1_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+Private Sub imgStar1_MouseDown(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
 'click event
 End Sub
 
-Private Sub imgStar1_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+Private Sub imgStar1_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
 'Debug.Print "x"; X; "y"; Y
 
 End Sub

@@ -154,7 +154,7 @@ ExtendFunction
 'format parameter cells
 SetUnits "mps", T_ParamStart
 SetUnits "Pa", T_ParamStart + 1, 0
-Cells(Selection.Row, T_Description).Value = "SWL Estimate - Fan Simple"
+SetDescription "SWL Estimate - Fan Simple"
 SetTraceStyle "Input", True
 
 End Sub
@@ -191,7 +191,7 @@ Cells(Selection.Row, T_ParamStart).Value = PumpPower
 
 'format parameter cells
 SetUnits "kW", T_ParamStart
-Cells(Selection.Row, T_Description).Value = DescriptionString 'set by form code
+SetDescription DescriptionString 'set by form code
 SetTraceStyle "Input", True
 
 'move down one row
@@ -249,7 +249,7 @@ ExtendFunction
     Next i
 
 SetUnits "kW", T_ParamStart
-Cells(Selection.Row, T_Description).Value = "Cooling Tower SWL Estimate - " & _
+SetDescription "Cooling Tower SWL Estimate - " & _
     CT_Type & " Type"
     
 SetTraceStyle "Input", True
@@ -269,7 +269,7 @@ SelectNextRow
     If CT_Dir_checked = True Then
     Range(Cells(Selection.Row, T_LossGainStart), _
         Cells(Selection.Row, T_LossGainEnd)) = CT_Directivity
-    Cells(Selection.Row, T_Description).Value = CT_Directivity(9)
+    SetDescription CStr(CT_Directivity(9))
     'move down one row
     SelectNextRow
     End If
@@ -300,7 +300,7 @@ If T_BandType <> "oct" Then ErrorOctOnly
     Cells(Selection.Row, T_LossGainStart + i).Formula = CompressorSPL(i)
     Next i
 
-Cells(Selection.Row, T_Description).Value = "Compressor (small) - SPL Estimate"
+SetDescription "Compressor (small) - SPL Estimate"
 
 'move down one row
 SelectNextRow
@@ -362,8 +362,7 @@ ExtendFunction
     
 SetTraceStyle "Input", True
     
-Cells(Selection.Row, T_Description).Value = "Electric Motor SPL Estimate - " & _
-    MotorType & " Type"
+SetDescription "Electric Motor SPL Estimate - " & MotorType & " Type"
 
 'move down one row
 SelectNextRow
@@ -420,14 +419,12 @@ ExtendFunction
     
 SetTraceStyle "Input", True
 
-Cells(Selection.Row, T_Description).Value = "SWL Estimate - Gas Turbine - " _
-    & GasTurbineType
-Cells(Selection.Row + 1, T_Description).Value = "Turbine Enclosure - " _
-    & EnclosureDescription
+SetDescription "SWL Estimate - Gas Turbine - " & GasTurbineType
+SetDescription ("Turbine Enclosure - " & EnclosureDescription), Selection.Row + 1
 'move down and sum
 Cells(Selection.Row + 2, T_Description).Select
 AutoSum
-Cells(Selection.Row, T_Description).Value = "SWL Estimate - Gas Turbine"
+SetDescription "SWL Estimate - Gas Turbine"
 End Sub
 
 '==============================================================================
@@ -472,13 +469,12 @@ ExtendFunction
     
 SetTraceStyle "Input", True
 
-Cells(Selection.Row, T_Description).Value = "SWL Estimate - Steam Turbine"
-Cells(Selection.Row + 1, T_Description).Value = "Turbine Enclosure - " _
-    & EnclosureDescription
+SetDescription "SWL Estimate - Steam Turbine"
+SetDescription ("Turbine Enclosure - " & EnclosureDescription), Selection.Row + 1
 'move down and sum
 Cells(Selection.Row + 2, 2).Select
 AutoSum
-Cells(Selection.Row, T_Description).Value = "SWL Estimate - Steam Turbine"
+SetDescription "SWL Estimate - Steam Turbine"
 End Sub
 
 
@@ -532,7 +528,6 @@ ExtendFunction
     
 SetTraceStyle "Input", True
 
-Cells(Selection.Row, T_Description).Value = "SWL Estimate - Boiler - " _
-    & BoilerType
+SetDescription "SWL Estimate - Boiler - " & BoilerType
 
 End Sub

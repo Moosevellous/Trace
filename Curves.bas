@@ -10,13 +10,13 @@ Attribute VB_Name = "Curves"
 ' Args:     fstr (frequency band)
 ' Comments: (1) From 10Hz to 20kHz
 '==============================================================================
-Function AWeightCorrections(fStr As String)
+Function AWeightCorrections(fstr As String)
 Dim dBAAdjustment As Variant
 Dim freqTitles As Variant
 Dim freqTitlesAlt As Variant
 Dim ArrayIndex As Integer
 
-freq = freqStr2Num(fStr)
+freq = freqStr2Num(fstr)
 
 ArrayIndex = 999 'for error catching
 
@@ -48,13 +48,13 @@ End Function
 ' Args:     fstr (frequency band)
 ' Comments: (1) From 10Hz to 20kHz
 '==============================================================================
-Function CWeightCorrections(fStr As String)
+Function CWeightCorrections(fstr As String)
 Dim dBCAdjustment As Variant
 Dim freqTitles As Variant
 Dim freqTitlesAlt As Variant
 Dim ArrayIndex As Integer
 
-freq = freqStr2Num(fStr)
+freq = freqStr2Num(fstr)
 
 ArrayIndex = 999 'for error catching
 
@@ -90,12 +90,12 @@ End Function
 ' Comments: (1) Based on AS1469 - Acoustics - Methods for the determination of
 '           noise rating numbers
 '==============================================================================
-Function NRcurve(CurveNo As Integer, fStr As String)
+Function NRcurve(CurveNo As Integer, fstr As String)
 Dim A_f As Variant
 Dim B_f As Variant
 Dim Ifreq As Integer
 Dim freq As Double
-freq = freqStr2Num(fStr)
+freq = freqStr2Num(fstr)
 
     If freq < 31 Or freq > 8000 Then
     NRcurve = "-"
@@ -106,7 +106,7 @@ freq = freqStr2Num(fStr)
 A_f = Array(55.4, 35.5, 22, 12, 4.8, 0, -3.5, -6.1, -8)
 B_f = Array(0.681, 0.79, 0.87, 0.93, 0.974, 1, 1.015, 1.025, 1.03)
 '''''''''''''''''''''''''''''''''
-Ifreq = GetArrayIndex_OCT(fStr, 1)
+Ifreq = GetArrayIndex_OCT(fstr, 1)
 
 NRcurve = A_f(Ifreq) + (B_f(Ifreq) * CurveNo)
 End Function
@@ -119,14 +119,14 @@ End Function
 '           index number of the curve
 ' Comments: (1) Based on someone else's code I think?
 '==============================================================================
-Function PNCcurve(CurveNo As Integer, fStr As String)
+Function PNCcurve(CurveNo As Integer, fstr As String)
 
 Dim DataTable(0 To 10, 0 To 8) As Double
 Dim IStart As Integer
 Dim Ifreq As Integer
 Dim freq As Double
 
-freq = freqStr2Num(fStr) 'for checking only
+freq = freqStr2Num(fstr) 'for checking only
 
     If freq < 31 Or freq > 8000 Then
     PNCcurve = "-"
@@ -162,7 +162,7 @@ PNC65 = Array(79, 76, 73, 70, 67, 64, 61, 58, 58)
     Next i
 
 'get array index, from 31.5Hz band
-Ifreq = GetArrayIndex_OCT(fStr, 1)
+Ifreq = GetArrayIndex_OCT(fstr, 1)
     
     'select row of Data
     Select Case CurveNo
@@ -203,7 +203,7 @@ End Function
 ' Comments: (1) Based on AS1469 - Acoustics - Methods for the determination of
 '           noise rating numbers
 '==============================================================================
-Function NR_rate(DataTable As Variant, Optional fStr As String)
+Function NR_rate(DataTable As Variant, Optional fstr As String)
 Dim A_f As Variant
 Dim B_f As Variant
 Dim NR_f, NR As Double
@@ -223,10 +223,10 @@ A_f = Array(55.4, 35.5, 22, 12, 4.8, 0, -3.5, -6.1, -8)
 B_f = Array(0.681, 0.79, 0.87, 0.93, 0.974, 1, 1.015, 1.025, 1.03)
 
     'if no frequency input, assume data starts at 31.5Hz
-    If fStr = "" Then fStr = "31.5"
+    If fstr = "" Then fstr = "31.5"
     
 'get array index, from 31.5Hz band
-IStart = GetArrayIndex_OCT(fStr, 1)
+IStart = GetArrayIndex_OCT(fstr, 1)
     
     'Debug.Print DataTable.Columns.Count
     For Col = 1 To DataTable.Columns.Count
@@ -255,11 +255,11 @@ End Function
 '           as a string
 ' Comments: (1) Based on ANSI S12.2 2008
 '==============================================================================
-Function NCcurve(CurveNo As Integer, fStr As String)
+Function NCcurve(CurveNo As Integer, fstr As String)
 Dim Ifreq As Integer
 Dim freq As Integer
 
-freq = freqStr2Num(fStr)
+freq = freqStr2Num(fstr)
 
     If freq < 16 Or freq > 8000 Then 'catch frequencies out of range
     NCcurve = "-"
@@ -284,7 +284,7 @@ NC20 = Array(79, 63, 50, 40, 33, 26, 22, 20, 17, 16)
 NC15 = Array(78, 61, 47, 36, 28, 22, 18, 14, 12, 11)
 
 'get array index, from 16Hz band
-Ifreq = GetArrayIndex_OCT(fStr, 2)
+Ifreq = GetArrayIndex_OCT(fstr, 2)
     
     If CurveNo Mod 5 = 0 Then 'simply return the defined value
         Select Case CurveNo
@@ -315,7 +315,7 @@ Ifreq = GetArrayIndex_OCT(fStr, 2)
         End Select
     NCcurve = ChosenCurve(Ifreq)
     Else 'interpolate between the curves
-    NCcurve = InterpolateNCcurve(CurveNo, fStr)
+    NCcurve = InterpolateNCcurve(CurveNo, fstr)
     End If
     
 End Function
@@ -328,7 +328,7 @@ End Function
 '           fstr, the frequency band as a string
 ' Comments: (1) Based on ANSI S12.2 2008
 '==============================================================================
-Function InterpolateNCcurve(CurveNo As Integer, fStr As String)
+Function InterpolateNCcurve(CurveNo As Integer, fstr As String)
 
 Dim freq As Integer
 Dim Remainder As Integer
@@ -337,15 +337,15 @@ Dim LowerCurveValue As Single
 Dim UpperCurve As Integer
 Dim LowerCurve As Integer
 
-freq = freqStr2Num(fStr)
+freq = freqStr2Num(fstr)
 
 Remainder = CurveNo Mod 5
 'x values
 UpperCurve = CurveNo + (5 - Remainder)
 LowerCurve = CurveNo - Remainder
 'y values
-UpperCurveValue = NCcurve(UpperCurve, fStr)
-LowerCurveValue = NCcurve(LowerCurve, fStr)
+UpperCurveValue = NCcurve(UpperCurve, fstr)
+LowerCurveValue = NCcurve(LowerCurve, fstr)
 
 'interpolate linearly
 m = (UpperCurveValue - LowerCurveValue) / (UpperCurve - LowerCurve)
@@ -361,7 +361,7 @@ End Function
 '           Optional fstr, the starting frequency band
 ' Comments: (1) Calls NCcurve for values
 '==============================================================================
-Function NCrate(DataTable As Variant, Optional fStr As String)
+Function NCrate(DataTable As Variant, Optional fstr As String)
 
 Dim NC As Double
 Dim freq As Double
@@ -377,14 +377,14 @@ Dim NCtemp As Integer
 'bands
 octaveBands = Array(16, 31.5, 63, 125, 250, 500, 1000, 2000, 4000, 8000)
 
-    If fStr = "" Then
+    If fstr = "" Then
     freq = 16 'if no frequency input, assume data starts at 16Hz octave band
     Else
-    freq = freqStr2Num(fStr)
+    freq = freqStr2Num(fstr)
     End If
 
 'get array index, from 16Hz band
-IStart = GetArrayIndex_OCT(fStr, 2)
+IStart = GetArrayIndex_OCT(fstr, 2)
 
     NCtemp = 15
     found = False
@@ -433,7 +433,7 @@ End Function
 '           Buildings and of Building Elements  - Part 1: Airborne Sound
 '           Insulation
 '==============================================================================
-Function RwCurve(CurveNo As Variant, fStr As String, Optional Mode As String)
+Function RwCurve(CurveNo As Variant, fstr As String, Optional Mode As String)
 Dim freq As Double
 '''''''''''''''''''''''''''''''
 'REFERENCE CURVES FROM ISO717.1
@@ -443,7 +443,7 @@ Rw_Oct = Array(36, 45, 52, 55, 56) 'From 125 Hz to 2000 Hz, Rw52 curve
 Rw_ThOct = Array(33, 36, 39, 42, 45, 48, 51, 52, 53, 54, 55, 56, 56, 56, 56, 56) 'From 100 Hz to 3150 Hz, Rw52 curve
 ''''''''''''''''''''''''''''''''
 
-freq = freqStr2Num(fStr)
+freq = freqStr2Num(fstr)
 
     If freq < 100 Or freq > 3150 Then 'catch out of range errors
     RwCurve = "-"
@@ -454,7 +454,7 @@ freq = freqStr2Num(fStr)
     
     If Mode = "oct" Or Mode = "OCT" Or Mode = "Oct" Then
     'get array index, from 31.5Hz band
-    IStart = GetArrayIndex_OCT(fStr, -1)
+    IStart = GetArrayIndex_OCT(fstr, -1)
     Else 'one-third octave bands
     'get array index, from 100Hz band
     IStart = GetArrayIndex_TO(freq, -3)
@@ -505,23 +505,23 @@ CurveIndex = Rw_ThOct(7) '500 Hz band
 
     If Mode = "oct" Then
         While SumDeficiencies <= 10
-            For Y = LBound(Rw_Oct) To UBound(Rw_Oct)
-            Rw_Oct(Y) = Rw_Oct(Y) + 1
-            Next Y
+            For y = LBound(Rw_Oct) To UBound(Rw_Oct)
+            Rw_Oct(y) = Rw_Oct(y) + 1
+            Next y
             
             CurveIndex = CurveIndex + 1
         
         SumDeficiencies = 0 'reset at each evaluation
             
-            For X = LBound(Rw_Oct) To UBound(Rw_Oct)
-            CheckDef = Rw_Oct(X) - DataTable(X + 1) ' VBA and it's stupid 1 indexing
+            For x = LBound(Rw_Oct) To UBound(Rw_Oct)
+            CheckDef = Rw_Oct(x) - DataTable(x + 1) ' VBA and it's stupid 1 indexing
                 If CheckDef > 0 Then 'only positive values are deficient
-                Deficiencies(X) = CheckDef
+                Deficiencies(x) = CheckDef
                 Else
-                Deficiencies(X) = 0
+                Deficiencies(x) = 0
                 End If
-            SumDeficiencies = SumDeficiencies + Deficiencies(X)
-            Next X
+            SumDeficiencies = SumDeficiencies + Deficiencies(x)
+            Next x
     '    Debug.Print "SUM DEFICIENCIES= " & SumDeficiencies
     '    Debug.Print "Rw = " & CurveIndex
         Wend
@@ -529,23 +529,23 @@ CurveIndex = Rw_ThOct(7) '500 Hz band
         While SumDeficiencies <= 32#
         
             'index Rw curves
-            For Y = LBound(Rw_ThOct) To UBound(Rw_ThOct)
-            Rw_ThOct(Y) = Rw_ThOct(Y) + 1
-            Next Y
+            For y = LBound(Rw_ThOct) To UBound(Rw_ThOct)
+            Rw_ThOct(y) = Rw_ThOct(y) + 1
+            Next y
             
             CurveIndex = CurveIndex + 1
         
         SumDeficiencies = 0 'reset at each evaluation
     
-            For X = LBound(Rw_ThOct) To UBound(Rw_ThOct)
-            CheckDef = Rw_ThOct(X) - DataTable(X + 1) ' VBA and it's stupid 1 indexing
+            For x = LBound(Rw_ThOct) To UBound(Rw_ThOct)
+            CheckDef = Rw_ThOct(x) - DataTable(x + 1) ' VBA and it's stupid 1 indexing
                 If CheckDef > 0 Then 'only positive values are deficient
-                Deficiencies(X) = CheckDef
+                Deficiencies(x) = CheckDef
                 Else
-                Deficiencies(X) = 0
+                Deficiencies(x) = 0
                 End If
-            SumDeficiencies = SumDeficiencies + Deficiencies(X)
-            Next X
+            SumDeficiencies = SumDeficiencies + Deficiencies(x)
+            Next x
 '        Debug.Print "Rw = " & CurveIndex
 '        Debug.Print "SUM DEFICIENCIES= " & SumDeficiencies
         Wend
@@ -614,24 +614,24 @@ CurveIndex = STC_ThOct(6) '500 Hz band
     While SumDeficiencies <= 32 And MaxDeficiency <= 8
 
     'index STC curves
-        For Y = LBound(STC_ThOct) To UBound(STC_ThOct)
-        STC_ThOct(Y) = STC_ThOct(Y) + 1
-        Next Y
+        For y = LBound(STC_ThOct) To UBound(STC_ThOct)
+        STC_ThOct(y) = STC_ThOct(y) + 1
+        Next y
 
     CurveIndex = CurveIndex + 1
 
     SumDeficiencies = 0 'reset at each evaluation
     MaxDeficiency = 0
 
-        For X = LBound(STC_ThOct) To UBound(STC_ThOct)
-        CheckDef = STC_ThOct(X) - Round(DataTable(X + 1), 0)
+        For x = LBound(STC_ThOct) To UBound(STC_ThOct)
+        CheckDef = STC_ThOct(x) - Round(DataTable(x + 1), 0)
             If CheckDef > 0 Then 'only positive values are deficient
-            Deficiencies(X) = CheckDef
+            Deficiencies(x) = CheckDef
             Else
-            Deficiencies(X) = 0
+            Deficiencies(x) = 0
             End If
-        SumDeficiencies = SumDeficiencies + Deficiencies(X)
-        Next X
+        SumDeficiencies = SumDeficiencies + Deficiencies(x)
+        Next x
     MaxDeficiency = Application.WorksheetFunction.Max(Deficiencies)
 '        Debug.Print "STC = " & CurveIndex
 '        Debug.Print "SUM DEFICIENCIES= " & SumDeficiencies
@@ -650,7 +650,7 @@ End Function
 ' Args:     CurveNo (index at 500Hz band), fstr(frequency band)
 ' Comments: (1) Based on ASTM E413-16 Classification for Rating Sound Insulation
 '==============================================================================
-Function STCCurve(CurveNo As Variant, fStr As String) 'Optional Mode As String)
+Function STCCurve(CurveNo As Variant, fstr As String) 'Optional Mode As String)
 Dim freq As Double
 Dim IStart As Integer
 
@@ -659,7 +659,7 @@ Dim IStart As Integer
 'band           125  160  200  250  315 400 500 600 1k 1.2k 1.6k 2k 2.5k 3.15k 4k
 STC_ThOct = Array(-16, -13, -10, -7, -4, -1, 0, 1, 2, 3, 4, 4, 4, 4, 4, 4) 'STC0
 
-freq = freqStr2Num(fStr)
+freq = freqStr2Num(fstr)
 
     If freq < 125 Or freq > 4000 Then 'catch out of range errors
     STCCurve = "-"
@@ -691,7 +691,7 @@ End Function
 '           in buildings and of building elements - Part 2:  Impact sound
 '           insulation
 '==============================================================================
-Function LnwCurve(CurveNo As Variant, fStr As String, Optional Mode As String)
+Function LnwCurve(CurveNo As Variant, fstr As String, Optional Mode As String)
 Dim freq As Double
 
 'REFERENCE CURVE Lnw60
@@ -700,7 +700,7 @@ Lnw_Oct = Array(67, 67, 65, 62, 49)
 'bands          100  125 160  200 250 315 400 500 630 800 1k 1.2k 1.6k 2k 2.5k 3.15k
 Lnw_ThOct = Array(62, 62, 62, 62, 62, 62, 61, 60, 59, 58, 57, 54, 51, 48, 45, 42)
 
-freq = freqStr2Num(fStr)
+freq = freqStr2Num(fstr)
 
     If freq < 100 Or freq > 3150 Then 'catch out of range errors
     LnwCurve = "-"
@@ -711,7 +711,7 @@ IStart = 999 'for error checking
 
     If Mode = "oct" Or Mode = "OCT" Or Mode = "Oct" Then
     'get array index, from 125Hz band
-    IStart = GetArrayIndex_OCT(fStr, -1)
+    IStart = GetArrayIndex_OCT(fstr, -1)
     Else 'one-third octave bands
     'get array index, from 100Hz band
     IStart = GetArrayIndex_TO(freq, -3)
@@ -746,7 +746,7 @@ Function LnwRate(DataTable As Variant, Optional Mode As String)
 Dim CurveIndex As Integer
 Dim SumDeficiencies As Double
 Dim Deficiencies(16) As Double
-Dim X, Y As Integer
+Dim x, y As Integer
 
 'REFERENCE CURVE Lnw88
 'bands          125 250 500 1k  2k
@@ -759,23 +759,23 @@ SumDeficiencies = 0
     If Mode = "oct" Then
         While SumDeficiencies <= 10
             'move curve down by one
-            For Y = LBound(Lnw_Oct) To UBound(Lnw_Oct)
-            Lnw_Oct(Y) = Lnw_Oct(Y) - 1
-            Next Y
+            For y = LBound(Lnw_Oct) To UBound(Lnw_Oct)
+            Lnw_Oct(y) = Lnw_Oct(y) - 1
+            Next y
             
             CurveIndex = CurveIndex - 1
         
         SumDeficiencies = 0 'reset at each evaluation
             
-            For X = LBound(Lnw_Oct) To UBound(Lnw_Oct)
-            CheckDef = DataTable(X + 1) - Lnw_ThOct(X) ' VBA and it's stupid 1 indexing
+            For x = LBound(Lnw_Oct) To UBound(Lnw_Oct)
+            CheckDef = DataTable(x + 1) - Lnw_ThOct(x) ' VBA and it's stupid 1 indexing
                 If CheckDef > 0 Then 'only positive values are deficient
-                Deficiencies(X) = CheckDef
+                Deficiencies(x) = CheckDef
                 Else
-                Deficiencies(X) = 0
+                Deficiencies(x) = 0
                 End If
-            SumDeficiencies = SumDeficiencies + Deficiencies(X)
-            Next X
+            SumDeficiencies = SumDeficiencies + Deficiencies(x)
+            Next x
     '    Debug.Print "SUM DEFICIENCIES= " & SumDeficiencies
     '    Debug.Print "Rw = " & CurveIndex
         Wend
@@ -785,25 +785,25 @@ SumDeficiencies = 0
         While SumDeficiencies <= 32
         
             'index Lnw Curve
-            For Y = LBound(Lnw_ThOct) To UBound(Lnw_ThOct)
-            Lnw_ThOct(Y) = Lnw_ThOct(Y) - 1
-            Next Y
+            For y = LBound(Lnw_ThOct) To UBound(Lnw_ThOct)
+            Lnw_ThOct(y) = Lnw_ThOct(y) - 1
+            Next y
             
         CurveIndex = Lnw_ThOct(7) '500 Hz band (zero index)
         'Debug.Print "Lnw: " & CurveIndex
         
         SumDeficiencies = 0 'reset at each evaluation
     
-            For X = LBound(Lnw_ThOct) To UBound(Lnw_ThOct)
-            CheckDef = DataTable(X + 1) - Lnw_ThOct(X) 'VBA and it's stupid 1 indexing
+            For x = LBound(Lnw_ThOct) To UBound(Lnw_ThOct)
+            CheckDef = DataTable(x + 1) - Lnw_ThOct(x) 'VBA and it's stupid 1 indexing
                 If CheckDef > 0 Then 'only positive values are 'deficient' i.e. too loud
                 'Debug.Print CheckDef
-                Deficiencies(X) = CheckDef
+                Deficiencies(x) = CheckDef
                 Else
-                Deficiencies(X) = 0
+                Deficiencies(x) = 0
                 End If
-            SumDeficiencies = SumDeficiencies + Deficiencies(X)
-            Next X
+            SumDeficiencies = SumDeficiencies + Deficiencies(x)
+            Next x
         'Debug.Print "Deficiencies: " & SumDeficiencies
         Wend
         
@@ -876,25 +876,25 @@ MaxExceedance = 99999
     While SumExceedances > 32 Or MaxExceedance > 8
     
         'index Lnw Curve, one up from previous
-        For Y = LBound(IIC_ThOct) To UBound(IIC_ThOct)
-        IIC_ThOct(Y) = IIC_ThOct(Y) + 1
-        Next Y
+        For y = LBound(IIC_ThOct) To UBound(IIC_ThOct)
+        IIC_ThOct(y) = IIC_ThOct(y) + 1
+        Next y
         
     CurveIndex = IIC_ThOct(7) '500 Hz band (zero index)
     
     SumExceedances = 0 'reset at each evaluation
     'MaxExceedance = 0
-        For X = LBound(IIC_ThOct) To UBound(IIC_ThOct)
-        CheckDef = Round(DataTable(X + 1), 0) - IIC_ThOct(X) 'round values
+        For x = LBound(IIC_ThOct) To UBound(IIC_ThOct)
+        CheckDef = Round(DataTable(x + 1), 0) - IIC_ThOct(x) 'round values
             If CheckDef > 0 Then 'only positive values are 'deficient' / too loud
             'Debug.Print CheckDef
-            Exceedances(X) = CheckDef
+            Exceedances(x) = CheckDef
             Else
-            Exceedances(X) = 0
+            Exceedances(x) = 0
             End If
-        SumExceedances = SumExceedances + Exceedances(X)
+        SumExceedances = SumExceedances + Exceedances(x)
         MaxExceedance = Application.WorksheetFunction.Max(Exceedances)
-        Next X
+        Next x
     'Debug.Print "Exceedances: " & SumExceedances; "Max: " & MaxExceedance
     Wend
 IICRate = 110 - CurveIndex
@@ -907,7 +907,7 @@ End Function
 ' Args:     CurveNo, fstr
 ' Comments: (1) rough as guts!
 '==============================================================================
-Function IICCurve(CurveNo As Variant, fStr As String) 'Optional Mode As String)
+Function IICCurve(CurveNo As Variant, fstr As String) 'Optional Mode As String)
 Dim freq As Double
 
 'Reference curve
@@ -915,7 +915,7 @@ Dim freq As Double
 IIC_ThOct = Array(2, 2, 2, 2, 2, 2, 1, 0, -1, -2, -3, -6, -9, -12, -15, -18) 'IIC0
 
 
-freq = freqStr2Num(fStr)
+freq = freqStr2Num(fstr)
 
     If freq < 100 Or freq > 3150 Then 'catch out of range errors
     IICCurve = "-"
@@ -942,7 +942,7 @@ End Function
 ' Args:     CurveNo, fstr
 ' Comments: (1) rough as guts!
 '==============================================================================
-Function RNCcurve(CurveNo As Integer, fStr As String) '<------TODO check this function
+Function RNCcurve(CurveNo As Integer, fstr As String) '<------TODO check this function
 Dim OctaveBandIndex As Integer
 'Table 5 of ANSI S12.2
 'coefficients for 16,31.5,63,125,250,500,1000,2000,4000,8000 bands
@@ -953,7 +953,7 @@ K1alt = Array(31, 26, 21, 16, 11, 6, 2, -2, -6, -10)
 K2 = Array(3, 2, 1.5, 1.2, 1, 1, 1, 1, 1, 1)
 K2alt = Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
 
-freq = freqStr2Num(fStr)
+freq = freqStr2Num(fstr)
 
     For i = LBound(bands) To UBound(bands)
         If freq = bands(i) Then
@@ -1015,6 +1015,35 @@ RNCrate = 0
 RNCrate = Round(RNCrate, 0)
 End Function
 
+
+'==============================================================================
+' Name:     RCcurve
+' Author:   PS
+' Desc:     Returns the value of the RC (MarkII) curve at frequency band fstr
+' Args:     CurveNo, fstr
+' Comments: (1) First cut
+'==============================================================================
+Function RCcurve(CurveNo As Integer, fstr As String)
+Dim Delta As Integer
+Dim i As Integer
+
+'Reference curve
+'bands  16 31.5 63 125 250 500 1k 2k 4k 8k
+BaseCurve = Array(75, 75, 70, 65, 60, 55, 50, 45, 40, 35) 'element 6 is 1k
+
+Delta = CurveNo - 50
+
+'get array index, from 16Hz band
+i = GetArrayIndex_OCT(fstr, 2)
+
+    If CurveNo < 30 And i < 1 Then 'flatline below 31Hz
+    RCcurve = 55
+    Else
+    RCcurve = BaseCurve(i) + Delta
+    End If
+
+End Function
+
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -1032,7 +1061,7 @@ End Function
 '           (2) now does mech!
 '==============================================================================
 Sub PutNR()
-Cells(Selection.Row, T_Description).Value = "NR Curve"
+SetDescription "NR Curve"
 
     If T_BandType <> "oct" Then ErrorOctOnly
 
@@ -1062,7 +1091,7 @@ End Sub
 '==============================================================================
 Sub PutNC()
 
-Cells(Selection.Row, T_Description).Value = "NC Curve"
+SetDescription "NC Curve"
 
 If T_BandType <> "oct" Then ErrorOctOnly
 'rate function
@@ -1089,12 +1118,13 @@ End Sub
 '==============================================================================
 Sub PutPNC()
 
-Cells(Selection.Row, T_LossGainStart).Value = "=PNCcurve($N" & Selection.Row & "," & Cells(6, 5).Address(True, False) & ")"
+Cells(Selection.Row, T_LossGainStart).Value = "=PNCcurve($N" & Selection.Row & _
+    "," & Cells(T_FreqRow, 5).Address(True, False) & ")"
 ParameterMerge (Selection.Row)
 Cells(Selection.Row, T_ParamStart) = 40 '<default to 40
 Cells(Selection.Row, T_ParamStart).NumberFormat = """PNC = ""0"
 
-Cells(Selection.Row, T_Description).Value = "PNC Curve"
+SetDescription "PNC Curve"
 
 ExtendFunction
 
@@ -1116,7 +1146,7 @@ Sub PutRw()
 Dim StartBandCol As Integer
 Dim EndBandCol As Integer
 
-Cells(Selection.Row, T_Description).Value = "Rw Curve"
+SetDescription "Rw Curve"
     ''''''''''''''''''''''''''''''''''''''''''''''''''
     If T_BandType = "oct" Then
     'Rw Curve
@@ -1176,7 +1206,7 @@ Dim EndBandCol As Integer
     ElseIf T_BandType = "to" Then
     StartBandCol = FindFrequencyBand("125")
     EndBandCol = FindFrequencyBand("4k")
-    Cells(Selection.Row, T_Description).Value = "STC Curve"
+    SetDescription "STC Curve"
     ParameterMerge (Selection.Row)
     'STC curve
     Cells(Selection.Row, T_LossGainStart).Value = "=STCCurve(" & T_ParamRng(0) _
@@ -1205,7 +1235,7 @@ Sub PutLnw()
 Dim StartBandCol As Integer
 Dim EndBandCol As Integer
 
-Cells(Selection.Row, T_Description).Value = "Lnw Curve"
+SetDescription "Lnw Curve"
 ParameterMerge (Selection.Row)
     
     If T_BandType = "oct" Then 'octave band mode
@@ -1262,7 +1292,7 @@ ApplyAsStatic = MsgBox("Insert as static values? " & chr(10) & _
 Cells(Selection.Row, T_LossGainStart).Value = "=AWeightCorrections(" & _
     T_FreqStartRng & ")"
 ExtendFunction
-Cells(Selection.Row, T_Description).Value = "A Weighting Curve"
+SetDescription "A Weighting Curve"
 
     If ApplyAsStatic = vbYes Then
     Range(Cells(Selection.Row, T_LossGainStart), _
@@ -1297,7 +1327,7 @@ ApplyAsStatic = MsgBox("Insert as static values? " & chr(10) & _
 Cells(Selection.Row, T_LossGainStart).Value = "=CWeightCorrections(" & _
     T_FreqStartRng & ")"
 ExtendFunction
-Cells(Selection.Row, T_Description).Value = "C Weighting Curve"
+SetDescription "C Weighting Curve"
 
     If ApplyAsStatic = vbYes Then
     Range(Cells(Selection.Row, T_LossGainStart), _

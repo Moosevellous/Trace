@@ -5,6 +5,7 @@ Attribute VB_Name = "RowOperations"
 Public UserSelectedAddress As String
 Public SumAverageMode As String
 Public LookupMultiRow As Boolean
+Public RegenDestinationRange As Boolean
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 'FUNCTIONS
@@ -519,19 +520,31 @@ Sub RowReference()
 Dim FirstRow As Integer
 Dim LastRow As Integer
 Dim SheetName As String
+Dim DestinationCol As Integer
+
+    If T_SheetType = "MECH" Then
+    frmRowReference.optRegenSWL.Enabled = True
+    Else
+    frmRowReference.optRegenSWL.Enabled = False
+    End If
 
 frmRowReference.Show
 
-    If btnOkPressed = False Then
-    End
+    'error catch
+    If btnOkPressed = False Then End
+    If UserSelectedAddress = "" Then End
+    
+SheetName = GetSheetName(UserSelectedAddress)
+FirstRow = GetFirstRow(UserSelectedAddress)
+LastRow = GetLastRow(UserSelectedAddress)
+
+    'set destination column
+    If RegenDestinationRange = True Then
+    DestinationCol = T_RegenStart
+    Else
+    DestinationCol = T_LossGainStart
     End If
 
-    If UserSelectedAddress = "" Then End 'error catch
-    
-    SheetName = GetSheetName(UserSelectedAddress)
-    FirstRow = GetFirstRow(UserSelectedAddress)
-    LastRow = GetLastRow(UserSelectedAddress)
-    
     'TODO: check for mismatched sheet types
     'something like:
 '    If Sheets(SheetName).Range("TYPECODE") <> T_SheetType Then
@@ -539,34 +552,33 @@ frmRowReference.Show
 '    End If
 
     If LookupMultiRow = False Then
-    Cells(Selection.Row, T_Description).Value = "=CONCAT(""Ref: ""," & _
-        SheetName & "$B$" & FirstRow & ")"
-    Cells(Selection.Row, T_LossGainStart).Value = "=" & _
+    SetDescription "=CONCAT(""Ref: ""," & SheetName & "$B$" & FirstRow & ")"
+    Cells(Selection.Row, DestinationCol).Value = "=" & _
         SheetName & "E$" & FirstRow
-    ExtendFunction
+    ExtendFunction (RegenDestinationRange)
     
     Else 'multimode = true
     SetDataValidation T_Description, "=" & SheetName & "$B$" & FirstRow & _
         ":$B$" & LastRow
         
     'select first entry by default
-    Cells(Selection.Row, T_Description).Value = Range(SheetName & "$B$" & FirstRow)
+    SetDescription Range(SheetName & "$B$" & FirstRow)
     
         'create index-match formula <--TODO: update this for Trace 3
         If T_SheetType = "OCT" Then
         'Debug.Print "=INDEX(" & SheetName & "$E$" & FirstRow & ":$M$" & LastRow & ",MATCH('" & ActiveSheet.Name & "'!$B$" & Selection.Row & _
         "," & SheetName & "$B$" & FirstRow & ":$B$" & LastRow & ",0),MATCH('" & ActiveSheet.Name & "'!" & T_FreqStartRng & "," & SheetName & "$" & T_FreqStartRng & ":$M$6,0))"
-        Cells(Selection.Row, T_LossGainStart).Value = "=INDEX(" & SheetName & "$E$" & FirstRow & ":$M$" & LastRow & ",MATCH('" & ActiveSheet.Name & "'!$B$" & Selection.Row & _
+        Cells(Selection.Row, DestinationCol).Value = "=INDEX(" & SheetName & "$E$" & FirstRow & ":$M$" & LastRow & ",MATCH('" & ActiveSheet.Name & "'!$B$" & Selection.Row & _
         "," & SheetName & "$B$" & FirstRow & ":$B" & LastRow & ",0),MATCH('" & ActiveSheet.Name & "'!" & T_FreqStartRng & "," & SheetName & "$" & T_FreqStartRng & ":$M$6,0))" '<----note that SheetName includes apostrophe character and ActiveSheet.Name does not.....trickyyyyy
         ExtendFunction
         
         ElseIf Left(T_SheetType, 2) = "TO" Then
-        Cells(Selection.Row, T_LossGainStart).Value = "=INDEX(" & SheetName & "$E$" & FirstRow & ":$Y$" & LastRow & ",MATCH('" & ActiveSheet.Name & "'!$B$" & Selection.Row & _
+        Cells(Selection.Row, DestinationCol).Value = "=INDEX(" & SheetName & "$E$" & FirstRow & ":$Y$" & LastRow & ",MATCH('" & ActiveSheet.Name & "'!$B$" & Selection.Row & _
         "," & SheetName & "$B$" & FirstRow & ":$B" & LastRow & ",0),MATCH('" & ActiveSheet.Name & "'!" & T_FreqStartRng & "," & SheetName & "$" & T_FreqStartRng & ":$Y$6,0))"
         ExtendFunction
         
         ElseIf T_SheetType = "MECH" Then
-        Cells(Selection.Row, T_RegenStart).Value = "=INDEX(" & SheetName & "$T$" & FirstRow & ":$AB$" & LastRow & ",MATCH('" & ActiveSheet.Name & "'!$B$" & Selection.Row & _
+        Cells(Selection.Row, DestinationCol).Value = "=INDEX(" & SheetName & "$T$" & FirstRow & ":$AB$" & LastRow & ",MATCH('" & ActiveSheet.Name & "'!$B$" & Selection.Row & _
         "," & SheetName & "$B$" & FirstRow & ":$B" & LastRow & ",0),MATCH('" & ActiveSheet.Name & "'!T$6," & SheetName & "$T$6:$AB$6,0))"
         ExtendFunction (True)
         End If
@@ -597,27 +609,6 @@ WrkRow = Selection.Row
 
 'CHECK FOR NON HEADER ROWS
 CheckTemplateRow (WrkRow)
-
-'    ' Set start and end columns based on sheet type
-'    If TypeCode = "OCT" Or TypeCode = "OCTA" Then
-'        ' Redundant code for later use [TypeCode = "CT" Or TypeCode = "P2W" Or
-'        ' TypeCode = "R2R" Or TypeCode = "RN"]
-'        startCol = 5
-'        endCol = 13
-'    ElseIf TypeCode = "LF_TO" Then
-'        startCol = 5
-'        endCol = 31
-'    ElseIf TypeCode = "TO" Or TypeCode = "TOA" Then
-'        'Redundant code for later use [Or TypeCode = "GLZ" Or TypeCode = "SII"]
-'        startCol = 5
-'        endCol = 25
-'    'ElseIf TypeCode = "RT" Then
-'    '    StartCol = 3
-'    '    EndCol = 3
-'    Else
-'        ErrorTypeCode
-'    End If
-
 
     ' Toggles between active and inactive
     For i = T_LossGainStart To T_LossGainEnd
@@ -672,6 +663,124 @@ CheckTemplateRow (WrkRow)
 
 End Sub
 
+
+'==============================================================================
+' Name:     ToggleActiveSelection
+' Author:   AA
+' Desc:     Toggles a cell inactive or active. Same as Trace version but can do
+'           multiple selections or rows and doesn't require a Typecode.
+' Args:     Just the selected cells
+' Comments: (1)
+'==============================================================================
+
+Sub ToggleActiveSelection()
+Dim startCol As Integer, endCol As Integer, WrkRow As Integer, WrkArea As Integer
+Dim startRow As Integer, endRow As Integer
+Dim CharKeep As Integer
+Dim Orig As String, OrigFmt As String, FormatArchive As String
+Dim NewValue As String
+
+Application.ScreenUpdating = False
+
+Set SelectedCells = Selection
+
+Set WrkRng = SelectedCells.Areas(1)
+startRow = WrkRng.Rows(1).Row
+endRow = startRow + WrkRng.Rows.Count - 1
+startCol = WrkRng.Columns(1).Column
+endCol = startCol + WrkRng.Columns.Count - 1
+
+' If currently inactive, toggle active. Looks for [,"\*] within formula.
+If InStr(1, Cells(startRow, startCol).Formula, ",""\*") <> 0 Then
+    
+    For WrkArea = 1 To SelectedCells.Areas.Count
+        Set WrkRng = SelectedCells.Areas(WrkArea)
+        startRow = WrkRng.Rows(1).Row
+        endRow = startRow + WrkRng.Rows.Count - 1
+        startCol = WrkRng.Columns(1).Column
+        endCol = startCol + WrkRng.Columns.Count - 1
+    
+        For WrkRow = startRow To endRow
+            For i = startCol To endCol
+                ' If currently inactive, toggle active. Looks for [,"\*] within formula.
+                If InStr(1, Cells(WrkRow, i).Formula, ",""\*") <> 0 Then
+                    Orig = Cells(WrkRow, i).Formula
+                    Dim Pos1 As Integer, Pos2_1 As Integer
+                    Pos1 = 7
+                    Pos2_1 = InStr(1, Orig, ",""\*") - Pos1 'looks for position of [,"\*]
+                    NewValue = Mid(Orig, Pos1, Pos2_1)
+                    
+                    ' Whether original cell value was a formula or not
+                    If Mid(Orig, InStr(1, Orig, "T(N(") + 4, 1) = 1 Then
+                        Cells(WrkRow, i).Value = NewValue
+                    Else
+                        Cells(WrkRow, i).Value = "=" & NewValue
+                    End If
+                        
+                ' If cell is not empty, toggle inactive
+                ElseIf IsEmpty(Cells(WrkRow, i)) = False Then
+                    'do nothing
+                End If
+            Next i
+        Next WrkRow
+    Next WrkArea
+    
+ElseIf IsEmpty(Cells(startRow, startCol)) = False Then
+    
+    For WrkArea = 1 To SelectedCells.Areas.Count
+        Set WrkRng = SelectedCells.Areas(WrkArea)
+        startRow = WrkRng.Rows(1).Row
+        endRow = startRow + WrkRng.Rows.Count - 1
+        startCol = WrkRng.Columns(1).Column
+        endCol = startCol + WrkRng.Columns.Count - 1
+        
+        For WrkRow = startRow To endRow
+            For i = startCol To endCol
+                ' If currently inactive, toggle active. Looks for [,"\*] within formula.
+                If InStr(1, Cells(WrkRow, i).Formula, ",""\*") <> 0 Then
+                    'do nothing
+                ' If cell is not empty, toggle inactive
+                ElseIf IsEmpty(Cells(WrkRow, i)) = False Then
+                    
+                    ' If cell is not empty, and is a formula
+                    If Left(Cells(WrkRow, i).Formula, 1) = "=" Then
+                        Orig = Cells(WrkRow, i).Formula
+                        CharKeep = 2
+                    
+                    ' If cell is not empty, but isn't a formula
+                    Else
+                        Orig = Cells(WrkRow, i).Value
+                        CharKeep = 1
+                        
+                    End If
+                    ' Take current cell value/formula and rework to new commented formula
+                    OrigFmt = Cells(WrkRow, i).NumberFormat
+                    FormatArchive = Replace(OrigFmt, """", """""")
+                    FormatArchive = "\*" & FormatArchive & "\*;\*-" & FormatArchive _
+                        & "\*;\*" & FormatArchive & "\*"
+                    
+                    ' The following is a janky work-around way of keeping information
+                    ' within the cell formula. Arg [CharKeep] has the unintended side
+                    ' effect of storing whether the original cell was a formula or a
+                    ' simple value. The "&T(N(xxx))" method used store the value in the
+                    ' formula, and is such a roundabout method because the displayed cell
+                    ' result is text, not a number.
+                    Cells(WrkRow, i).Value = "=TEXT(" & Mid(Orig, CharKeep) & ",""" & _
+                        FormatArchive & """)" & "&T(N(" & CharKeep & "))"
+                        
+                End If
+            Next i
+        Next WrkRow
+    Next WrkArea
+End If
+
+Application.ScreenUpdating = True
+
+End Sub
+
+
+
+
 '==============================================================================
 ' Name:     SingleCorrection
 ' Author:   PS
@@ -683,7 +792,7 @@ End Sub
 Sub SingleCorrection()
 'Dim col As Integer
 
-Cells(Selection.Row, T_Description).Value = "Correction"
+SetDescription "Correction"
 Cells(Selection.Row, T_LossGainStart).Value = "=" & T_ParamRng(0)
 Cells(Selection.Row, T_ParamStart).Value = -5
 ParameterMerge (Selection.Row)
@@ -708,9 +817,9 @@ Dim ScanCol As Integer
 Dim FoundRw As Boolean
 
     If LineDescStr = "" Then
-    Cells(Selection.Row, T_Description).Value = "Total"
+    SetDescription "Total"
     Else
-    Cells(Selection.Row, T_Description).Value = LineDescStr
+    SetDescription LineDescStr
     End If
 
 'find end of range
@@ -737,11 +846,11 @@ Cells(Selection.Row, T_LossGainStart).Value = "=SUM(" & _
 ExtendFunction
     
     'Limit the options to the three main styles
-    If ApplyStyleCode = "Total" Then
+    If ApplyStyleCode = "AutoSum_Total" Then
     SetTraceStyle "Total"
-    ElseIf ApplyStyleCode = "Subtotal" Then
+    ElseIf ApplyStyleCode = "AutoSum_Subtotal" Then
     SetTraceStyle "Subtotal"
-    ElseIf ApplyStyleCode = "Normal" Then
+    ElseIf ApplyStyleCode = "AutoSum_Normal" Then
     SetTraceStyle "Normal"
     Else 'default to Subtotal
     SetTraceStyle "Subtotal"
@@ -836,7 +945,7 @@ WriteRw = Selection.Row
     'reset refCol
     refCol = T_LossGainStart
     
-    Cells(WriteRw, T_Description).Value = "Conversion from one-thirds"
+    SetDescription "Conversion from one-thirds - " & SumAverageMode, WriteRw
     
         'loop through each column
         For Col = ColStart To ColEnd
@@ -880,10 +989,10 @@ Sub ConvertAWeight()
     'screen for sheet types and set description
     If Left(T_SheetType, 3) = "OCT" Or Left(T_SheetType, 2) = "TO" Then
         If Right(T_SheetType, 1) = "A" Then 'a-weighted sheets
-        Cells(Selection.Row, T_Description).Value = _
+        Cells(Selection.Row, T_Description) = _
             Cells(Selection.Row - 1, T_Description).Value & " (Linear)"
         Else
-        Cells(Selection.Row, T_Description).Value = _
+        Cells(Selection.Row, T_Description) = _
             Cells(Selection.Row - 1, T_Description).Value & " (A Weighted)"
         End If
     Else
@@ -1075,8 +1184,6 @@ SetSheetTypeControls 'update variables
 End Sub
 
 
-
-
 '==============================================================================
 ' Name:     Summarise_RT
 ' Author:   PS
@@ -1124,6 +1231,99 @@ WriteRw = Selection.Row 'start from here
         End If
     Next sh
 Sheets("SUMMARY").Activate
+End Sub
+
+'==============================================================================
+' Name:     SetDescription
+' Author:   PS
+' Desc:     Puts in description, only if there's nothing in there, otherwise
+'           puts the name in the comment
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub SetDescription(DescriptionString As String, Optional InputRw As Integer)
+Dim Rw As Integer
+
+    'set row
+    If InputRw = 0 Or IsMissing(InputRw) Then
+    Rw = Selection.Row
+    Else
+    Rw = InputRw
+    End If
+
+    'check for description field
+    If Cells(Rw, T_Description).Value = "" Then 'set description
+    Cells(Rw, T_Description).ClearContents
+    Cells(Rw, T_Description).ClearComments
+    Cells(Rw, T_Description).Validation.Delete
+    Cells(Rw, T_Description).Value = DescriptionString
+    Else 'add as comment
+    InsertComment DescriptionString, T_Description, True, Rw
+    End If
+    
+End Sub
+
+'==============================================================================
+' Name:     SetDataValidation
+' Author:   PS
+' Desc:     Sets data validation for cells for given column number
+' Args:     col - column number
+'           ValidationOptionsStr - String of options to be set
+' Comments: (1)
+'==============================================================================
+Sub SetDataValidation(Col As Integer, ValidationOptionStr As String)
+    With Cells(Selection.Row, Col).Validation
+    .Delete
+    .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
+    xlBetween, Formula1:=ValidationOptionStr
+    .IgnoreBlank = True
+    .InCellDropdown = True
+    .InputTitle = ""
+    .ErrorTitle = ""
+    .InputMessage = ""
+    .ErrorMessage = ""
+    .ShowInput = True
+    .ShowError = True
+    End With
+End Sub
+
+
+'==============================================================================
+' Name:     InsertComment
+' Author:   PS
+' Desc:     Inserts comment into a given column number
+' Args:     CommentStr - String of comment to be added
+'           col - column number
+'           append - set to TRUE to append the comment to the existing comment
+' Comments: (1) Deletes previous comment unless append is TRUE
+'==============================================================================
+Sub InsertComment(CommentStr As String, Col As Integer, _
+    Optional append As Boolean, Optional InputRw As Integer)
+    
+Dim CheckRng As Range
+Dim Rw As Integer
+
+    'set row
+    If InputRw = 0 Or IsMissing(InputRw) Then
+    Rw = Selection.Row
+    Else
+    Rw = InputRw
+    End If
+    
+'add comment with more detail
+Set CheckRng = Cells(Rw, Col)
+
+    If Not CheckRng.Comment Is Nothing Then
+        If append = False Then 'delete!
+        CheckRng.Comment.Delete
+        Else 'append, then clear what's in there
+        CommentStr = CheckRng.Comment.Text & " // " & CommentStr
+        CheckRng.Comment.Delete
+        End If
+    End If
+
+CheckRng.AddComment CommentStr
+CheckRng.Comment.Shape.TextFrame.AutoSize = True
 End Sub
 
 

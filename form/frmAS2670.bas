@@ -125,6 +125,7 @@ End Select
 AS2670_Axis = SelectedAxis
 AS2670_Multiplier = Me.txtMult.Value
 AS2670_Order = SelectedOrder
+VibRateAddr = Me.RefVibRange.Value
 
 ' Close and unload form
 Me.Hide
@@ -274,11 +275,11 @@ End Select
     Me.txt6.Value = AS2670_Curve(SelectedAxis, Me.txtMult.Value, 6.3, SelectedOrder, Mode)
     Me.txt8.Value = AS2670_Curve(SelectedAxis, Me.txtMult.Value, 8, SelectedOrder, Mode)
     Me.txt10.Value = AS2670_Curve(SelectedAxis, Me.txtMult.Value, 10, SelectedOrder, Mode)
-    Me.txt12.Value = AS2670_Curve(SelectedAxis, Me.txtMult.Value, 12, SelectedOrder, Mode)
+    Me.txt12.Value = AS2670_Curve(SelectedAxis, Me.txtMult.Value, 12.5, SelectedOrder, Mode)
     Me.txt16.Value = AS2670_Curve(SelectedAxis, Me.txtMult.Value, 16, SelectedOrder, Mode)
     Me.txt20.Value = AS2670_Curve(SelectedAxis, Me.txtMult.Value, 20, SelectedOrder, Mode)
     Me.txt25.Value = AS2670_Curve(SelectedAxis, Me.txtMult.Value, 25, SelectedOrder, Mode)
-    Me.txt31.Value = AS2670_Curve(SelectedAxis, Me.txtMult.Value, 31, SelectedOrder, Mode)
+    Me.txt31.Value = AS2670_Curve(SelectedAxis, Me.txtMult.Value, 31.5, SelectedOrder, Mode)
     Me.txt40.Value = AS2670_Curve(SelectedAxis, Me.txtMult.Value, 40, SelectedOrder, Mode)
     Me.txt50.Value = AS2670_Curve(SelectedAxis, Me.txtMult.Value, 50, SelectedOrder, Mode)
     Me.txt63.Value = AS2670_Curve(SelectedAxis, Me.txtMult.Value, 63, SelectedOrder, Mode)

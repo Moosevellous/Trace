@@ -244,7 +244,7 @@ Private Sub chkMultiSource_Click()
 PreviewAbar
 End Sub
 
-Private Sub lblAgrRec_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal X As Single, ByVal Y As Single)
+Private Sub lblAgrRec_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
 'Me.imgAgr.Visible = True
 End Sub
 

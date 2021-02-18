@@ -44,7 +44,7 @@ End Function
 '           (in degrees C), RelHumidity (value our of 100)
 ' Comments: (1) No interpolation, just straight out of the standard
 '==============================================================================
-Function ISO9613_Aatm(fStr As String, Distance As Double, Temperature As Integer, _
+Function ISO9613_Aatm(fstr As String, Distance As Double, Temperature As Integer, _
 RelHumidity As Integer)
 
 'These are the values from Table 2 of ISO9613
@@ -63,7 +63,7 @@ FifteenTwenty = Array(0.3, 0.6, 1.2, 2.7, 8.2, 28.2, 88.8, 202)
 FifteenFifty = Array(0.1, 0.5, 1.2, 2.2, 4.2, 10.8, 36.2, 129)
 FifteenEighty = Array(0.1, 0.3, 1.1, 2.4, 4.1, 8.3, 23.7, 82.8)
 
-elem = GetArrayIndex_OCT(fStr)
+elem = GetArrayIndex_OCT(fstr)
 
     If elem = 999 Or elem = -1 Then 'catch error
     ISO9613_Aatm = "-"
@@ -97,7 +97,7 @@ End Function
 '           between 0 And 1), q (defined for the purpose of adding to the Am)
 ' Comments: (1) As implemented in the standard.
 '==============================================================================
-Function ISO9613_Agr(fStr As String, SourceHeight As Double, ReceiverHeight As Double, _
+Function ISO9613_Agr(fstr As String, SourceHeight As Double, ReceiverHeight As Double, _
 dP As Double, Gsrc As Double, Grec As Double, Optional Gmid As Double)
 
 Dim ahs As Double
@@ -137,7 +137,7 @@ bhr = 1.5 + ((8.6 * Exp(-0.09 * ReceiverHeight ^ 2)) * (1 - Exp(-dP / 50)))
 chr = 1.5 + ((14 * Exp(-0.46 * ReceiverHeight ^ 2)) * (1 - Exp(-dP / 50)))
 dhr = 1.5 + ((5 * Exp(-0.9 * ReceiverHeight ^ 2)) * (1 - Exp(-dP / 50)))
 
-elem = GetArrayIndex_OCT(fStr)
+elem = GetArrayIndex_OCT(fstr)
 
 'Debug.Print "Gsrc: "; Gsrc
 'Debug.Print "Gmid: "; Gmid
@@ -198,7 +198,7 @@ End Function
 ' Comments: (1) distances are input as horizontal distances, with the
 '           hypotenuse calculated during the function
 '==============================================================================
-Function ISO9613_Abar(fStr As String, SourceHeight As Double, ReceiverHeight As Double, _
+Function ISO9613_Abar(fstr As String, SourceHeight As Double, ReceiverHeight As Double, _
 SourceReceiverDistance As Double, SourceBarrierDistance As Double, _
 SrcDistanceEdge As Double, RecDistanceEdge As Double, HeightBarrierSource As Double, _
 Optional DoubleDiffraction As Boolean, Optional BarrierThickness As Double, _
@@ -222,7 +222,7 @@ Dim d_standard As Double 'includes vertical component
 
 If IsMissing(BarrierThickness) Or DoubleDiffraction = False Then BarrierThickness = 0
 
-f = freqStr2Num(fStr)
+f = freqStr2Num(fstr)
 lambda = (343) / f 'as defined in the method
 A = Abs(SrcDistanceEdge - RecDistanceEdge)
     
@@ -309,7 +309,7 @@ End Function
 ' Args:
 ' Comments: (1)
 '==============================================================================
-Function ISO9613_Cmet(fStr As String, hs, hr, dP, c0)
+Function ISO9613_Cmet(fstr As String, hs, hr, dP, c0)
 'TODO: One day we'll need this for something
 End Function
 
@@ -364,7 +364,7 @@ End Sub
 '==============================================================================
 Sub A_div()
 
-Cells(Selection.Row, T_Description).Value = "ISO9613: A_div"
+SetDescription "ISO9613: A_div"
     
     If T_BandType = "oct" Then
     Cells(Selection.Row, T_ParamStart).Value = 10
@@ -457,7 +457,7 @@ If btnOkPressed = False Then End
         ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
         'Adiv
         If ISOFullElements(0) = True Then
-        Cells(Selection.Row, T_Description).Value = "ISO9613: A_div"
+        SetDescription "ISO9613: A_div"
         Cells(Selection.Row, T_LossGainStart).Value = _
             "=ISO9613_Adiv(" & T_ParamRng(0) & "," & T_ParamRng(1) & ")"
         Cells(Selection.Row, T_ParamStart).Value = iso9613_d
@@ -474,7 +474,7 @@ If btnOkPressed = False Then End
         'Aatm
         If ISOFullElements(1) = True Then
         SetSheetTypeControls
-        Cells(Selection.Row, T_Description).Value = "ISO9613: A_atm"
+        SetDescription "ISO9613: A_atm"
             'if row above has _div, so we can use the same input for distance!
             If ISOFullElements(0) = True Then
             Cells(Selection.Row, T_LossGainStart).Value = "=ISO9613_Aatm(" & T_FreqStartRng & _
@@ -503,7 +503,7 @@ If btnOkPressed = False Then End
         ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
         'Agr
         If ISOFullElements(2) = True Then
-        Cells(Selection.Row, T_Description).Value = "ISO9613: A_gr"
+        SetDescription "ISO9613: A_gr"
             
             If ISOFullElements(0) = True Then 'Two rows above has A-div, so we can use the same input for distance!
             Cells(Selection.Row, T_LossGainStart).Value = "=ISO9613_Agr(" & T_FreqStartRng & "," & iso9613_SourceHeight & "," & iso9613_ReceiverHeight & ",$N" & _
@@ -526,7 +526,7 @@ If btnOkPressed = False Then End
         ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
         'Abar
         If ISOFullElements(3) = True Then
-        Cells(Selection.Row, T_Description).Value = "ISO9613: A_bar"
+        SetDescription "ISO9613: A_bar"
         Cells(Selection.Row, T_ParamStart).Value = iso9613_BarrierHeight
         SetUnits "m", T_ParamStart, 1
             If ISOFullElements(0) = True Then 'Three rows above has A-div, so we can use the same input for distance!
