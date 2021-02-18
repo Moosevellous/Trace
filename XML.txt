@@ -1,7 +1,7 @@
-﻿<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui">
+<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui">
 	<ribbon>
 		<tabs>
-			<tab id="customTab" label="Trace v3.01" insertAfterMso="TabView" keytip="X">
+			<tab id="customTab" label="Trace v3.03" insertAfterMso="TabView" keytip="X">
 <!--EDIT DATE 20201121 -->
 <!--'tag' is the function to be called by the Universal Builder, the 'id' is the function input, if required -->
 
@@ -60,11 +60,11 @@
 				</group>
 
 				<group id="gDatabase" label="Database" insertAfterMso="GroupEditingExcel">
-                    <menu id="Database" label="Insert" size="large" imageMso="ProofingToolsFlyoutAnchor" keytip="D" screentip="Databse > Insert" supertip="Coming soon...?" enabled="false">
-                        <button id="SWL" label="SWL" onAction="TraceFunction" tag="Database_SWL" imageMso="SlideShowVolume" />
-                        <button id="TL" label="TL" onAction="TraceFunction" tag="Database_TL" imageMso="NewBlankStencil" />
-                        <button id="alpha" label="Alpha" onAction="TraceFunction" tag="Database_alpha" imageMso="GroupTypography" />
-                        <button id="CeilingIL" label="Ceiling IL" onAction="TraceFunction" tag="CeilingIL" imageMso="GridSettings" screentip="Database > Ceiling Insertion Loss" supertip="For sound breaking through a ceiling, a combination of room loss and tranmission loss." />
+                    <menu id="Database" label="Insert" size="large" imageMso="ProofingToolsFlyoutAnchor" keytip="D" screentip="Databse > Insert" supertip="Coming soon...?" enabled="true" >
+                        <button id="SWL" label="SWL" onAction="TraceFunction" tag="Database_SWL" imageMso="SlideShowVolume" enabled="false" />
+                        <button id="TL" label="TL" onAction="TraceFunction" tag="Database_TL" imageMso="NewBlankStencil" enabled="false" />
+                        <button id="alpha" label="Alpha" onAction="TraceFunction" tag="Database_alpha" imageMso="GroupTypography" enabled="false" />
+                        <button id="CeilingIL" label="Ceiling IL" onAction="TraceFunction" tag="CeilingIL" imageMso="GridSettings" screentip="Database > Ceiling Insertion Loss" supertip="For sound breaking through a ceiling, a combination of room loss and tranmission loss." enabled="false" />
                     </menu>
                 </group>
            
@@ -134,7 +134,8 @@
                             <button id="DistancePoint" label="Point (spherical)" onAction="TraceFunction" tag="DistancePoint" imageMso="DiagramChangeToTargetClassic" screentip="Noise Funcs. > Point (spherical)" supertip="Spherical propagation loss." />
                             <button id="DistanceLine" label="Line (cylindrical)" onAction="TraceFunction" tag="DistanceLine" imageMso="Drawing1GalleryContrast" screentip="Noise Funcs. > Line (Cylindrical)" supertip="Cylindrical propagation loss." />
                             <button id="DistancePlane" label="Plane" onAction="TraceFunction" tag="DistancePlane" imageMso="_3DExtrusionDepthInfinityClassic" screentip="Noise Funcs. > Plane" supertip="Plane propagation loss." />
-                            <button id="DistanceRatio" label="Ratio" onAction="TraceFunction" tag="DistanceRatio" imageMso="EquationFractionGallery" screentip="Noise Funcs. > Ratio" supertip="Ratio of two distances (applicable for both point and line sources)." />
+                            <button id="DistanceRatioPoint" label="Ratio (point)" onAction="TraceFunction" tag="DistanceRatioPoint" imageMso="EquationFractionGallery" screentip="Noise Funcs. > Ratio (point)" supertip="Ratio of two distances (applicable for point sources)." />
+                            <button id="DistanceRatioLine" label="Ratio (line)" onAction="TraceFunction" tag="DistanceRatioLine" imageMso="EquationFractionGallery" screentip="Noise Funcs. > Ratio (line)" supertip="Ratio of two distances (applicable for line sources)." />
                             </menu>
 						</splitButton>
 
@@ -214,8 +215,8 @@
                     </menu>
 
 					<menu id="BuildingVibration" label="Building Vib." imageMso="ArrangeByCompany" screentip="Vibration > Building Vibration" supertip="Inserts amplification or loss values for different building types." keytip="VB">
-					<button id="CouplingLoss" label="Coupling Loss" onAction="TraceFunction" tag="CouplingLoss" imageMso="ConnectShapes" screentip="Vibration > Building Vibration > Coupling Loss" />
-					<button id="BuildingAmplification" label="Building Amplification" onAction="TraceFunction" tag="BuildingAmplification" imageMso="AudioFadeInTime" screentip="Vibration > Building Vibration> Building Amplification" />
+                        <button id="CouplingLoss" label="Coupling Loss" onAction="TraceFunction" tag="PutCouplingLoss" imageMso="ConnectShapes" screentip="Vibration > Building Vibration > Coupling Loss" />
+                        <button id="BuildingAmplification" label="Building Amplification" onAction="TraceFunction" tag="BuildingAmplification" imageMso="AudioFadeInTime" screentip="Vibration > Building Vibration> Building Amplification" />
 					</menu>
 				</group>
 
