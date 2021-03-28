@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmElbowRegen 
    Caption         =   "Elbow Regen."
-   ClientHeight    =   7350
+   ClientHeight    =   7935
    ClientLeft      =   120
    ClientTop       =   465
    ClientWidth     =   8655
@@ -32,27 +32,23 @@ PreviewValues
     RegenMode = "NEBB"
     ElbowHasVanes = Me.optVanes.Value
     ElbowNumVanes = Me.txtNumVanes.Value
-        'set switches
-        If Me.optMetresCubed.Value = True Then
-        FlowUnitsM3ps = True
-        Else
-        FlowUnitsM3ps = False
-        End If
+    FlowUnitsM3ps = Me.optMetresCubed.Value 'true if m3/s
         
-        'set numeric variables
-        If IsNumeric(Me.txtPressureDrop.Value) And _
-            IsNumeric(Me.txtW.Value) And _
-            IsNumeric(Me.txtH.Value) And _
-            IsNumeric(Me.txtNumVanes.Value) And _
-            IsNumeric(Me.txtCordLength.Value) Then
-        FlowRate = Me.txtFlowRate.Value
-        PressureLoss = Me.txtPressureDrop.Value
-        BendW = Me.txtW.Value
-        BendH = Me.txtH.Value
-        BendCordLength = Me.txtCordLength.Value
-        End If
+    'set numeric variables
+    FlowRate = ScreenInput(Me.txtFlowRate.Value)
+    PressureLoss = ScreenInput(Me.txtPressureDrop.Value)
+    ElementW = ScreenInput(Me.txtW.Value)
+    ElementH = ScreenInput(Me.txtH.Value)
+    BendCordLength = ScreenInput(Me.txtCordLength.Value)
+    ElbowRadius = ScreenInput(Me.txtRadius.Value)
+    'set boolean switches
+    IncludeTurbulence = Me.chkTurb.Value
+    MainDuctCircular = Me.optCircular.Value
+    BranchDuctCircular = Me.optCircular.Value 'same as main for elbows
+    
     Else 'ASHRAE
     RegenMode = "ASHRAE"
+    regenNoiseElement = "Elbow"
         'set velocity from radio buttons
         If Me.optVanes.Value = True Then
         ElbowHasVanes = True
@@ -98,6 +94,10 @@ Private Sub optASHRAE_Click()
 PreviewValues
 End Sub
 
+Private Sub optCircular_Click()
+PreviewValues
+End Sub
+
 Private Sub optLitres_Click()
 PreviewValues
 End Sub
@@ -118,6 +118,10 @@ PreviewValues
 End Sub
 
 Private Sub optNoVanes_Click()
+PreviewValues
+End Sub
+
+Private Sub optRectangular_Click()
 PreviewValues
 End Sub
 
@@ -155,6 +159,7 @@ End Sub
 
 Private Sub sbVanes_Change()
 Me.txtNumVanes.Value = Me.sbVanes.Value
+PreviewValues
 End Sub
 
 Private Sub txtCordLength_Change()
@@ -183,58 +188,14 @@ End Sub
 
 
 Sub PreviewValues()
-Dim DuctVelocity As Double
-Dim Condition As String
-Dim FlowRateLitres As Double
-Dim DuctAreaMsq As Double
-'-----------------------------------------------------------------------
-'Switch buttons on and off
-'-----------------------------------------------------------------------
-    'enable/disable buttons
-    'ASHRAE Frame
-    If Me.optASHRAE.Value = True Then
-        For i = 0 To Me.FrameASHRAE.Controls.Count - 1
-        'Debug.Print TypeName(Me.FrameASHRAE.Controls(i))
-            If TypeName(Me.FrameASHRAE.Controls(i)) = "OptionButton" Then
-                If Me.FrameASHRAE.Controls(i).GroupName = "A_Vel_Vanes" Then
-                Me.FrameASHRAE.Controls(i).Enabled = Me.optVanes.Value
-                Else 'no vanes
-                Me.FrameASHRAE.Controls(i).Enabled = Me.optNoVanes.Value
-                End If
-            Else
-            Me.FrameASHRAE.Controls(i).Enabled = True
-            End If
-        Next i
-    Else 'NEBB Frame
-    
-        For i = 0 To Me.FrameASHRAE.Controls.Count - 1
-        Me.FrameASHRAE.Controls(i).Enabled = False
-        Next i
-        
-        For i = 0 To Me.FrameNEBB.Controls.Count - 1
-        Me.FrameNEBB.Controls(i).Enabled = True
-        Next i
-        
-        'vanes
-        If Me.optVanes.Value = True Then
-        Me.chkTurb.Enabled = False
-        Me.txtCordLength.Enabled = True
-        Me.txtCordLength.BackColor = &HC0FFFF
-        Me.txtRadius.Enabled = False
-        Me.txtRadius.BackColor = &H8000000F
-        Me.txtNumVanes.Enabled = True
-        Me.sbVanes.Enabled = True
-        
-        Else 'novanes
-        Me.chkTurb.Enabled = True
-        Me.txtCordLength.Enabled = False
-        Me.txtCordLength.BackColor = &H8000000F
-        Me.txtRadius.Enabled = True
-        Me.txtRadius.BackColor = &HC0FFFF
-        Me.txtNumVanes.Enabled = False
-        Me.sbVanes.Enabled = False
-        End If
-    End If
+Dim DuctVelocity As Double 'in m/s
+Dim Condition As String 'vanes / no vanes
+Dim FlowRateLitres As Double 'volumetric flow rate
+Dim DuctAreaMsq As Double 'area in m^2
+
+'turn buttons on and off
+SelectControls
+
 '-----------------------------------------------------------------------
 'Preview values NEBB
 '-----------------------------------------------------------------------
@@ -243,13 +204,22 @@ Dim DuctAreaMsq As Double
     RegenMode = "NEBB"
     
     'calculate area
-        If IsNumeric(Me.txtW.Value) And IsNumeric(Me.txtH.Value) Then
-        DuctAreaMsq = (Me.txtW.Value * Me.txtH.Value) / 1000000 'area in m^2
-        Me.txtDuctArea.Value = Round(DuctAreaMsq, 3)
+        If Me.optRectangular.Value = True Then
+            If IsNumeric(Me.txtW.Value) And IsNumeric(Me.txtH.Value) Then
+            DuctAreaMsq = (Me.txtW.Value * Me.txtH.Value) / 1000000 'area in m^2
+            End If
+        Else 'circular
+            If IsNumeric(Me.txtW.Value) Then
+            DuctAreaMsq = ((Me.txtW.Value / 1000) / 2) ^ 2 * Application.WorksheetFunction.Pi 'area in m^2
+            End If
         End If
-        
+    Me.txtDuctArea.Value = Round(DuctAreaMsq, 3)
+    
         'check for units
-        If IsNumeric(Me.txtFlowRate.Value) Then
+        If IsNumeric(Me.txtFlowRate.Value) And _
+            IsNumeric(Me.txtPressureDrop.Value) And _
+            IsNumeric(Me.txtW.Value) And _
+            IsNumeric(Me.txtH.Value) Then
         
             'calculate air velocity
             If Me.optMetresCubed.Value = True Then
@@ -263,45 +233,38 @@ Dim DuctAreaMsq As Double
             End If
         
             'check for vanes and preview values
-            If IsNumeric(Me.txtPressureDrop.Value) And _
-                IsNumeric(Me.txtW.Value) And _
-                IsNumeric(Me.txtH.Value) And _
-                IsNumeric(Me.txtNumVanes.Value) And _
-                IsNumeric(Me.txtCordLength.Value) And _
-                IsNumeric(Me.txtRadius.Value) Then
                 
-                'vanes
-                If Me.optVanes.Value = True Then
-                Me.txt63.Value = Round(ElbowWithVanesRegen_NEBB("63", FlowRateLitres, Me.txtPressureDrop.Value, Me.txtW.Value, Me.txtH.Value, Me.txtCordLength.Value, Me.txtNumVanes.Value), 1)
-                Me.txt125.Value = Round(ElbowWithVanesRegen_NEBB("125", FlowRateLitres, Me.txtPressureDrop.Value, Me.txtW.Value, Me.txtH.Value, Me.txtCordLength.Value, Me.txtNumVanes.Value), 1)
-                Me.txt250.Value = Round(ElbowWithVanesRegen_NEBB("250", FlowRateLitres, Me.txtPressureDrop.Value, Me.txtW.Value, Me.txtH.Value, Me.txtCordLength.Value, Me.txtNumVanes.Value), 1)
-                Me.txt500.Value = Round(ElbowWithVanesRegen_NEBB("500", FlowRateLitres, Me.txtPressureDrop.Value, Me.txtW.Value, Me.txtH.Value, Me.txtCordLength.Value, Me.txtNumVanes.Value), 1)
-                Me.txt1k.Value = Round(ElbowWithVanesRegen_NEBB("1k", FlowRateLitres, Me.txtPressureDrop.Value, Me.txtW.Value, Me.txtH.Value, Me.txtCordLength.Value, Me.txtNumVanes.Value), 1)
-                Me.txt2k.Value = Round(ElbowWithVanesRegen_NEBB("2k", FlowRateLitres, Me.txtPressureDrop.Value, Me.txtW.Value, Me.txtH.Value, Me.txtCordLength.Value, Me.txtNumVanes.Value), 1)
-                Me.txt4k.Value = Round(ElbowWithVanesRegen_NEBB("4k", FlowRateLitres, Me.txtPressureDrop.Value, Me.txtW.Value, Me.txtH.Value, Me.txtCordLength.Value, Me.txtNumVanes.Value), 1)
-                Me.txt8k.Value = Round(ElbowWithVanesRegen_NEBB("8k", FlowRateLitres, Me.txtPressureDrop.Value, Me.txtW.Value, Me.txtH.Value, Me.txtCordLength.Value, Me.txtNumVanes.Value), 1)
-                Else 'no vanes
-                Me.txt63.Value = Round(ElbowOrJunctionRegen_NEBB("63", FlowRateLitres, 1, Me.txtW.Value, Me.txtH.Value, FlowRateLitres, 1, Me.txtW.Value, Me.txtH.Value, Me.txtRadius.Value, Me.chkTurb.Value, 1, 1), 1)
-                Me.txt125.Value = Round(ElbowOrJunctionRegen_NEBB("125", FlowRateLitres, 1, Me.txtW.Value, Me.txtH.Value, FlowRateLitres, 1, Me.txtW.Value, Me.txtH.Value, Me.txtRadius.Value, Me.chkTurb.Value, 1, 1), 1)
-                Me.txt250.Value = Round(ElbowOrJunctionRegen_NEBB("250", FlowRateLitres, 1, Me.txtW.Value, Me.txtH.Value, FlowRateLitres, 1, Me.txtW.Value, Me.txtH.Value, Me.txtRadius.Value, Me.chkTurb.Value, 1, 1), 1)
-                Me.txt500.Value = Round(ElbowOrJunctionRegen_NEBB("500", FlowRateLitres, 1, Me.txtW.Value, Me.txtH.Value, FlowRateLitres, 1, Me.txtW.Value, Me.txtH.Value, Me.txtRadius.Value, Me.chkTurb.Value, 1, 1), 1)
-                Me.txt1k.Value = Round(ElbowOrJunctionRegen_NEBB("1k", FlowRateLitres, 1, Me.txtW.Value, Me.txtH.Value, FlowRateLitres, 1, Me.txtW.Value, Me.txtH.Value, Me.txtRadius.Value, Me.chkTurb.Value, 1, 1), 1)
-                Me.txt2k.Value = Round(ElbowOrJunctionRegen_NEBB("2k", FlowRateLitres, 1, Me.txtW.Value, Me.txtH.Value, FlowRateLitres, 1, Me.txtW.Value, Me.txtH.Value, Me.txtRadius.Value, Me.chkTurb.Value, 1, 1), 1)
-                Me.txt4k.Value = Round(ElbowOrJunctionRegen_NEBB("4k", FlowRateLitres, 1, Me.txtW.Value, Me.txtH.Value, FlowRateLitres, 1, Me.txtW.Value, Me.txtH.Value, Me.txtRadius.Value, Me.chkTurb.Value, 1, 1), 1)
-                Me.txt8k.Value = Round(ElbowOrJunctionRegen_NEBB("8k", FlowRateLitres, 1, Me.txtW.Value, Me.txtH.Value, FlowRateLitres, 1, Me.txtW.Value, Me.txtH.Value, Me.txtRadius.Value, Me.chkTurb.Value, 1, 1), 1)
-                End If
-                
-            Else
-            Me.txt63.Value = "-"
-            Me.txt125.Value = "-"
-            Me.txt250.Value = "-"
-            Me.txt500.Value = "-"
-            Me.txt1k.Value = "-"
-            Me.txt2k.Value = "-"
-            Me.txt4k.Value = "-"
-            Me.txt8k.Value = "-"
+            'vanes
+            If Me.optVanes.Value = True And IsNumeric(Me.txtCordLength.Value) Then
+            Me.txt63.Value = Round(ElbowWithVanesRegen_NEBB("63", Me.txtFlowRate.Value, Me.txtPressureDrop.Value, Me.txtW.Value, Me.txtH.Value, Me.txtCordLength.Value, Me.txtNumVanes.Value, Me.optMetresCubed.Value), 1)
+            Me.txt125.Value = Round(ElbowWithVanesRegen_NEBB("125", Me.txtFlowRate.Value, Me.txtPressureDrop.Value, Me.txtW.Value, Me.txtH.Value, Me.txtCordLength.Value, Me.txtNumVanes.Value, Me.optMetresCubed.Value), 1)
+            Me.txt250.Value = Round(ElbowWithVanesRegen_NEBB("250", Me.txtFlowRate.Value, Me.txtPressureDrop.Value, Me.txtW.Value, Me.txtH.Value, Me.txtCordLength.Value, Me.txtNumVanes.Value, Me.optMetresCubed.Value), 1)
+            Me.txt500.Value = Round(ElbowWithVanesRegen_NEBB("500", Me.txtFlowRate.Value, Me.txtPressureDrop.Value, Me.txtW.Value, Me.txtH.Value, Me.txtCordLength.Value, Me.txtNumVanes.Value, Me.optMetresCubed.Value), 1)
+            Me.txt1k.Value = Round(ElbowWithVanesRegen_NEBB("1k", Me.txtFlowRate.Value, Me.txtPressureDrop.Value, Me.txtW.Value, Me.txtH.Value, Me.txtCordLength.Value, Me.txtNumVanes.Value, Me.optMetresCubed.Value), 1)
+            Me.txt2k.Value = Round(ElbowWithVanesRegen_NEBB("2k", Me.txtFlowRate.Value, Me.txtPressureDrop.Value, Me.txtW.Value, Me.txtH.Value, Me.txtCordLength.Value, Me.txtNumVanes.Value, Me.optMetresCubed.Value), 1)
+            Me.txt4k.Value = Round(ElbowWithVanesRegen_NEBB("4k", Me.txtFlowRate.Value, Me.txtPressureDrop.Value, Me.txtW.Value, Me.txtH.Value, Me.txtCordLength.Value, Me.txtNumVanes.Value, Me.optMetresCubed.Value), 1)
+            Me.txt8k.Value = Round(ElbowWithVanesRegen_NEBB("8k", Me.txtFlowRate.Value, Me.txtPressureDrop.Value, Me.txtW.Value, Me.txtH.Value, Me.txtCordLength.Value, Me.txtNumVanes.Value, Me.optMetresCubed.Value), 1)
+            ElseIf Me.optVanes = False And IsNumeric(Me.txtRadius.Value) Then 'no vanes
+            Me.txt63.Value = Round(ElbowOrJunctionRegen_NEBB("63", Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtRadius.Value, Me.chkTurb.Value, 1, False, Me.optMetresCubed.Value), 1)
+            Me.txt125.Value = Round(ElbowOrJunctionRegen_NEBB("125", Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtRadius.Value, Me.chkTurb.Value, 1, False, Me.optMetresCubed.Value), 1)
+            Me.txt250.Value = Round(ElbowOrJunctionRegen_NEBB("250", Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtRadius.Value, Me.chkTurb.Value, 1, False, Me.optMetresCubed.Value), 1)
+            Me.txt500.Value = Round(ElbowOrJunctionRegen_NEBB("500", Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtRadius.Value, Me.chkTurb.Value, 1, False, Me.optMetresCubed.Value), 1)
+            Me.txt1k.Value = Round(ElbowOrJunctionRegen_NEBB("1k", Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtRadius.Value, Me.chkTurb.Value, 1, False, Me.optMetresCubed.Value), 1)
+            Me.txt2k.Value = Round(ElbowOrJunctionRegen_NEBB("2k", Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtRadius.Value, Me.chkTurb.Value, 1, False, Me.optMetresCubed.Value), 1)
+            Me.txt4k.Value = Round(ElbowOrJunctionRegen_NEBB("4k", Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtRadius.Value, Me.chkTurb.Value, 1, False, Me.optMetresCubed.Value), 1)
+            Me.txt8k.Value = Round(ElbowOrJunctionRegen_NEBB("8k", Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtRadius.Value, Me.chkTurb.Value, 1, False, Me.optMetresCubed.Value), 1)
             End If
-        End If
+            
+        Else
+        Me.txt63.Value = "-"
+        Me.txt125.Value = "-"
+        Me.txt250.Value = "-"
+        Me.txt500.Value = "-"
+        Me.txt1k.Value = "-"
+        Me.txt2k.Value = "-"
+        Me.txt4k.Value = "-"
+        Me.txt8k.Value = "-"
+        End If 'end of loop for flowrate
 '-----------------------------------------------------------------------
 'Preview values ASHRAE
 '-----------------------------------------------------------------------
@@ -347,5 +310,80 @@ Dim DuctAreaMsq As Double
     End If
 
 
+End Sub
+
+Sub SelectControls()
+'-----------------------------------------------------------------------
+'Switch buttons on and off
+'-----------------------------------------------------------------------
+    'enable/disable buttons
+    'ASHRAE Frame
+    If Me.optASHRAE.Value = True Then
+        For i = 0 To Me.FrameASHRAE.Controls.Count - 1
+        'Debug.Print TypeName(Me.FrameASHRAE.Controls(i))
+            If TypeName(Me.FrameASHRAE.Controls(i)) = "OptionButton" Then
+                If Me.FrameASHRAE.Controls(i).GroupName = "A_Vel_Vanes" Then
+                Me.FrameASHRAE.Controls(i).Enabled = Me.optVanes.Value
+                Else 'no vanes
+                Me.FrameASHRAE.Controls(i).Enabled = Me.optNoVanes.Value
+                End If
+            Else
+            Me.FrameASHRAE.Controls(i).Enabled = True
+            End If
+        Next i
+        
+        For i = 0 To Me.FrameNEBB.Controls.Count - 1
+        Me.FrameNEBB.Controls(i).Enabled = False
+        Next i
+        
+    Else 'NEBB Frame
+    
+        For i = 0 To Me.FrameASHRAE.Controls.Count - 1
+        Me.FrameASHRAE.Controls(i).Enabled = False
+        Next i
+        
+        For i = 0 To Me.FrameNEBB.Controls.Count - 1
+        Me.FrameNEBB.Controls(i).Enabled = True
+        Next i
+        
+        'duct shape
+        If Me.optRectangular.Value = True Then
+        Me.lblDimensions.Caption = "Dimensions (W x H)"
+        Me.txtH.Enabled = True
+        Else
+        Me.lblDimensions.Caption = "Dimensions (diameter)"
+        Me.txtH.Enabled = False
+        End If
+        
+        'vanes
+        If Me.optVanes.Value = True Then
+        Me.chkTurb.Enabled = False
+        Me.txtCordLength.Enabled = True
+        Me.txtCordLength.BackColor = &HC0FFFF
+        Me.txtRadius.Enabled = False
+        Me.txtRadius.BackColor = &H8000000F
+        Me.txtNumVanes.Enabled = True
+        Me.sbVanes.Enabled = True
+        Me.optCircular.Enabled = False 'vanes can only be in rectangular ducts!
+        Me.optRectangular.Value = True
+        Else 'novanes
+        Me.chkTurb.Enabled = True
+        Me.txtCordLength.Enabled = False
+        Me.txtCordLength.BackColor = &H8000000F
+        Me.txtRadius.Enabled = True
+        Me.txtRadius.BackColor = &HC0FFFF
+        Me.txtNumVanes.Enabled = False
+        Me.sbVanes.Enabled = False
+        Me.optCircular.Enabled = True
+        End If
+    End If
+End Sub
+
+Private Sub UserForm_Activate()
+btnOkPressed = False
+    With Me
+    .Left = Application.Left + (0.5 * Application.Width) - (0.5 * .Width)
+    .Top = Application.Top + (0.5 * Application.Height) - (0.5 * .Height)
+    End With
 End Sub
 

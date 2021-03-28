@@ -95,8 +95,8 @@ numFiles = UBound(File)
     FanType = Cells(7, 2).Value
     Range("B33:B40").Copy
     Workbooks(WorkbookName).Activate
-    SetDescription FanType & " - Inlet", WriteRw
     Cells(WriteRw, PasteCol).PasteSpecial Paste:=xlValues, Transpose:=True
+    SetDescription FanType & " - Inlet", WriteRw
     CreateSparkline Selection.Row, 0
     WriteRw = WriteRw + 1
     
@@ -104,8 +104,8 @@ numFiles = UBound(File)
     Workbooks(RawBookName).Activate
     Range("B42:B49").Copy
     Workbooks(WorkbookName).Activate
-    SetDescription FanType & " - Outlet", WriteRw
     Cells(WriteRw, PasteCol).PasteSpecial Paste:=xlValues, Transpose:=True
+    SetDescription FanType & " - Outlet", WriteRw
     CreateSparkline Selection.Row, 0
     
     'clean up

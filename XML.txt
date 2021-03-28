@@ -1,7 +1,7 @@
-<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui">
+﻿<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui">
 	<ribbon>
 		<tabs>
-			<tab id="customTab" label="Trace v3.03" insertAfterMso="TabView" keytip="X">
+			<tab id="customTab" label="Trace v3.04" insertAfterMso="TabView" keytip="X">
 <!--EDIT DATE 20201121 -->
 <!--'tag' is the function to be called by the Universal Builder, the 'id' is the function input, if required -->
 
@@ -182,7 +182,7 @@
                         <menu id="mRegenNoise" label="Regen Noise" imageMso="GroupCompressMedia" keytip="MG">
                             <button id="DamperRegen" label="Damper" onAction="TraceFunction" tag="PutDamperRegen" screentip="Noise > Mech > Regen. Noise > Damper" />
                             <button id="DiffuserRegen" label="Diffuser" onAction="TraceFunction" tag="PutDiffuserRegen" screentip="Noise > Mech > Regen. Noise > Diffuser" enabled="false" />
-                            <button id="ElbowRegen" label="Elbow/Bend" onAction="TraceFunction" tag="PutElbowRegen" screentip="Noise > Mech > Regen. Noise > Elbow/Bend" enabled="false" />
+                            <button id="ElbowRegen" label="Elbow/Bend" onAction="TraceFunction" tag="PutElbowRegen" screentip="Noise > Mech > Regen. Noise > Elbow/Bend" />
                             <button id="JunctionRegen" label="Junction" onAction="TraceFunction" tag="PutJunctionRegen" screentip="Noise > Mech > Regen. Noise > Junction" enabled="false" />
                             <button id="SilencerRegen" label="Silencer" onAction="TraceFunction" tag="PutSilencerRegen" screentip="Noise > Mech > Regen. Noise" supertip="Empirically determined regenerated noise from rectangular silencers" />
                             <button id="TransitionRegen" label="Transition" onAction="TraceFunction" tag="PutTransitionRegen" screentip="Noise > Mech > Regen. Noise > Transition" enabled="false" />

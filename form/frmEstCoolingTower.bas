@@ -39,7 +39,7 @@ Private Sub btnOK_Click()
                 If Me.optCentrifugalType.Value = True Then
                 CT_Type = "Centrifugal" 'public variable
                 ElseIf Me.optPropellerType.Value = True Then
-                CT_Type = "Propelller" 'public variable
+                CT_Type = "Propeller" 'public variable
                 End If
                 
                 'set directional effects array (public variable)
@@ -56,7 +56,6 @@ Private Sub btnOK_Click()
                 CT_Directivity(8) = Me.txt8kdir.Value
                 CT_Directivity(9) = Me.cboxDir.Value & "; Face: " & Me.cBoxSide.Value 'description
                 End If
-                
                 
             End If
         Me.Hide
@@ -300,10 +299,12 @@ Sub SetEqn()
     
         If txtPower.Value <= 60 Then 'up to 60kW
         lblEqn.Caption = "Lw=85+11log(kW)"
-        optAbove60kW.Value = True
+        optAbove60kW.Value = False
+        optUnder60kW.Value = True
         Else
         lblEqn.Caption = "Lw=93+7log(kW)"
-        optUnder60kW.Value = True
+        optUnder60kW.Value = False
+        optAbove60kW.Value = True
         End If
         
         Call CalcLw(Me.txtPower)
@@ -317,14 +318,14 @@ Dim CheckBlankVal As Boolean
 
 
     If IsNumeric(kW) Then
-        If CT_Type = "Centrifugal" Then
+        If CT_Type = "Propeller" Then
             If kW > 75 Then
             LwOverall = 96 + 10 * Application.WorksheetFunction.Log10(txtPower.Value)
             Else
             LwOverall = 100 + 8 * Application.WorksheetFunction.Log10(txtPower.Value)
             End If
-        ElseIf CT_Type = "Propeller" Then
-            If kW > 60 Then
+        ElseIf CT_Type = "Centrifugal" Then
+            If kW < 60 Then
             LwOverall = 85 + 11 * Application.WorksheetFunction.Log10(txtPower.Value)
             Else
             LwOverall = 93 + 7 * Application.WorksheetFunction.Log10(txtPower.Value)
@@ -340,7 +341,6 @@ Dim CheckBlankVal As Boolean
     SetCorrection
     
     'Directional effects
-    
     CheckBlankVal = checkTXT 'check for blank directional array
     
     If LwOverall = Empty Then LwOverall = 0 'check for blank

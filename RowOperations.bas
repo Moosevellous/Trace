@@ -578,8 +578,8 @@ LastRow = GetLastRow(UserSelectedAddress)
         ExtendFunction
         
         ElseIf T_SheetType = "MECH" Then
-        Cells(Selection.Row, DestinationCol).Value = "=INDEX(" & SheetName & "$T$" & FirstRow & ":$AB$" & LastRow & ",MATCH('" & ActiveSheet.Name & "'!$B$" & Selection.Row & _
-        "," & SheetName & "$B$" & FirstRow & ":$B" & LastRow & ",0),MATCH('" & ActiveSheet.Name & "'!T$6," & SheetName & "$T$6:$AB$6,0))"
+        Cells(Selection.Row, DestinationCol).Value = "=INDEX(" & SheetName & "$B$" & FirstRow & ":$M$" & LastRow & ",MATCH('" & ActiveSheet.Name & "'!$B$" & Selection.Row & _
+        "," & SheetName & "$B$" & FirstRow & ":$B" & LastRow & ",0),MATCH('" & ActiveSheet.Name & "'!T$6," & SheetName & "$B$6:$M$6,0))"
         ExtendFunction (True)
         End If
     
@@ -1061,6 +1061,27 @@ Sub CVT_OneThirds2Oct()
 End Sub
 
 '==============================================================================
+' Name:     BuildFormula
+' Author:   PS
+' Desc:     Creates formula in chosen range
+' Args:     FormulaStr - Formula to be included
+'           IsRegen - set to true for Regen columns
+' Comments: (1)
+'==============================================================================
+Sub BuildFormula(FormulaStr, Optional IsRegen As Boolean)
+    If IsEmpty(IsRegen) Then IsRegen = False
+    
+'Debug.Print FormulaStr
+    
+    If IsRegen = True Then
+    Cells(Selection.Row, T_RegenStart).Formula = "=" & FormulaStr
+    Else 'default to LossGain
+    Cells(Selection.Row, T_LossGainStart).Formula = "=" & FormulaStr
+    End If
+ExtendFunction (IsRegen)
+End Sub
+
+'==============================================================================
 ' Name:     ExtendFunction
 ' Author:   PS
 ' Desc:     Copies formulas to the correct ranges
@@ -1077,10 +1098,12 @@ StartAddr = Selection.Address
     
     If ApplyToRegen = True Then
     Cells(Selection.Row, T_RegenStart).Copy
-    Range(Cells(Selection.Row, T_RegenStart), Cells(Selection.Row, T_RegenEnd)).PasteSpecial (xlPasteFormulas)
+    Range(Cells(Selection.Row, T_RegenStart), _
+        Cells(Selection.Row, T_RegenEnd)).PasteSpecial (xlPasteFormulas)
     Else
     Cells(Selection.Row, T_LossGainStart).Copy
-    Range(Cells(Selection.Row, T_LossGainStart), Cells(Selection.Row, T_LossGainEnd)).PasteSpecial (xlPasteFormulas)
+    Range(Cells(Selection.Row, T_LossGainStart), _
+        Cells(Selection.Row, T_LossGainEnd)).PasteSpecial (xlPasteFormulas)
     End If
     
 Application.CutCopyMode = False
@@ -1255,7 +1278,6 @@ Dim Rw As Integer
     If Cells(Rw, T_Description).Value = "" Then 'set description
     Cells(Rw, T_Description).ClearContents
     Cells(Rw, T_Description).ClearComments
-    Cells(Rw, T_Description).Validation.Delete
     Cells(Rw, T_Description).Value = DescriptionString
     Else 'add as comment
     InsertComment DescriptionString, T_Description, True, Rw

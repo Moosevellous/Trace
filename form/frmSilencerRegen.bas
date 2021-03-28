@@ -44,8 +44,8 @@ PreviewRegen
     End If
 
 PFA = Me.txtFA.Value
-SilH = ScreenInput(Me.txtH.Value)
-SilW = ScreenInput(Me.txtW.Value)
+ElementH = ScreenInput(Me.txtH.Value)
+ElementW = ScreenInput(Me.txtW.Value)
 SilencerModel = Me.txtTypeCode
 numModules = Me.sbModules.Value
 btnOkPressed = True

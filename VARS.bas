@@ -268,11 +268,11 @@ End Function
 '==============================================================================
 ' Name:     ScreenInput
 ' Author:   PS
-' Desc:     Checks for numeric inputs and converts if required
-' Args:     X, flexible input
+' Desc:     Checks for numeric inputs and converts to Double if required
+' Args:     X, Variant
 ' Comments: (1) Used mostly in forms
 '==============================================================================
-Function ScreenInput(x As Variant) 'to screen data input into forms and functions'<-------TODO Can we use this elsewhere?
+Function ScreenInput(x As Variant, Optional Mode As String) '<-------TODO Can we use this elsewhere?
     If IsNumeric(x) Then
     ScreenInput = CDbl(x)
     Else

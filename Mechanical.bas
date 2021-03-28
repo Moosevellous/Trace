@@ -68,8 +68,8 @@ Public PressureLoss As Double 'in Pascalls
 Public DamperMultiBlade As Boolean 'set to TRUE for multi-blade
 Public RegenMode As String 'NEBB or ASHRAE or other?
 Public regenNoiseElement As String 'legacy variable, from frmRegenNoiseASHRAE
-Public SilH As Double 'Silencer height in mm
-Public SilW As Double 'Silencer width in mm
+Public ElementH As Double 'Silencer height in mm
+Public ElementW As Double 'Silencer width in mm
 Public BendH As Double 'bend height in mm
 Public BendW As Double 'bend width in mm
 Public BendCordLength As Double 'bend chord length in mm
@@ -80,6 +80,10 @@ Public numModules As Integer
 Public DuctVelocity As Double 'speed of air in duct in m2/s
 Public ElbowHasVanes As Boolean 'set to true if the elbow has vanes
 Public ElbowNumVanes As Integer 'number of vanes in an elbow
+Public ElbowRadius As Double 'Radius of elbow for regen
+Public IncludeTurbulence As Boolean 'set to TRUE for extra juice
+Public MainDuctCircular As Boolean 'set to TRUE to calculate areas of circular ducts
+Public BranchDuctCircular As Boolean 'set to TRUE to calculate areas of circular branches
 
 ''==============================================================================
 '' Name:     GetASHRAE
@@ -1969,11 +1973,11 @@ End Function
 ' Comments: (1)
 '==============================================================================
 Function ElbowWithVanesRegen_NEBB(fstr As String, FlowRate As Double, _
-    dP As Double, DuctWidth As Double, DuctHeight As Double, _
-    CordLength As Double, numVanes As Integer, Optional mCubedPerSecond As Boolean)
+    dP As Double, DuctWidth As Double, DuctHeight As Double, CordLength As Double, _
+    numVanes As Integer, Optional mCubedPerSecond As Boolean)
 
 Dim f As Single 'frequency band (Hz)
-Dim S As Double 'duct cross-sectional area (m^2)
+Dim DuctArea As Double 'duct cross-sectional area (m^2)
 Dim c As Double 'pressure loss Coefficient
 Dim BF As Double 'Blockage Factor
 Dim Uc As Double 'flow velocity in damper constriction
@@ -1989,7 +1993,8 @@ f = freqStr2Num(fstr)
 
 DuctWidth = DuctWidth / 1000 'convert to m
 DuctHeight = DuctHeight / 1000 'convert to m
-S = DuctWidth * DuctHeight 'calc duct cross-sectional area
+
+DuctArea = DuctWidth * DuctHeight 'calc duct cross-sectional area
 
     If mCubedPerSecond = True Then FlowRate = FlowRate * 1000
 
@@ -2004,7 +2009,7 @@ c = 16.4 * 100000 * dP * (1 / ((FlowRate / S) ^ 2))
     End If
 
 'Step 3: Calculate flow velocity in damper constriction, Uc
-Uc = 0.001 * (FlowRate / (S * BF))
+Uc = 0.001 * (FlowRate / (DuctArea * BF))
 
 'Step 4: Calculate Strouhal number, St
 St = (f * DuctHeight) / Uc
@@ -2030,40 +2035,36 @@ End Function
 '           according to the NEBB method.
 ' Args:     fstr - Octave band centre frequency (Hz, string)
 '           FlowRate - main duct volumetric flow rate (L/s)
-'           Tm - main duct shape ({1,2}, integer)
-'               1: rectangular
-'               2: circular
+'           IsMainCircular - set to TRUE if the main duct is circular
 '           DuctWidth - diameter or width of main duct (mm, Double)
 '           DuctHeight - height of main duct, if Tm is circular this remains
 '               unused (mm, Double)
 '           BranchFlowRate - branch duct volumetric flow rate (L/s)
-'           Tb - branch duct shape ({1,2}, integer)
-'               1: rectangular
-'               2: circular
+'           IsBranchCircular - set to TRUE if the branch is circular
 '           DuctBranchWidth - diameter or width of branch duct(mm, Double)
 '           DuctBranchHeight - height of branch duct, if Tb is circular this
 '               remains unused(mm, Double)
 '           Radius - radius of bend or elbow (mm)
-'           turb - whether turbulence is present. Correction applied if damper,
+'           IsTurbulent - whether turbulence is present. Correction applied if damper,
 '               elbow, or takeoff upstream within 5 main duct diameters of turn
 '               TRUE: turbulence present
 '               FALSE: no turbulence present
-'           Junction - type of junction ({1,2,3,4}, integer)
+'           JunctionType - type of junction ({1,2,3,4}, integer)
 '               1: elbow bend
 '               2: 90 degree branch takeoff
 '               3: T-Junction
 '               4: X-Junction
-'           Mode - desired result location, ({1,2}, integer)
-'               1: main duct
-'               2: branch duct
-'           mCubedPerSection - set to TRUE for m^3/s flow rates
+'           BranchRegen - set to TRUE to predict regenerated noise in branch,
+'           instead of main duct
+'           mCubedPerSecond - set to TRUE for m^3/s flow rates
 ' Comments: (1)
 '==============================================================================
 Function ElbowOrJunctionRegen_NEBB(fstr As String, _
-    FlowRate As Double, Tm As Integer, DuctWidth As Double, DuctHeight As Double, _
-    BranchFlowRate As Double, Tb As Integer, DuctBranchWidth As Double, _
-    DuctBranchHeight As Double, Radius As Double, turb As Boolean, _
-    Junction As Integer, Mode As Integer, Optional mCubedPerSecond As Boolean)
+    FlowRate As Double, IsMainCircular As Boolean, DuctWidth As Double, _
+    DuctHeight As Double, BranchFlowRate As Double, IsBranchCircular As Boolean, _
+    DuctBranchWidth As Double, DuctBranchHeight As Double, Radius As Double, _
+    IsTurbulent As Boolean, JunctionType As Integer, BranchRegen As Boolean, _
+    Optional mCubedPerSecond As Boolean)
 
 Dim f As Single  'frequency band (Hz)
 Dim MainDuctArea As Double 'main duct cross-sectional area (m^2)
@@ -2095,19 +2096,22 @@ DuctBranchWidth = DuctBranchWidth / 1000
 DuctBranchHeight = DuctBranchHeight / 1000
 Radius = Radius / 1000
 
-    If mCubedPerSecond = True Then FlowRate = FlowRate * 1000
+    If mCubedPerSecond = True Then 'allow for m3/s flowrates
+    FlowRate = FlowRate * 1000
+    BranchFlowRate = BranchFlowRate * 1000
+    End If
 
     'Determine/calc cross-sectional area, MainDuctArea and BranchDuctArea
-    If Tm = 2 Then 'circular duct
-    MainDuctArea = WorksheetFunction.Pi * (DuctWidth) ^ 2
+    If IsMainCircular = True Then 'circular duct
+    MainDuctArea = WorksheetFunction.Pi * (DuctWidth / 2) ^ 2
     Else  'rectangular duct
     MainDuctArea = DuctWidth * DuctHeight
     DuctWidth = (4 * MainDuctArea / WorksheetFunction.Pi) ^ 0.5
     End If
     
     'branch parameters
-    If Tb = 2 Then 'circular duct
-    BranchDuctArea = WorksheetFunction.Pi * (DuctBranchWidth) ^ 2
+    If IsBranchCircular = True Then  'circular duct
+    BranchDuctArea = WorksheetFunction.Pi * (DuctBranchWidth / 2) ^ 2
     Else 'rectangular duct
     BranchDuctArea = DuctBranchWidth * DuctBranchHeight
     DuctBranchWidth = (4 * BranchDuctArea / WorksheetFunction.Pi) ^ 0.5
@@ -2129,10 +2133,11 @@ RD = Radius / DuctBranchWidth
 St = f * DuctBranchWidth / Ub
 
 ' Step 6: Determine radius correction term, RadiusCorrection
-RadiusCorrection = (1 - RD / 0.15) * (6.793 - 1.86 * Application.WorksheetFunction.Log10(St))
+RadiusCorrection = (1 - RD / 0.15) * _
+    (6.793 - 1.86 * Application.WorksheetFunction.Log10(St))
 
 ' Step 7: If turbulence is present, determine, TurbCorrection
-If turb = True Then
+If IsTurbulent = True Then
     TurbCorrection = -1.667 + 1.8 * VelocityRatio - 0.1333 * VelocityRatio ^ 2
 Else
     TurbCorrection = 0
@@ -2152,8 +2157,10 @@ Lb = Kj + 10 * Application.WorksheetFunction.Log10(f / 63) _
 
 ' Step 10: (Optional) Specify junction type, and determine main duct SWL, Lm.
 '           If only the branch is desired, just return Lb
-    If Mode = 1 Then 'if main level desired
-        Select Case Junction
+    If BranchRegen = True Then
+    ElbowOrJunctionRegen_NEBB = Lb
+    Else 'default to main
+        Select Case JunctionType
         Case 1 'elbow
         Lm = Lb
         Case 2  '90 degree branch takeoff
@@ -2164,12 +2171,8 @@ Lb = Kj + 10 * Application.WorksheetFunction.Log10(f / 63) _
         Lm = Lb + 20 * Application.WorksheetFunction.Log10(WidthRatio) + 3
         End Select
     ElbowOrJunctionRegen_NEBB = Lm
-    ElseIf Mode = 2 Then 'if branch level desired
-    ElbowOrJunctionRegen_NEBB = Lb
-    Else
-    ElbowOrJunctionRegen_NEBB = "-"
     End If
-
+    
 End Function
 
 '==============================================================================
@@ -2879,11 +2882,11 @@ Cells(Selection.Row, T_ParamStart).Value = FlowRate
     If RegenMode = "Fantech" Then
     Cells(Selection.Row, T_RegenStart).Value = "=FantechAttenRegen(" _
         & T_FreqStartRng & "," & T_ParamRng(0) & "," & PFA & "," _
-        & SilW & "," & SilH & "," & T_ParamRng(1) & "," & (Not FlowUnitsM3ps) & ")"
+        & ElementW & "," & ElementH & "," & T_ParamRng(1) & "," & (Not FlowUnitsM3ps) & ")"
     ElseIf RegenMode = "NAP" Then
     Cells(Selection.Row, T_RegenStart).Value = "=NAPAttenRegen(" _
         & T_FreqStartRng & "," & T_ParamRng(0) & "," & PFA & "," _
-        & SilW & "," & SilH & ",""" & SilencerModel & """," & (Not FlowUnitsM3ps) & ")"
+        & ElementW & "," & ElementH & ",""" & SilencerModel & """," & (Not FlowUnitsM3ps) & ")"
     Else
     End If
 
@@ -2922,7 +2925,7 @@ SetTraceStyle "Input", True
         End If
     Cells(Selection.Row, T_ParamStart).Value = FlowRate
     Cells(Selection.Row, T_RegenStart).Value = "=DamperRegen_NEBB(" & T_FreqStartRng & _
-        "," & T_ParamRng(0) & "," & PressureLoss & "," & SilH & "," & SilW & "," & _
+        "," & T_ParamRng(0) & "," & PressureLoss & "," & ElementH & "," & ElementW & "," & _
         DamperMultiBlade & "," & FlowUnitsM3ps & ")"
     Else 'ASHRAE mode
     SetDataValidation T_ParamStart, "3.5,5.5,8.75,11,14.5"
@@ -2945,24 +2948,68 @@ End Sub
 '==============================================================================
 Sub PutElbowRegen()
 
-frmDamperRegen.Show
+frmElbowRegen.Show
     
     If btnOkPressed = False Then End
 
-'description
-SetDescription "Regen. noise - Elbow/Bend"
 
 'parameter columns
-ParameterMerge (Selection.Row)
 SetTraceStyle "Input", True
 
-'build formula
+    'NEBB method
     If RegenMode = "NEBB" Then
-    ElseIf RegenMode = "ASHRAE" Then
-    Else
+    'description
+    SetDescription "Regen. noise - Elbow/Bend (NEBB)"
+    ParameterMerge (Selection.Row)
+    
+    'flowrate
+        If FlowUnitsM3ps = True Then
+        SetUnits "m3ps", T_ParamStart, 1
+        Else 'litres
+        SetUnits "lps", T_ParamStart, 0
+        End If
+    Cells(Selection.Row, T_ParamStart).Value = FlowRate
+    
+        'for elbows with vanes
+        If ElbowHasVanes = True Then
+        BuildFormula "ElbowWithVanesRegen_NEBB(" & T_FreqStartRng & "," & _
+            T_ParamRng(0) & "," & PressureLoss & "," & ElementW & "," & _
+            ElementH & "," & BendCordLength & "," & ElbowNumVanes & "," & _
+            FlowUnitsM3ps & ")"
+        Else 'no vanes
+        '<---------TODO: Allow for circular duct options
+        BuildFormula "ElbowOrJunctionRegen_NEBB(" & T_FreqStartRng & "," & _
+            T_ParamRng(0) & "," & MainDuctCircular & "," & ElementW & "," & _
+            ElementH & "," & T_ParamRng(0) & "," & BranchDuctCircular & "," _
+            & ElementW & "," & ElementH & "," & ElbowRadius & "," & _
+            IncludeTurbulence & ",1,1," & FlowUnitsM3ps & ")"
+        End If
+    Else 'ASHRAE
+    
+    ParameterUnmerge (Selection.Row)
+    
+    'vanes
+    SetDataValidation T_ParamStart, "Vanes, No Vanes"
+        If ElbowHasVanes Then
+        Cells(Selection.Row, T_ParamStart) = "Vanes"
+        Else
+        Cells(Selection.Row, T_ParamStart) = "No Vanes"
+        End If
+    Cells(Selection.Row, T_ParamStart).NumberFormat = "General"
+    
+    'velocity
+    SetDataValidation T_ParamStart + 1, "10,15,17.5,20,25,30" 'allow all options
+    Cells(Selection.Row, T_ParamStart + 1) = DuctVelocity
+    SetUnits "mps", T_ParamStart + 1
+    
+    'build formula
+    BuildFormula "RegenNoise_ASHRAE(" & T_FreqStartRng & ",""" & _
+        regenNoiseElement & """," & T_ParamRng(0) & "," & T_ParamRng(1) & ")"
+    SetDescription "Regen. noise - Elbow/Bend (ASHRAE)"
     End If
-    
-    
+
+'styling
+SetTraceStyle "Regen"
 End Sub
     
 ''==============================================================================

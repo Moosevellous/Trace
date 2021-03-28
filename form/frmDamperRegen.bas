@@ -36,8 +36,8 @@ PreviewDamperLw
         End If
     FlowRate = Me.txtFlowRate.Value
     PressureLoss = Me.txtPressureLoss.Value
-    SilW = Me.txtW.Value
-    SilH = Me.txtH.Value
+    ElementW = Me.txtW.Value
+    ElementH = Me.txtH.Value
     DamperMultiBlade = Me.optMultiBlade.Value
     Else
     RegenMode = "ASHRAE"

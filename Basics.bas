@@ -3,6 +3,7 @@ Attribute VB_Name = "Basics"
 'PUBLIC VARIABLES
 '==============================================================================
 Dim ConditionValue As Variant 'why is this dim and not public?
+Dim SearchString As String
 Public BasicFunctionType As String
 Public RangeSelection As String
 Public Range2Selection As String
@@ -509,12 +510,12 @@ End Function
 '           evaluated), and ConditionRange (values to be evaluated, if not the
 '           sum range itself)
 ' Comments: (1) Currently supports > >= < <= and =, no wildcard matching
+'           (2) Now includes Match for wildcard searches
 '==============================================================================
 Function SPLSUMIF(SumRange As Range, Condition As String, _
     Optional ConditionRange As Variant)
 
 Dim IfRange As Range
-Dim TypeFound As Boolean
 Dim SheetNm As String 'name of sheet
 
     'Check which Range will be evaluating the IF function
@@ -525,7 +526,6 @@ Dim SheetNm As String 'name of sheet
     End If
 
 ConditionType = FindConditionType(Condition)
-If ConditionType = "" Then TypeFound = False
     
 'initialise function
 SPLSUMIF = -99
@@ -572,6 +572,12 @@ SheetNm = IfRange.Worksheet.Name
                 (10 ^ (SPLSUMIF / 10)) + _
                 (10 ^ (Sheets(SheetNm).Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
             End If
+        Case Is = "Match"
+            If InStr(1, c.Value, ConditionValue, vbTextCompare) > 0 Then
+            SPLSUMIF = 10 * Application.WorksheetFunction.Log10( _
+                (10 ^ (SPLSUMIF / 10)) + _
+                (10 ^ (Sheets(SheetNm).Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
+            End If
         Case Is = "" 'no condtion type
             SPLSUMIF = -99
         End Select
@@ -587,12 +593,12 @@ End Function
 '           evaluated), and ConditionRange (values to be evaluated, if not the
 '           sum range itself)
 ' Comments: (1) Currently supports > >= < <= and =, no wildcard matching
+'           (2) Now includes Match for wildcard searches
 '==============================================================================
 Function SPLAVIF(SumRange As Range, ConditionStr As String, _
     Optional ConditionRange As Variant)
 
 Dim IfRange As Range
-Dim TypeFound As Boolean
 Dim numVals As Integer
 Dim ConditionType As String
 Dim SPLSUM As Single
@@ -606,7 +612,6 @@ Dim SheetNm As String 'name of sheet
     End If
 
 ConditionType = FindConditionType(ConditionStr)
-If ConditionType = "" Then TypeFound = False
     
 'initialise function
 SPLSUM = -99
@@ -659,6 +664,13 @@ numVals = 0
                 (10 ^ (Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
             numVals = numVals + 1
             End If
+        Case Is = "Match"
+            If InStr(1, c.Value, ConditionValue, vbTextCompare) > 0 Then
+            SPLSUM = 10 * Application.WorksheetFunction.Log10( _
+                (10 ^ (SPLSUM / 10)) + _
+                (10 ^ (Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
+            numVals = numVals + 1
+            End If
         Case Is = "" 'no condtion type
             SPLSUM = -99
         End Select
@@ -676,32 +688,31 @@ End Function
 ' Desc:     Filters conditions for SPLSUMIF and SPLAVIF
 ' Args:     inputFormula
 ' Comments: (1) Currently supports > >= < <= and =, no wildcard matching
+'           (2) Defaults to "=" if no character
+'           (3) Removed variable TypeFound - not required
 '==============================================================================
 Function FindConditionType(inputFormula As String)
   
     If Left(inputFormula, 2) = ">=" Then
     FindConditionType = "GreaterThanEqualTo"
     ConditionValue = CSng(Right(inputFormula, Len(inputFormula) - 2))
-    TypeFound = True
     ElseIf Left(inputFormula, 2) = "<=" Then
     FindConditionType = "LessThanEqualTo"
     ConditionValue = CSng(Right(inputFormula, Len(inputFormula) - 2))
-    TypeFound = True
     ElseIf Left(inputFormula, 1) = "=" Then
     FindConditionType = "Equals"
     ConditionValue = Right(inputFormula, Len(inputFormula) - 1)
-    TypeFound = True
     ElseIf Left(inputFormula, 1) = "<" Then
     FindConditionType = "LessThan"
     ConditionValue = CSng(Right(inputFormula, Len(inputFormula) - 1))
-    TypeFound = True
     ElseIf Left(inputFormula, 1) = ">" Then
     FindConditionType = "GreaterThan"
     ConditionValue = CSng(Right(inputFormula, Len(inputFormula) - 1))
-    TypeFound = True
-    Else 'catch all, no equals
-    FindConditionType = ""
-    TypeFound = False
+    ElseIf Left(inputFormula, 1) = "*" And Right(inputFormula, 1) = "*" Then
+    FindConditionType = "Match"
+    ConditionValue = Mid(inputFormula, 2, Len(inputFormula) - 2)
+    Else 'default to equals
+    FindConditionType = "Equals"
     End If
     
 End Function

@@ -77,7 +77,10 @@ Application.AskToUpdateLinks = False
     msg = MsgBox("Error - File not found!", vbOKOnly, "LOST IN SPACE?!")
     Exit Sub
     End If
-    
+
+'turn off screen updating
+Application.ScreenUpdating = False
+
 'open file
 Workbooks.Open fileName:=TemplatePath, ReadOnly:=True, Notify:=False
 Application.DisplayAlerts = True
@@ -99,9 +102,13 @@ Application.DisplayAlerts = True
 
 TemplateBook.Close SaveChanges:=False
 DoEvents
+'turn on screen updating
+Application.ScreenUpdating = True
 
     'there are buttons on this sheet that need to be repointed
     If ImportName = "CVT" Then ReassignConversionButtons
+
+
 
 Exit Sub
 
@@ -178,6 +185,7 @@ OpenPathStr = TEMPLATELOCATION & "\" & TypeCode
 Application.DisplayAlerts = False
 Application.EnableEvents = False
 Application.AskToUpdateLinks = False
+Application.ScreenUpdating = False
 
 'open
 Workbooks.Open (OpenPathStr)  'public variable
@@ -199,6 +207,7 @@ TemplateBook.Close SaveChanges:=False
 'resume normal error messages
 Application.DisplayAlerts = True
 Application.EnableEvents = True
+Application.ScreenUpdating = True
 
 'catch errrors
 errors:

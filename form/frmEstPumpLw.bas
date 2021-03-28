@@ -37,9 +37,6 @@ PumpEqn = Me.lblEqn.Caption
 Me.Hide
 End Sub
 
-Private Sub Image1_BeforeDragOver(ByVal Cancel As MSForms.ReturnBoolean, ByVal Data As MSForms.DataObject, ByVal x As Single, ByVal y As Single, ByVal DragState As MSForms.fmDragState, ByVal Effect As MSForms.ReturnEffect, ByVal Shift As Integer)
-
-End Sub
 
 Private Sub opt1000_Click()
 SelectEquation
@@ -55,10 +52,6 @@ End Sub
 
 Private Sub opt450_Click()
 SelectEquation
-End Sub
-
-Private Sub txtLw_Change()
-
 End Sub
 
 Private Sub txtPower_Change()

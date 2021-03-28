@@ -16,7 +16,7 @@ Public PumpPower As Long
 
 'Cooling Towers
 Public CTEqn As String
-Public CTPower As Long
+Public CTPower As Double
 Public CT_Type As String
 Public CT_Correction(0 To 8) As Long
 Public CT_Directivity(0 To 9) As Variant
@@ -74,25 +74,35 @@ LwOverall = 10 * Application.WorksheetFunction.Log10(V) + _
     Case Is = ""
     LwFanSimple = LwSimple
     Case Is = "Forward curved centrifugal"
+    'freqs              63 125  250   500 1k   2k    4k
     Correction = Array(-5, -10, -15, -20, -25, -28, -31) 'SRL
     Case Is = "Backward curved centrifugal"
+    'freqs              63  125  250  500  1k   2k   4k
     Correction = Array(-10, -11, -10, -15, -20, -25, -30) 'SRL
     Case Is = "Radial or paddle blade"
+    'freqs             63 125  250  500 1k   2k   4k
     Correction = Array(3, -3, -10, -11, -15, -19, -23) 'SRL
     Case Is = "Axial"
+    'freqs             63 125  250  500 1k  2k   4k
     Correction = Array(-8, -8, -6, -7, -8, -12, -16) 'MDA/Woods
     Case Is = "Bifurcated"
+    'freqs             63 125  250  500 1k  2k   4k
     Correction = Array(-3, -3, -4, -5, -7, -8, -11) 'SRL
     Case Is = "Propeller fan(approx)"
+    'freqs             63 125  250  500 1k   2k   4k
     Correction = Array(-3, -4, -1, -8, -12, -13, -20) 'SRL
     'Variable Inlet Vanes
     Case Is = "Variable inlet vanes - 100%"
+    'freqs           63 125 250 500 1k 2k 4k
     Correction = Array(0, 0, 0, 0, 0, 0, 0) 'RICHDS
     Case Is = "Variable inlet vanes - 80%"
+    'freqs           63 125  250 500 1k  2k 4k
     Correction = Array(8, 5, 4, 4, 4, 4, 4) 'RICHDS
     Case Is = "Variable inlet vanes - 60%"
+    'freqs           63 125  250 500 1k  2k 4k
     Correction = Array(8, 7, 6, 5, 5, 5, 5) 'RICHDS
     Case Is = "Variable inlet vanes - 40%"
+    'freqs           63 125  250 500 1k  2k 4k
     Correction = Array(3, 2, 1, 0, 0, 0, 1) 'RICHDS
     Case Is = ""
     LwFanSimple = LwSimple
@@ -248,9 +258,8 @@ ExtendFunction
         End If
     Next i
 
-SetUnits "kW", T_ParamStart
-SetDescription "Cooling Tower SWL Estimate - " & _
-    CT_Type & " Type"
+SetUnits "kW", T_ParamStart, 1
+SetDescription "Cooling Tower SWL Estimate - " & CT_Type & " Type"
     
 SetTraceStyle "Input", True
 
