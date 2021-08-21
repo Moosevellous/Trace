@@ -92,12 +92,15 @@ End Function
 '==============================================================================
 Sub SetTraceStyle(StyleName As String, Optional isParamCol As Boolean)
 Dim FullStyleName As String
+Dim Rw As Integer
 FullStyleName = "Trace " & StyleName
-    If IsEmpty(isParamCol) Then
-    ApplyTraceStyle FullStyleName, Selection.Row
-    Else
-    ApplyTraceStyle FullStyleName, Selection.Row, isParamCol
-    End If
+    For Rw = Selection.Row To Selection.Row + Selection.Rows.Count - 1
+        If IsEmpty(isParamCol) Then
+        ApplyTraceStyle FullStyleName, Rw
+        Else
+        ApplyTraceStyle FullStyleName, Rw, isParamCol
+        End If
+    Next Rw
 End Sub
 
 '==============================================================================

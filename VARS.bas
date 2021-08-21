@@ -74,22 +74,31 @@ End Function
 ' Args:     None
 ' Comments: (1) Add more columns here
 '==============================================================================
-Public Function CurrentSheetColumns() As Variant
-    If Left(T_SheetType, 3) = "OCT" Then 'OCT OR OCTA
+Public Function CurrentSheetColumns(Optional InputSheetType As String) As Variant
+
+Dim SheetType As String
+
+    If InputSheetType = "" Then
+    SheetType = T_SheetType
+    Else
+    SheetType = InputSheetType
+    End If
+
+    If Left(SheetType, 3) = "OCT" Then 'OCT OR OCTA
     CurrentSheetColumns = OCT_cols
-    ElseIf Left(T_SheetType, 2) = "TO" Then 'TO OR TOA
+    ElseIf Left(SheetType, 2) = "TO" Then 'TO OR TOA
     CurrentSheetColumns = TO_cols
-    ElseIf T_SheetType = "LF" Then
+    ElseIf SheetType = "LF" Then
     CurrentSheetColumns = LF_Cols
-    ElseIf T_SheetType = "MECH" Then
+    ElseIf SheetType = "MECH" Then
     CurrentSheetColumns = MECH_cols
-    ElseIf T_SheetType = "CVT" Then
+    ElseIf SheetType = "CVT" Then
     CurrentSheetColumns = CVT_cols
-    ElseIf T_SheetType = "LF_TO" Then
+    ElseIf SheetType = "LF_TO" Then
     CurrentSheetColumns = LF_TO_cols
-    ElseIf T_SheetType = "LF_OCT" Then
+    ElseIf SheetType = "LF_OCT" Then
     CurrentSheetColumns = LF_OCT_cols
-    'todo: exception for standard calc sheets
+    '<---------------------------------TODO: exception for standard calc sheets
     Else
     ErrorTypeCode
     End If
@@ -222,7 +231,7 @@ End Function
 ' Comments: (1) neat
 '==============================================================================
 Function ColNum2Str(ColNo As Integer) As String
-Dim vArr
+Dim vArr 'variable array to hold split
 vArr = Split(Cells(1, ColNo).Address(True, False), "$")
 ColNum2Str = vArr(0)
 End Function

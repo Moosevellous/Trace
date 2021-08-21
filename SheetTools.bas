@@ -1,5 +1,33 @@
 Attribute VB_Name = "SheetTools"
 '==============================================================================
+'PUBLIC VARIABLES
+'==============================================================================
+
+'Options Anlaysis
+Public RngVar1 As String
+Public RngVar2 As String
+Public TargetRng As String
+Public ApplyHeatMap As Boolean
+Public ResultRng As String
+
+'==============================================================================
+' Name:     TrimSheetName
+' Author:   PS
+' Desc:     Trims leading and trailing characters from sheet name
+' Args:     InputStr - name of sheet from RefEdit box
+' Comments: (1)
+'==============================================================================
+Function TrimSheetName(inputStr As String) As String
+    If inputStr <> "" Then
+        If Left(inputStr, 1) = "'" Then 'trim apostrophes and !
+        TrimSheetName = Mid(inputStr, 2, Len(inputStr) - 3)
+        Else 'trim "!"
+        TrimSheetName = Left(inputStr, Len(inputStr) - 1)
+        End If
+    End If
+End Function
+
+'==============================================================================
 ' Name:     FillHeaderBlock
 ' Author:   PS
 ' Desc:     Puts project info in the header block
@@ -138,6 +166,8 @@ foundProjectDirectory = False
 searchLevel = 0
 MaxSearchLevels = 10
 
+On Error GoTo errCatch
+
     While foundProjectDirectory = False And searchLevel <= MaxSearchLevels
         testPath = ""
         splitDir = Split(ActiveWorkbook.Path, "\", Len(ActiveWorkbook.Path), _
@@ -171,7 +201,7 @@ MaxSearchLevels = 10
                 ProjNoExtract = "PS" & Left(SplitPS(elem), 6)
                 HTMLFilePath = Right(testPath, Len(testPath)) & "\*" & _
                     ProjNoExtract & "*.html"
-                Debug.Print "Checking path: " & HTMLFilePath
+                'Debug.Print "Checking path: " & HTMLFilePath
     
                 Application.StatusBar = "Scanning: " & testPath
                 checkExists = Dir(HTMLFilePath)
@@ -181,13 +211,23 @@ MaxSearchLevels = 10
                     Application.StatusBar = "Project HTML file found!"
                     foundProjectDirectory = True
                     PROJECTINFODIRECTORY = testPath & "\" & checkExists
-                    Debug.Print "****PATH FOUND****"
+                    'Debug.Print "****PATH FOUND****"
                     End If
                 End If
             End If
         searchLevel = searchLevel + 1
     Wend
-'status bar
+
+Application.StatusBar = False
+Exit Sub
+errCatch:
+    If Err.Number = 52 Then
+    msg = MsgBox("HTML file not found", vbOKOnly, _
+        "Project Info Error")
+    Else
+    msg = MsgBox("Error " & Err.Number & chr(10) & Err.Description, vbOKOnly, _
+        "Project Info Error")
+    End If
 Application.StatusBar = False
 End Sub
 
@@ -361,8 +401,10 @@ End Sub
 ' Args:     None
 ' Comments: (1) Includes options for row-by-row formatting, or the entire range
 '           (2) Calls GreenYellowRed. Might add other colour schemes later.
+'           (3) Added optional input, which skips the check and applies to
+'               whole group. Called by Options Analysis subroutine.
 '==============================================================================
-Sub HeatMap()
+Sub HeatMap(Optional SkipCheck As Boolean)
 Dim RowByRow As Boolean
 Dim StartRw As Integer
 Dim EndRw As Integer
@@ -371,6 +413,8 @@ StartRw = Selection.Row
 EndRw = StartRw + Selection.Rows.Count - 1
 
     If StartRw = EndRw Then 'only one row
+    RowByRow = False
+    ElseIf SkipCheck = True Then
     RowByRow = False
     Else
     
@@ -608,6 +652,124 @@ Application.StatusBar = False
 End Sub
 
 
+
+'==============================================================================
+' Name:     OptionsAnalysis
+' Author:   PS
+' Desc:     Calculates all combinations of validations
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub OptionsAnalysis()
+Dim Var1Selector As String
+Dim Var2Selector As String
+Dim Var1Options() As Variant 'array
+Dim Var2Options() As Variant 'array
+Dim ResultSheet As String
+Dim TargetSheet As String
+Dim CalcSheet As String
+Dim ResultSheetType As String
+Dim TargetSheetType As String
+Dim CalcSheetType As String
+Dim ResultRow As Integer
+Dim Var1Row As String
+Dim Var2Row As String
+Dim TargetRow As Integer
+Dim ResultAddr As String
+Dim Res_StartCol As Integer
+Dim Res_EndCol As Integer
+Dim Tar_StartCol As Integer
+Dim Tar_EndCol As Integer
+
+
+'<-TODO: Title row
+'<-TODO: check number of rows
+
+frmOptionsAnalysis.Show
+
+    If btnOkPressed = False Then End
+
+'set addresses and rows
+Var1Row = ExtractAddressElement(RngVar1, 2)
+Var2Row = ExtractAddressElement(RngVar2, 2)
+Var1Selector = Cells(CInt(Var1Row), T_Description).Address
+Var2Selector = Cells(CInt(Var2Row), T_Description).Address
+ResultRow = ExtractAddressElement(ResultRng, 2)
+TargetRow = ExtractAddressElement(TargetRng, 2)
+InitialRow = TargetRow
+
+'set sheet names
+TargetSheet = ExtractAddressElement(TargetRng, 0)
+TargetSheet = TrimSheetName(TargetSheet)
+CalcSheet = ExtractAddressElement(RngVar1, 0)
+CalcSheet = TrimSheetName(CalcSheet)
+ResultSheet = ExtractAddressElement(ResultRng, 0)
+ResultSheet = TrimSheetName(ResultSheet)
+'set sheet types
+ResultSheetType = Sheets(ResultSheet).Range("TYPECODE").Value
+CalcSheetType = Sheets(CalcSheet).Range("TYPECODE").Value
+TargetSheetType = Sheets(TargetSheet).Range("TYPECODE").Value
+
+Sheets(CalcSheet).Activate
+
+    'get lists of options - variable 1
+    If HasDataValidation(Range(Var1Selector)) Then
+    RngVar1 = Range(Var1Selector).Validation.Formula1
+    Var1Options = Range(RngVar1).Value2
+    Else 'just the one option
+    ReDim Var1Options(1, 1)
+    Var1Options(1, 1) = Range(Var1Selector).Value
+    End If
+
+    'get lists of options - variable 2
+    If HasDataValidation(Range(Var2Selector)) Then
+    RngVar2 = Range(Var2Selector).Validation.Formula1
+    Var2Options = Range(RngVar2).Value
+    Else 'just one option
+    ReDim Var2Options(1, 1)
+    Var2Options(1, 1) = Range(Var2Selector).Value
+    End If
+
+    'loop through each source
+    For S = 1 To UBound(Var1Options)
+    
+        'loop through each attenuator
+        For a = 1 To UBound(Var2Options)
+        
+        'Debug.Print Var1Options(S, 1) & " // " & Var2Options(a, 1)
+        
+        'set description (and thereby values)
+        Range(Var1Selector).Value = Var1Options(S, 1)
+        Range(Var2Selector).Value = Var2Options(a, 1)
+        
+        'write to output
+        Sheets(TargetSheet).Cells(TargetRow, T_Description).Value = _
+            Var1Options(S, 1) & " // " & Var2Options(a, 1)
+        
+        'set ranges for Results / Target sheets
+        Res_StartCol = GetSheetTypeColumns(ResultSheetType, "LossGainStart")
+        Res_EndCol = GetSheetTypeColumns(ResultSheetType, "LossGainEnd")
+        Tar_StartCol = GetSheetTypeColumns(TargetSheetType, "LossGainStart")
+        Tar_EndCol = GetSheetTypeColumns(TargetSheetType, "LossGainEnd")
+        'results
+        ResultsAddr = Range(Cells(ResultRow, Res_StartCol), Cells(ResultRow, Res_EndCol)).Address
+        WriteAddr = Range(Cells(TargetRow, Tar_StartCol), Cells(TargetRow, Tar_EndCol)).Address '<--TODO: make input variable
+        Sheets(TargetSheet).Range(WriteAddr).Value = Range(ResultsAddr).Value
+        
+        TargetRow = TargetRow + 1
+        Next a
+        
+    Next S
+    
+Sheets(TargetSheet).Activate
+
+    'colours are nice
+    If ApplyHeatMap = True Then
+    Range(Cells(InitialRow, T_LossGainStart), _
+        Cells(TargetRow - 1, T_LossGainStart)).Select
+    HeatMap (True)
+    End If
+End Sub
 
 
 

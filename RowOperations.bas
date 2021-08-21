@@ -17,9 +17,9 @@ Public RegenDestinationRange As Boolean
 ' Args:     inputStr - Range string
 ' Comments: (1)
 '==============================================================================
-Function GetSheetName(InputStr As String) 'Sheet name, first row, last row
+Function GetSheetName(inputStr As String) 'Sheet name, first row, last row
 Dim SplitStr() As String
-SplitStr = Split(InputStr, "!", Len(InputStr), vbTextCompare)
+SplitStr = Split(inputStr, "!", Len(inputStr), vbTextCompare)
     If Right(SplitStr(0), 1) = "!" Then
     GetSheetName = SplitStr(0)
     Else
@@ -34,9 +34,9 @@ End Function
 ' Args:     inputStr - Range string
 ' Comments: (1)
 '==============================================================================
-Function GetFirstRow(InputStr As String)
+Function GetFirstRow(inputStr As String)
 Dim SplitStr() As String
-SplitStr = Split(InputStr, "$", Len(InputStr), vbTextCompare)
+SplitStr = Split(inputStr, "$", Len(inputStr), vbTextCompare)
     If Right(SplitStr(2), 1) = ":" Then
     'trim one colon character = colonoscopy???
     GetFirstRow = CInt(Left(SplitStr(2), Len(SplitStr(2)) - 1))
@@ -52,12 +52,58 @@ End Function
 ' Args:     inputStr - Range string
 ' Comments: (1)
 '==============================================================================
-Function GetLastRow(InputStr As String)
+Function GetLastRow(inputStr As String)
 Dim SplitStr() As String
-SplitStr = Split(InputStr, "$", Len(InputStr), vbTextCompare)
+SplitStr = Split(inputStr, "$", Len(inputStr), vbTextCompare)
 GetLastRow = CInt(SplitStr(UBound(SplitStr)))
 End Function
 
+'==============================================================================
+' Name:     HasDataValidation
+' Author:   PS
+' Desc:     Returns TRUE if the range has validation on it
+' Args:     rng - the range to be tested
+' Comments: (1)
+'==============================================================================
+Function HasDataValidation(rng As Range) As Boolean
+
+On Error Resume Next
+
+DVtype = rng.Validation.Type
+
+On Error GoTo 0
+
+    If DVtype = 3 Then
+    HasDataValidation = True
+    Else
+    HasDataValidation = False
+    End If
+
+End Function
+
+'<-TODO this function
+''==============================================================================
+'' Name:     CalcZoneType
+'' Author:   PS
+'' Desc:     Returns TRUE if the range has validation on it
+'' Args:     rng - the range to be tested
+'' Comments: (1)
+''==============================================================================
+'Function CalcZoneType(rng As Range) As Integer
+'
+'On Error Resume Next
+'
+'DVtype = rng.Validation.Type
+'
+'On Error GoTo 0
+'
+'    If DVtype = 3 Then
+'    HasDataValidation = True
+'    Else
+'    HasDataValidation = False
+'    End If
+'
+'End Function
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -83,7 +129,7 @@ Dim i As Integer
     
     If SkipUserInput = False Then 'runs by default
         If Selection.Rows.Count > 1 Then
-        ClearMultipleRows = MsgBox("Are you sure you want to clear all rows?", _
+        ClearMultipleRows = MsgBox("Are you sure you want to clear selected rows?", _
             vbYesNo, "Check, one, two...")
         End If
         
@@ -580,7 +626,7 @@ LastRow = GetLastRow(UserSelectedAddress)
         ElseIf T_SheetType = "MECH" Then
         Cells(Selection.Row, DestinationCol).Value = "=INDEX(" & SheetName & "$B$" & FirstRow & ":$M$" & LastRow & ",MATCH('" & ActiveSheet.Name & "'!$B$" & Selection.Row & _
         "," & SheetName & "$B$" & FirstRow & ":$B" & LastRow & ",0),MATCH('" & ActiveSheet.Name & "'!T$6," & SheetName & "$B$6:$M$6,0))"
-        ExtendFunction (True)
+        ExtendFunction (RegenDestinationRange)
         End If
     
     End If
@@ -596,7 +642,7 @@ End Sub
 ' Desc:     Toggles cell contents in a single row within the working area
 '           between active and inactive. Preserves original formula and format.
 ' Args:     None
-' Comments: (1)
+' Comments: (1) Edited to make column selection dependant on cursor position
 '==============================================================================
 
 Sub ToggleActive()
@@ -607,11 +653,23 @@ Dim NewValue As String
 
 WrkRow = Selection.Row
 
+    'set working range based on where the cursor is
+    If Selection.Column >= T_LossGainStart And Selection.Column <= T_LossGainEnd Then
+    startCol = T_LossGainStart
+    endCol = T_LossGainEnd
+    ElseIf Selection.Column >= T_RegenStart And Selection.Column <= T_RegenEnd Then
+    startCol = T_RegenStart
+    endCol = T_RegenEnd
+    Else 'fallback
+    startCol = T_LossGainStart
+    endCol = T_LossGainEnd
+    End If
+
 'CHECK FOR NON HEADER ROWS
 CheckTemplateRow (WrkRow)
 
     ' Toggles between active and inactive
-    For i = T_LossGainStart To T_LossGainEnd
+    For i = startCol To endCol
     
         ' If currently inactive, toggle active. Looks for [,"\*] within formula.
         If InStr(1, Cells(WrkRow, i).Formula, ",""\*") <> 0 Then
@@ -1087,24 +1145,29 @@ End Sub
 ' Desc:     Copies formulas to the correct ranges
 ' Args:     None
 ' Comments: (1) Sheet currently supports OCT, OCTA, TO, TOA sheets
+'           (2) updated to loop through all rows
 '==============================================================================
 Sub ExtendFunction(Optional ApplyToRegen As Boolean)
 Dim StartAddr As String
+Dim Rw As Integer
 StartAddr = Selection.Address
     If T_LossGainStart < 1 Or T_LossGainEnd < 1 Then
     'public variables not defined, let's fix that
     SetSheetTypeControls
     End If
     
-    If ApplyToRegen = True Then
-    Cells(Selection.Row, T_RegenStart).Copy
-    Range(Cells(Selection.Row, T_RegenStart), _
-        Cells(Selection.Row, T_RegenEnd)).PasteSpecial (xlPasteFormulas)
-    Else
-    Cells(Selection.Row, T_LossGainStart).Copy
-    Range(Cells(Selection.Row, T_LossGainStart), _
-        Cells(Selection.Row, T_LossGainEnd)).PasteSpecial (xlPasteFormulas)
-    End If
+    'loop for each row
+    For Rw = Selection.Row To Selection.Row + Selection.Rows.Count - 1
+        If ApplyToRegen = True Then
+        Cells(Rw, T_RegenStart).Copy
+        Range(Cells(Rw, T_RegenStart), _
+            Cells(Rw, T_RegenEnd)).PasteSpecial (xlPasteFormulas)
+        Else
+        Cells(Rw, T_LossGainStart).Copy
+        Range(Cells(Rw, T_LossGainStart), _
+            Cells(Rw, T_LossGainEnd)).PasteSpecial (xlPasteFormulas)
+        End If
+    Next Rw
     
 Application.CutCopyMode = False
 Range(StartAddr).Select
@@ -1261,10 +1324,14 @@ End Sub
 ' Author:   PS
 ' Desc:     Puts in description, only if there's nothing in there, otherwise
 '           puts the name in the comment
-' Args:     None
-' Comments: (1)
+' Args:     DescriptionString - Text to be inserted
+'           InputRw - Row number of description, defaults to selection.row
+'           OverWriteExisting - set to TRUE to replace exisitng text
+' Comments: (1) Updated to allow force overwrite
 '==============================================================================
-Sub SetDescription(DescriptionString As String, Optional InputRw As Integer)
+Sub SetDescription(DescriptionString As String, Optional InputRw As Integer, _
+Optional OverWriteExisting As Boolean)
+
 Dim Rw As Integer
 
     'set row
@@ -1275,11 +1342,12 @@ Dim Rw As Integer
     End If
 
     'check for description field
-    If Cells(Rw, T_Description).Value = "" Then 'set description
+    If Cells(Rw, T_Description).Value = "" Or _
+    OverWriteExisting = True Then 'set description
     Cells(Rw, T_Description).ClearContents
     Cells(Rw, T_Description).ClearComments
     Cells(Rw, T_Description).Value = DescriptionString
-    Else 'add as comment
+    Else 'as comment
     InsertComment DescriptionString, T_Description, True, Rw
     End If
     
@@ -1347,6 +1415,8 @@ Set CheckRng = Cells(Rw, Col)
 CheckRng.AddComment CommentStr
 CheckRng.Comment.Shape.TextFrame.AutoSize = True
 End Sub
+
+
 
 
 '**************

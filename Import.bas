@@ -51,6 +51,8 @@ Dim RawBookName As String
 Dim WriteRw As Integer
 Dim PercentDone As Single
 Dim PasteCol As Integer
+Dim FindRw As Integer
+Dim FoundSWL As Boolean
 
     If Left(T_BandType, 2) = "TO" Then 'TO or TOA
     ErrorOctOnly
@@ -93,7 +95,16 @@ numFiles = UBound(File)
     
     'Inlet
     FanType = Cells(7, 2).Value
-    Range("B33:B40").Copy
+    FindRw = 3
+    FoundSWL = False
+        While FoundSWL = False
+            If InStr(1, Cells(FindRw, 1).Value, "Sound Power Inlet", vbTextCompare) > 0 Then
+            FoundSWL = True
+            Else
+            FindRw = FindRw + 1
+            End If
+        Wend
+    Range(Cells(FindRw, 2), Cells(FindRw + 7, 2)).Copy
     Workbooks(WorkbookName).Activate
     Cells(WriteRw, PasteCol).PasteSpecial Paste:=xlValues, Transpose:=True
     SetDescription FanType & " - Inlet", WriteRw
@@ -102,7 +113,15 @@ numFiles = UBound(File)
     
     'Outlet
     Workbooks(RawBookName).Activate
-    Range("B42:B49").Copy
+    FoundSWL = False
+        While FoundSWL = False
+            If InStr(1, Cells(FindRw, 1).Value, "Sound Power Outlet", vbTextCompare) > 0 Then
+            FoundSWL = True
+            Else
+            FindRw = FindRw + 1
+            End If
+        Wend
+    Range(Cells(FindRw, 2), Cells(FindRw + 7, 2)).Copy
     Workbooks(WorkbookName).Activate
     Cells(WriteRw, PasteCol).PasteSpecial Paste:=xlValues, Transpose:=True
     SetDescription FanType & " - Outlet", WriteRw

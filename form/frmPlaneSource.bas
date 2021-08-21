@@ -13,7 +13,6 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-
 Private Sub btnCancel_Click()
 btnOkPressed = False
 Me.Hide
@@ -29,10 +28,6 @@ PlaneH = CDbl(Me.txtHeight.Value)
 PlaneL = CDbl(Me.txtWidth.Value)
 PlaneDist = CDbl(Me.txtDistance.Value)
 Me.Hide
-End Sub
-
-Private Sub Image1_BeforeDragOver(ByVal Cancel As MSForms.ReturnBoolean, ByVal Data As MSForms.DataObject, ByVal x As Single, ByVal y As Single, ByVal DragState As MSForms.fmDragState, ByVal Effect As MSForms.ReturnEffect, ByVal Shift As Integer)
-
 End Sub
 
 Private Sub txtDistance_Change()

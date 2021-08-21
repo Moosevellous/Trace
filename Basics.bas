@@ -12,6 +12,10 @@ Public BasicsApplyStyle As String 'sets style
 Public FBC_bandwidth As Integer
 Public FBC_mode As String
 Public FBC_baseTen As Boolean
+Public MAM_M1 As Double
+Public MAM_M2 As Double
+Public MAM_Width As Double
+Public MAM_Description As String
 
 '==============================================================================
 ' Name:     freqStr2Num
@@ -359,7 +363,7 @@ Dim i As Long
 
 SPLSUM = -99
     For i = LBound(rng1) To UBound(rng1)
-    'Debug.Print TypeName(Rng1(i))
+    'Debug.Print TypeName(rng1(i))
         If TypeName(rng1(i)) = "Double" Then
             If rng1(i) > 0 Then 'negative values are ignored
             SPLSUM = 10 * Application.WorksheetFunction.Log10( _
@@ -367,14 +371,13 @@ SPLSUM = -99
             End If
         ElseIf TypeName(rng1(i)) = "Range" Then
             For Each c In rng1(i).Cells
-                If c.Value <> Empty Then
+                If c.Value <> Empty And IsNumeric(c.Value) Then
                 SPLSUM = 10 * Application.WorksheetFunction.Log10( _
                     (10 ^ (SPLSUM / 10)) + (10 ^ (c.Value / 10)))
                 End If
             Next c
         End If
     Next i
-
 End Function
 
 '==============================================================================
@@ -491,11 +494,11 @@ i = 1
     Switch = -1
     End If
     
-    For Each A In AreaRange
-    TotalArea = TotalArea + A
-    TotalWeightedTL = TotalWeightedTL + A * (10 ^ (Switch * TL_Range(i) / 10))
+    For Each a In AreaRange
+    TotalArea = TotalArea + a
+    TotalWeightedTL = TotalWeightedTL + a * (10 ^ (Switch * TL_Range(i) / 10))
     i = i + 1
-    Next A
+    Next a
 
 CompositeTL = (Switch * -1) * 10 * Application.WorksheetFunction.Log _
     (TotalArea / TotalWeightedTL)
@@ -702,6 +705,10 @@ Function FindConditionType(inputFormula As String)
     ElseIf Left(inputFormula, 1) = "=" Then
     FindConditionType = "Equals"
     ConditionValue = Right(inputFormula, Len(inputFormula) - 1)
+        'for numbers as filters
+        If IsNumeric(ConditionValue) Then
+        ConditionValue = CSng(ConditionValue)
+        End If
     ElseIf Left(inputFormula, 1) = "<" Then
     FindConditionType = "LessThan"
     ConditionValue = CSng(Right(inputFormula, Len(inputFormula) - 1))
@@ -718,7 +725,7 @@ Function FindConditionType(inputFormula As String)
 End Function
 
 '==============================================================================
-' Name:     FitztroyRT
+' Name:     FitzroyRT
 ' Author:   PS
 ' Desc:     Calculates the reverberation time according to Fitzroy's method
 ' Args:     Dimensions of room (x/y/z) in metres
@@ -902,20 +909,50 @@ b = GetBandwidthIndex(f)
 End Function
 
 '==============================================================================
-' Name:     ExtractRefElement
+' Name:     ExtractAddressElement
 ' Author:   PS
 ' Desc:     Get the first and last rows of  arange that's been input, assumes
 '           the string contains relative references, and therefore '$' signs
 ' Args:     AddressStr (String of a range), elemNo (which element number to extract
 ' Comments: (1) Used for form frmBasic. A little hacky but it works.
+'           (2) Renamed from ExtractRefElement. Now used in Options Analysis too.
 '==============================================================================
-Function ExtractRefElement(AddressStr As String, elemNo As Integer)
+Function ExtractAddressElement(AddressStr As String, elemNo As Integer)
 Dim SplitStr() As String
 SplitStr = Split(AddressStr, "$", Len(AddressStr), vbTextCompare)
     If elemNo <= UBound(SplitStr) Then
-    ExtractRefElement = SplitStr(elemNo)
+    ExtractAddressElement = SplitStr(elemNo)
     End If
 End Function
+
+'==============================================================================
+' Name:     MassAirMass
+' Author:   PS
+' Desc:
+' Args:     m1 - mass of first element in kg/m2
+'           m2 - mass of second element in kg/m2
+'           CavitySpace - distance between the leaves, in mm
+' Comments: (1)
+'==============================================================================
+Function MassAirMass(m1 As Double, m2 As Double, CavitySpace As Double, Optional vAirTemp As Variant)
+Dim a As Double
+Dim AirTemp As Long
+a = 1 / (2 * Application.WorksheetFunction.Pi())
+rho = 1.225 'constant for now
+    If IsMissing(vAirTemp) Or vAirTemp = "" Then
+    AirTemp = 20 'default to 20 degrees celsius
+    Else
+    AirTemp = CLng(vAirTemp)
+    End If
+c = SpeedOfSound(AirTemp, False)
+d = CavitySpace / 1000 'convert to metres
+    If m1 > 0 And m2 > 0 Then
+    MassAirMass = a * ((rho * (c ^ 2) * (m1 + m2)) / (d * m1 * m2)) ^ (1 / 2)
+    Else
+    MassAirMass = 0
+    End If
+End Function
+
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -976,8 +1013,8 @@ If btnOkPressed = False Then End
             vbOKOnly, "Two is better than one.")
         End  'if no ranges selected then skip
         Else 'get rows for the other range
-        FirstRow2 = ExtractRefElement(Range2Selection, 2)
-        LastRow2 = ExtractRefElement(Range2Selection, 4)
+        FirstRow2 = ExtractAddressElement(Range2Selection, 2)
+        LastRow2 = ExtractAddressElement(Range2Selection, 4)
         End If
         
     End If
@@ -988,8 +1025,8 @@ SetDescription BasicFunctionType
 
     'build formula
     If ApplyToSheetType = True Then
-    FirstRow = ExtractRefElement(RangeSelection, 2)
-    LastRow = ExtractRefElement(RangeSelection, 4)
+    FirstRow = ExtractAddressElement(RangeSelection, 2)
+    LastRow = ExtractAddressElement(RangeSelection, 4)
     ColumnLetter = ColNum2Str(T_LossGainStart)
         If NeedsTwoRanges = True Then
         'note, only single line inputs for functions with two ranges
@@ -1084,4 +1121,30 @@ SetUnits "mps", T_ParamStart
 Cells(Selection.Row, T_ParamStart + 1).NumberFormat = """""0""°C """
 SetTraceStyle "Input", True
 End Sub
+
+'==============================================================================
+' Name:     PutMassAirMass
+' Author:   PS
+' Desc:     Inserts formula for mass-air-mass
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub PutMassAirMass()
+
+SetDescription "Mass-Air-Mass"
+
+frmMAM.Show
+If btnOkPressed = False Then End
+
+Cells(Selection.Row, T_ParamStart).Value = MAM_Width
+Cells(Selection.Row, T_ParamStart + 1).Value = "=MassAirMass(" & MAM_M1 & "," & _
+    MAM_M2 & "," & Cells(Selection.Row, T_ParamStart).Address(False, False) & ",20)"
+InsertComment MAM_Description, T_ParamStart + 1
+
+'Formatting
+SetUnits "mm", T_ParamStart
+Cells(Selection.Row, T_ParamStart + 1).NumberFormat = "0.0 ""Hz"""
+SetTraceStyle "Input", True
+End Sub
+
 

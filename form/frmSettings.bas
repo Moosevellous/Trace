@@ -63,8 +63,8 @@ PrintText "ID:", Application.AddIns("Trace").progID
 PrintText ""
 End Sub
 
-Sub PrintText(InputStr As String, Optional InputStr2 As String)
-Me.txtSettings.Text = Me.txtSettings.Text & chr(10) & InputStr & " " & InputStr2
+Sub PrintText(inputStr As String, Optional InputStr2 As String)
+Me.txtSettings.Text = Me.txtSettings.Text & chr(10) & inputStr & " " & InputStr2
 Me.txtSettings.SelStart = Len(Me.txtSettings.Text) - 1
 Me.txtSettings.SetFocus
 End Sub

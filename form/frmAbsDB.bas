@@ -13,8 +13,6 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-
-
 Private Sub btnCancel_Click()
 btnOkPressed = False
 Me.Hide
@@ -46,7 +44,6 @@ GetSettings
 End Sub
 
 
-
 Private Sub frameSearchProduct_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
 'Debug.Print "x"; X; "y"; Y
 'check if is within one of the stars, then fill
@@ -66,3 +63,10 @@ Private Sub imgStar1_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, 
 'Debug.Print "x"; X; "y"; Y
 
 End Sub
+
+'Private Sub UserForm_Click()
+'Me.ListBox1.AddItem ("Autex")
+'Me.ListBox1.AddItem ("IAC")
+'Me.ListBox1.AddItem ("Joe abs")
+'Me.ListBox1.AddItem ("something")
+'End Sub

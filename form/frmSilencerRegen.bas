@@ -194,7 +194,7 @@ Model = Me.txtTypeCode.Value
     If IsNumeric(Me.txtW.Value) And IsNumeric(Me.txtH.Value) Then
     DuctAreaMsq = (Me.txtW.Value * Me.txtH.Value) / 1000000 'area in m^2
     Me.txtDuctArea.Value = Round(DuctAreaMsq, 3)
-        If IsNumeric(Me.txtFlowRate.Value) And IsNumeric(Me.txtFA.Value) Then
+        If IsNumeric(Me.txtFlowRate.Value) And IsNumeric(Me.txtFA.Value) And DuctAreaMsq > 0 Then
             'RegenNoise
             If Me.optLitres.Value = True Then
             FlowrateM3ps = CDbl(Me.txtFlowRate.Value) / 1000

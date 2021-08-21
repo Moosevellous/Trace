@@ -214,7 +214,7 @@ Dim f As Double
 Dim dss As Double 'distance from source to the first diffraction edge
 Dim dsr As Double 'distance from the (second) diffraction edge to the receiver
 Dim DistanceRecBarrier As Double 'distance from Receiver to the barrier (near side)
-Dim A As Double 'a is the horizontal offset distance between the source and the receivers
+Dim a As Double 'a is the horizontal offset distance between the source and the receivers
 Dim lambda As Double 'wavelength
 Dim z As Double 'difference in path lengths of diffracted and direct sound in metres
 Dim Kmet As Double
@@ -224,7 +224,7 @@ If IsMissing(BarrierThickness) Or DoubleDiffraction = False Then BarrierThicknes
 
 f = freqStr2Num(fstr)
 lambda = (343) / f 'as defined in the method
-A = Abs(SrcDistanceEdge - RecDistanceEdge)
+a = Abs(SrcDistanceEdge - RecDistanceEdge)
     
     If IsNumeric(GroundEffect) = False Then
     ISO9613_Abar = "-"
@@ -249,7 +249,7 @@ d_standard = (((SourceReceiverDistance ^ 2) + ((ReceiverHeight - SourceHeight) ^
     If DoubleDiffraction = True And BarrierThickness > 0 Then
     Cthree = (1 + ((5 * lambda / BarrierThickness) * (5 * lambda / BarrierThickness))) / _
             (1 / 3 + ((5 * lambda / BarrierThickness) * (5 * lambda / BarrierThickness)))
-    z = ((((dss + dsr + BarrierThickness) ^ 2) + (A ^ 2)) ^ (1 / 2)) - d_standard
+    z = ((((dss + dsr + BarrierThickness) ^ 2) + (a ^ 2)) ^ (1 / 2)) - d_standard
     
     'Here the case of double diffraction is considered it actually says if lambda is << e
     'so here we have considered half of the value
@@ -258,7 +258,7 @@ d_standard = (((SourceReceiverDistance ^ 2) + ((ReceiverHeight - SourceHeight) ^
         End If
     Else 'double diffraction is false
     Cthree = 1
-    z = ((((dss + dsr) ^ 2) + (A ^ 2)) ^ (1 / 2)) - d_standard
+    z = ((((dss + dsr) ^ 2) + (a ^ 2)) ^ (1 / 2)) - d_standard
     End If
 
 'calculate the Kmet: the meteorological correction

@@ -302,23 +302,25 @@ ReDim Preserve Length(size)
 ReDim Preserve Series(size)
 End Sub
 
-Function SolveForSilencer(SilRng As String, targetRng As String, NRGoal As Boolean, NoiseGoal As Double) 'As String()         RectSil As Boolean, SilStraight As Boolean, SilPodded As Boolean, Qseal As Boolean,
+
+Function SolveForSilencer(SilRng As String, TargetRng As String, NRGoal As Boolean, NoiseGoal As Double)
 Dim found As Boolean
 Dim targetAddr() As String
 Dim targetRw As Integer
-Dim silAddr() As String
-Dim silRw As Integer
+Dim SilAddr() As String
+Dim SilRw As Integer
 Dim TestLevel As Double
+Dim SilCols As Integer
 
-targetAddr = Split(targetRng, "$", Len(targetRng), vbTextCompare) 'TODO error checking for row
-silAddr = Split(SilRng, "$", Len(SilRng), vbTextCompare)
+targetAddr = Split(TargetRng, "$", Len(TargetRng), vbTextCompare) 'TODO error checking for row
+SilAddr = Split(SilRng, "$", Len(SilRng), vbTextCompare)
 
-    If UBound(targetAddr) <> -1 Or UBound(silAddr) <> -1 Then
+    If UBound(targetAddr) <> -1 Or UBound(SilAddr) <> -1 Then
     
     targetRw = targetAddr(2)
-    silRw = silAddr(2)
+    SilRw = SilAddr(2)
     'send to public variable
-    SolverRow = silRw
+    SolverRow = SilRw
     
     Me.lblStatus.Caption = "Scanning database...."
         If TextFileScanned = False Then 'Scan text file with silencers
@@ -331,15 +333,16 @@ Application.Calculation = xlCalculationManual
     'search for compliant silencers
         'place in cells
         For Rw = 2 To UBound(SilencerArray)
-        
-            For Col = 6 To 13
+        SilCols = 0
+            For Col = T_LossGainStart + 1 To T_LossGainEnd - 1
             'Debug.Print SilencerArray(rw, Col - 4)
-            Cells(silRw, Col).Value = SilencerArray(Rw, Col - 4)
+            Cells(SilRw, Col).Value = SilencerArray(Rw, 2 + SilCols) 'start from element 2
+            SilCols = SilCols + 1 'index write row
             Next Col
             
         'Debug.Print UBound(SilNameArray)
             If UBound(SilNameArray) >= Rw Then
-            Cells(silRw, 2).Value = SilNameArray(Rw)
+            Cells(SilRw, T_Description).Value = SilNameArray(Rw)
             Me.lblStatus.Caption = "Checking: " & SilNameArray(Rw)
             Else
             Me.lblStatus.Caption = ""
@@ -352,7 +355,7 @@ Application.Calculation = xlCalculationManual
         'TestLevel = Cells(targetRw, 14).Value
         TestLevel = NR_rate(Range(Cells(targetRw, T_LossGainStart), Cells(targetRw, T_LossGainStart)))
         Else
-        TestLevel = Round(Cells(targetRw, 4).Value, 1)
+        TestLevel = Round(Cells(targetRw, T_LossGainStart - 1).Value, 1)
         End If
         
         If TestLevel <= NoiseGoal And TestLevel >= (NoiseGoal - CDbl(Me.txtDesignTolerance.Value)) Then 'silencer achieves target, but doesn't overshoot
@@ -391,30 +394,37 @@ Sub ScanFantechTextFile()
 Dim i As Integer
 Dim j As Integer
 Dim ReadStr() As String
-    Open FANTECH_SILENCERS For Input As #1
-        i = 0 '<-line number
-        found = False
-        Do Until EOF(1) Or found = True
-        ReDim Preserve ReadStr(i)
-        Line Input #1, ReadStr(i)
-        Debug.Print ReadStr(i)
-        SplitStr = Split(ReadStr(i), vbTab, Len(ReadStr(i)), vbTextCompare)
-            If Left(SplitStr(0), 1) <> "*" Then
-                For j = 2 To 10 'hard coded columns for Silencers
-                'Debug.Print splitStr(j)
-                    If SplitStr(j) <> "" And SplitStr(j) <> "-" Then
-                    Debug.Print UBound(SilencerArray)
-                    SilencerArray(i, j) = CDbl(SplitStr(j))
-                    End If
-                Next j
-                'resize arrays for number of elements
-                ReDim Preserve SilNameArray(i)
-                ReDim Preserve SilSeriesArray(i)
-                SilNameArray(i) = SplitStr(11) 'column 11 has name of silencer
-                SilencerArray(i, 1) = SplitStr(1) 'length of silencer
-                SilSeriesArray(i) = SplitStr(12) 'column 12 has silencer series (eg Fantech, NAP etc)
-            End If
-        i = i + 1
-        Loop
-    Close #1
+
+Open FANTECH_SILENCERS For Input As #1 'set Global variable to text input
+i = 0 '<-line number
+found = False
+
+    Do Until EOF(1) Or found = True
+    ReDim Preserve ReadStr(i)
+    Line Input #1, ReadStr(i)
+    'Debug.Print ReadStr(i)
+    SplitStr = Split(ReadStr(i), vbTab, Len(ReadStr(i)), vbTextCompare)
+    
+        If Left(SplitStr(0), 1) <> "*" Then
+            For j = 2 To 10 'hard coded columns for Silencers
+            'Debug.Print splitStr(j)
+                If SplitStr(j) <> "" And SplitStr(j) <> "-" Then
+                'Debug.Print UBound(SilencerArray)
+                SilencerArray(i, j) = CDbl(SplitStr(j))
+                End If
+            Next j
+            
+        'resize arrays for number of elements
+        ReDim Preserve SilNameArray(i)
+        ReDim Preserve SilSeriesArray(i)
+        SilNameArray(i) = SplitStr(11) 'column 11 has name of silencer
+        SilencerArray(i, 1) = SplitStr(1) 'length of silencer
+        SilSeriesArray(i) = SplitStr(12) 'column 12 has silencer series (eg Fantech, NAP etc)
+        End If
+        
+    i = i + 1
+    Loop
+    
+Close #1
+    
 End Sub

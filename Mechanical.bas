@@ -242,7 +242,7 @@ Dim PonA As Double 'Perimeter divided by area
 Dim Attn As Double 'Attenuation in dB, up to 250Hz
 Dim IL As Double 'Insertion Loss in dB, a part of Attn above 250Hz
 Dim f As Double 'frequency as value
-Dim A As Double 'cross sectional area in m^2
+Dim a As Double 'cross sectional area in m^2
 Dim P As Double 'perimeter in metres
 
 'Static Values from NEBB book for various coefficients
@@ -256,8 +256,12 @@ H = H / 1000
 W = W / 1000
 
 P = (H * 2) + (W * 2) 'perimeter
-A = H * W 'area
-PonA = P / A
+a = H * W 'area
+    If P = 0 Or a = 0 Then
+    PonA = 0
+    Else
+    PonA = P / a
+    End If
 
 f = freqStr2Num(fstr)
 i = GetArrayIndex_OCT(fstr)
@@ -316,7 +320,7 @@ thickness As Double, L As Double)
 
 'declare Arrays from Table 5.8 of NEBB book
 'bands     63      125     250     500     1k     2k    4k   8k
-A = Array(0.2825, 0.5237, 0.3652, 0.1333, 1.933, 2.73, 2.8, 1.545)
+a = Array(0.2825, 0.5237, 0.3652, 0.1333, 1.933, 2.73, 2.8, 1.545)
 b = Array(0.3447, 0.2234, 0.79, 1.845, 0, 0, 0, 0)
 c = Array(-0.05251, -0.004936, -0.1157, -0.3735, 0, 0, 0, 0)
 d = Array(-0.03837, -0.02724, -0.01834, -0.01293, 0.06135, -0.07341, -0.1467, -0.05452)
@@ -334,7 +338,7 @@ i = GetArrayIndex_OCT(fstr)
     DuctAttenCircular_Reynolds = ""
     Else
 
-    DuctAttenCircular_Reynolds = 3.281 * (A(i) + (b(i) * thickness) + _
+    DuctAttenCircular_Reynolds = 3.281 * (a(i) + (b(i) * thickness) + _
     (c(i) * thickness ^ 2) + (d(i) * dia) + (e(i) * dia ^ 2) + _
     (f(i) * dia ^ 3)) * L
     
@@ -416,7 +420,7 @@ MaterialDensity As Single, DuctWallThickness As Single)
 Dim SurfaceMass As Single 'Surface mass of duct wall in kg/m^2
 Dim f As Double 'octave band centre frequency band
 Dim F1 As Double 'octave band centre frequency band
-Dim A As Single 'Larger duct dimensions in mm
+Dim a As Single 'Larger duct dimensions in mm
 Dim b As Single 'Smaller duct dimensions in mm
 Dim TLin_A As Single 'TL_in for larger dimension
 Dim TLin_B As Single 'TL_in for smaller dimension
@@ -427,14 +431,14 @@ f = freqStr2Num(fstr) 'convert to values
 
     'set A as the larger dimension
     If H > W Then
-    A = H
+    a = H
     b = W
     Else
-    A = W
+    a = W
     b = H
     End If
 
-F1 = (1.718 * 10 ^ 5) / A
+F1 = (1.718 * 10 ^ 5) / a
 
 'Method relies on breakout number
 'call trace function for breakout, but make it positive
@@ -443,10 +447,10 @@ TLout = DuctBreakOut_NEBB(fstr, H, W, L, MaterialDensity, DuctWallThickness) * -
 
     If F1 > f Then
     'equation 6.15a
-    TLin_A = TLout - 4 - (10 * Application.WorksheetFunction.Log(A / b)) + _
+    TLin_A = TLout - 4 - (10 * Application.WorksheetFunction.Log(a / b)) + _
         (20 * Application.WorksheetFunction.Log(f / F1))
     'equation 6.15b
-    TLin_B = 10 * Application.WorksheetFunction.Log((L * 1000) * ((1 / A) + (1 / b)))
+    TLin_B = 10 * Application.WorksheetFunction.Log((L * 1000) * ((1 / a) + (1 / b)))
         
         If TLin_A > TLin_B Then
         TLin1 = TLin_A
@@ -1502,7 +1506,7 @@ End Function
 Function GetAdjacentFrequency(f_input As Double, AdjMode As String) As Double
 Dim adjustIndex  As Integer
 f_ref = Array(50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, _
-1000, 1250, 1600, 2000, 2500, 3150, 4000, 5000)
+1000, 1250, 1600, 2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000)
 
     If AdjMode = "Up" Then
     adjustIndex = 1
@@ -1528,11 +1532,11 @@ End Function
 ' Args:     inputStr - the string to be split up
 ' Comments: (1) Is this needed anymore?
 '==============================================================================
-Function GetDuctArea(InputStr As String)
+Function GetDuctArea(inputStr As String)
 Dim SplitStr() As String
 Dim L As Double
 Dim W As Double
-SplitStr = Split(InputStr, ",", Len(InputStr), vbTextCompare)
+SplitStr = Split(inputStr, ",", Len(inputStr), vbTextCompare)
 L = CDbl(SplitStr(1))
 W = CDbl(SplitStr(2))
 GetDuctArea = (L / 1000) * (W / 1000) 'because millimetres
@@ -1548,12 +1552,13 @@ End Function
 ' Comments: (1) Used to forward on variable to adjacent functions
 '           e.g. put duct dimensions from row above in ERL
 '==============================================================================
-Function GetDuctParameter(InputStr As String, Parameter As String)
+Function GetDuctParameter(inputStr As String, Parameter As String)
 Dim SplitStr() As String
 Dim L As Single
 Dim W As Single
 Dim Area As Single
-SplitStr = Split(InputStr, ",", Len(InputStr), vbTextCompare)
+On Error GoTo errCatch
+SplitStr = Split(inputStr, ",", Len(inputStr), vbTextCompare)
 L = CSng(SplitStr(1))
 W = CSng(SplitStr(2))
 Area = (L / 1000) * (W / 1000) 'because millimetres
@@ -1565,6 +1570,9 @@ Area = (L / 1000) * (W / 1000) 'because millimetres
     Case Is = "W"
     GetDuctParameter = W
     End Select
+Exit Function
+errCatch:
+    GetDuctParameter = ""
 End Function
 
 '==============================================================================
@@ -2205,7 +2213,7 @@ Dim Lw As Double    'overall Sound Power Level before correction
 Dim fp As Double    'peak frequency (Hz)
 Dim F1 As Double    'spectrum parameter
 Dim F2 As Double    'spectrum parameter
-Dim A As Double     'spectrum parameter
+Dim a As Double     'spectrum parameter
 Dim c As Double     'shape of octave band sound spectrum
 
 ' GENERAL SETUP
@@ -2262,13 +2270,13 @@ Select Case fp
 End Select
 
 'Calculate spectrum parameter, A
-A = F1 - F2
+a = F1 - F2
 
 'Calculate octave band sound spectrum, C
 If Shape = 1 Then
-    c = -11.82 - 0.15 * A - 1.13 * A ^ 2
+    c = -11.82 - 0.15 * a - 1.13 * a ^ 2
 ElseIf Shape = 2 Then
-    c = -5.82 - 0.15 * A - 1.13 * A ^ 2
+    c = -5.82 - 0.15 * a - 1.13 * a ^ 2
 Else
     Debug.Print "IF error at calc of C"
     Exit Function
@@ -2863,15 +2871,17 @@ frmSilencerRegen.Show
 If btnOkPressed = False Then End
 
 'description cell
-SetDescription "Regen. noise - Attenuator"
-    
+SetDescription "Regen. noise - Attenuator - " & SilencerModel, Selection.Row, True
+SetTraceStyle "Regen"
+
 'parameter columns
 ParameterUnmerge (Selection.Row)
 SetTraceStyle "Input", True
+
+'set units
 Cells(Selection.Row, T_ParamStart + 1).Value = numModules
 Cells(Selection.Row, T_ParamStart + 1).NumberFormat = """n = ""0"
 Cells(Selection.Row, T_ParamStart).Value = FlowRate
-    'set units
     If FlowUnitsM3ps = True Then
     SetUnits "m3ps", T_ParamStart, 1
     Else 'Litres per second
@@ -2891,7 +2901,7 @@ Cells(Selection.Row, T_ParamStart).Value = FlowRate
     End If
 
 ExtendFunction (True)
-SetTraceStyle "Regen"
+
 End Sub
 
 
@@ -2975,14 +2985,14 @@ SetTraceStyle "Input", True
         BuildFormula "ElbowWithVanesRegen_NEBB(" & T_FreqStartRng & "," & _
             T_ParamRng(0) & "," & PressureLoss & "," & ElementW & "," & _
             ElementH & "," & BendCordLength & "," & ElbowNumVanes & "," & _
-            FlowUnitsM3ps & ")"
+            FlowUnitsM3ps & ")", True
         Else 'no vanes
         '<---------TODO: Allow for circular duct options
         BuildFormula "ElbowOrJunctionRegen_NEBB(" & T_FreqStartRng & "," & _
             T_ParamRng(0) & "," & MainDuctCircular & "," & ElementW & "," & _
             ElementH & "," & T_ParamRng(0) & "," & BranchDuctCircular & "," _
             & ElementW & "," & ElementH & "," & ElbowRadius & "," & _
-            IncludeTurbulence & ",1,1," & FlowUnitsM3ps & ")"
+            IncludeTurbulence & ",1,1," & FlowUnitsM3ps & ")", True
         End If
     Else 'ASHRAE
     

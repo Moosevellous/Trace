@@ -609,7 +609,7 @@ SetUnits "General", T_ParamStart + 1
     ' otherwise use input multiplier provided by user.
     ' And Description title
     If AS2670_RateCurve = True Then
-    RateRow = ExtractRefElement(VibRateAddr, 2)
+    RateRow = ExtractAddressElement(VibRateAddr, 2)
     Cells(Selection.Row, T_ParamStart + 1).Value = "=AS2670_Rate(" _
         & Range(Cells(RateRow, T_LossGainStart), _
         Cells(RateRow, T_ParamStart - 1)).Address(False, True) _
