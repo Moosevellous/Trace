@@ -353,8 +353,7 @@ Dim SeriesNo As Integer
             Cells(T_FreqRow, T_LossGainEnd)).Address
         SeriesNo = SeriesNo + 1
         Next plotrw
-        
-        DoEvents
+    DoEvents
         
         'format legend, axis labels etc
         With TraceChartObj.Chart
@@ -375,9 +374,10 @@ Dim SeriesNo As Integer
         .Axes(xlValue, xlPrimary).MinorUnit = 5
         .Axes(xlValue, xlPrimary).HasMinorGridlines = True
         .Axes(xlCategory, xlPrimary).AxisBetweenCategories = False
-        '<--------------------------------------------------TODO: set 60dB range?
-        '.Axes(xlValue, xlPrimary).MinimumScale = _
+        'set 60dB range
+        .Axes(xlValue, xlPrimary).MinimumScale = _
             .Axes(xlValue, xlPrimary).MaximumScale - 60
+            
         
         'variable YaxisTitle is set earlier in the code
         .Axes(xlValue, xlPrimary).AxisTitle.Text = YaxisTitle
@@ -408,6 +408,10 @@ Sub HeatMap(Optional SkipCheck As Boolean)
 Dim RowByRow As Boolean
 Dim StartRw As Integer
 Dim EndRw As Integer
+Dim SelectRw As Integer
+Dim InitialSelection As String
+
+InitialSelection = Selection.Address
 
 StartRw = Selection.Row
 EndRw = StartRw + Selection.Rows.Count - 1
@@ -437,16 +441,21 @@ Range(Cells(StartRw, T_Description), Cells(EndRw, T_LossGainEnd)).Select
 Selection.FormatConditions.Delete
     
     If RowByRow = True Then
-        For selectrw = StartRw To EndRw 'loop for each row
+        For SelectRw = StartRw To EndRw 'loop for each row
         'select one row
-        Range(Cells(selectrw, T_LossGainStart), _
-            Cells(selectrw, T_LossGainEnd)).Select
+        Range(Cells(SelectRw, T_LossGainStart), _
+            Cells(SelectRw, T_LossGainEnd)).Select
         'make-a-the-pretty-colours!
         GreenYellowRed
-        Next selectrw
+        Next SelectRw
     Else
+    Range(Cells(StartRw, T_LossGainStart), _
+            Cells(EndRw, T_LossGainEnd)).Select
         GreenYellowRed
     End If
+    
+'go back to initially selected range
+Range(InitialSelection).Select
 
 End Sub
 

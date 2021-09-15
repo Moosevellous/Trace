@@ -1,0 +1,42 @@
+*Figure 5.16 - Sound pressure level (dB) of mechanical equipment at 1m	
+*Group	Unit	63	125	250	500	1k	2k	4k	8k
+*Chillers									
+	Package recip.	91	89	92	93	92	90	86	81
+	Package centrif	91	93	95	96	99	102	97	92
+	Package screw	76	80	92	89	85	80	75	73
+*Boilers (50hp+)									
+	Boilers	92	92	89	86	83	80	77	74
+	Steam Valves	70	70	70	75	80	85	90	95
+*Fans (up to 75mm static pressure)									
+	25hp	95	94	91	84	79	74	69	64
+	40hp	98	97	94	87	82	77	72	67
+	100hp	101	100	87	90	85	80	85	80
+	250hp	104	103	100	93	88	83	78	83
+*Fans (150mm static pressure or over)									
+	50hp	107	106	103	96	91	86	81	76
+	100hp	111	110	107	99	94	89	84	79
+	250hp	113	112	109	102	97	92	87	82
+*Cooling Towers (intake noise)									
+	Centrif. Blow thru	85	85	83	91	79	76	73	68
+	Prop induced draft	98	97	94	90	85	80	75	70
+*Pumps (1400rpm)									
+	25hp	83	86	90	90	86	83	80	75
+	50hp	86	89	83	83	89	86	83	78
+	100hp	89	92	96	96	92	89	86	81
+	250hp	92	95	99	99	95	92	89	84
+*Pumps (2800rpm)									
+	25hp	84	88	92	93	93	92	86	79
+	50hp	88	92	96	97	97	96	90	83
+	100hp	91	95	99	100	100	99	93	86
+*Air Compressors (reciprocating and centrifugal)									
+	1.2hp	83	83	83	86	89	89	89	84
+	3.10hp	86	86	86	89	92	92	92	87
+	10.100hp	89	89	89	92	95	95	95	90
+*Engines (internal combustion or diesel)									
+	25hp	94	97	96	92	92	91	85	78
+	50hp	96	99	98	94	94	93	87	80
+	100hp	100	103	102	96	96	95	91	84
+	250hp	104	107	106	102	102	101	95	88
+	500hp	106	109	108	104	104	103	97	90
+	1000hp	110	113	112	108	108	107	101	94
+	2500hp	114	117	116	112	112	111	105	98

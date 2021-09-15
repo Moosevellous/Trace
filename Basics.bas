@@ -24,8 +24,8 @@ Public MAM_Description As String
 ' Args:     fstr, the frequency band centre frequency as a string
 ' Comments: (1) Used almost everywhere, because '2k' beats writing '2000' etc
 '==============================================================================
-Function freqStr2Num(fstr As String) As Double
-    Select Case fstr
+Function freqStr2Num(fStr As String) As Double
+    Select Case fStr
     Case Is = "1"
     freqStr2Num = 1
     Case Is = "1.25"
@@ -155,10 +155,10 @@ End Function
 '           OffsetBands - positive value=index up for a given band
 ' Comments: (1) Used a lot in ISO9613 but also elsewhere
 '==============================================================================
-Function GetArrayIndex_OCT(fstr As String, Optional OffsetBands As Integer)
+Function GetArrayIndex_OCT(fStr As String, Optional OffsetBands As Integer)
 Dim freq As Double
 
-freq = freqStr2Num(fstr) 'converts to Double
+freq = freqStr2Num(fStr) 'converts to Double
     Select Case freq
     Case Is = 16
     GetArrayIndex_OCT = -2 + OffsetBands
@@ -488,18 +488,21 @@ Dim Switch As Integer
 TotalArea = 0
 TotalWeightedTL = 0
 i = 1
+
     If TL_Range(1) < 0 Then 'TL is negative values
     Switch = 1
     Else
     Switch = -1
     End If
     
+    'calculate weighted TLs
     For Each a In AreaRange
     TotalArea = TotalArea + a
     TotalWeightedTL = TotalWeightedTL + a * (10 ^ (Switch * TL_Range(i) / 10))
     i = i + 1
     Next a
 
+'take log of the whole thing
 CompositeTL = (Switch * -1) * 10 * Application.WorksheetFunction.Log _
     (TotalArea / TotalWeightedTL)
 
@@ -822,8 +825,8 @@ End Function
 ' Args:     fstr, SoundSpeed
 ' Comments: (1) Simple, yeah?
 '==============================================================================
-Function Wavelength(fstr As String, SoundSpeed As Long)
-f = freqStr2Num(fstr)
+Function Wavelength(fStr As String, SoundSpeed As Long)
+f = freqStr2Num(fStr)
 Wavelength = SoundSpeed / f
 End Function
 
@@ -858,7 +861,7 @@ End Function
 '           baseTen - boolean (defaults to TRUE)
 ' Comments: (1) Also known as the crossover frequency
 '==============================================================================
-Function FrequencyBandCutoff(fstr As String, Mode As String, _
+Function FrequencyBandCutoff(fStr As String, Mode As String, _
 Optional bandwidth As Integer, Optional baseTen As Boolean)
 
 Dim G As Double 'gain
@@ -868,7 +871,7 @@ Dim b As Integer 'bandwidth denominator
 Dim x As Double
 'TODO: sort out this function
 
-f = freqStr2Num(fstr)
+f = freqStr2Num(fStr)
 fr = 1000
 b = GetBandwidthIndex(f)
 
@@ -1030,16 +1033,16 @@ SetDescription BasicFunctionType
     ColumnLetter = ColNum2Str(T_LossGainStart)
         If NeedsTwoRanges = True Then
         'note, only single line inputs for functions with two ranges
-        Cells(Selection.Row, T_LossGainStart).Value = "=" & BasicFunctionType & _
+        BuildFormula "" & BasicFunctionType & _
             "(" & ColumnLetter & FirstRow & "," & _
             ColumnLetter & FirstRow2 & ")"
         Else
-        Cells(Selection.Row, T_LossGainStart).Value = "=" & BasicFunctionType & _
+        BuildFormula "" & BasicFunctionType & _
             "(" & ColumnLetter & FirstRow & ColumnLetter & LastRow & ")"
         End If
-    ExtendFunction
+
     Else
-    Cells(Selection.Row, T_LossGainStart).Value = "=" & BasicFunctionType & _
+    BuildFormula "" & BasicFunctionType & _
         "(" & RangeSelection & ")"
     End If
 
@@ -1068,10 +1071,9 @@ Sub BandCutoff()
 frmFrequencyBandCutoff.Show
 If btnOkPressed = False Then End
 SetDescription "Frequency Band Cutoff (" & FBC_mode & ", Hz)"
-Cells(Selection.Row, T_LossGainStart).Value = "=FrequencyBandCutoff(" & _
+BuildFormula "FrequencyBandCutoff(" & _
     T_FreqStartRng & ",""" & FBC_mode & """," & FBC_bandwidth & "," & _
     FBC_baseTen & ")"
-ExtendFunction
 End Sub
 
 '==============================================================================
@@ -1087,9 +1089,8 @@ SetDescription "Wavelength (m)"
 
 Cells(Selection.Row, T_ParamStart + 1).Value = 20 'default to 20 degrees celcius
 Cells(Selection.Row, T_ParamStart).Value = "=SpeedOfSound(" & T_ParamRng(1) & ")"
-Cells(Selection.Row, T_LossGainStart).Value = "=Wavelength(" & T_FreqStartRng & "," _
+BuildFormula "Wavelength(" & T_FreqStartRng & "," _
     & T_ParamRng(0) & ")"
-ExtendFunction
 
 'Formatting
 Range(Cells(Selection.Row, T_LossGainStart), _
@@ -1112,9 +1113,6 @@ SetDescription "Speed of Sound"
 
 Cells(Selection.Row, T_ParamStart + 1).Value = 20 'default to 20 degrees celcius
 Cells(Selection.Row, T_ParamStart).Value = "=SpeedOfSound(" & T_ParamRng(1) & ")"
-'Cells(Selection.Row, T_LossGainStart).Value = "=Wavelength(" & T_FreqStartRng & "," _
-'    & T_ParamRng(0) & ")"
-'ExtendFunction
 
 'Formatting
 SetUnits "mps", T_ParamStart

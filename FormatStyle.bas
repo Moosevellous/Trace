@@ -262,7 +262,7 @@ End Sub
 ' Comments: (1)
 '==============================================================================
 Sub ApplyTraceStyle(StyleName As String, ApplyToRow As Integer, _
-Optional isParamCol As Boolean) '<--TODO set range description, not just isParamCol
+Optional isParamCol As Boolean) '<--TODO: set range description, not just isParamCol
 Dim askForStyleImport As Integer
 
     If StyleExists(StyleName) = False Then

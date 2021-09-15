@@ -157,10 +157,9 @@ ParameterUnmerge (Selection.Row)
 Cells(Selection.Row, T_ParamStart).Value = FanV
 Cells(Selection.Row, T_ParamStart + 1).Value = FanP
 'build formula
-Cells(Selection.Row, T_LossGainStart).Value = "=LwFanSimple(" & _
+BuildFormula "LwFanSimple(" & _
     T_FreqStartRng & "," & T_ParamRng(0) & "," & T_ParamRng(1) & _
     ",""" & FanType & """)"
-ExtendFunction
 'format parameter cells
 SetUnits "mps", T_ParamStart
 SetUnits "Pa", T_ParamStart + 1, 0
@@ -188,7 +187,7 @@ ParameterMerge (Selection.Row)
 'build formulas
 PumpEqn = Right(PumpEqn, Len(PumpEqn) - 3)
 PumpEqn = Replace(PumpEqn, "kW", T_ParamRng(0), 1, Len(PumpEqn), vbTextCompare)
-Cells(Selection.Row, T_LossGainStart).Value = "=" & PumpEqn & "-13"
+Cells(Selection.Row, T_LossGainStart).Value = "=" & PumpEqn & "-13" '<--TODO: clean this up
 Cells(Selection.Row, 6).Value = "=" & PumpEqn & "-12"
 Cells(Selection.Row, 7).Value = "=" & PumpEqn & "-11"
 Cells(Selection.Row, 8).Value = "=" & PumpEqn & "-9"
@@ -242,8 +241,7 @@ Cells(Selection.Row, T_ParamStart).Value = CTPower
 CTEqn = Right(CTEqn, Len(CTEqn) - 2) 'chop off "Lw", start with "="
 CTEqn = Replace(CTEqn, "kW", T_ParamRng(0), 1, Len(CTEqn), vbTextCompare)
 CTEqn = Replace(CTEqn, "log(", "*LOG(", 1, Len(CTEqn), vbTextCompare)
-Cells(Selection.Row, T_LossGainStart).Value = CTEqn
-ExtendFunction
+BuildFormula CTEqn
 
     'apply correction
     For i = LBound(CT_Correction) To UBound(CT_Correction)
@@ -355,8 +353,7 @@ Range(T_ParamRng(0)).AddComment ("Maximum motor power: 300kW")
 MotorEqn = Right(MotorEqn, Len(MotorEqn) - 3) 'trim 'Lw='
 MotorEqn = Replace(MotorEqn, "kW", T_ParamRng(0), 1, Len(MotorEqn), vbTextCompare)
 MotorEqn = Replace(MotorEqn, "RPM", MotorSpeed, 1, Len(MotorEqn), vbTextCompare)
-Cells(Selection.Row, T_LossGainStart).Value = "=" & MotorEqn
-ExtendFunction
+BuildFormula "" & MotorEqn
     For i = 0 To 8
         If Motor_Correction(i) >= 0 Then 'add a plus to the formula
         Cells(Selection.Row, T_LossGainStart + i).Formula = _
@@ -411,8 +408,7 @@ SetUnits "MW", T_ParamStart
 TurbineEqn = Right(TurbineEqn, Len(TurbineEqn) - 3) 'trim 'Lw='
 TurbineEqn = Replace(TurbineEqn, "MW", T_ParamRng(0), 1, Len(TurbineEqn), _
     vbTextCompare)
-Cells(Selection.Row, T_LossGainStart).Value = "=" & TurbineEqn
-ExtendFunction
+BuildFormula "" & TurbineEqn
     For i = 0 To 8
         If TurbineCorrection(i) >= 0 Then 'add a plus to the formula
         Cells(Selection.Row, T_LossGainStart + i).Formula = _
@@ -460,8 +456,7 @@ SetUnits "kW", T_ParamStart
 TurbineEqn = Right(TurbineEqn, Len(TurbineEqn) - 3) 'trim 'Lw='
 TurbineEqn = Replace(TurbineEqn, "kW", T_ParamRng(o), 1, Len(TurbineEqn), _
     vbTextCompare)
-Cells(Selection.Row, T_LossGainStart).Value = "=" & TurbineEqn
-ExtendFunction
+BuildFormula "" & TurbineEqn
     For i = 0 To 8
         If TurbineCorrection(i) >= 0 Then 'add a plus to the formula
         Cells(Selection.Row, T_ParamStart + i).Formula = _
@@ -520,8 +515,7 @@ BoilerEqn = Right(BoilerEqn, Len(BoilerEqn) - 3) 'trim 'Lw='
     msg = MsgBox("Error - nothing selected??????", vbOKOnly, "How????")
     End If
 
-Cells(Selection.Row, T_LossGainStart).Value = "=" & BoilerEqn
-ExtendFunction
+BuildFormula "" & BoilerEqn
 
     For i = 0 To 8
         If BoilerCorrection(i) >= 0 Then 'add a plus to the formula

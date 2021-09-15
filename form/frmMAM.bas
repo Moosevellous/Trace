@@ -229,7 +229,6 @@ Dim thickness2 As Double
     End If
 
 
-
     'calculate speed of sound
     If IsNumeric(Me.txtAirTemp) Then
     Me.txtSOS.Value = Round(SpeedOfSound(Me.txtAirTemp.Value), 1)

@@ -851,11 +851,11 @@ Sub SingleCorrection()
 'Dim col As Integer
 
 SetDescription "Correction"
-Cells(Selection.Row, T_LossGainStart).Value = "=" & T_ParamRng(0)
+BuildFormula "" & T_ParamRng(0)
 Cells(Selection.Row, T_ParamStart).Value = -5
 ParameterMerge (Selection.Row)
 SetUnits "dB", T_ParamStart, 0
-ExtendFunction
+
 SetTraceStyle "Input", True
 Cells(Selection.Row, T_ParamStart).Select 'move to parameter column t set value
 End Sub
@@ -897,11 +897,10 @@ foudnRw = False
         
     Wend
     
-Cells(Selection.Row, T_LossGainStart).Value = "=SUM(" & _
+BuildFormula "SUM(" & _
     Range(Cells(FindRw + 1, T_LossGainStart), _
     Cells(Selection.Row - 1, T_LossGainStart)).Address(False, False) & ")"
     
-ExtendFunction
     
     'Limit the options to the three main styles
     If ApplyStyleCode = "AutoSum_Total" Then
@@ -1058,10 +1057,9 @@ Sub ConvertAWeight()
     End If
     
 'build formula
-Cells(Selection.Row, T_LossGainStart).Value = "=" & _
+BuildFormula "" & _
     Cells(Selection.Row - 1, T_LossGainStart).Address(False, False) & "+" & _
     Cells(7, T_LossGainStart).Address(True, False)
-ExtendFunction
 
 End Sub
 
@@ -1130,7 +1128,7 @@ Sub BuildFormula(FormulaStr, Optional IsRegen As Boolean)
     If IsEmpty(IsRegen) Then IsRegen = False
     
 'Debug.Print FormulaStr
-    
+
     If IsRegen = True Then
     Cells(Selection.Row, T_RegenStart).Formula = "=" & FormulaStr
     Else 'default to LossGain
@@ -1340,15 +1338,18 @@ Dim Rw As Integer
     Else
     Rw = InputRw
     End If
-
-    'check for description field
-    If Cells(Rw, T_Description).Value = "" Or _
-    OverWriteExisting = True Then 'set description
-    Cells(Rw, T_Description).ClearContents
-    Cells(Rw, T_Description).ClearComments
-    Cells(Rw, T_Description).Value = DescriptionString
-    Else 'as comment
-    InsertComment DescriptionString, T_Description, True, Rw
+    
+    'check for the same description being there already
+    If Cells(Rw, T_Description).Value <> DescriptionString Then
+        'check for description field
+        If Cells(Rw, T_Description).Value = "" Or _
+        OverWriteExisting = True Then 'set description
+        Cells(Rw, T_Description).ClearContents
+        Cells(Rw, T_Description).ClearComments
+        Cells(Rw, T_Description).Value = DescriptionString
+        Else 'as comment
+        InsertComment DescriptionString, T_Description, True, Rw
+        End If
     End If
     
 End Sub

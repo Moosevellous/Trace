@@ -333,10 +333,10 @@ frmVibUnits.Show
     If btnOkPressed = False Then End
 'build formula
 SetDescription "Convert to dB"
-Cells(Selection.Row, T_LossGainStart).Value = "=20*LOG(" & _
+BuildFormula "20*LOG(" & _
     Cells(Selection.Row - 1, T_LossGainStart).Address(False, False) & "/" & _
     VibRef & ")"
-ExtendFunction
+
 End Sub
 
 '==============================================================================
@@ -353,9 +353,9 @@ frmVibUnits.Show
     If btnOkPressed = False Then End
 'build formula
 SetDescription "Convert to Linear"
-Cells(Selection.Row, T_LossGainStart).Value = "=" & VibRef & "*10^(" & _
+BuildFormula "" & VibRef & "*10^(" & _
     Cells(Selection.Row - 1, T_LossGainStart).Address(False, False) & "/20)"
-ExtendFunction
+
 End Sub
 
 '==============================================================================
@@ -499,13 +499,13 @@ SetDescription "VC Curve"
 'build formula
 Cells(Selection.Row, T_ParamStart) = "VC-A"
     If msg = vbYes Then
-    Cells(Selection.Row, T_LossGainStart).Value = "=VCcurve(" & T_ParamRng(0) & _
+    BuildFormula "VCcurve(" & T_ParamRng(0) & _
         "," & T_FreqStartRng & ")"
     ElseIf msg = vbNo Then 'dB mode
-    Cells(Selection.Row, T_LossGainStart).Value = "=VCcurve(" & T_ParamRng(0) & _
+    BuildFormula "VCcurve(" & T_ParamRng(0) & _
         "," & T_FreqStartRng & ",""dB"")"
     End If
-ExtendFunction
+
     
 'format parameter columns
 SetTraceStyle "Input", True
@@ -535,8 +535,8 @@ frmVibConvert.Show
 FormulaStr = Replace(ConversionFactorStr, "pi", "PI()")
 FormulaStr = Replace(FormulaStr, "f", T_FreqStartRng)
 FormulaStr = Replace(FormulaStr, chr(178), "^2")
-Cells(Selection.Row, T_LossGainStart).Value = "=" & FormulaStr
-ExtendFunction
+BuildFormula "" & FormulaStr
+
 Range(Cells(Selection.Row, T_LossGainStart), _
     Cells(Selection.Row, T_LossGainEnd)).NumberFormat = "0E+0"
 SetDescription "Vibration Conversion"
@@ -615,7 +615,7 @@ SetUnits "General", T_ParamStart + 1
         Cells(RateRow, T_ParamStart - 1)).Address(False, True) _
         & "," & Range(Cells(T_FreqRow, T_LossGainStart), _
         Cells(T_FreqRow, T_LossGainEnd)).Address(True, True) & "," _
-        & Cells(Selection.Row, T_ParamStart).Address(False, True) & "," _
+        & T_ParamRng(0) & "," _
         & """" & AS2670_Order & """" & "," & """" & Mode & """" & ")"
     
         ' Formatting to normal
@@ -633,12 +633,11 @@ SetUnits "General", T_ParamStart + 1
 
 
 ' Main body contents
-Cells(Selection.Row, T_LossGainStart).Value = "=AS2670_Curve(" _
-    & Cells(Selection.Row, T_ParamStart).Address(False, True) & "," _
-    & Cells(Selection.Row, T_ParamStart + 1).Address(False, True) & "," _
+BuildFormula "AS2670_Curve(" _
+    & T_ParamRng(0) & "," & T_ParamRng(1) & "," _
     & Cells(T_FreqRow, 5).Address(True, False) & "," _
     & """" & AS2670_Order & """" & "," & """" & Mode & """" & ")"
-ExtendFunction
+
 
 ' Main body format and Title component if dB units selected
     If AS2670_dbUnit = True Then

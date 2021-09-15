@@ -16,6 +16,10 @@ Public FANTECH_SILENCERS As String
 Public FANTECH_DUCTS As String
 Public ACOUSTIC_LOUVRES As String
 Public DUCT_DIRLOSS As String
+Public SRL_LG_DIRECTIVITY As String
+Public SRL_DUCTS As String
+Public TXT_RAW As String
+Public TXT_HEAD As String
 'variables for header block
 Public ENGINEER As String
 Public PROJECTNO As String
@@ -164,6 +168,8 @@ FANTECH_SILENCERS = ROOTPATH & "\DATA\Silencers.txt"
 FANTECH_DUCTS = ROOTPATH & "\DATA\FANTECH_DUCTS.txt"
 ACOUSTIC_LOUVRES = ROOTPATH & "\DATA\Louvres.txt"
 DUCT_DIRLOSS = ROOTPATH & "\DATA\DuctDir.txt"
+SRL_LG_DIRECTIVITY = ROOTPATH & "\DATA\SRL_LouvreGrilleDirectivity.txt"
+SRL_DUCTS = ROOTPATH & "\DATA\SRL_Ducts.txt"
 
 TestLocation TEMPLATELOCATION, vbDirectory
 TestLocation STANDARDCALCLOCATION, vbDirectory
@@ -176,6 +182,8 @@ TestLocation (FANTECH_SILENCERS)
 TestLocation (FANTECH_DUCTS)
 TestLocation (ACOUSTIC_LOUVRES)
 TestLocation (DUCT_DIRLOSS)
+TestLocation (SRL_LG_DIRECTIVITY)
+TestLocation (SRL_DUCTS)
 
 'SQLite 3DLL
 'SQLite3Initialize (ROOTPATH & "\DATA")

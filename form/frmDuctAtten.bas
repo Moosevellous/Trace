@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmDuctAtten 
    Caption         =   "Duct Attenuation"
-   ClientHeight    =   6840
+   ClientHeight    =   7275
    ClientLeft      =   45
    ClientTop       =   390
    ClientWidth     =   6180
@@ -45,6 +45,10 @@ Private Sub btnHelp_Click()
 GotoWikiPage ("Mechanical#solid-duct")
 End Sub
 
+Private Sub lblUnlinedOnly_Click()
+Me.optSRL.Value = True
+End Sub
+
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 Private Sub opt25mm_Click()
@@ -60,12 +64,12 @@ PreviewInsertionLoss
 End Sub
 
 Private Sub optASHRAE_Click()
-SwitchCustomThickness
+EnableButtons
 PreviewInsertionLoss
 End Sub
 
 Private Sub optCir_Click()
-Me.txtW.Enabled = False
+EnableButtons
 PreviewInsertionLoss
 End Sub
 
@@ -74,12 +78,17 @@ Me.txtThickness.Enabled = True
 End Sub
 
 Private Sub optRect_Click()
-Me.txtW.Enabled = True
+EnableButtons
 PreviewInsertionLoss
 End Sub
 
 Private Sub optReynolds_Click()
-SwitchCustomThickness
+EnableButtons
+PreviewInsertionLoss
+End Sub
+
+Private Sub optSRL_Click()
+EnableButtons
 PreviewInsertionLoss
 End Sub
 
@@ -127,9 +136,12 @@ Private Sub btnOK_Click()
     ductMethod = "ASHRAE"
     ElseIf Me.optReynolds Then
     ductMethod = "Reynolds"
+    ElseIf Me.optSRL.Value = True Then
+    ductMethod = "SRL"
     Else
     ductMethod = ""
     End If
+    
 '<---TODO check isnumeric on controls
 ductH = CSng(Me.txtH.Value)
 ductW = CSng(Me.txtW.Value)
@@ -185,6 +197,10 @@ Dim thicknessParam As Double
         Me.txt2k.Value = DuctAtten_ASHRAE(2000, CLng(Me.txtH.Value), CLng(Me.txtW.Value), ductParam, CLng(Me.txtL.Value))
         Me.txt4k.Value = DuctAtten_ASHRAE(4000, CLng(Me.txtH.Value), CLng(Me.txtW.Value), ductParam, CLng(Me.txtL.Value))
         Me.txt8k.Value = DuctAtten_ASHRAE(8000, CLng(Me.txtH.Value), CLng(Me.txtW.Value), ductParam, CLng(Me.txtL.Value))
+        
+        Me.txtRawVal.Value = TXT_RAW 'set from public variable
+        Me.txtTableHead.Value = TXT_HEAD 'set from public variable
+        
         ElseIf Me.optReynolds.Value = True Then
         
             If Me.optRect.Value = True Then 'RECTANGULAR METHOD - REYNOLDS
@@ -207,6 +223,19 @@ Dim thicknessParam As Double
             Me.txt8k.Value = Round(DuctAttenCircular_Reynolds(8000, CDbl(Me.txtH.Value), thicknessParam, CDbl(Me.txtL.Value)), 1)
             End If
             
+        ElseIf Me.optSRL.Value = True Then
+        Me.txt63.Value = DuctBendAtten_SRL(63, CLng(Me.txtW.Value), Right(ductParam, 1), CLng(Me.txtL.Value))
+        Me.txt125.Value = DuctBendAtten_SRL(125, CLng(Me.txtW.Value), Right(ductParam, 1), CLng(Me.txtL.Value))
+        Me.txt250.Value = DuctBendAtten_SRL(250, CLng(Me.txtW.Value), Right(ductParam, 1), CLng(Me.txtL.Value))
+        Me.txt500.Value = DuctBendAtten_SRL(500, CLng(Me.txtW.Value), Right(ductParam, 1), CLng(Me.txtL.Value))
+        Me.txt1k.Value = DuctBendAtten_SRL(1000, CLng(Me.txtW.Value), Right(ductParam, 1), CLng(Me.txtL.Value))
+        Me.txt2k.Value = DuctBendAtten_SRL(2000, CLng(Me.txtW.Value), Right(ductParam, 1), CLng(Me.txtL.Value))
+        Me.txt4k.Value = DuctBendAtten_SRL(4000, CLng(Me.txtW.Value), Right(ductParam, 1), CLng(Me.txtL.Value))
+        Me.txt8k.Value = "-"
+        
+        Me.txtRawVal.Value = TXT_RAW 'set from public variable
+        Me.txtTableHead.Value = TXT_HEAD 'set from public variable
+        
         Else
         'no method? do nothing
         End If
@@ -219,21 +248,55 @@ Dim thicknessParam As Double
     Me.txt2k.Value = "-"
     Me.txt4k.Value = "-"
     Me.txt8k.Value = "-"
+    Me.txtRawVal.Value = "" 'nothing!
+    Me.txtTableHead.Value = ""
     End If 'close check for input values
 
 End Sub
 
-Sub SwitchCustomThickness()
+Sub EnableButtons()
+    'options for rectangular/circular
+    If Me.optRect.Value = True Then
+    Me.txtW.Enabled = True
+    Me.txtH.Enabled = True
+    Me.lblDimensions.Caption = "Dimensions (H x W)"
+    Else 'circular
+    Me.txtW.Enabled = False
+    Me.txtH.Enabled = True
+    Me.lblDimensions.Caption = "Dimensions (diameter)"
+    End If
+
+    'reynolds
     If Me.optReynolds = True Then
     Me.optCustom.Enabled = True
     Me.txtThickness.Enabled = True
-    Else 'ASHRAE enabled
-        'default to nearest thickness
+    Me.opt25mm.Enabled = True
+    Me.opt50mm.Enabled = True
+    Me.txtRawVal.Visible = False
+    Me.txtTableHead.Visible = False
+    Me.lblTableValues.Visible = False
+    'SRL
+    ElseIf Me.optSRL.Value = True Then
+    Me.optCustom.Enabled = False
+    Me.txtThickness.Enabled = False
+    Me.optUnlined.Value = True
+    Me.opt25mm.Enabled = False
+    Me.opt50mm.Enabled = False
+    Me.txtRawVal.Visible = True
+    Me.txtTableHead.Visible = True
+    Me.lblTableValues.Visible = True
+    'ASHRAE
+    Else
         If Me.optCustom.Value = True Then
         Me.opt25mm.Value = True
         End If
     Me.optCustom.Enabled = False
     Me.txtThickness.Enabled = False
+    Me.opt25mm.Enabled = True
+    Me.opt50mm.Enabled = True
+    Me.txtRawVal.Visible = True
+    Me.txtTableHead.Visible = True
+    Me.lblTableValues.Visible = True
     End If
 End Sub
 

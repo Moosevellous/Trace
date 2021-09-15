@@ -141,7 +141,8 @@ FirstRun = True
         
         'get Y-axis ranges
         Me.txtYRangeMax.Value = .MaximumScale
-        Me.txtYRangeMin.Value = .MaximumScale - 60 'Impose a 60dB range by default
+        Me.txtYRangeMin.Value = .MinimumScale
+        'Me.txtYRangeMin.Value = .MaximumScale - 60 'Impose a 60dB range by default
         
         'check if Y-axis is log scale
         If .ScaleType = xlScaleLogarithmic Then Me.chkLogScale.Value = True
