@@ -13,6 +13,7 @@ Public FanP As Long
 'Pumps
 Public PumpEqn As String
 Public PumpPower As Long
+'Public PumpCorrections(8) As Long
 
 'Cooling Towers
 Public CTEqn As String
@@ -178,24 +179,27 @@ End Sub
 '==============================================================================
 Sub PumpSimple()
 
+Dim col, i As Integer
+
 frmEstPumpLw.Show
 
-If btnOkPressed = False Then End
-If T_BandType <> "oct" Then ErrorOctOnly
+    If btnOkPressed = False Then End
+    If T_BandType <> "oct" Then ErrorOctOnly
+    
+'                      31.5   63  125 250 500  1k  2k  4k   8k
+PumpCorrections = Array(-13, -12, -11, -9, -9, -6, -9, -13, -19)
 
 ParameterMerge (Selection.Row)
+
 'build formulas
 PumpEqn = Right(PumpEqn, Len(PumpEqn) - 3)
 PumpEqn = Replace(PumpEqn, "kW", T_ParamRng(0), 1, Len(PumpEqn), vbTextCompare)
-Cells(Selection.Row, T_LossGainStart).Value = "=" & PumpEqn & "-13" '<--TODO: clean this up
-Cells(Selection.Row, 6).Value = "=" & PumpEqn & "-12"
-Cells(Selection.Row, 7).Value = "=" & PumpEqn & "-11"
-Cells(Selection.Row, 8).Value = "=" & PumpEqn & "-9"
-Cells(Selection.Row, 9).Value = "=" & PumpEqn & "-9"
-Cells(Selection.Row, 10).Value = "=" & PumpEqn & "-6"
-Cells(Selection.Row, 11).Value = "=" & PumpEqn & "-9"
-Cells(Selection.Row, 12).Value = "=" & PumpEqn & "-13"
-Cells(Selection.Row, 13).Value = "=" & PumpEqn & "-19"
+
+i = 0
+    For col = T_LossGainStart To T_LossGainEnd
+    Cells(Selection.Row, col).Value = "=" & PumpEqn & PumpCorrections(i)
+    i = i + 1
+    Next col
 Cells(Selection.Row, T_ParamStart).Value = PumpPower
 
 'format parameter cells

@@ -34,6 +34,8 @@ Private Sub btnOK_Click()
     BasicFunctionType = "SPLAVIF"
     ElseIf Me.optSum.Value = True Then
     BasicFunctionType = "SUM"
+    ElseIf Me.optAverage.Value = True Then
+    BasicFunctionType = "AVERAGE"
     End If
 
 RangeSelection = Me.refRangeSelector.Value
@@ -54,6 +56,11 @@ BasicsApplyStyle = Me.cBoxApplyStyle.Value 'style-ish
 
 btnOkPressed = True
 Me.Hide
+End Sub
+
+Private Sub optAverage_Click()
+Me.lblExampleFormula.Caption = "=AVERAGE(Range)"
+hideRange2
 End Sub
 
 Private Sub optSPLAV_Click()

@@ -169,7 +169,7 @@ Application.ScreenUpdating = False
 
 GetSettings 'get all variable information
 
-    If IsNamedRange("TYPECODE") = True Then
+    If NamedRangeExists("TYPECODE") = True Then
     TypeCode = Range("TYPECODE").Value
     Else
     msg = MsgBox("No sheet type selected, perhaps try adding a new one?", _
@@ -238,6 +238,7 @@ Dim CurrentBookName As String
 Dim TemplateSheet As Worksheet
 Dim NumSheets As Long
 Dim i As Integer
+Dim LastSheet As Integer
 Dim fso As FileSystemObject
 Dim ScanFolder As Folder
 Dim standardSheet As File
@@ -268,12 +269,15 @@ Set fso = CreateObject("Scripting.FileSystemObject")
 
     'select type of import
     If ImportSheetType = "Standard" Then
+        frmStandardCalc.btnInsertIntoExisting.Visible = True
         Set ScanFolder = fso.GetFolder(STANDARDCALCLOCATION)
         frmStandardCalc.Caption = "Standard Calculation Sheets"
     ElseIf ImportSheetType = "Field" Then
+        frmStandardCalc.btnInsertIntoExisting.Visible = True
         Set ScanFolder = fso.GetFolder(FIELDSHEETLOCATION)
         frmStandardCalc.Caption = "Field Sheets"
     ElseIf ImportSheetType = "EquipmentImport" Then
+        frmStandardCalc.btnInsertIntoExisting.Visible = False
         Set ScanFolder = fso.GetFolder(EQUIPMENTSHEETLOCATION)
         frmStandardCalc.Caption = "Equipment Import Sheets"
     End If
@@ -359,14 +363,14 @@ Set TemplateBook = ActiveWorkbook
     Case Is = 52
     FilterIndexValue = 2
     End Select
-
+    
+    'Save As
     If ImportAsTabs = False Then
     Application.StatusBar = "Saving sheet..."
     SaveSheetAs_DateStamped TemplateBook.Name, FilterIndexValue
-    Else
+    Else 'Import
     Application.StatusBar = "Importing...."
     LastSheet = Workbooks(CurrentBookName).Sheets.Count
-    Workbooks(ImportSheetName).Sheets.Select
     Sheets().Copy After:=Workbooks(CurrentBookName).Sheets(LastSheet)
     Workbooks(TemplateBook.Name).Close (False)
     End If

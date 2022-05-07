@@ -62,6 +62,7 @@ Sub EXPORT_TRACE_SOURCE_CODE()
 Dim TraceIndex As Integer
 Dim fldr As String
 Dim numFiles As Integer
+Dim numSkipped As Integer
 Dim TraceComponent As Object
 Dim SavePath As String
 
@@ -79,13 +80,19 @@ fldr = GetFolder
 
 If fldr = "" Then End
 
+frmExport.Show (False)
+DoEvents
+frmExport.lblFolder.Caption = fldr
+
     For Each TraceComponent In Application.VBE.VBProjects(TraceIndex).VBComponents
     
     Debug.Print "Name: "; TraceComponent.Name & "     Type: " & TraceComponent.Type
-    Application.StatusBar = "Exporting: " & TraceComponent.Name
-        
+    'Application.StatusBar = "Exporting: " & TraceComponent.Name
+    
         'only export modules and forms
         If TraceComponent.Type = 1 Or TraceComponent.Type = 3 Then
+        frmExport.lblFileName.Caption = TraceComponent.Name
+        frmExport.Repaint
         
             If Left(TraceComponent.Name, 3) = "frm" Then 'put in forms subfolder
             'folder doesn't exist, make one!
@@ -101,15 +108,20 @@ If fldr = "" Then End
         TraceComponent.Export (SavePath)
         Debug.Print "EXPORTED"
         numFiles = numFiles + 1
+        frmExport.lblNumFiles.Caption = numFiles & "/" & Application.VBE.VBProjects(TraceIndex).VBComponents.Count
+        
         Else
         Debug.Print "SKIPPED"
+        numSkipped = numSkipped + 1
+        frmExport.lblNumSkipped.Caption = numSkipped
         End If
+        
     Next
 
 msg = MsgBox("Export process complete: " & numFiles & " files", vbOKOnly, _
     "Dev Tools - Export")
-
-Application.StatusBar = False
+frmExport.Hide
+'Application.StatusBar = False
 
 End Sub
 

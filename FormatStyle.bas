@@ -62,13 +62,13 @@ End Function
 ' Args:     numDigits - number of digits after the decimal point
 ' Comments: (1)
 '==============================================================================
-Function BuildNumDigitsString(numDigits As Integer) As String
+Function BuildNumDigitsString(NumDigits As Integer) As String
 Dim i
-    If numDigits <= 0 Then
+    If NumDigits <= 0 Then
     BuildNumDigitsString = "0"
     Else
     fmtString = "0."
-        For i = 1 To numDigits
+        For i = 1 To NumDigits
         fmtString = fmtString & "0"
         Next i
     BuildNumDigitsString = fmtString
@@ -114,7 +114,7 @@ End Sub
 ' Comments: (1) Replaces a bunch of individual subroutines
 '==============================================================================
 Sub SetUnits(UnitType As String, ColStart As Integer, _
-    Optional numDigits As Integer, Optional ColEnd As Integer)
+    Optional NumDigits As Integer, Optional ColEnd As Integer)
     
 Dim fmtString As String
 
@@ -123,25 +123,27 @@ fmtString = "NotSet" 'for error catching
     'set fmtString
     Select Case UnitType
     Case Is = "m"
-    fmtString = BuildNumDigitsString(numDigits) & " ""m"""
+    fmtString = BuildNumDigitsString(NumDigits) & " ""m"""
     Case Is = "m2"
-    fmtString = BuildNumDigitsString(numDigits) & " ""m" & chr(178) & """"
+    fmtString = BuildNumDigitsString(NumDigits) & " ""m" & chr(178) & """"
+    Case Is = "m3"
+    fmtString = BuildNumDigitsString(NumDigits) & " ""m" & chr(179) & """"
     Case Is = "mps"
-    fmtString = BuildNumDigitsString(numDigits) & " ""m/s"""
+    fmtString = BuildNumDigitsString(NumDigits) & " ""m/s"""
     Case Is = "m2ps"
-    fmtString = BuildNumDigitsString(numDigits) & " ""m" & chr(178) & "/s"""
+    fmtString = BuildNumDigitsString(NumDigits) & " ""m" & chr(178) & "/s"""
     Case Is = "m3ps"
-    fmtString = BuildNumDigitsString(numDigits) & " ""m" & chr(179) & "/s"""
+    fmtString = BuildNumDigitsString(NumDigits) & " ""m" & chr(179) & "/s"""
     Case Is = "lps"
     fmtString = "0 ""L/s"""
     Case Is = "mm"
-    fmtString = BuildNumDigitsString(numDigits) & """ mm"""
+    fmtString = BuildNumDigitsString(NumDigits) & """ mm"""
     Case Is = "dB"
     fmtString = "0 ""dB"""
     Case Is = "dBA"
     fmtString = "0 ""dBA"""
     Case Is = "kW"
-    fmtString = BuildNumDigitsString(numDigits) & """ kW"""
+    fmtString = BuildNumDigitsString(NumDigits) & """ kW"""
     Case Is = "MW"
     fmtString = "0 ""MW"""
     Case Is = "Pa"
@@ -309,4 +311,20 @@ LastStyleIndex = ActiveWorkbook.Styles.Count
         LastStyleIndex = LastStyleIndex - 1
         End If
     Next i
+End Sub
+
+'==============================================================================
+' Name:     MarkRowAs
+' Author:   PS
+' Desc:     Adds symbols to first column
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub MarkRowAs(MarkerType As String)
+    Select Case MarkerType
+    Case Is = "SUM"
+    Cells(Selection.Row, 1) = ChrW(931)
+    Case Is = "AV"
+    Cells(Selection.Row, 1) = ChrW(956)
+    End Select
 End Sub

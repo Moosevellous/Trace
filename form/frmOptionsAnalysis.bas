@@ -29,6 +29,7 @@ End Sub
 
 Private Sub btnOK_Click()
 'set public variables
+CountOptions
 RngVar1 = Me.RefVar1Rng.Value
 RngVar2 = Me.RefVar2Rng.Value
 TargetRng = Me.RefTargetRng.Value

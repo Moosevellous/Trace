@@ -44,8 +44,8 @@ PreviewRegen
     End If
 
 PFA = Me.txtFA.Value
-ElementH = ScreenInput(Me.txtH.Value)
-ElementW = ScreenInput(Me.txtW.Value)
+ElementH = CheckNumericValue(Me.txtH.Value)
+ElementW = CheckNumericValue(Me.txtW.Value)
 SilencerModel = Me.txtTypeCode
 numModules = Me.sbModules.Value
 btnOkPressed = True
@@ -206,23 +206,23 @@ Model = Me.txtTypeCode.Value
         
             'preview sound power values
             If Me.optFantech.Value = True Then
-            Me.txt63.Value = Round(ScreenInput(FantechAttenRegen("63", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtNumModules.Value)), 1)
-            Me.txt125.Value = Round(ScreenInput(FantechAttenRegen("125", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtNumModules.Value)), 1)
-            Me.txt250.Value = Round(ScreenInput(FantechAttenRegen("250", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtNumModules.Value)), 1)
-            Me.txt500.Value = Round(ScreenInput(FantechAttenRegen("500", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtNumModules.Value)), 1)
-            Me.txt1k.Value = Round(ScreenInput(FantechAttenRegen("1k", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtNumModules.Value)), 1)
-            Me.txt2k.Value = Round(ScreenInput(FantechAttenRegen("2k", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtNumModules.Value)), 1)
-            Me.txt4k.Value = Round(ScreenInput(FantechAttenRegen("4k", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtNumModules.Value)), 1)
-            Me.txt8k.Value = Round(ScreenInput(FantechAttenRegen("8k", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtNumModules.Value)), 1)
+            Me.txt63.Value = CheckNumericValue(FantechAttenRegen("63", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtNumModules.Value), 1)
+            Me.txt125.Value = CheckNumericValue(FantechAttenRegen("125", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtNumModules.Value), 1)
+            Me.txt250.Value = CheckNumericValue(FantechAttenRegen("250", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtNumModules.Value), 1)
+            Me.txt500.Value = CheckNumericValue(FantechAttenRegen("500", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtNumModules.Value), 1)
+            Me.txt1k.Value = CheckNumericValue(FantechAttenRegen("1k", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtNumModules.Value), 1)
+            Me.txt2k.Value = CheckNumericValue(FantechAttenRegen("2k", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtNumModules.Value), 1)
+            Me.txt4k.Value = CheckNumericValue(FantechAttenRegen("4k", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtNumModules.Value), 1)
+            Me.txt8k.Value = CheckNumericValue(FantechAttenRegen("8k", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtNumModules.Value), 1)
             Else 'nap
-            Me.txt63.Value = Round(ScreenInput(NAPAttenRegen("63", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtTypeCode.Value)), 1)
-            Me.txt125.Value = Round(ScreenInput(NAPAttenRegen("125", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtTypeCode.Value)), 1)
-            Me.txt250.Value = Round(ScreenInput(NAPAttenRegen("250", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtTypeCode.Value)), 1)
-            Me.txt500.Value = Round(ScreenInput(NAPAttenRegen("500", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtTypeCode.Value)), 1)
-            Me.txt1k.Value = Round(ScreenInput(NAPAttenRegen("1k", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtTypeCode.Value)), 1)
-            Me.txt2k.Value = Round(ScreenInput(NAPAttenRegen("2k", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtTypeCode.Value)), 1)
-            Me.txt4k.Value = Round(ScreenInput(NAPAttenRegen("4k", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtTypeCode.Value)), 1)
-            Me.txt8k.Value = Round(ScreenInput(NAPAttenRegen("8k", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtTypeCode.Value)), 1)
+            Me.txt63.Value = CheckNumericValue(NAPAttenRegen("63", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtTypeCode.Value), 1)
+            Me.txt125.Value = CheckNumericValue(NAPAttenRegen("125", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtTypeCode.Value), 1)
+            Me.txt250.Value = CheckNumericValue(NAPAttenRegen("250", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtTypeCode.Value), 1)
+            Me.txt500.Value = CheckNumericValue(NAPAttenRegen("500", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtTypeCode.Value), 1)
+            Me.txt1k.Value = CheckNumericValue(NAPAttenRegen("1k", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtTypeCode.Value), 1)
+            Me.txt2k.Value = CheckNumericValue(NAPAttenRegen("2k", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtTypeCode.Value), 1)
+            Me.txt4k.Value = CheckNumericValue(NAPAttenRegen("4k", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtTypeCode.Value), 1)
+            Me.txt8k.Value = CheckNumericValue(NAPAttenRegen("8k", FlowrateM3ps, Me.txtFA.Value, Me.txtW, Me.txtH.Value, Me.txtTypeCode.Value), 1)
             End If
         Else 'problem! show nothing
         Me.txt63.Value = "-"

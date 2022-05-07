@@ -360,21 +360,24 @@ End Sub
 ' Author:   PS
 ' Desc:     Switches on Adiv in form and sets up calc
 ' Args:     None
-' Comments: (1) Calls Insert_ISO9613_CalcElements to build calc
+' Comments: (1) Inserts just teh divergence correction from ISO, without
+'           calling the form
+'           (2) TODO: Make it call the form?
 '==============================================================================
 Sub A_div()
 
 SetDescription "ISO9613: A_div"
     
-    If T_BandType = "oct" Then
-    Cells(Selection.Row, T_ParamStart).Value = 10
-    Cells(Selection.Row, T_ParamStart + 1).Value = 1
-    BuildFormula "=ISO9613_Adiv(" & T_ParamRng(0) & "," & T_ParamRng(1) & ")"
-    SetUnits "m", T_ParamStart, 1, T_ParamStart + 1
-    SetTraceStyle "Input", True
-    Else
-    ErrorOctOnly
-    End If
+    If T_BandType <> "oct" Then ErrorOctOnly
+    
+Cells(Selection.Row, T_ParamStart).Value = 10
+Cells(Selection.Row, T_ParamStart + 1).Value = 1
+BuildFormula "=ISO9613_Adiv(" & T_ParamRng(0) & "," & T_ParamRng(1) & ")"
+SetUnits "m", T_ParamStart, 1, T_ParamStart + 1
+SetTraceStyle "Input", True
+InsertComment "Distance from source to receiver", T_ParamStart
+InsertComment "Reference distance: 1m", T_ParamStart + 1
+
 Cells(Selection.Row, T_ParamStart).Select 'move to parameter column to set value
 End Sub
 
@@ -451,100 +454,105 @@ Sub Insert_ISO9613_CalcElements()
 
 If btnOkPressed = False Then End
 
-    If T_BandType = "oct" Then
-        ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-        'Adiv
+If T_BandType <> "oct" Then ErrorOctOnly
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    
+    'Adiv
+    If ISOFullElements(0) = True Then
+    SetDescription "ISO9613: A_div"
+    BuildFormula "ISO9613_Adiv(" & T_ParamRng(0) & "," & T_ParamRng(1) & ")"
+    Cells(Selection.Row, T_ParamStart).Value = iso9613_d
+    Cells(Selection.Row, T_ParamStart + 1).Value = iso9613_d_ref
+    InsertComment "Distance from source to receiver", T_ParamStart
+    InsertComment "Reference distance: 1m", T_ParamStart + 1
+    
+    SetTraceStyle "Input", True
+    SetUnits "m", T_ParamStart, 1, T_ParamStart + 1
+    
+    SelectNextRow 'move down
+    
+    End If
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    'Aatm
+    If ISOFullElements(1) = True Then
+    SetSheetTypeControls
+    SetDescription "ISO9613: A_atm"
+        'if row above has _div, so we can use the same input for distance!
         If ISOFullElements(0) = True Then
-        SetDescription "ISO9613: A_div"
-        BuildFormula "ISO9613_Adiv(" & T_ParamRng(0) & "," & T_ParamRng(1) & ")"
-        Cells(Selection.Row, T_ParamStart).Value = iso9613_d
-        Cells(Selection.Row, T_ParamStart + 1).Value = iso9613_d_ref
-        
-        SetTraceStyle "Input", True
-        SetUnits "m", T_ParamStart, 1, T_ParamStart + 1
-        
-        SelectNextRow 'move down
-        
+        BuildFormula "ISO9613_Aatm(" & T_FreqStartRng & _
+            "," & Cells(Selection.Row - 1, T_ParamStart).Address(False, True) & _
+            "," & T_ParamRng(0) & "," & T_ParamRng(1) & ")"
+        Else 'row above desn't have A_div, get from public variable
+        '<----TODO extra inputs for mech sheets
+        BuildFormula "ISO9613_Aatm(" & T_FreqStartRng & _
+            "," & iso9613_d & "," & T_ParamRng(0) & "," & T_ParamRng(1) & ")"
         End If
-        ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-        'Aatm
-        If ISOFullElements(1) = True Then
-        SetSheetTypeControls
-        SetDescription "ISO9613: A_atm"
-            'if row above has _div, so we can use the same input for distance!
-            If ISOFullElements(0) = True Then
-            BuildFormula "ISO9613_Aatm(" & T_FreqStartRng & _
-                "," & Cells(Selection.Row - 1, T_ParamStart).Address(False, True) & _
-                "," & T_ParamRng(0) & "," & T_ParamRng(1) & ")"
-            Else 'row above desn't have A_div, get from public variable
-            '<----TODO extra inputs for mech sheets
-            BuildFormula "ISO9613_Aatm(" & T_FreqStartRng & _
-                "," & iso9613_d & "," & T_ParamRng(0) & "," & T_ParamRng(1) & ")"
-            End If
-            
-        Cells(Selection.Row, T_ParamStart).Value = iso9613_Temperature
-        Cells(Selection.Row, T_ParamStart + 1).Value = iso9613_RelHumidity
-        Cells(Selection.Row, T_ParamStart).NumberFormat = """""0""°C """
-        Cells(Selection.Row, T_ParamStart + 1).NumberFormat = "0 ""RH"""
-            
-        'data validation
-        SetDataValidation T_ParamStart, "10,15,20,30"
-        SetDataValidation T_ParamStart + 1, "20,50,70,80"
-            
+        
+    Cells(Selection.Row, T_ParamStart).Value = iso9613_Temperature
+    Cells(Selection.Row, T_ParamStart + 1).Value = iso9613_RelHumidity
+    Cells(Selection.Row, T_ParamStart).NumberFormat = """""0""°C """
+    Cells(Selection.Row, T_ParamStart + 1).NumberFormat = "0 ""RH"""
+    InsertComment "Temperature in degrees celcius", T_ParamStart
+    InsertComment "Relative Humidity, %", T_ParamStart + 1
+    
+    'data validation
+    SetDataValidation T_ParamStart, "10,15,20,30"
+    SetDataValidation T_ParamStart + 1, "20,50,70,80"
+        
 
-        SetTraceStyle "Input", True
-        SelectNextRow
+    SetTraceStyle "Input", True
+    SelectNextRow
+    
+    End If 'end of Aatm
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    'Agr
+    If ISOFullElements(2) = True Then
+    SetDescription "ISO9613: A_gr"
         
-        End If 'end of Aatm
-        ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-        'Agr
-        If ISOFullElements(2) = True Then
-        SetDescription "ISO9613: A_gr"
-            
-            If ISOFullElements(0) = True Then 'Two rows above has A-div, so we can use the same input for distance!
-            BuildFormula "ISO9613_Agr(" & T_FreqStartRng & "," & iso9613_SourceHeight & "," & iso9613_ReceiverHeight & ",$N" & _
-            Selection.Row - 2 & ",$N" & Selection.Row & ",$O" & Selection.Row & "," & iso9613_G_middle & ")"
-            Else
-            BuildFormula "ISO9613_Agr(" & T_FreqStartRng & "," & iso9613_SourceHeight & "," & iso9613_ReceiverHeight & "," & _
-            iso9613_d & ",$N" & Selection.Row & ",$O" & Selection.Row & "," & iso9613_G_middle & ")"
-            End If
-            
-            Cells(Selection.Row, T_ParamStart).Value = iso9613_G_source
-            Cells(Selection.Row, T_ParamStart).NumberFormat = """Gs:"" 0.0"
-            Cells(Selection.Row, T_ParamStart + 1).Value = iso9613_G_receiver
-            Cells(Selection.Row, T_ParamStart + 1).NumberFormat = """Gr:"" 0.0"
-            
-        SetTraceStyle "Input", True
-        SelectNextRow 'move down
+        If ISOFullElements(0) = True Then 'Two rows above has A-div, so we can use the same input for distance!
+        BuildFormula "ISO9613_Agr(" & T_FreqStartRng & "," & iso9613_SourceHeight & "," & iso9613_ReceiverHeight & ",$N" & _
+        Selection.Row - 2 & ",$N" & Selection.Row & ",$O" & Selection.Row & "," & iso9613_G_middle & ")"
+        Else
+        BuildFormula "ISO9613_Agr(" & T_FreqStartRng & "," & iso9613_SourceHeight & "," & iso9613_ReceiverHeight & "," & _
+        iso9613_d & ",$N" & Selection.Row & ",$O" & Selection.Row & "," & iso9613_G_middle & ")"
+        End If
         
-        End If 'end of Agr
-        ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-        'Abar
-        If ISOFullElements(3) = True Then
-        SetDescription "ISO9613: A_bar"
-        Cells(Selection.Row, T_ParamStart).Value = iso9613_BarrierHeight
-        SetUnits "m", T_ParamStart, 1
-            If ISOFullElements(0) = True Then 'Three rows above has A-div, so we can use the same input for distance!
-            BuildFormula "ISO9613_Abar(" & T_FreqStartRng & "," & iso9613_SourceHeight & "," & iso9613_ReceiverHeight & ",$N" & Selection.Row - 3 & "," & iso9613_SourceToBarrier & "," & _
-            iso9613_SrcToBarrierEdge & "," & iso9613_RecToBarrierEdge & "," & "$N" & Selection.Row & "," & iso9613_DoubleDiffraction & "," & iso9613_BarrierThickness & "," & _
-            iso9613_BarrierHeightReceiverSide & "," & iso9613_MultiSource & ",E$" & Selection.Row - 1 & ")"
-            Else
-            BuildFormula "ISO9613_Abar(" & T_FreqStartRng & "," & iso9613_SourceHeight & "," & iso9613_ReceiverHeight & "," & iso9613_d & "," & iso9613_SourceToBarrier & "," & _
-            iso9613_SrcToBarrierEdge & "," & iso9613_RecToBarrierEdge & "," & "$N" & Selection.Row & "," & iso9613_DoubleDiffraction & "," & iso9613_BarrierThickness & "," & _
-            iso9613_BarrierHeightReceiverSide & "," & iso9613_MultiSource & ",E$" & Selection.Row - 1 & ")"
-            End If
+        Cells(Selection.Row, T_ParamStart).Value = iso9613_G_source
+        Cells(Selection.Row, T_ParamStart).NumberFormat = """Gs:"" 0.0"
+        Cells(Selection.Row, T_ParamStart + 1).Value = iso9613_G_receiver
+        Cells(Selection.Row, T_ParamStart + 1).NumberFormat = """Gr:"" 0.0"
+        InsertComment "Ground effect in source region", T_ParamStart
+        InsertComment "Ground effect in receiver region", T_ParamStart + 1
         
-        SetTraceStyle "Input", True
-        
-        SelectNextRow 'move down
-        
-        End If 'end of Abar
-        ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-        'Amisc
-        ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    Else
-    ErrorOctOnly
-    End If 'end of sheet type
+    SetTraceStyle "Input", True
+    SelectNextRow 'move down
+    
+    End If 'end of Agr
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    'Abar
+    If ISOFullElements(3) = True Then
+    SetDescription "ISO9613: A_bar"
+    Cells(Selection.Row, T_ParamStart).Value = iso9613_BarrierHeight
+    SetUnits "m", T_ParamStart, 1
+        If ISOFullElements(0) = True Then 'Three rows above has A-div, so we can use the same input for distance!
+        BuildFormula "ISO9613_Abar(" & T_FreqStartRng & "," & iso9613_SourceHeight & "," & iso9613_ReceiverHeight & ",$N" & Selection.Row - 3 & "," & iso9613_SourceToBarrier & "," & _
+        iso9613_SrcToBarrierEdge & "," & iso9613_RecToBarrierEdge & "," & "$N" & Selection.Row & "," & iso9613_DoubleDiffraction & "," & iso9613_BarrierThickness & "," & _
+        iso9613_BarrierHeightReceiverSide & "," & iso9613_MultiSource & ",E$" & Selection.Row - 1 & ")"
+        Else
+        BuildFormula "ISO9613_Abar(" & T_FreqStartRng & "," & iso9613_SourceHeight & "," & iso9613_ReceiverHeight & "," & iso9613_d & "," & iso9613_SourceToBarrier & "," & _
+        iso9613_SrcToBarrierEdge & "," & iso9613_RecToBarrierEdge & "," & "$N" & Selection.Row & "," & iso9613_DoubleDiffraction & "," & iso9613_BarrierThickness & "," & _
+        iso9613_BarrierHeightReceiverSide & "," & iso9613_MultiSource & ",E$" & Selection.Row - 1 & ")"
+        End If
+    
+    SetTraceStyle "Input", True
+    
+    SelectNextRow 'move down
+    
+    End If 'end of Abar
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    'Amisc: TODO one day????
+    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
     
 End Sub
 

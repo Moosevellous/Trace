@@ -166,14 +166,14 @@ Dim VelocityMps As Double
     
         'calculate values
         If IsNumeric(Me.txtFlowRate.Value) And IsNumeric(Me.txtPressureLoss.Value) And IsNumeric(Me.txtH.Value) And IsNumeric(Me.txtW.Value) And Me.txtDuctArea.Value <> "0" Then
-        Me.txt63.Value = Round(ScreenInput(DamperRegen_NEBB("63", FlowRateLitres, Me.txtPressureLoss.Value, Me.txtH.Value, Me.txtW.Value, Me.optMultiBlade.Value)), 1)
-        Me.txt125.Value = Round(ScreenInput(DamperRegen_NEBB("125", FlowRateLitres, Me.txtPressureLoss.Value, Me.txtH.Value, Me.txtW.Value, Me.optMultiBlade.Value)), 1)
-        Me.txt250.Value = Round(ScreenInput(DamperRegen_NEBB("250", FlowRateLitres, Me.txtPressureLoss.Value, Me.txtH.Value, Me.txtW.Value, Me.optMultiBlade.Value)), 1)
-        Me.txt500.Value = Round(ScreenInput(DamperRegen_NEBB("500", FlowRateLitres, Me.txtPressureLoss.Value, Me.txtH.Value, Me.txtW.Value, Me.optMultiBlade.Value)), 1)
-        Me.txt1k.Value = Round(ScreenInput(DamperRegen_NEBB("1k", FlowRateLitres, Me.txtPressureLoss.Value, Me.txtH.Value, Me.txtW.Value, Me.optMultiBlade.Value)), 1)
-        Me.txt2k.Value = Round(ScreenInput(DamperRegen_NEBB("2k", FlowRateLitres, Me.txtPressureLoss.Value, Me.txtH.Value, Me.txtW.Value, Me.optMultiBlade.Value)), 1)
-        Me.txt4k.Value = Round(ScreenInput(DamperRegen_NEBB("4k", FlowRateLitres, Me.txtPressureLoss.Value, Me.txtH.Value, Me.txtW.Value, Me.optMultiBlade.Value)), 1)
-        Me.txt8k.Value = Round(ScreenInput(DamperRegen_NEBB("8k", FlowRateLitres, Me.txtPressureLoss.Value, Me.txtH.Value, Me.txtW.Value, Me.optMultiBlade.Value)), 1)
+        Me.txt63.Value = CheckNumericValue(DamperRegen_NEBB("63", FlowRateLitres, Me.txtPressureLoss.Value, Me.txtH.Value, Me.txtW.Value, Me.optMultiBlade.Value), 1)
+        Me.txt125.Value = CheckNumericValue(DamperRegen_NEBB("125", FlowRateLitres, Me.txtPressureLoss.Value, Me.txtH.Value, Me.txtW.Value, Me.optMultiBlade.Value), 1)
+        Me.txt250.Value = CheckNumericValue(DamperRegen_NEBB("250", FlowRateLitres, Me.txtPressureLoss.Value, Me.txtH.Value, Me.txtW.Value, Me.optMultiBlade.Value), 1)
+        Me.txt500.Value = CheckNumericValue(DamperRegen_NEBB("500", FlowRateLitres, Me.txtPressureLoss.Value, Me.txtH.Value, Me.txtW.Value, Me.optMultiBlade.Value), 1)
+        Me.txt1k.Value = CheckNumericValue(DamperRegen_NEBB("1k", FlowRateLitres, Me.txtPressureLoss.Value, Me.txtH.Value, Me.txtW.Value, Me.optMultiBlade.Value), 1)
+        Me.txt2k.Value = CheckNumericValue(DamperRegen_NEBB("2k", FlowRateLitres, Me.txtPressureLoss.Value, Me.txtH.Value, Me.txtW.Value, Me.optMultiBlade.Value), 1)
+        Me.txt4k.Value = CheckNumericValue(DamperRegen_NEBB("4k", FlowRateLitres, Me.txtPressureLoss.Value, Me.txtH.Value, Me.txtW.Value, Me.optMultiBlade.Value), 1)
+        Me.txt8k.Value = CheckNumericValue(DamperRegen_NEBB("8k", FlowRateLitres, Me.txtPressureLoss.Value, Me.txtH.Value, Me.txtW.Value, Me.optMultiBlade.Value), 1)
         Else 'clear! *beeeeeeep*
         NoSpectrum
         End If

@@ -120,15 +120,15 @@ If IsNumeric(Me.txtDuctWallThick.Value) = False Then CheckValues = False
     Me.txtTLoutMin.Value = Round(TLoutMin, 1)
     
     'place in form, using actual function in module NoiseFunctions
-    Me.txt31.Value = Round(DuctBreakOut_NEBB("31.5", CSng(Me.txtH.Value), CSng(Me.txtW.Value), CSng(Me.txtL.Value), CSng(Me.txtDensity.Value), CSng(Me.txtDuctWallThick.Value)), 1)
-    Me.txt63.Value = Round(DuctBreakOut_NEBB("63", CSng(Me.txtH.Value), CSng(Me.txtW.Value), CSng(Me.txtL.Value), CSng(Me.txtDensity.Value), CSng(Me.txtDuctWallThick.Value)), 1)
-    Me.txt125.Value = Round(DuctBreakOut_NEBB("125", CSng(Me.txtH.Value), CSng(Me.txtW.Value), CSng(Me.txtL.Value), CSng(Me.txtDensity.Value), CSng(Me.txtDuctWallThick.Value)), 1)
-    Me.txt250.Value = Round(DuctBreakOut_NEBB("250", CSng(Me.txtH.Value), CSng(Me.txtW.Value), CSng(Me.txtL.Value), CSng(Me.txtDensity.Value), CSng(Me.txtDuctWallThick.Value)), 1)
-    Me.txt500.Value = Round(DuctBreakOut_NEBB("500", CSng(Me.txtH.Value), CSng(Me.txtW.Value), CSng(Me.txtL.Value), CSng(Me.txtDensity.Value), CSng(Me.txtDuctWallThick.Value)), 1)
-    Me.txt1k.Value = Round(DuctBreakOut_NEBB("1k", CSng(Me.txtH.Value), CSng(Me.txtW.Value), CSng(Me.txtL.Value), CSng(Me.txtDensity.Value), CSng(Me.txtDuctWallThick.Value)), 1)
-    Me.txt2k.Value = Round(DuctBreakOut_NEBB("2k", CSng(Me.txtH.Value), CSng(Me.txtW.Value), CSng(Me.txtL.Value), CSng(Me.txtDensity.Value), CSng(Me.txtDuctWallThick.Value)), 1)
-    Me.txt4k.Value = Round(DuctBreakOut_NEBB("4k", CSng(Me.txtH.Value), CSng(Me.txtW.Value), CSng(Me.txtL.Value), CSng(Me.txtDensity.Value), CSng(Me.txtDuctWallThick.Value)), 1)
-    Me.txt8k.Value = Round(DuctBreakOut_NEBB("8k", CSng(Me.txtH.Value), CSng(Me.txtW.Value), CSng(Me.txtL.Value), CSng(Me.txtDensity.Value), CSng(Me.txtDuctWallThick.Value)), 1)
+    Me.txt31.Value = CheckNumericValue(DuctBreakOut_NEBB("31.5", CSng(Me.txtH.Value), CSng(Me.txtW.Value), CSng(Me.txtL.Value), CSng(Me.txtDensity.Value), CSng(Me.txtDuctWallThick.Value)), 1)
+    Me.txt63.Value = CheckNumericValue(DuctBreakOut_NEBB("63", CSng(Me.txtH.Value), CSng(Me.txtW.Value), CSng(Me.txtL.Value), CSng(Me.txtDensity.Value), CSng(Me.txtDuctWallThick.Value)), 1)
+    Me.txt125.Value = CheckNumericValue(DuctBreakOut_NEBB("125", CSng(Me.txtH.Value), CSng(Me.txtW.Value), CSng(Me.txtL.Value), CSng(Me.txtDensity.Value), CSng(Me.txtDuctWallThick.Value)), 1)
+    Me.txt250.Value = CheckNumericValue(DuctBreakOut_NEBB("250", CSng(Me.txtH.Value), CSng(Me.txtW.Value), CSng(Me.txtL.Value), CSng(Me.txtDensity.Value), CSng(Me.txtDuctWallThick.Value)), 1)
+    Me.txt500.Value = CheckNumericValue(DuctBreakOut_NEBB("500", CSng(Me.txtH.Value), CSng(Me.txtW.Value), CSng(Me.txtL.Value), CSng(Me.txtDensity.Value), CSng(Me.txtDuctWallThick.Value)), 1)
+    Me.txt1k.Value = CheckNumericValue(DuctBreakOut_NEBB("1k", CSng(Me.txtH.Value), CSng(Me.txtW.Value), CSng(Me.txtL.Value), CSng(Me.txtDensity.Value), CSng(Me.txtDuctWallThick.Value)), 1)
+    Me.txt2k.Value = CheckNumericValue(DuctBreakOut_NEBB("2k", CSng(Me.txtH.Value), CSng(Me.txtW.Value), CSng(Me.txtL.Value), CSng(Me.txtDensity.Value), CSng(Me.txtDuctWallThick.Value)), 1)
+    Me.txt4k.Value = CheckNumericValue(DuctBreakOut_NEBB("4k", CSng(Me.txtH.Value), CSng(Me.txtW.Value), CSng(Me.txtL.Value), CSng(Me.txtDensity.Value), CSng(Me.txtDuctWallThick.Value)), 1)
+    Me.txt8k.Value = CheckNumericValue(DuctBreakOut_NEBB("8k", CSng(Me.txtH.Value), CSng(Me.txtW.Value), CSng(Me.txtL.Value), CSng(Me.txtDensity.Value), CSng(Me.txtDuctWallThick.Value)), 1)
     Else
     Me.lblFL.Caption = "fL = - "
     End If

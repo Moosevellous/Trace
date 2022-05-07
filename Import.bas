@@ -166,7 +166,8 @@ Dim ClipData As String
     'Debug.Print ClipData
         'catch ZORBA Import
         If InStr(1, ClipData, "NRC", vbTextCompare) > 0 Then
-        msg = MsgBox("This looks like ZORBA data. Did you mean the other button?", vbOKOnly, "Error - Data mismatch")
+        msg = MsgBox("This looks like ZORBA data. Did you mean the other button?", _
+            vbOKOnly, "Error - Data mismatch")
         End
         End If
     
@@ -174,7 +175,7 @@ Dim ClipData As String
     
     PasteCol = 2 '<--TODO make this flexible based on Sheet Type
     
-        For i = 0 To 21 'stop at 5k band '
+        For i = 0 To 21 'stop at 5k band
         'split on tab
         splitLine = Split(splitData(i), vbTab, Len(splitData(i)), vbTextCompare)
         Cells(Selection.Row, PasteCol).Value = splitLine(UBound(splitLine))
@@ -183,9 +184,11 @@ Dim ClipData As String
             PasteCol = PasteCol + 2 'skip to column D, then +1 to E later
             ElseIf PasteCol = 25 Then 'put in the ratings
                 If InStr(1, TitleStr, "FLOOR", vbTextCompare) = 0 Then 'not floor
-                Cells(Selection.Row, T_ParamStart).Value = "=RwRate(H" & Selection.Row & ":W" & Selection.Row & ")" 'Rw
+                Cells(Selection.Row, T_ParamStart).Value = "=RwRate(H" & Selection.Row & _
+                    ":W" & Selection.Row & ")" 'Rw
                 Cells(Selection.Row, T_ParamStart).NumberFormat = """Rw ""0"
-                Cells(Selection.Row, T_ParamStart + 1).Value = "=CtrRate(H" & Selection.Row & ":W" & Selection.Row & ",Z" & Selection.Row & ")" 'Ctr
+                Cells(Selection.Row, T_ParamStart + 1).Value = "=CtrRate(H" & Selection.Row & _
+                    ":W" & Selection.Row & ",Z" & Selection.Row & ")" 'Ctr
                 Cells(Selection.Row, T_ParamStart + 1).NumberFormat = ";Ct\r -0;"
                 End If
             End If
@@ -219,7 +222,8 @@ Dim ClipData As String
         InStr(1, ClipData, "Roof", vbTextCompare) > 0 Or _
         InStr(1, ClipData, "Glazing", vbTextCompare) > 0 Or _
         InStr(1, ClipData, "Porous", vbTextCompare) > 0 Then
-        msg = MsgBox("This looks like INSUL data. Did you mean the other button?", vbOKOnly, "Error - Data mismatch")
+        msg = MsgBox("This looks like INSUL data. Did you mean the other button?", _
+            vbOKOnly, "Error - Data mismatch")
         End
         End If
     

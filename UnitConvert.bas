@@ -5,8 +5,16 @@ Function Inches2mm(inputValue As Variant)
 Inches2mm = inputValue * 25.4
 End Function
 
+Function mm2Inches(inputValue As Variant)
+mm2Inches = inputValue / 25.4
+End Function
+
 Function Metres2Feet(inputValue As Variant)
 Metres2Feet = inputValue * 3.28084
+End Function
+
+Function Feet2Metres(inputValue As Variant)
+Feet2Metres = inputValue / 3.28084
 End Function
 
 'FORWARDING FUNCTIONS

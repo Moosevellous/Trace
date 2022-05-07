@@ -4,20 +4,21 @@ Attribute VB_Name = "RibbonControls"
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 '==============================================================================
-' Name:     IsNamedRange
+' Name:     NamedRangeExists
 ' Author:   PS
-' Desc:     Checks named ranges for matching names, returns true if found
+' Desc:     Checks if a given named range exists, returns true if found
 ' Args:     strRangeName (a named range to be searched for)
-' Comments: (1) Called as part of SetSheetTypeControls
+' Comments: (1) Called as part of SetSheetTypeControls and elsewhere
+'           (2) Used to be called IsNamedRange, which was a bad name
 '==============================================================================
-Function IsNamedRange(strRangeName As String) As Boolean
+Function NamedRangeExists(strRangeName As String) As Boolean
 Dim rngExists  As Range
 On Error Resume Next
 Set rngExists = Range(strRangeName)
-IsNamedRange = True
+NamedRangeExists = True
 
     If rngExists Is Nothing Then
-    IsNamedRange = False
+    NamedRangeExists = False
     msg = MsgBox("Error: Named Range TYPECODE missing!" & chr(10) & chr(10) & _
     "This Trace function requires a blank sheet." & chr(10) & chr(10) _
     & "Try clicking '+ Sheet' on the Trace Ribbon (top left, in the 'New' group).", _
@@ -27,6 +28,11 @@ IsNamedRange = True
     On Error GoTo 0
     
 End Function
+
+
+'NOTE:
+'The shorthand for the types is: % -integer; & -long; @ -currency; # -double; ! -single; $ -string
+
 
 '==============================================================================
 '==============================================================================
@@ -49,7 +55,7 @@ Sub TraceFunctionWithInput(control As IRibbonControl)
 Dim FuncName As String
     
     'check for input
-    If Len(control.ID) > 0 Then
+    If Len(control.id) > 0 Then
         'Skip controls for certain functions
         If Left(control.Tag, 1) = "`" Then
         'trim function name of backtick
@@ -58,7 +64,7 @@ Dim FuncName As String
         FuncName = control.Tag
         SetSheetTypeControls 'set sheet control variables
         End If
-    Application.Run FuncName, control.ID
+    Application.Run FuncName, control.id
     End If
     
 End Sub
@@ -77,6 +83,12 @@ Dim FuncName As String
 
 On Error GoTo errorCatch
 'Debug.Print "TypeName: "; TypeName(Selection)
+
+'guard clause for no workbook
+    If Selection Is Nothing Then
+    Application.Workbooks.Add
+    DoEvents
+    End If
 
     If TypeName(Selection) = "Range" Then
         'Skip controls for certain functions
@@ -117,6 +129,8 @@ Debug.Print "ERROR: "; Err.Number; Err.Description
     
 End Sub
 
+
+
 '==============================================================================
 '==============================================================================
 'LOAD MODULE
@@ -125,7 +139,7 @@ End Sub
 Sub btnLoad(control As IRibbonControl)
 Dim NameString As String
 'Type of sheet-> lose the characters 'btnAdd'
-NameString = Right(control.ID, Len(control.ID) - 3)
+NameString = Right(control.id, Len(control.id) - 3)
     New_Tab (NameString)
 End Sub
 
@@ -182,7 +196,13 @@ End Sub
 '==============================================================================
 '==============================================================================
 Public Sub ErrorTypeCode()
-msg = MsgBox("Error: Named Range ""TYPECODE"" is missing. This function can only be called in sheets with this Named Range.", vbOKOnly, "Waggling finger of shame")
+msg = MsgBox("Error: Named Range ""TYPECODE"" can't be found or does not match the standard codes." & chr(10) & _
+    chr(10) & _
+    "Ribbon controls only implemeted for:" & chr(10) & _
+    "OCT, OCTA, TO, TOA, MECH, LF_TO, LF_OCT, and CVT" & chr(10) & _
+    chr(10) & _
+    "Please use a Trace sheet layout.", vbOKOnly, "Waggling finger of shame")
+    
 End
 End Sub
 

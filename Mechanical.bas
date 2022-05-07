@@ -55,12 +55,13 @@ Public DuctInW As Single 'mm
 Public DuctOutL As Single 'mm
 Public DuctOutW As Single 'mm
 Public PlenumQ As Integer
-Public r_h As Long 'mm
+Public R_H As Long 'mm
 Public r_v As Long 'mm
-Public PlenumLiningType As String
-Public UnlinedType As String
+Public PlenumLiningType As String 'Type of absorptive lining in plenum, from ASHRAE
+Public UnlinedType As String 'Type of non-absorptive lining in plenum, from ASHRAE
 Public PlenumWallEffectStr As String
 Public ApplyPlenumElbowEffect As Boolean
+Public PlenumPercentUnlined As Long 'percentage
 
 'Regen (note that regen also uses some variables from ducts group)
 Public CalcRegen As Boolean 'set to TRUE to calculate regenerated noise from element
@@ -130,7 +131,7 @@ Dim CurrentType As String 'same rules as DuctType, set at lines which contain '*
 Dim InputArea As Double 'cross sectional area of duct in mm^2
 Dim ReadArea As Double 'cross sectional area of duct from file in mm^2
 Dim found As Boolean 'trigger to escape the read loop
-Dim Col As Integer 'index for each column
+Dim col As Integer 'index for each column
 Dim bandNo As Integer 'which column is the frequency band in
 Dim f As Double 'holds number
 
@@ -171,15 +172,15 @@ fStr = CStr(f)
         Else
             
             'convert SplitString from Strings to Values
-            For Col = 0 To UBound(SplitStr)
-                If SplitStr(Col) <> "" And IsNumeric(SplitStr(Col)) Then
-                ReDim Preserve SplitVal(Col)
-                SplitVal(Col) = CDbl(SplitStr(Col))
+            For col = 0 To UBound(SplitStr)
+                If SplitStr(col) <> "" And IsNumeric(SplitStr(col)) Then
+                ReDim Preserve SplitVal(col)
+                SplitVal(col) = CDbl(SplitStr(col))
                 End If
-            Next Col
+            Next col
             
             'resize array
-            ReDim Preserve SplitVal(Col + 1)
+            ReDim Preserve SplitVal(col + 1)
             
                 If Right(DuctType, 1) = "R" Then 'RECTANGULAR DUCT
                 ReadArea = SplitVal(0) * SplitVal(1)
@@ -245,7 +246,7 @@ Dim P As Double 'perimeter in metres
 'bands:    63      125     250    500     1k    2k     4k     8k
 b = Array(0.0133, 0.0574, 0.271, 1.0147, 1.77, 1.392, 1.518, 1.581)
 c = Array(1.959, 1.41, 0.824, 0.5, 0.695, 0.802, 0.451, 0.219)
-d = Array(0.917, 0.941, 1.079, 1.087, 0, 0, 0, 0)
+D = Array(0.917, 0.941, 1.079, 1.087, 0, 0, 0, 0)
 
 'convert to millimetres to metres
 H = H / 1000
@@ -272,7 +273,7 @@ i = GetArrayIndex_OCT(fStr)
         IL = 0
         Else
         IL = (3.281 * b(i)) * ((0.305 * PonA) ^ c(i)) * _
-            ((0.039 * thickness) ^ d(i)) * L
+            ((0.039 * thickness) ^ D(i)) * L
         End If
     
         'applies from 500Hz octave band and up
@@ -326,7 +327,7 @@ D4 = Array(0.03, 0.03, 0.03, 0.07, 0.07, 0.07, 0.07)
 a = Array(0.2825, 0.5237, 0.3652, 0.1333, 1.933, 2.73, 2.8, 1.545)
 b = Array(0.3447, 0.2234, 0.79, 1.845, 0, 0, 0, 0)
 c = Array(-0.05251, -0.004936, -0.1157, -0.3735, 0, 0, 0, 0)
-d = Array(-0.03837, -0.02724, -0.01834, -0.01293, 0.06135, -0.07341, -0.1467, -0.05452)
+D = Array(-0.03837, -0.02724, -0.01834, -0.01293, 0.06135, -0.07341, -0.1467, -0.05452)
 e = Array(0.00091315, 0.0003377, -0.0001211, 0.00008624, -0.003891, 0.0004428, 0.003404, 0.00129)
 f = Array(-0.000008294, -0.00000249, 0.000002681, -0.000004986, 0.00003934, 0.000001006, -0.00002851, -0.00001318)
 
@@ -369,7 +370,7 @@ i = GetArrayIndex_OCT(fStr) '63Hz is element 0
         Else
     
         DuctAttenCircular_Reynolds = 3.281 * (a(i) + (b(i) * thickness) + _
-        (c(i) * thickness ^ 2) + (d(i) * dia) + (e(i) * dia ^ 2) + _
+        (c(i) * thickness ^ 2) + (D(i) * dia) + (e(i) * dia ^ 2) + _
         (f(i) * dia ^ 3)) * L
         
             'top out at 40dB
@@ -407,7 +408,7 @@ Dim SplitVal() As Double 'holds data converted into numbers
 Dim InputArea As Double 'cross sectional area of duct in mm^2
 Dim ReadArea As Double 'cross sectional area of duct from file in mm^2
 Dim found As Boolean 'trigger to escape the read loop
-Dim Col As Integer 'index for each column
+Dim col As Integer 'index for each column
 
 'Get Array from text
 Close #1
@@ -646,7 +647,7 @@ Dim ReadStr() As String 'array for holding daat from text file
 Dim i As Integer 'counter for each line
 Dim SplitStr() As String 'splits text file into substrings
 Dim SplitVal() As Double 'converted to values
-Dim Col As Integer 'counter for each column
+Dim col As Integer 'counter for each column
 Dim found As Boolean 'switch for when match found
 
 Call GetSettings
@@ -665,14 +666,14 @@ i = 0 '<-line number
         If Left(SplitStr(0), 1) <> "*" Then 'asterisk detotes titles
         
             'convert to values
-            For Col = 0 To UBound(SplitStr)
-                If SplitStr(Col) <> "" Then
-                ReDim Preserve SplitVal(Col)
-                SplitVal(Col) = CDbl(SplitStr(Col))
+            For col = 0 To UBound(SplitStr)
+                If SplitStr(col) <> "" Then
+                ReDim Preserve SplitVal(col)
+                SplitVal(col) = CDbl(SplitStr(col))
                 End If
-            Next Col
+            Next col
             
-            ReDim Preserve SplitVal(Col + 1)
+            ReDim Preserve SplitVal(col + 1)
             
                 If SplitVal(0) = dia And SplitVal(1) = L Then
                     Select Case freq
@@ -839,7 +840,7 @@ On Error GoTo closefile
 Dim ReadStr() As String 'string for holding data from text file
 Dim SplitStr() As String 'Array for holding sub strings from text file
 Dim SplitVal() As Double 'converted to values
-Dim Col As Integer 'counter for each column of data
+Dim col As Integer 'counter for each column of data
 Dim found As Boolean 'switch for matching data
 Dim i As Integer 'counter for each line of text file
 
@@ -864,12 +865,12 @@ Open ASHRAE_REGEN For Input As #1  'public variable
                 If SplitStr(0) = Condition And CDbl(SplitStr(1)) = Velocity Then
                 
                     'convert to values
-                    For Col = 1 To UBound(SplitStr)
-                        If SplitStr(Col) <> "" Then
-                        ReDim Preserve SplitVal(Col)
-                        SplitVal(Col) = CDbl(SplitStr(Col))
+                    For col = 1 To UBound(SplitStr)
+                        If SplitStr(col) <> "" Then
+                        ReDim Preserve SplitVal(col)
+                        SplitVal(col) = CDbl(SplitStr(col))
                         End If
-                    Next Col
+                    Next col
                 
                     Select Case freq
                     Case Is = "63"
@@ -975,7 +976,7 @@ Dim Vanes As Boolean 'true if has vanes
     End If
     
 'from table 22 of ASHRAE
-Unlined = Array(0, -1, -5, -8, -4, -3) '<Error found here, now fixed
+Unlined = Array(0, -1, -5, -8, -4, -3)
 Lined = Array(0, -1, -6, -11, -10, -10)
 'from table 24 of ASHRAE
 UnlinedV = Array(0, -1, -4, -6, -4)
@@ -1125,10 +1126,10 @@ End Function
 ' Comments: (1)
 '==============================================================================
 Function PlenumLoss_ASHRAE(fStr As String, L As Long, W As Long, H As Long, _
-DuctInL As Single, DuctInW As Single, DuctOutL As Single, DuctOutW As Single, _
-Q As Integer, r_h As Long, r_v As Long, PlenumLiningType As String, _
-UnlinedType As String, WallEffect As String, applyElbowEffect As Boolean, _
-Optional OneThirdsMode As Boolean)
+    DuctInL As Single, DuctInW As Single, DuctOutL As Single, DuctOutW As Single, _
+    Q As Integer, R_H As Long, r_v As Long, PlenumLiningType As String, _
+    UnlinedType As String, WallEffect As String, applyElbowEffect As Boolean, _
+    UnlinedPercent As Long, Optional OneThirdsMode As Boolean)
 
 Dim f_OneUp As Double
 Dim f_OneDown As Double
@@ -1138,27 +1139,33 @@ Dim Loss2 As Double
 Dim Loss3 As Double
 
 f = freqStr2Num(fStr)
+    
+    'put bounds on the function
+    If f < 50 Or f > 4000 Then
+    PlenumLoss_ASHRAE = "-"
+    Exit Function
+    End If
 
 If IsMissing(OneThirdsMode) Then OneThirdsMode = False
 
     'Switches between a single one-third octave band and a full octave band
     If OneThirdsMode = True Then
     PlenumLoss_ASHRAE = PlenumLossOneThirdOctave_ASHRAE(f, L, W, H, DuctInL, _
-        DuctInW, DuctOutL, DuctOutW, Q, r_h, r_v, PlenumLiningType, UnlinedType, _
-        WallEffect, applyElbowEffect)
+        DuctInW, DuctOutL, DuctOutW, Q, R_H, r_v, PlenumLiningType, UnlinedType, _
+        WallEffect, applyElbowEffect, UnlinedPercent)
     Else 'octave bands!
     f_OneUp = GetAdjacentFrequency(f, "Up")
     f_OneDown = GetAdjacentFrequency(f, "Down")
     'get for each one third octave and then Tl average them
     Loss1 = PlenumLossOneThirdOctave_ASHRAE(f_OneDown, L, W, H, DuctInL, _
-        DuctInW, DuctOutL, DuctOutW, Q, r_h, r_v, PlenumLiningType, UnlinedType, _
-        WallEffect, applyElbowEffect)
+        DuctInW, DuctOutL, DuctOutW, Q, R_H, r_v, PlenumLiningType, UnlinedType, _
+        WallEffect, applyElbowEffect, UnlinedPercent)
     Loss2 = PlenumLossOneThirdOctave_ASHRAE(f, L, W, H, DuctInL, _
-        DuctInW, DuctOutL, DuctOutW, Q, r_h, r_v, PlenumLiningType, UnlinedType, _
-        WallEffect, applyElbowEffect)
+        DuctInW, DuctOutL, DuctOutW, Q, R_H, r_v, PlenumLiningType, UnlinedType, _
+        WallEffect, applyElbowEffect, UnlinedPercent)
     Loss3 = PlenumLossOneThirdOctave_ASHRAE(f_OneUp, L, W, H, DuctInL, _
-        DuctInW, DuctOutL, DuctOutW, Q, r_h, r_v, PlenumLiningType, UnlinedType, _
-        WallEffect, applyElbowEffect)
+        DuctInW, DuctOutL, DuctOutW, Q, R_H, r_v, PlenumLiningType, UnlinedType, _
+        WallEffect, applyElbowEffect, UnlinedPercent)
     'Note: losses are negative already so no need for negatives sign in formula
     PlenumLoss_ASHRAE = 10 * Application.WorksheetFunction.Log10((1 / 3) * _
         ((10 ^ (Loss1 / 10)) + (10 ^ (Loss2 / 10)) + (10 ^ (Loss3 / 10))))
@@ -1186,14 +1193,14 @@ End Function
 '           UnlinedType - The unlined plenum material (behind lining)
 '           WallEffect - Different types for wall effect options in ASHRAE
 '           applyElbowEffect - TRUE if tickbox is checked
-'           OneThirdsMode - Optional switch for single one-third band
+'           PercentUnlined - Percent of surface area that's unlined
 ' Comments: (1)
 '==============================================================================
 Function PlenumLossOneThirdOctave_ASHRAE(f As Double, L As Long, W As Long, _
 H As Long, DuctInL As Single, DuctInW As Single, DuctOutL As Single, _
-DuctOutW As Single, Q As Integer, r_h As Long, r_v As Long, _
+DuctOutW As Single, Q As Integer, R_H As Long, r_v As Long, _
 PlenumLiningType As String, UnlinedType As String, WallEffect As String, _
-applyElbowEffect As Boolean)
+applyElbowEffect As Boolean, UnlinedPercent As Long)
 
 Dim Stotal As Single 'Total internal surface area of plenum in m^2
 Dim InletArea As Single 'area of inlet duct in m^2
@@ -1210,6 +1217,12 @@ Dim OAE As Single 'offset angle effect
 Dim WallEffectIndex As Integer 'index for the defined types in ASHRAE
 Dim W_e As Single 'Wall effect in dB
 Dim AngleEffect As Single 'Angle effect in dB
+Dim DuctInL_m As Single
+Dim DuctInW_m As Single
+Dim DuctOutL_m As Single
+Dim DuctOutW_m As Single
+Dim SA_Lined As Single
+Dim SA_Unlined As Single
 
 '''''''''''''''''''''''''''''''''''''''''''''''''
 'CONSTANTS
@@ -1233,22 +1246,22 @@ FG100 = Array(0.5, 0.84, 1, 1, 1, 1, 0.97)
 '''''''''''''''''''''''''''''''''''''''''''''''''
 
 'Convert units and types
-DuctInL = DuctInL / 1000 'convert to metres
-DuctInW = DuctInW / 1000 'convert to metres
-DuctOutL = DuctOutL / 1000 'convert to metres
-DuctOutW = DuctOutW / 1000 'convert to metres
+DuctInL_m = DuctInL / 1000 'convert to metres
+DuctInW_m = DuctInW / 1000 'convert to metres
+DuctOutL_m = DuctOutL / 1000 'convert to metres
+DuctOutW_m = DuctOutW / 1000 'convert to metres
 
 '''''''''''''''''''''''''''''''''''''''''''''''''
 'CALCULATION
 '''''''''''''''''''''''''''''''''''''''''''''''''
 
 'cutoff frequency
-f_co = PlenumCutoffFrequency(DuctInL, DuctInW)
+f_co = PlenumCutoffFrequency(DuctInL_m, DuctInW_m)
 'Debug.Print "Cutoff Frequency = " & Round(f_co, 1) & "Hz"
 
 'Areas and Volumes
-InletArea = DuctInL * DuctInW
-OutletArea = DuctOutL * DuctOutW
+InletArea = DuctInL_m * DuctInW_m
+OutletArea = DuctOutL_m * DuctOutW_m
 PlenumVolume = (L / 1000) * (W / 1000) * (H / 1000) 'note: input in mm
 
 'Surface area
@@ -1282,14 +1295,16 @@ Stotal = PlenumSurfaceArea(L, W, H, InletArea, OutletArea)
     Unlined = Bare_Sheet_Metal
     End Select
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+SA_Unlined = Stotal * (UnlinedPercent / 100) 'm2
+SA_Lined = Stotal - SA_Unlined 'm2
     For i = 0 To UBound(alphaTotal) - 1 '7th column not used
-    alphaTotal(i) = (((InletArea + OutletArea) * Unlined(i)) + (Stotal * PlenumLining(i))) _
+    alphaTotal(i) = (((InletArea + OutletArea + SA_Unlined) * Unlined(i)) + (SA_Lined * PlenumLining(i))) _
         / (InletArea + OutletArea + Stotal)
     AbsorptionArea(i) = (OutletArea * (1 - alphaTotal(i))) / (Stotal * alphaTotal(i))
     Next i
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 'Distance from inlet to outlet
-R = PlenumDistanceR(r_h, r_v, L)
+R = PlenumDistanceR(R_H, r_v, L)
 'Debug.Print "Offset Distance, R = " & Round(r, 1)
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
     '90-degree bend selected, use the elbow effect method in ASHRAE
@@ -1329,11 +1344,18 @@ R = PlenumDistanceR(r_h, r_v, L)
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
     Else 'f>=f_co, above critical frequency
     A_index = MapOneThird2Oct(f)
-    'big formula! Eqn 10 from Chapter 48 of ASHRAE
-    PlenumLossOneThirdOctave_ASHRAE = -1 * (b * (((OutletArea * Q / _
-        (4 * Application.WorksheetFunction.Pi() * (R ^ 2))) _
-        + AbsorptionArea(A_index)) ^ n) + AngleEffect)
+    
+        If A_index = -1 Then 'catch errors with index out of bounds
+        PlenumLossOneThirdOctave_ASHRAE = 0
+        Else
+        'big formula! Eqn 10 from Chapter 48 of ASHRAE
+        PlenumLossOneThirdOctave_ASHRAE = -1 * (b * (((OutletArea * Q / _
+            (4 * Application.WorksheetFunction.Pi() * (R ^ 2))) _
+            + AbsorptionArea(A_index)) ^ n) + AngleEffect)
+        End If
     End If
+    
+'Debug.Print f; "Hz "; PlenumLossOneThirdOctave_ASHRAE
 
 End Function
 
@@ -1347,8 +1369,8 @@ End Function
 ' Comments: (1) Pythagoras would be proud
 '           (2) Output is in metres
 '==============================================================================
-Function PlenumDistanceR(r_h As Long, r_v As Long, L As Long) As Single
-PlenumDistanceR = (((r_v / 1000) ^ 2) + ((r_h / 1000) ^ 2) + _
+Function PlenumDistanceR(R_H As Long, r_v As Long, L As Long) As Single
+PlenumDistanceR = (((r_v / 1000) ^ 2) + ((R_H / 1000) ^ 2) + _
                     ((L / 1000) ^ 2)) ^ 0.5
 End Function
 
@@ -1362,7 +1384,7 @@ End Function
 '==============================================================================
 Function PlenumAngleTheta(L As Long, R As Single)
 Dim PlenumL As Single
-PlenumL = L / 1000
+PlenumL = L / 1000 'convert to metres
     If PlenumL / R >= -1 And PlenumL / R <= 1 Then 'between -1 and 1
     PlenumAngleTheta = Application.WorksheetFunction.Degrees( _
         Application.WorksheetFunction.Acos(PlenumL / R))
@@ -1426,7 +1448,9 @@ LargePlenum = Array(0.3, 0.3, 0.3, 0.3, 0.4, 0.4, 0.3, 0.4, 0.3, 0.2, 0.2)
 
 i = GetArrayIndex_TO(f_input)
 
-    If i <= 10 Then
+    If i = -1 Then 'catch errrors
+    PlenumAreaCoefficient = 0
+    ElseIf i <= 10 Then
         If Vol < 1.5 Then 'm^3
         PlenumAreaCoefficient = SmallPlenum(i)
         Else 'Vol>1.5m^3
@@ -1446,73 +1470,80 @@ End Function
 ' Args:     f_input - one third octave band centre frequency Hz
 '           f_co - cutoff one third octave band centre frequency Hz
 '           Angle_input - angle in degrees
-' Comments: (1)
+' Comments: (1) Error catch for y1 and y2 - not needed
+'           (2) Changed x1 and x2 to Singles
 '==============================================================================
 Function PlenumOAE(f_input As Double, f_co As Double, Angle_input As Single)
-Dim x1 As Long
-Dim x2 As Long
-Dim i As Integer
-Dim Slope As Long
+Dim x1, x2 As Single
+Dim y1, y2 As Single
+Dim i As Integer 'index of array
+Dim Slope As Single
 
     If f_input <= f_co Then
         Select Case f_input
+        Case Is < 50
+        OAETable = Array(0, 0, 0, 0, 0, 0)
         Case Is = 50
-        OAEtable = Array(0, 0, 0, 0, 0, 0)
+        OAETable = Array(0, 0, 0, 0, 0, 0)
         Case Is = 63
-        OAEtable = Array(0, 0, 0, 0, 0, 0)
+        OAETable = Array(0, 0, 0, 0, 0, 0)
         Case Is = 80
-        OAEtable = Array(0, 0, -1, -3, -4, -6)
+        OAETable = Array(0, 0, -1, -3, -4, -6)
         Case Is = 100
-        OAEtable = Array(0, 1, 0, -2, -3, -6)
+        OAETable = Array(0, 1, 0, -2, -3, -6)
         Case Is = 125
-        OAEtable = Array(0, 1, 0, -2, -4, -6)
+        OAETable = Array(0, 1, 0, -2, -4, -6)
         Case Is = 160
-        OAEtable = Array(0, 0, -1, -2, -3, -4)
+        OAETable = Array(0, 0, -1, -2, -3, -4)
         Case Is = 200
-        OAEtable = Array(0, 0, -1, -2, -3, -5)
+        OAETable = Array(0, 0, -1, -2, -3, -5)
         Case Is = 250
-        OAEtable = Array(0, 1, 2, 3, 5, 7)
+        OAETable = Array(0, 1, 2, 3, 5, 7)
         Case Is = 315
-        OAEtable = Array(0, 4, 6, 8, 10, 14)
+        OAETable = Array(0, 4, 6, 8, 10, 14)
         Case Is = 400
-        OAEtable = Array(0, 2, 4, 6, 9, 13)
+        OAETable = Array(0, 2, 4, 6, 9, 13)
         Case Is = 500
-        OAEtable = Array(0, 1, 3, 6, 10, 15)
+        OAETable = Array(0, 1, 3, 6, 10, 15)
         Case Is = 630
-        OAEtable = Array(0, 0, 0, 0, 0, 0)
+        OAETable = Array(0, 0, 0, 0, 0, 0)
         End Select
     Else 'f_input>f_co
         Select Case f_input
+        Case Is < 200 'catch exception, default to zero?
+        OAETable = Array(0, 0, 0, 0, 0, 0)
         Case Is = 200
-        OAEtable = Array(0, 1, 4, 9, 14, 20)
+        OAETable = Array(0, 1, 4, 9, 14, 20)
         Case Is = 250
-        OAEtable = Array(0, 2, 4, 8, 13, 19)
+        OAETable = Array(0, 2, 4, 8, 13, 19)
         Case Is = 315
-        OAEtable = Array(0, 1, 2, 3, 4, 5)
+        OAETable = Array(0, 1, 2, 3, 4, 5)
         Case Is = 400
-        OAEtable = Array(0, 1, 2, 3, 4, 6)
+        OAETable = Array(0, 1, 2, 3, 4, 6)
         Case Is = 500
-        OAEtable = Array(0, 0, 1, 2, 4, 5)
+        OAETable = Array(0, 0, 1, 2, 4, 5)
         Case Is = 630
-        OAEtable = Array(0, 1, 2, 3, 5, 7)
+        OAETable = Array(0, 1, 2, 3, 5, 7)
         Case Is = 800
-        OAEtable = Array(0, 1, 2, 2, 3, 3)
+        OAETable = Array(0, 1, 2, 2, 3, 3)
         Case Is = 1000
-        OAEtable = Array(0, 1, 2, 4, 6, 9)
+        OAETable = Array(0, 1, 2, 4, 6, 9)
         Case Is = 1250
-        OAEtable = Array(0, 0, 2, 4, 6, 9)
+        OAETable = Array(0, 0, 2, 4, 6, 9)
         Case Is = 1600
-        OAEtable = Array(0, 0, 1, 1, 2, 3)
+        OAETable = Array(0, 0, 1, 1, 2, 3)
         Case Is = 2000
-        OAEtable = Array(0, 1, 2, 4, 7, 10)
+        OAETable = Array(0, 1, 2, 4, 7, 10)
         Case Is = 2500
-        OAEtable = Array(0, 1, 2, 3, 5, 8)
+        OAETable = Array(0, 1, 2, 3, 5, 8)
         Case Is = 3150
-        OAEtable = Array(0, 0, 2, 4, 6, 9)
+        OAETable = Array(0, 0, 2, 4, 6, 9)
         Case Is = 4000
-        OAEtable = Array(0, 0, 2, 5, 8, 12)
+        OAETable = Array(0, 0, 2, 5, 8, 12)
         Case Is = 5000
-        OAEtable = Array(0, 0, 3, 6, 10, 15)
+        OAETable = Array(0, 0, 3, 6, 10, 15)
+        Case Is > 5000 'catch exception, default to zero?
+        OAETable = Array(0, 0, 0, 0, 0, 0)
         End Select
     End If
 
@@ -1548,14 +1579,11 @@ Dim Slope As Long
     End Select
     
     'calculate OAE
-    If (x1 = 0 And x2 = 0) Or _
-        y1 = 0 Or y2 = 0 Or _
-        y1 = Empty Or _
-        y2 = Empty Then
+    If (x1 = 0 And x2 = 0) Then
     PlenumOAE = 0
     Else
-    y1 = OAEtable(i)
-    y2 = OAEtable(i + 1)
+    y1 = OAETable(i)
+    y2 = OAETable(i + 1)
     'interpolate things
     Slope = (y2 - y1) / (x2 - x1)
     PlenumOAE = y1 + (Slope * (Angle_input - x1))
@@ -1576,6 +1604,12 @@ Function PlenumWallEffect(f As Double, WallType As Integer)
 Dim i As Integer
 
 i = GetArrayIndex_TO(f)
+
+    If i = -1 Then 'catch errors
+    PlenumWallEffect = 0
+    Exit Function
+    End If
+
 'reference values from Table 13
 'band       50 63 80 100 125 160 200 250 315 400 500
 WType1 = Array(1, 1, 2, 2, 2, 3, 4, 5, 6, 8, 9)
@@ -1584,6 +1618,7 @@ WType3 = Array(0, 3, 3, 4, 6, 11, 16, 13, 14, 13, 12)
 WType4 = Array(1, 7, 9, 12, 12, 11, 15, 12, 14, 14, 13)
 WType5 = Array(0, 1, 2, 1, 1, 0, 4, 1, 5, 7, 8)
 WType6 = Array(0, 3, 7, 6, 4, 2, 3, 1, 2, 1, 0)
+
 
     If i <= UBound(WType1) Then 'maximum 11 elements in WType arrays
         Select Case WallType
@@ -1660,6 +1695,7 @@ f_ref = Array(50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, _
     For i = LBound(f_ref) To UBound(f_ref)
         If f_ref(i) = f_input Then
         GetAdjacentFrequency = f_ref(i + adjustIndex)
+        Exit Function
         End If
     Next i
 
@@ -1952,7 +1988,7 @@ Dim ReadStr() As String 'for holding values from text file
 Dim SplitStr() As String 'for splitting into array
 Dim SplitVal() As Double 'for holding array as values
 Dim i As Integer 'counter for text line number
-Dim Col As Integer 'counter for each column of results
+Dim col As Integer 'counter for each column of results
 Dim found As Boolean 'switch for matching inputs to values from text file
 
 Call GetSettings 'set public variables, including text file location
@@ -1972,14 +2008,14 @@ Open DUCT_DIRLOSS For Input As #1
         If Left(SplitStr(0), 1) <> "*" Then
         
             'convert to values
-            For Col = 0 To UBound(SplitStr)
-                If SplitStr(Col) <> "" Then
-                ReDim Preserve SplitVal(Col)
-                SplitVal(Col) = CDbl(SplitStr(Col))
+            For col = 0 To UBound(SplitStr)
+                If SplitStr(col) <> "" Then
+                ReDim Preserve SplitVal(col)
+                SplitVal(col) = CDbl(SplitStr(col))
                 End If
-            Next Col
+            Next col
             
-            ReDim Preserve SplitVal(Col + 1)
+            ReDim Preserve SplitVal(col + 1)
             '<-TODO, simplify this lookup with the getoctindex function
                If SplitVal(0) = diameter And SplitVal(1) = Angle Then
                 Select Case freq 'catch for both kinds of header
@@ -2149,7 +2185,7 @@ DuctArea = DuctWidth * DuctHeight 'calc duct cross-sectional area
     If mCubedPerSecond = True Then FlowRate = FlowRate * 1000
 
 'Step 1: Calculate pressure loss coefficient, C
-c = 16.4 * 100000 * dP * (1 / ((FlowRate / S) ^ 2))
+c = 16.4 * 100000 * dP * (1 / ((FlowRate / DuctArea) ^ 2))
     
     ' Step 2: Calculate Blockage Factor, BF
     If c = 1 Then
@@ -2172,7 +2208,7 @@ St = (f * DuctHeight) / Uc
 'FINAL: Calculate elbow (with vanes) regen
 ElbowWithVanesRegen_NEBB = Kt + 10 * Application.WorksheetFunction.Log10(f / 63) _
     + 50 * Application.WorksheetFunction.Log10(3.28 * Uc) _
-    + 10 * Application.WorksheetFunction.Log10(10.76 * S) _
+    + 10 * Application.WorksheetFunction.Log10(10.76 * DuctArea) _
     + 10 * Application.WorksheetFunction.Log10(0.039 * CordLength) _
     + 10 * Application.WorksheetFunction.Log10(numVanes)
 
@@ -2537,6 +2573,7 @@ ParameterUnmerge (Selection.Row)
 
     If ductMethod = "Reynolds" Then
     Cells(Selection.Row, T_ParamStart) = ductLiningThickness
+    InsertComment "Duct lining thickness", T_ParamStart, False
     SetUnits "mm", T_ParamStart, 0
         If InStr(1, ductShape, "R", vbTextCompare) > 0 Then 'rectangular duct
         BuildFormula "DuctAtten_Reynolds(" & _
@@ -2739,9 +2776,10 @@ ParameterUnmerge (Selection.Row)
     If T_BandType <> "oct" Then ErrorOctOnly
     
 Cells(Selection.Row, T_ParamStart) = ductW 'note: public variable
+InsertComment "Duct width", T_ParamStart, False
 
 Cells(Selection.Row, T_ParamStart + 1) = elbowLining
-
+        
     'BUILD FORMULA
     If ductMethod = "ASHRAE" Then
     BuildFormula "ElbowLoss_ASHRAE(" & _
@@ -2794,11 +2832,11 @@ If btnOkPressed = False Then End
 Cells(SolverRow, T_LossGainStart).ClearContents 'clear 31.5Hz octave band
 
     'check first frequency band
-    If Range(T_FreqStartRng).Value <> 31.5 Then ErrorFrequencyBand
+    If freqStr2Num(Range(T_FreqStartRng).Value) <> 31.5 Then ErrorFrequencyBand
 
-    For Col = 0 To 7 '8 columns
-    Cells(SolverRow, T_LossGainStart + 1 + Col).Value = SilencerIL(Col)
-    Next Col
+    For col = 0 To 7 '8 columns
+    Cells(SolverRow, T_LossGainStart + 1 + col).Value = SilencerIL(col)
+    Next col
     
 'parameter column
 ParameterMerge (Selection.Row)
@@ -2809,6 +2847,7 @@ InsertComment SilSeries & chr(10) & "Length: " & SilLength & "mm" & _
     chr(10) & "Free Area: " & CStr(SilFA) & "%", T_ParamStart, True
 
 SetDescription "Silencer: " & SilencerModel
+Cells(Selection.Row, 1).Value = ChrW(167) 'or chrw(187) which is >>
 
 SetTraceStyle "Silencer"
 
@@ -2834,16 +2873,17 @@ frmLouvres.Show
     If btnOkPressed = False Then End
     
     'check first frequency band
-    If Range(T_FreqStartRng).Value <> 31.5 Then ErrorFrequencyBand
+    If Range(T_FreqStartRng).Value <> 31.5 And _
+       Range(T_FreqStartRng).Value <> "31.5*" Then ErrorFrequencyBand
 
 'description
 SetDescription "Acoustic Louvres: " & LouvreModel
 
 If T_BandType <> "oct" Then ErrorOctOnly
 
-    For Col = 0 To 7 '8 columns
-    Cells(Selection.Row, T_LossGainStart + 1 + Col).Value = LouvreIL(Col)
-    Next Col
+    For col = 0 To 7 '8 columns
+    Cells(Selection.Row, T_LossGainStart + 1 + col).Value = LouvreIL(col)
+    Next col
 'parameter cells
 ParameterMerge (Selection.Row)
 Cells(Selection.Row, T_ParamStart) = LouvreLength
@@ -2876,18 +2916,20 @@ If btnOkPressed = False Then End
     BuildFormula "PlenumLoss_ASHRAE(" & _
         T_FreqStartRng & "," & PlenumL & "," & PlenumW & "," & PlenumH & "," _
         & DuctInL & "," & DuctInW & "," & DuctOutL & "," & DuctOutW & "," & _
-        PlenumQ & "," & r_h & "," & r_v & ",""" & PlenumLiningType & """,""" & _
-        UnlinedType & """,""" & PlenumWallEffectStr & """," & ApplyPlenumElbowEffect & ")"
+        PlenumQ & "," & R_H & "," & r_v & ",""" & PlenumLiningType & """,""" & _
+        UnlinedType & """,""" & PlenumWallEffectStr & """," & ApplyPlenumElbowEffect & _
+        "," & PlenumPercentUnlined & ")"
     ElseIf T_BandType = "to" Then 'one thirds mode
     BuildFormula "PlenumLoss_ASHRAE(" & _
         T_FreqStartRng & "," & PlenumL & "," & PlenumW & "," & PlenumH & "," & _
         DuctInL & "," & DuctInW & "," & DuctOutL & "," & DuctOutW & "," & _
-        PlenumQ & "," & r_h & "," & r_v & ",""" & PlenumLiningType & """,""" & _
-        UnlinedType & """,""" & PlenumWallEffectStr & """," & ApplyPlenumElbowEffect & ",TRUE)"
+        PlenumQ & "," & R_H & "," & r_v & ",""" & PlenumLiningType & """,""" & _
+        UnlinedType & """,""" & PlenumWallEffectStr & """," & ApplyPlenumElbowEffect & "," & _
+        PlenumPercentUnlined & ",TRUE)"
     Else
         
     End If
-
+'**!**
 SetDescription "Plenum loss"
 
 End Sub
@@ -2914,6 +2956,7 @@ ParameterUnmerge (Selection.Row)
 Cells(Selection.Row, T_ParamStart).Value = ductL
 SetUnits "m", T_ParamStart, 1
 Cells(Selection.Row, T_ParamStart + 1).Value = DuctWallThickness
+InsertComment "Duct wall thickness", T_ParamStart + 1, False
 SetUnits "mm", T_ParamStart + 1, 1
 SetTraceStyle "Input", True
 
@@ -2947,9 +2990,11 @@ ParameterUnmerge (Selection.Row)
 'values and formatting
 Cells(Selection.Row, T_ParamStart).Value = ductL 'public variable
 SetUnits "m", T_ParamStart, 1
+InsertComment "Duct length", T_ParamStart, False
 Cells(Selection.Row, T_ParamStart + 1).Value = DuctWallThickness 'public variable
 SetUnits "mm", T_ParamStart + 1, 1
 SetTraceStyle "Input", True
+InsertComment "Duct wall thickness", T_ParamStart + 1, False
 
 BuildFormula "DuctBreakIn_NEBB(" & _
     T_FreqStartRng & "," & ductW & "," & ductH & "," & T_ParamRng(0) & "," & _
@@ -2982,7 +3027,9 @@ SetTraceStyle "Input", True
 ParameterUnmerge (Selection.Row)
 
 Cells(Selection.Row, T_ParamStart) = 0 'default to 0 degrees as angle
+InsertComment "Directivity from normal, degrees", T_ParamStart, False
 Cells(Selection.Row, T_ParamStart + 1) = 305 'default to 305mm as diameter
+InsertComment "Duct width, mm", T_ParamStart + 1, False
 Cells(Selection.Row, T_ParamStart).NumberFormat = "0°"
 SetUnits "mm", T_ParamStart + 1, 0
 
@@ -3015,10 +3062,11 @@ SetTraceStyle "Input", True
 ParameterUnmerge (Selection.Row)
 
 Cells(Selection.Row, T_ParamStart) = 0.5  'default to 0.5m
+InsertComment "Width or height, m", T_ParamStart, False
 Cells(Selection.Row, T_ParamStart + 1) = 0 'default to 0 degrees as angle
+InsertComment "Directivity angle theta, degrees", T_ParamStart + 1, False
 SetUnits "m", T_ParamStart, 1
 Cells(Selection.Row, T_ParamStart + 1).NumberFormat = "0°"
-
 
 'Validation for options from tables
 SetDataValidation T_ParamStart, "0.5,1,1.5,2,2.5,3.5,4.5,5.5,6,7.5,9,10.5,12,15"
@@ -3065,6 +3113,7 @@ SetTraceStyle "Input", True
 Cells(Selection.Row, T_ParamStart + 1).Value = numModules
 Cells(Selection.Row, T_ParamStart + 1).NumberFormat = """n = ""0"
 Cells(Selection.Row, T_ParamStart).Value = FlowRate
+
     If FlowUnitsM3ps = True Then
     SetUnits "m3ps", T_ParamStart, 1
     Else 'Litres per second
@@ -3099,6 +3148,9 @@ Sub PutDamperRegen()
 frmDamperRegen.Show
     
     If btnOkPressed = False Then End
+    
+'always start with the regen style, so input style can be applied after
+SetTraceStyle "Regen"
 
 'description
 SetDescription "Regen. noise - Damper"
@@ -3126,7 +3178,6 @@ SetTraceStyle "Input", True
         T_ParamRng(0) & ")", True
     End If
     
-SetTraceStyle "Regen"
 End Sub
 
 '==============================================================================
@@ -3142,6 +3193,8 @@ frmElbowRegen.Show
     
     If btnOkPressed = False Then End
 
+'styling
+SetTraceStyle "Regen"
 
 'parameter columns
 SetTraceStyle "Input", True
@@ -3159,6 +3212,7 @@ SetTraceStyle "Input", True
         SetUnits "lps", T_ParamStart, 0
         End If
     Cells(Selection.Row, T_ParamStart).Value = FlowRate
+    InsertComment "Flowrate", T_ParamStart, False
     
         'for elbows with vanes
         If ElbowHasVanes = True Then
@@ -3198,8 +3252,7 @@ SetTraceStyle "Input", True
     SetDescription "Regen. noise - Elbow/Bend (ASHRAE)"
     End If
 
-'styling
-SetTraceStyle "Regen"
+
 End Sub
 
 

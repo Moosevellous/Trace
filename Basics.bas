@@ -9,13 +9,18 @@ Public RangeSelection As String
 Public Range2Selection As String
 Public ApplyToSheetType As Boolean 'if true, will apply style to sheet type
 Public BasicsApplyStyle As String 'sets style
+'Frequency bands
 Public FBC_bandwidth As Integer
 Public FBC_mode As String
 Public FBC_baseTen As Boolean
+'Mass-air-mass
 Public MAM_M1 As Double
 Public MAM_M2 As Double
 Public MAM_Width As Double
 Public MAM_Description As String
+'Room Corrections
+Public DistanceFromSource As Double
+Public RoomVolume As Double
 
 '==============================================================================
 ' Name:     freqStr2Num
@@ -25,6 +30,12 @@ Public MAM_Description As String
 ' Comments: (1) Used almost everywhere, because '2k' beats writing '2000' etc
 '==============================================================================
 Function freqStr2Num(fStr As String) As Double
+
+If Right(fStr, 1) = "*" Then 'trim stars
+    'trim
+    fStr = Left(fStr, Len(fStr) - 1)
+End If
+
     Select Case fStr
     Case Is = "1"
     freqStr2Num = 1
@@ -145,6 +156,7 @@ Function freqStr2Num(fStr As String) As Double
     Case Else 'catch the exception
     freqStr2Num = 0
     End Select
+    
 End Function
 
 '==============================================================================
@@ -355,22 +367,22 @@ End Function
 ' Args:     rng1, an array of cells
 ' Comments: (1) Built to be flexible and useful.
 '==============================================================================
-Public Function SPLSUM(ParamArray rng1() As Variant) As Variant
+Public Function SPLSUM(ParamArray Rng1() As Variant) As Variant
 On Error Resume Next
 
 Dim c As Range
 Dim i As Long
 
 SPLSUM = -99
-    For i = LBound(rng1) To UBound(rng1)
+    For i = LBound(Rng1) To UBound(Rng1)
     'Debug.Print TypeName(rng1(i))
-        If TypeName(rng1(i)) = "Double" Then
-            If rng1(i) > 0 Then 'negative values are ignored
+        If TypeName(Rng1(i)) = "Double" Then
+            If Rng1(i) > 0 Then 'negative values are ignored
             SPLSUM = 10 * Application.WorksheetFunction.Log10( _
-                (10 ^ (SPLSUM / 10)) + (10 ^ (rng1(i) / 10)))
+                (10 ^ (SPLSUM / 10)) + (10 ^ (Rng1(i) / 10)))
             End If
-        ElseIf TypeName(rng1(i)) = "Range" Then
-            For Each c In rng1(i).Cells
+        ElseIf TypeName(Rng1(i)) = "Range" Then
+            For Each c In Rng1(i).Cells
                 If c.Value <> Empty And IsNumeric(c.Value) Then
                 SPLSUM = 10 * Application.WorksheetFunction.Log10( _
                     (10 ^ (SPLSUM / 10)) + (10 ^ (c.Value / 10)))
@@ -378,6 +390,10 @@ SPLSUM = -99
             Next c
         End If
     Next i
+
+    'catch exceptions
+    If SPLSUM < 0 Then SPLSUM = Empty
+
 End Function
 
 '==============================================================================
@@ -387,7 +403,7 @@ End Function
 ' Args:     rng1, an array of cells
 ' Comments: (1) Built to be flexible and useful.
 '==============================================================================
-Public Function SPLAV(ParamArray rng1() As Variant) As Variant
+Public Function SPLAV(ParamArray Rng1() As Variant) As Variant
 On Error Resume Next
 
 Dim c As Range
@@ -395,16 +411,16 @@ Dim i As Long
 Dim n As Integer 'number of values
 SPLAV = -99
 n = 0
-    For i = LBound(rng1) To UBound(rng1)
+    For i = LBound(Rng1) To UBound(Rng1)
     'Debug.Print TypeName(Rng1(i))
-        If TypeName(rng1(i)) = "Double" Then
-            If rng1(i) > 0 Then 'negative values are ignored
+        If TypeName(Rng1(i)) = "Double" Then
+            If Rng1(i) > 0 Then 'negative values are ignored
             SPLAV = 10 * Application.WorksheetFunction.Log10( _
-                (10 ^ (SPLAV / 10)) + (10 ^ (rng1(i) / 10)))
+                (10 ^ (SPLAV / 10)) + (10 ^ (Rng1(i) / 10)))
             n = n + 1
             End If
-        ElseIf TypeName(rng1(i)) = "Range" Then
-            For Each c In rng1(i).Cells
+        ElseIf TypeName(Rng1(i)) = "Range" Then
+            For Each c In Rng1(i).Cells
                 If c.Value <> Empty And IsNumeric(c.Value) Then
                 SPLAV = 10 * Application.WorksheetFunction.Log10( _
                     (10 ^ (SPLAV / 10)) + (10 ^ (c.Value / 10)))
@@ -416,6 +432,9 @@ n = 0
 
 'Average +10log(1/n) in log domain
 SPLAV = SPLAV + 10 * Application.WorksheetFunction.Log10(1 / n)
+
+    'catch exceptions
+    If SPLAV < 0 Then SPLAV = Empty
 
 End Function
 
@@ -430,6 +449,9 @@ Public Function SPLMINUS(SPLtotal As Double, SPL2 As Double) As Variant
 On Error Resume Next
 SPLMINUS = 10 * Application.WorksheetFunction.Log10( _
     (10 ^ (SPLtotal / 10)) - (10 ^ (SPL2 / 10)))
+    
+    'catch exceptions
+    If SPLMINUS < 0 Then SPLMINUS = Empty
 End Function
 
 '==============================================================================
@@ -869,7 +891,7 @@ Dim f As Double 'frequency
 Dim fr As Double 'reference frequency
 Dim b As Integer 'bandwidth denominator
 Dim x As Double
-'TODO: sort out this function
+
 
 f = freqStr2Num(fStr)
 fr = 1000
@@ -922,9 +944,13 @@ End Function
 '==============================================================================
 Function ExtractAddressElement(AddressStr As String, elemNo As Integer)
 Dim SplitStr() As String
+Dim CheckRow As String
 SplitStr = Split(AddressStr, "$", Len(AddressStr), vbTextCompare)
     If elemNo <= UBound(SplitStr) Then
-    ExtractAddressElement = SplitStr(elemNo)
+    CheckRow = SplitStr(elemNo)
+        'catch trailing colon character
+        If Right(CheckRow, 1) = ":" Then CheckRow = Left(CheckRow, Len(CheckRow) - 1)
+    ExtractAddressElement = CheckRow
     End If
 End Function
 
@@ -948,14 +974,102 @@ rho = 1.225 'constant for now
     AirTemp = CLng(vAirTemp)
     End If
 c = SpeedOfSound(AirTemp, False)
-d = CavitySpace / 1000 'convert to metres
+D = CavitySpace / 1000 'convert to metres
     If m1 > 0 And m2 > 0 Then
-    MassAirMass = a * ((rho * (c ^ 2) * (m1 + m2)) / (d * m1 * m2)) ^ (1 / 2)
+    MassAirMass = a * ((rho * (c ^ 2) * (m1 + m2)) / (D * m1 * m2)) ^ (1 / 2)
     Else
     MassAirMass = 0
     End If
 End Function
 
+
+'==============================================================================
+' Name:     RoomCorrection_Schultz
+' Author:   JCD
+' Desc:     Returns the Schultz Room Correction at the specified frequency for
+'           a given length, width, height, distance
+' Args:     l = room length in meters
+'           w = room width in meters
+'           h = room height in meters
+'           r = distance from source in meters
+'           fStr = frequency in Hz
+'
+' Comments: (1) Source: Schultz, ASHRAE Transactions 1983, 91(1), pp 124-153.
+'           (2) Assumes a rectilinear room
+'==============================================================================
+Function RoomCorrection_Schultz(Length As Double, Width As Double, Height As Double, _
+    DistanceFromSource As Double, fStr As String)
+    
+Dim Volume As Double ' room volume
+Dim f As Double ' frequency
+
+Volume = Length * Width * Height
+f = freqStr2Num(fStr)
+    
+    'guard clause
+    If DistanceFromSource <= 0 Then
+    Exit Function
+    End If
+
+RoomCorrection_Schultz = -10 * Application.WorksheetFunction.Log10(DistanceFromSource) _
+    - 5 * Application.WorksheetFunction.Log10(Volume) _
+    - 3 * Application.WorksheetFunction.Log10(f) + 12
+End Function
+
+'==============================================================================
+' Name:     RoomCorrection_Plantroom
+' Author:   PS
+' Desc:     Returns a correction to calculate Lp from Lw, based on RT of the room
+' Args:     l = room length in meters
+'           w = room width in meters
+'           h = room height in meters
+'           RT = Reverberation time of the room
+'
+' Comments: (1) Assumes a rectilinear room
+'==============================================================================
+Function RoomCorrection_Plantroom(Length As Double, Width As Double, _
+Height As Double, RT As Double)
+    
+Dim Volume As Double ' room volume
+
+Volume = Length * Width * Height
+
+RoomCorrection_Plantroom = -10 * Application.WorksheetFunction.Log10(Volume) + _
+    10 * Application.WorksheetFunction.Log10(RT) + 14
+End Function
+
+'==============================================================================
+' Name:     RoughRT
+' Author:   PS
+' Desc:     Parallel box method, integrated into area correction
+' Args:
+' Comments: (1) Source for these RTs?
+'==============================================================================
+Function RoughRT(fStr As String, RT_at500Hz As Double)
+'Dim Masonry_RT(8) As Double
+'Dim SubstantalLF_RT(8) As Double
+
+'                  63  125  250 500  1k  2k   4k   8k
+Masonry_RT = Array(1#, 1.2, 1.1, 1#, 1#, 0.9, 0.7, 0.5)
+SubstantalLF_RT = Array(0.7, 0.8, 0.9, 1#, 1#, 0.9, 0.7, 0.5)
+
+i = GetArrayIndex_OCT(fStr)
+
+RoughRT = Masonry_RT(i) * RT_at500Hz
+
+End Function
+
+'==============================================================================
+' Name:     MassLaw
+' Author:   PS
+' Desc:     Calculates mass law
+' Args:     SurfaceDensity
+' Comments: (1)
+'==============================================================================
+Function MassLaw(fStr As String, SurfaceDensity As Double)
+freq = freqStr2Num(fStr)
+MassLaw = 20 * Application.WorksheetFunction.Log10(freq * SurfaceDensity) - 48
+End Function
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -964,6 +1078,115 @@ End Function
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'==============================================================================
+' Name:     GetFrequencyRange
+' Author:   PS
+' Desc:     Returns selected ID of dropdown control
+' Args:     control - from dropdown on ribbon
+'           freqID - ID string of selected item
+' Comments: (1)
+'==============================================================================
+Sub GetFrequencyRange(control As IRibbonControl, ByRef freqID As Variant)
+    If IsEmpty(T_FreqRange) Then
+    T_FreqRange = "FreqRange0" 'default value
+    End If
+freqID = T_FreqRange
+End Sub
+
+'==============================================================================
+' Name:     SetFrequencyRange
+' Author:   PS
+' Desc:     Set start and end frequencies for working range
+' Args:     control - from dropdown on ribbon
+'           id - string of freq type
+'           index - item number, from 0
+' Comments: (1) calls SwitchFrequencyColumns
+'==============================================================================
+Sub SetFrequencyRange(control As IRibbonControl, id As String, index As Integer)
+'Dim ribUI As IRibbonUI
+'Debug.Print control.id; vbTab; control.Tag
+
+'Debug.Print id; index
+
+SetSheetTypeControls
+
+T_FreqRange = id
+WorkingFreqRanges id
+
+    'check for validation, apply if needed
+    If HasDataValidation(Cells(T_FreqRow, T_LossGainStart)) = False Then
+    ApplyFreqValidation
+    End If
+    
+SwitchFrequencyColumns T_LossGainStart, T_LossGainEnd
+    If T_SheetType = "MECH" Then
+    SwitchFrequencyColumns T_RegenStart, T_RegenEnd
+    End If
+    
+End Sub
+
+'==============================================================================
+' Name:     SwitchFrequencyColumns
+' Author:   PS
+' Desc:     Set start and end frequencies for working range
+' Args:     ColStart - First column
+'           ColEnd - Last column
+' Comments: (1)
+'==============================================================================
+Sub SwitchFrequencyColumns(ColStart As Integer, ColEnd As Integer)
+
+Dim SwitchCol As Integer
+Dim OptionStr
+Dim ValidationForm As String
+
+    'loop through octave bands and set columns on or off
+    For SwitchCol = ColStart To ColEnd
+    'convert to number
+    f = freqStr2Num(Cells(T_FreqRow, SwitchCol).Value)
+    ValidationForm = Cells(T_FreqRow, SwitchCol).Validation.Formula1
+    OptionStr = Split(ValidationForm, ",")
+        If f < T_FreqStart Or f > T_FreqEnd Then 'exclude
+        Cells(T_FreqRow, SwitchCol) = OptionStr(1)
+        Else 'include
+        Cells(T_FreqRow, SwitchCol) = OptionStr(0)
+        End If
+    Next SwitchCol
+    
+End Sub
+
+
+'==============================================================================
+' Name:     WorkingFreqRanges
+' Author:   PS
+' Desc:     Maps range options depending on SheetType, and sets dropdown options
+' Args:     FreqRange as string
+' Comments: (1)
+'==============================================================================
+Sub WorkingFreqRanges(FreqRange As String)
+    
+Select Case FreqRange
+    Case Is = "FreqRange0" 'full spectrum
+    T_FreqStart = freqStr2Num(Cells(T_FreqRow, T_LossGainStart).Value)
+    T_FreqEnd = freqStr2Num(Cells(T_FreqRow, T_LossGainEnd).Value)
+    Case Is = "FreqRange1"
+    T_FreqStart = 63
+    T_FreqEnd = 8000
+    Case Is = "FreqRange2"
+    T_FreqStart = 63
+    T_FreqEnd = 4000
+    Case Is = "FreqRange3"
+    T_FreqStart = 125
+    T_FreqEnd = 8000
+    Case Is = "FreqRange4"
+    T_FreqStart = 125
+    T_FreqEnd = 4000
+    Case Is = "FreqRangeCustom"
+    T_FreqStart = freqStr2Num(Cells(T_FreqRow, Selection.Column).Value)
+    T_FreqEnd = freqStr2Num(Cells(T_FreqRow, _
+        Selection.Column + Selection.Columns.Count - 1).Value)
+End Select
+
+End Sub
 
 '==============================================================================
 ' Name:     InsertBasicFunction
@@ -981,20 +1204,30 @@ Dim FirstRow2 As String
 Dim LastRow2 As String
 Dim ColumnLetter As String
 Dim NeedsTwoRanges As Boolean
+Dim MarkerSymbol As String
 
     Select Case functionName
     Case Is = "SUM"
     frmBasicFunctions.optSum.Value = True
+    MarkRowAs ("SUM")
     Case Is = "SPLSUM"
     frmBasicFunctions.optSPLSUM.Value = True
+    MarkRowAs ("SUM")
     Case Is = "SPLAV"
     frmBasicFunctions.optSPLAV.Value = True
+    MarkRowAs ("AV")
     Case Is = "SPLMINUS"
     frmBasicFunctions.optSPLMINUS.Value = True
+    'TODO: minus
     Case Is = "SPLSUMIF"
     frmBasicFunctions.optSPLSUMIF.Value = True
+    MarkRowAs ("SUM")
     Case Is = "SPLAVIF"
     frmBasicFunctions.optSPLAVIF.Value = True
+    MarkRowAs ("AV")
+    Case Is = "AV"
+    frmBasicFunctions.optAverage.Value = True
+    MarkRowAs ("AV")
     End Select
 
 frmBasicFunctions.chkApplyToSheetType.Caption = "Apply for Sheet Type: " & _
@@ -1024,7 +1257,7 @@ If btnOkPressed = False Then End
    
 'set description
 SetDescription BasicFunctionType
-'Cells(Selection.Row, 1).Value = ChrW(931)'sigma <---------------TODO: add characters to column 1
+Cells(Selection.Row, 1).Value = MarkerSymbol 'symbol in first column
 
     'build formula
     If ApplyToSheetType = True Then
@@ -1038,7 +1271,7 @@ SetDescription BasicFunctionType
             ColumnLetter & FirstRow2 & ")"
         Else
         BuildFormula "" & BasicFunctionType & _
-            "(" & ColumnLetter & FirstRow & ColumnLetter & LastRow & ")"
+            "(" & ColumnLetter & FirstRow & ":" & ColumnLetter & LastRow & ")"
         End If
 
     Else
@@ -1145,4 +1378,50 @@ Cells(Selection.Row, T_ParamStart + 1).NumberFormat = "0.0 ""Hz"""
 SetTraceStyle "Input", True
 End Sub
 
+'==============================================================================
+' Name:     PutRCSchultz
+' Author:   PS
+' Desc:     Inserts formula for the Schultz approximation
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub PutRCSchultz()
+SetDescription "Room Loss (Schultz)"
 
+'=RoomCorrection_Schultz(Length,Width,Height,DistanceFromSource,fStr)
+
+frmSchultz.Show
+If btnOkPressed = False Then End
+
+Cells(Selection.Row, T_ParamStart).Value = DistanceFromSource
+BuildFormula "RoomCorrection_Schultz(" & roomL & "," & _
+    roomW & "," & roomH & "," & T_ParamRng(0) & "," & T_FreqStartRng & ")"
+InsertComment "Distance to source, m", T_ParamStart, False
+
+'Formatting
+ParameterMerge Selection.Row
+SetUnits "m", T_ParamStart
+SetTraceStyle "Input", True
+
+End Sub
+
+'==============================================================================
+' Name:     PutRCPlantroom
+' Author:   PS
+' Desc:     Inserts formula for the Plantroom Room Correction approximation
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub PutRCPlantroom()
+SetDescription "Room Loss (Plantrooms)"
+
+ParameterMerge Selection.Row
+Cells(Selection.Row, T_ParamStart).Value = 36
+SetUnits "m3", T_ParamStart
+SetTraceStyle "Input", True
+
+BuildFormula "-10*log(" & T_ParamRng(0) & ")+10*log(" & _
+    Cells(Selection.Row - 1, T_LossGainStart).Address(False, False) & ")+14"
+InsertComment "Room volume, m" & chr(179), T_ParamStart, False
+
+End Sub

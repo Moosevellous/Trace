@@ -35,6 +35,7 @@ Public T_ParamEnd As Integer
 Public T_Comment As Integer
 'variables for row numbers
 Public T_FreqRow As Integer
+Public T_FirstRow As Integer
 'variables for Range addresses
 Public T_ParamRng(3) As String
 Public T_FreqStartRng As String
@@ -43,7 +44,10 @@ Public T_BandType As String
 Public T_SheetType As String
 'variables for form control
 Public btnOkPressed As Boolean
-
+'variables for working range of frequencies
+Public T_FreqRange As Variant
+Public T_FreqStart As Double
+Public T_FreqEnd As Double
 
 '==============================================================================
 'MASTER SET OF RANGES FOR SHEET TYPES
@@ -106,6 +110,7 @@ Dim SheetType As String
     Else
     ErrorTypeCode
     End If
+    
 End Function
 
 '==============================================================================
@@ -283,17 +288,22 @@ If IsMissing(SearchType) Then SearchType = vbNormal
 End Function
 
 '==============================================================================
-' Name:     ScreenInput
+' Name:     CheckNumericValue
 ' Author:   PS
 ' Desc:     Checks for numeric inputs and converts to Double if required
 ' Args:     X, Variant
 ' Comments: (1) Used mostly in forms
+'           (2) updated NumDigits to be a variant so IsMissing works
 '==============================================================================
-Function ScreenInput(x As Variant, Optional Mode As String) '<-------TODO Can we use this elsewhere?
+Function CheckNumericValue(x As Variant, Optional NumDigits As Variant)
     If IsNumeric(x) Then
-    ScreenInput = CDbl(x)
+        If IsMissing(NumDigits) Then
+        CheckNumericValue = CDbl(x)
+        Else
+        CheckNumericValue = Round(CDbl(x), NumDigits)
+        End If
     Else
-    ScreenInput = 0
+    CheckNumericValue = Empty
     End If
 End Function
 
@@ -313,7 +323,7 @@ End Function
 Sub SetSheetTypeControls()
 Dim SheetCols() As Variant
 
-    If IsNamedRange("TYPECODE") Then
+    If NamedRangeExists("TYPECODE") Then
     T_SheetType = ActiveSheet.Range("TYPECODE").Value
     Else
     ErrorTypeCode
@@ -333,6 +343,8 @@ T_ParamStart = SheetCols(5)
 T_ParamEnd = SheetCols(6)
 T_Comment = SheetCols(7)
 T_FreqRow = SheetCols(8)
+T_FirstRow = 8 'hard coded for now?
+
 'Central addressses, note: absolute row
 T_FreqStartRng = Cells(T_FreqRow, T_LossGainStart).Address(True, False)
     If T_ParamStart > 0 Then

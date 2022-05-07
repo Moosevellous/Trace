@@ -54,12 +54,13 @@ Dim SplitStr() As String
     DuctInW = Me.txtInW.Value
     DuctOutL = Me.txtOutL.Value
     DuctOutW = Me.txtOutW.Value
-    r_h = Me.txtHorizontalOffset.Value
+    R_H = Me.txtHorizontalOffset.Value
     r_v = Me.txtVerticalOffset.Value
     UnlinedType = Me.cBoxUnlinedMaterial.Value
     SplitStr = Split(Me.cBoxLining.Value, ",", Len(Me.cBoxLining.Value), vbTextCompare)
     PlenumLiningType = SplitStr(0) 'first element, before the comma
     PlenumWallEffectStr = Me.cBoxWallEffect.Value
+    PlenumPercentUnlined = Me.sbUnlinedPercent.Value
     
         'Q factor
         If Me.optInletCorner.Value = True Then
@@ -169,8 +170,15 @@ Private Sub optInletCorner_Click()
 PreviewInsertionLoss
 End Sub
 
+Private Sub sbUnlinedPercent_Change()
+Me.txtUnlinedPercent.Value = Me.sbUnlinedPercent.Value
+CalculateAlphaTotal
+PreviewInsertionLoss
+End Sub
+
 Private Sub txtH_Change()
 CalculateVolume
+CalculateSurfaceArea
 PreviewInsertionLoss
 End Sub
 
@@ -193,6 +201,7 @@ End Sub
 
 Private Sub txtL_Change()
 CalculateVolume
+CalculateSurfaceArea
 PreviewInsertionLoss
 End Sub
 
@@ -213,6 +222,7 @@ End Sub
 
 Private Sub txtW_Change()
 CalculateVolume
+CalculateSurfaceArea
 PreviewInsertionLoss
 End Sub
 
@@ -263,7 +273,7 @@ Me.cBoxWallEffect.AddItem ("5 - 100mm (Tuned, No Media)")
 Me.cBoxWallEffect.AddItem ("6 - 100mm, 40kg/m" & chr(179) & " (Double Solid Metal)")
 
 'Default values
-Me.cBoxLining.Value = "50mm fibreglass, 48 kg/m" & chr(179)
+Me.cBoxLining.Value = "25mm fibreglass, 48 kg/m" & chr(179)
 Me.cBoxUnlinedMaterial.Value = "Bare Sheet Metal"
 Me.cBoxWallEffect.Value = ("1 - 25mm, 40kg/m" & chr(179) & " (Fabric Facing)")
     
@@ -322,17 +332,21 @@ Sub CalculateCutoffFrequency()
 End Sub
 
 Sub CalculateSurfaceArea()
+    If IsNumeric(Me.txtL.Value) And IsNumeric(Me.txtH.Value) And IsNumeric(Me.txtInletArea.Value) And IsNumeric(Me.txtOutletArea.Value) Then
     SA = PlenumSurfaceArea(Me.txtL.Value, Me.txtH.Value, Me.txtW.Value, Me.txtInletArea, Me.txtOutletArea)
     Me.txtSurfaceArea.Value = Round(SA, 2)
+    End If
 End Sub
 
 Sub CalculateAlphaTotal()
-
+Dim SA_Unlined As Double
+Dim SA_Lined As Double
     If Me.txtSurfaceArea.Value <> 0 And Me.txtInletArea.Value <> 0 And Me.txtOutletArea.Value <> 0 And Me.txtSurfaceArea.Value <> "" And Me.txtInletArea.Value <> "" And Me.txtOutletArea.Value <> "" Then
-    
+    SA_Unlined = SA * (Me.txtUnlinedPercent.Value / 100)
+    SA_Lined = SA - SA_Unlined
         For i = LBound(alphaTotal) To UBound(alphaTotal)
             If checkAlpha = True Then
-            alphaTotal(i) = ((((InletArea + OutletArea) * alpha1(i))) + ((SA - InletArea - OutletArea) * alpha2(i))) / SA 'surface area includes inlet and outlet areas
+            alphaTotal(i) = ((((InletArea + OutletArea + SA_Unlined) * alpha1(i))) + ((SA_Lined) * alpha2(i))) / SA 'surface area doesn't include inlet and outlet areas
             End If
         Next i
         
@@ -393,13 +407,13 @@ Dim ApplyElbow As Boolean
     ApplyElbow = False
     End If
     
-    IL63 = PlenumLoss_ASHRAE("63", Me.txtL.Value, Me.txtW.Value, Me.txtH.Value, Me.txtInL.Value, Me.txtInW.Value, Me.txtOutL.Value, Me.txtOutW.Value, Q, Me.txtVerticalOffset.Value, Me.txtHorizontalOffset.Value, LiningType, Me.cBoxUnlinedMaterial.Value, Me.cBoxWallEffect.Value, ApplyElbow)
-    IL125 = PlenumLoss_ASHRAE("125", Me.txtL.Value, Me.txtW.Value, Me.txtH.Value, Me.txtInL.Value, Me.txtInW.Value, Me.txtOutL.Value, Me.txtOutW.Value, Q, Me.txtVerticalOffset.Value, Me.txtHorizontalOffset.Value, LiningType, Me.cBoxUnlinedMaterial.Value, Me.cBoxWallEffect.Value, ApplyElbow)
-    IL250 = PlenumLoss_ASHRAE("250", Me.txtL.Value, Me.txtW.Value, Me.txtH.Value, Me.txtInL.Value, Me.txtInW.Value, Me.txtOutL.Value, Me.txtOutW.Value, Q, Me.txtVerticalOffset.Value, Me.txtHorizontalOffset.Value, LiningType, Me.cBoxUnlinedMaterial.Value, Me.cBoxWallEffect.Value, ApplyElbow)
-    IL500 = PlenumLoss_ASHRAE("500", Me.txtL.Value, Me.txtW.Value, Me.txtH.Value, Me.txtInL.Value, Me.txtInW.Value, Me.txtOutL.Value, Me.txtOutW.Value, Q, Me.txtVerticalOffset.Value, Me.txtHorizontalOffset.Value, LiningType, Me.cBoxUnlinedMaterial.Value, Me.cBoxWallEffect.Value, ApplyElbow)
-    IL1k = PlenumLoss_ASHRAE("1k", Me.txtL.Value, Me.txtW.Value, Me.txtH.Value, Me.txtInL.Value, Me.txtInW.Value, Me.txtOutL.Value, Me.txtOutW.Value, Q, Me.txtVerticalOffset.Value, Me.txtHorizontalOffset.Value, LiningType, Me.cBoxUnlinedMaterial.Value, Me.cBoxWallEffect.Value, ApplyElbow)
-    IL2k = PlenumLoss_ASHRAE("2k", Me.txtL.Value, Me.txtW.Value, Me.txtH.Value, Me.txtInL.Value, Me.txtInW.Value, Me.txtOutL.Value, Me.txtOutW.Value, Q, Me.txtVerticalOffset.Value, Me.txtHorizontalOffset.Value, LiningType, Me.cBoxUnlinedMaterial.Value, Me.cBoxWallEffect.Value, ApplyElbow)
-    IL4k = PlenumLoss_ASHRAE("4k", Me.txtL.Value, Me.txtW.Value, Me.txtH.Value, Me.txtInL.Value, Me.txtInW.Value, Me.txtOutL.Value, Me.txtOutW.Value, Q, Me.txtVerticalOffset.Value, Me.txtHorizontalOffset.Value, LiningType, Me.cBoxUnlinedMaterial.Value, Me.cBoxWallEffect.Value, ApplyElbow)
+    IL63 = PlenumLoss_ASHRAE("63", Me.txtL.Value, Me.txtW.Value, Me.txtH.Value, Me.txtInL.Value, Me.txtInW.Value, Me.txtOutL.Value, Me.txtOutW.Value, Q, Me.txtVerticalOffset.Value, Me.txtHorizontalOffset.Value, LiningType, Me.cBoxUnlinedMaterial.Value, Me.cBoxWallEffect.Value, ApplyElbow, Me.sbUnlinedPercent.Value)
+    IL125 = PlenumLoss_ASHRAE("125", Me.txtL.Value, Me.txtW.Value, Me.txtH.Value, Me.txtInL.Value, Me.txtInW.Value, Me.txtOutL.Value, Me.txtOutW.Value, Q, Me.txtVerticalOffset.Value, Me.txtHorizontalOffset.Value, LiningType, Me.cBoxUnlinedMaterial.Value, Me.cBoxWallEffect.Value, ApplyElbow, Me.sbUnlinedPercent.Value)
+    IL250 = PlenumLoss_ASHRAE("250", Me.txtL.Value, Me.txtW.Value, Me.txtH.Value, Me.txtInL.Value, Me.txtInW.Value, Me.txtOutL.Value, Me.txtOutW.Value, Q, Me.txtVerticalOffset.Value, Me.txtHorizontalOffset.Value, LiningType, Me.cBoxUnlinedMaterial.Value, Me.cBoxWallEffect.Value, ApplyElbow, Me.sbUnlinedPercent.Value)
+    IL500 = PlenumLoss_ASHRAE("500", Me.txtL.Value, Me.txtW.Value, Me.txtH.Value, Me.txtInL.Value, Me.txtInW.Value, Me.txtOutL.Value, Me.txtOutW.Value, Q, Me.txtVerticalOffset.Value, Me.txtHorizontalOffset.Value, LiningType, Me.cBoxUnlinedMaterial.Value, Me.cBoxWallEffect.Value, ApplyElbow, Me.sbUnlinedPercent.Value)
+    IL1k = PlenumLoss_ASHRAE("1k", Me.txtL.Value, Me.txtW.Value, Me.txtH.Value, Me.txtInL.Value, Me.txtInW.Value, Me.txtOutL.Value, Me.txtOutW.Value, Q, Me.txtVerticalOffset.Value, Me.txtHorizontalOffset.Value, LiningType, Me.cBoxUnlinedMaterial.Value, Me.cBoxWallEffect.Value, ApplyElbow, Me.sbUnlinedPercent.Value)
+    IL2k = PlenumLoss_ASHRAE("2k", Me.txtL.Value, Me.txtW.Value, Me.txtH.Value, Me.txtInL.Value, Me.txtInW.Value, Me.txtOutL.Value, Me.txtOutW.Value, Q, Me.txtVerticalOffset.Value, Me.txtHorizontalOffset.Value, LiningType, Me.cBoxUnlinedMaterial.Value, Me.cBoxWallEffect.Value, ApplyElbow, Me.sbUnlinedPercent.Value)
+    IL4k = PlenumLoss_ASHRAE("4k", Me.txtL.Value, Me.txtW.Value, Me.txtH.Value, Me.txtInL.Value, Me.txtInW.Value, Me.txtOutL.Value, Me.txtOutW.Value, Q, Me.txtVerticalOffset.Value, Me.txtHorizontalOffset.Value, LiningType, Me.cBoxUnlinedMaterial.Value, Me.cBoxWallEffect.Value, ApplyElbow, Me.sbUnlinedPercent.Value)
     
     Me.txt63.Value = Round(IL63, 1)
     Me.txt125.Value = Round(IL125, 1)

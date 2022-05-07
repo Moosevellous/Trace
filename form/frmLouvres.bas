@@ -14,16 +14,16 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
-Dim IL63() As Double
-Dim IL125() As Double
-Dim IL250() As Double
-Dim IL500() As Double
-Dim IL1k() As Double
-Dim IL2k() As Double
-Dim IL4k() As Double
-Dim IL8k() As Double
+Dim IL63() As Variant
+Dim IL125() As Variant
+Dim IL250() As Variant
+Dim IL500() As Variant
+Dim IL1k() As Variant
+Dim IL2k() As Variant
+Dim IL4k() As Variant
+Dim IL8k() As Variant
 Dim FA() As String 'unlike silencer code, this is a string
-Dim Length() As Double
+Dim Length() As Variant
 Dim L_Series() As String
 Dim LouvreArray(0 To 280, 0 To 11) As Double
 Dim LouvreNameArray(0 To 280) As String
@@ -99,6 +99,8 @@ Sub ScanLouvreList()
 Dim i As Integer
 Dim j As Integer
 Dim ReadStr() As String
+
+
     Open ACOUSTIC_LOUVRES For Input As #1
         i = 0 '<-line number
         found = False
@@ -123,17 +125,17 @@ Dim ReadStr() As String
                 ResizeArray (Me.lstOptions.ListCount)
                 
                 'Length
-                Length(Me.lstOptions.ListCount - 1) = ScreenInput(SplitStr(1))
+                Length(Me.lstOptions.ListCount - 1) = CheckNumericValue(SplitStr(1))
                 
                 'Insertion Losses
-                IL63(Me.lstOptions.ListCount - 1) = ScreenInput(SplitStr(2))
-                IL125(Me.lstOptions.ListCount - 1) = ScreenInput(SplitStr(3))
-                IL250(Me.lstOptions.ListCount - 1) = ScreenInput(SplitStr(4))
-                IL500(Me.lstOptions.ListCount - 1) = ScreenInput(SplitStr(5))
-                IL1k(Me.lstOptions.ListCount - 1) = ScreenInput(SplitStr(6))
-                IL2k(Me.lstOptions.ListCount - 1) = ScreenInput(SplitStr(7))
-                IL4k(Me.lstOptions.ListCount - 1) = ScreenInput(SplitStr(8))
-                IL8k(Me.lstOptions.ListCount - 1) = ScreenInput(SplitStr(9))
+                IL63(Me.lstOptions.ListCount - 1) = CheckNumericValue(SplitStr(2))
+                IL125(Me.lstOptions.ListCount - 1) = CheckNumericValue(SplitStr(3))
+                IL250(Me.lstOptions.ListCount - 1) = CheckNumericValue(SplitStr(4))
+                IL500(Me.lstOptions.ListCount - 1) = CheckNumericValue(SplitStr(5))
+                IL1k(Me.lstOptions.ListCount - 1) = CheckNumericValue(SplitStr(6))
+                IL2k(Me.lstOptions.ListCount - 1) = CheckNumericValue(SplitStr(7))
+                IL4k(Me.lstOptions.ListCount - 1) = CheckNumericValue(SplitStr(8))
+                IL8k(Me.lstOptions.ListCount - 1) = CheckNumericValue(SplitStr(9))
                 
                     'Free area
                     If SplitStr(10) <> "" And SplitStr(10) <> "-" Then

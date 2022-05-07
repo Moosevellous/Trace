@@ -1,29 +1,29 @@
 ﻿<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui">
 	<ribbon>
 		<tabs>
-			<tab id="customTab" label="Trace v3.04" insertAfterMso="TabView" keytip="X">
-<!--EDIT DATE 20201121 -->
+			<tab id="customTab" label="Trace v3.07" insertAfterMso="TabView" keytip="X">
+<!--EDIT DATE 202100821 -->
 <!--'tag' is the function to be called by the Universal Builder, the 'id' is the function input, if required -->
 
 				<group id="gNew" label="New" insertAfterMso="GroupEditingExcel">
 				    
                     <menu id="AddSheets" label="Sheet" imageMso="AddAccount" screentip="New > Sheet" supertip="Inserts a new blank calculation sheet" keytip="NS">
                         <menuSeparator id="Oct" title="Octave Bands" />
-                            <button id="AddOCT" label="OCT" onAction="btnLoad" />
-                            <button id="AddOCTA" label="OCTA" onAction="btnLoad" />
-                            <button id="AddMECH" label="MECH" onAction="btnLoad" />
+                            <button id="AddOCT" label="OCT" onAction="btnLoad" screentip="Octave bands - linear input" />
+                            <button id="AddOCTA" label="OCTA" onAction="btnLoad" screentip="Octave bands - A-weighted input" />
+                            <button id="AddMECH" label="MECH" onAction="btnLoad" screentip="Octave bands + regenerated noise - linear input" />
                         <menuSeparator id="ThirdOct" title="1/3 Octave Bands" />
-                            <button id="AddTO" label="TO" onAction="btnLoad" />
-                            <button id="AddTOA" label="TOA" onAction="btnLoad" />
+                            <button id="AddTO" label="TO" onAction="btnLoad" screentip="One-third octave bands - linear input"/>
+                            <button id="AddTOA" label="TOA" onAction="btnLoad" screentip="One-third octave bands - A-weighted input" />
                         <menuSeparator id="LF" title="Low-frequency" />
-                            <button id="AddLF_OCT" label="LF_OCT" onAction="btnLoad" />
-                            <button id="AddLF_TO" label="LF_TO" onAction="btnLoad" />
+                            <button id="AddLF_OCT" label="LF_OCT" onAction="btnLoad" screentip="Octave bands - Low frequencies" />
+                            <button id="AddLF_TO" label="LF_TO" onAction="btnLoad" screentip="One-third octave bands - Low frequencies" />
                         <menuSeparator id="Other" title="Other" />
-                            <button id="AddCVT" label="CVT" onAction="btnLoad" />
-                            <button id="AddSTYLE" label="Style" onAction="btnLoad" />
+                            <button id="AddCVT" label="CVT" onAction="btnLoad" screentip="Conversion sheet: One-thirds to octaves" />
+                            <button id="AddSTYLE" label="Style" onAction="btnLoad" screentip="Styles sheet" />
                     </menu>
                         
-                 <button id="StandardCalc" label="Calc" onAction="btnStandardCalc" imageMso="AddToFavorites" screentip="Load > Standard Calc" supertip="New > Standard Calculation Sheet" keytip="AS"/>
+                 <button id="StandardCalc" label="Calc" onAction="btnStandardCalc" imageMso="AddToFavorites" screentip="Load > Standard Calc" supertip="Creates or imports a new Standard Calculation Sheet, from the templates available." keytip="AS"/>
 					
 					<menu id="AddOther" label="Other" imageMso="GroupOrganizationChartStyleClassic" screentip="New > Other" supertip="Loads blank field sheets or equipment import sheets" keytip="O">	
 						<button id="FieldSheet" label="Field Sheet" onAction="btnFieldSheet" imageMso="SpeechMicrophone" />
@@ -32,25 +32,63 @@
 				</group>
 
 				<group id="gBasics" label="Basics" insertAfterMso="GroupEditingExcel">
-					<menu id="Functions" label="Functions" imageMso="Formula" size="large" screentip="Basics > Functions" supertip="Add, Subtract, Frequencies, Wavelengths...you know, the basics." keytip="F">
+				    
+				    <dropDown id="ddFreqRange" onAction="SetFrequencyRange" getSelectedItemID="GetFrequencyRange" screentip="Basics > Frequency Range" supertip="Build formulas for a limited range of frequencies." keytip="FR">
+				        <item id="FreqRange0" label="Full Spectrum" />
+				        <item id="FreqRange1" label="63Hz to 8kHz" />
+				        <item id="FreqRange2" label="63Hz to 4kHz" />
+				        <item id="FreqRange3" label="125Hz to 8kHz" />
+				        <item id="FreqRange4" label="125Hz to 4kHz" />
+				        <item id="FreqRangeCustom" label="Set range from selection" />
+				        <!--<button id="btnFreqRange0" label="Full Spectrum" />-->
+				    </dropDown>
+				    
+				    <!--<menu id="sbFreqRange">
+                    <button id="btnSelectedFR" label="Frequency Range" imageMso="HappyFace"/>
+                    <menu id="mFreqRange" label="Freq. Range">
+                    <checkBox id="tbFreqRange1" label="63Hz to 8kHz" getPressed="GetFrequencyRange" onAction="SetFrequencyRange" />
+                    <checkBox id="tbFreqRange2" label="63Hz to 4kHz" getPressed="GetFrequencyRange" onAction="SetFrequencyRange" />
+                    <checkBox id="tbFreqRange3" label="125Hz to 8kHz" getPressed="GetFrequencyRange" onAction="SetFrequencyRange" />
+                    <checkBox id="tbFreqRange4" label="125Hz to 4kHz" getPressed="GetFrequencyRange" onAction="SetFrequencyRange" />
+                    <menuSeparator id="SepSpectrumRange" />
+                    <checkBox id="tbFreqRange0" label="Full spectrum" getPressed="GetFrequencyRange" onAction="SetFrequencyRange" />
+                    </menu>
+                    </splitButton>-->
+                        
+					<menu id="Functions" label="Functions" imageMso="Formula" size="normal" screentip="Basics > Functions" supertip="Add, Subtract, Frequencies, Wavelengths...you know, the basics." keytip="F">
 					    
                         <menuSeparator id="SepArithmetic" title="Arithmetic" />
                         <button id="SUM" label="SUM" onAction="TraceFunctionWithInput" tag="InsertBasicFunction" screentip="Basics > Functions > SUM" supertip="Normal addition of values. You know. Plus." />
+                        <button id="AV" label="AVERAGE" onAction="TraceFunctionWithInput" tag="InsertBasicFunction" screentip="Basics > Functions > AVERAGE" supertip="Arithmetic average of values." />
                         
                         <menuSeparator id="SepLog" title="Logarithmics" />
                         <button id="SPLSUM" label="SPLSUM" onAction="TraceFunctionWithInput" tag="InsertBasicFunction" screentip="Basics > Functions > SPLSUM" supertip="Logarithmic addition of values." />
-                        <button id="SPLMINUS" label="SPLMINUS" onAction="TraceFunctionWithInput" tag="InsertBasicFunction" screentip="Basics > Functions > SPLMINUS" supertip="Logarithmic subtraction" />
-                        <button id="SPLAV" label="SPLAV" onAction="TraceFunctionWithInput" tag="InsertBasicFunction" screentip="Basics > Functions > " supertip="Logarithmic average of value" />
+                        <button id="SPLMINUS" label="SPLMINUS" onAction="TraceFunctionWithInput" tag="InsertBasicFunction" screentip="Basics > Functions > SPLMINUS" supertip="Logarithmic subtraction (requires two inputs)." />
+                        <button id="SPLAV" label="SPLAV" onAction="TraceFunctionWithInput" tag="InsertBasicFunction" screentip="Basics > Functions > " supertip="Logarithmic average (Leq) of values." />
 
                         <menuSeparator id="SepConditional" title="Conditional" />
                         <button id="SPLSUMIF" label="SPLSUMIF" onAction="TraceFunctionWithInput" tag="InsertBasicFunction" screentip="Basics > Functions > SPLSUMIF" supertip="Performs logarithmic addition of values depending on a condition being TRUE." />
                         <button id="SPLAVIF" label="SPLAVIF" onAction="TraceFunctionWithInput" tag="InsertBasicFunction" screentip="Basics > Functions > SPLSUMIF" supertip="Performs logarithmic average of values depending on a condition being TRUE." />
 
                         <menuSeparator id="SepMisc" title="Misc." />
-                        <button id="Wavelength" label="Wavelength" onAction="TraceFunction" tag="PutWavelength" />
-                        <button id="SpeedOfSound" label="Speed of Sound" onAction="TraceFunction" tag="PutSpeedOfSound" />
-                        <button id="frequencyBandCutoff" label="Frequency Band Cutoff" onAction="TraceFunction" tag="BandCutoff"/>
+                        <button id="Wavelength" label="Wavelength" onAction="TraceFunction" tag="PutWavelength" screentip="Basics > Functions > Wavelength" supertip="Wavelengths of sound, based on band centre frequencies." />
+                        <button id="SpeedOfSound" label="Speed of Sound" onAction="TraceFunction" tag="PutSpeedOfSound" screentip="Basics > Functions > Speed of Sound" supertip="Speed of sound in air, based on temperature in Kelvin." />
+                        <button id="frequencyBandCutoff" label="Frequency Band Cutoff" onAction="TraceFunction" tag="BandCutoff" screentip="Basics > Functions > Frequency Band Cutoff" supertip="Calculates crossover frequencies of octave band and one-third octave bands, according to ANSI S1.11" />
+                        <button id="MassAirMass" label="Mass-Air-Mass" onAction="TraceFunction" tag="PutMassAirMass" screentip="Basics > Functions > Mass-Air-Mass" supertip="Calculates mass-air-mass resonances of a double leaf system." />
+                        <button id="MassLaw" label="Mass law" onAction="TraceFunction" tag="PutMassLaw" screentip="Basics > Functions > Mass Law" supertip="Calculates the mass law curve for an input surface density." />
+                        
+                    </menu>
+					
+					<menu id="EngApprox" label="Eng. Approx." imageMso="GroupContTypeManage" size="normal" >
+                        <menuSeparator id="SepRoomLoadd" title="Room Loss / RT" />
+					    <button id="Schultz" label="Room Correction (Schultz)" onAction="TraceFunction" tag="PutRCSchultz" />
+					    <button id="Plantroom" label="Room Correction (Plantrooms)" onAction="TraceFunction" tag="PutRCPlantroom" />
+					    <!--<button id="RoughRT" label="Rough RT" onAction="TraceFunction" tag="RoughRT" />
+					    <menuSeparator id="SepBIBO" title="Noise In / Out" />
+					    <button id="Lw2LpIn" label="Lw to Lp (in)" onAction="TraceFunction" tag="LwEnter" />
+					    <button id="Lw2LpOut" label="Lw to Lp (out)" onAction="TraceFunction" tag="LwExit" /> -->
 					</menu>
+					    
 				</group>
 
 				<group id="gImport" label="Import" insertAfterMso="GroupEditingExcel">
@@ -107,7 +145,7 @@
                         </splitButton>
 					<button id="Manual_ExtendFunction" label="Extend" size="normal" onAction="TraceFunction" tag="Manual_ExtendFunction" imageMso="RightArrow2" screentip="Row Ops. > Extend Function" supertip="Apply the formula from Column E to all columns in the selected row." keytip="RX" />
 						<menu id="Convert" label="Convert" imageMso="ConferenceMeetNow" keytip="RV" >
-                            <button id="OneThirdsToOctave" label="1/3 to 1/1" onAction="TraceFunction" tag="OneThirdsToOctave" imageMso="OrganizationChartInsert" screentip="Row Ops. > 1/3 to 1/1" supertip="Convert 1/3 octave bands to 1/1 octave bands" />
+                            <button id="OneThirdsToOctave" label="1/3 to 1/1" onAction="TraceFunction" tag="OneThirdsToOctave" imageMso="OrganizationChartInsert" screentip="Row Ops. > 1/3 to 1/1" supertip="Convert 1/3 octave bands to 1/1 octave bands. Options for arithmetic, logarithmic, and transmission loss maths." />
                             <button id="ConvertAWeight" label="A-Weight Spectrum" onAction="TraceFunction" tag="ConvertAWeight" imageMso="A" screentip="Row Ops. > A-Weight Spectrum" supertip="Apply A-weighting in line 0 to the current row." />
                             <button id="ConvertCWeight" label="C-Weight Spectrum" onAction="TraceFunction" tag="ConvertCWeight" imageMso="C" screentip="Row Ops. > C-Weight Spectrum" supertip="Apply C-weighting to the current row." enabled="false"/>
 						</menu>
@@ -143,7 +181,7 @@
                         <button id="AreaCorrectionDefault" label="Area" onAction="TraceFunction" tag="AreaCorrection" imageMso="BlackAndWhiteBlackWithWhiteFill" screentip="Noise Funcs. > Area" supertip="Inserts correction for area, 10log(A)." />
                         <menu id="mArea" keytip="NA">
                         <button id="AreaCorrection" label="Area" onAction="TraceFunction" tag="AreaCorrection" imageMso="BlackAndWhiteBlackWithWhiteFill" screentip="Noise Funcs. > Area" supertip="Inserts correction for area, 10log(A)." />
-                        <button id="ParallelipipedCorrection" label="Parallelipiped" onAction="TraceFunction" tag="ParallelipipedCorrection" imageMso="BlackAndWhiteBlackWithWhiteFill" screentip="Noise Funcs. > Parallelipiped Corection" supertip="Inserts correction for parallel box method - ISO3372." keytip="NP" />
+                        <button id="ParallelipipedCorrection" label="Parallelipiped" onAction="TraceFunction" tag="ParallelipipedCorrection" imageMso="Group3DEffects" screentip="Noise Funcs. > Parallelipiped Corection" supertip="Inserts correction for parallel box method - ISO3372." keytip="NP" />
                         </menu>
                         </splitButton>
 					
@@ -160,9 +198,12 @@
 						<splitButton id="sbRoomLoss">
 						<button id="RoomLossDefault" label="Room Loss" onAction="TraceFunction" tag="PutRoomLossTypical" imageMso="CombineShapesMenu" screentip="Noise > Room Loss > Classic" supertip="Room Loss - Assuming generalised 'Live' and 'Dead' characteristics" />
 						<menu id="Room_Losses" label="Room Loss" imageMso="CombineShapesMenu" screentip="Noise Funcs. > Room Loss" supertip="Calculates the difference between sound power and sound pressure in a room, due to the reverberant characteristics. Options for Classic, Reverberation Time, and Room Constant." keytip="RL">
+						<menuSeparator id="SepRLtypical" title="Generalised" />
                         <button id="RoomLoss" label="Classic" onAction="TraceFunction" tag="PutRoomLossTypical" imageMso="ControlLineThicknessGallery" screentip="Noise > Room Loss > Classic" supertip="Room Loss - Assuming generalised 'Live' and 'Dead' characteristics" />
-                        <button id="RoomLossRT" label="Reverberation" onAction="TraceFunction" tag="PutRoomLossTypicalRT" imageMso="DiagramChangeToRadialClassic" screentip="Noise > Room Loss > Reverberation" supertip="Room Loss - Assuming an input Reverberation Time" />
+                        <button id="RoomLossRTTypical" label="Reverberation (typical)" onAction="TraceFunction" tag="PutRoomLossTypicalRT" imageMso="ControlLineTypeGallery" screentip="Noise > Room Loss > Reverberation (typical)" supertip="Room Loss - Assuming a typical (generalised) reverberation time" />
+                        <menuSeparator id="SepRLUser" title="User Input" />
                         <button id="RoomLossRC" label="Room Constant" onAction="TraceFunction" tag="PutRoomLossRC" imageMso="DiagramChangeToPyramidClassic" screentip="Noise > Room Loss > Room Constant" supertip="Room Loss - from room constant. See also RT Calc in Standard Calc Sheets." />
+                        <button id="RoomLossRT" label="Reverberation" onAction="TraceFunction" tag="PutRoomLossRT" imageMso="DiagramChangeToRadialClassic" screentip="Noise > Room Loss > Reverberation" supertip="Room Loss - Assuming an input Reverberation Time" />
 						</menu>
 						 </splitButton>
 				</group>
@@ -175,14 +216,18 @@
                     <button id="DuctSplit" label="Duct Split" onAction="TraceFunction" tag="PutDuctSplit" imageMso="F" screentip="Noise > Mech > Duct Split" supertip="Attenuation from takeoffs, junctions and splits." keytip="MJ" />
                     <button id="Silencer" label="Silencer" onAction="TraceFunction" tag="PutSilencer" imageMso="ParagraphIndentLeft" screentip="Noise > Mech > Silencer" supertip="Attenuation from splitter silencers (from Fantech catalogue)." keytip="MS" />
                     <button id="AcousticLouvres" label="Louvres" onAction="TraceFunction" tag="PutLouvres" imageMso="ShapeArc" screentip="Noise > Mech > Louvres" supertip="Attenuation from acoustic louvres (from Fantech catalogue)." keytip="ML" />
-                    <button id="Directivity" label="Directivity" onAction="TraceFunction" tag="PutDuctDirectivity" imageMso="ShapeStraightConnectorArrow" screentip="Noise > Mech > Directivity" supertip="Applies a correction depending on angle from the outlet." keytip="MA" />
+                        <menu id="Directivity" label="Directivity" imageMso="ShapeStraightConnectorArrow" screentip="Noise > Mech > Directivity" keytip="MA" >
+                        <button id="DuctDirectivity" label="Duct Directivity" onAction="TraceFunction" tag="PutDuctDirectivity" imageMso="SizeToWidest" screentip="Noise > Mech > Duct Directivity" supertip="Applies a correction depending on angle from the outlet." />
+                        <button id="LouvreDirectivity" label="Louvre Directivity" onAction="TraceFunction" tag="PutLouvreDirectivity" imageMso="ZoomFitToWindowVisio" screentip="Noise > Mech > Louvre Directivity" supertip="Applies a correction depending on size and angle from a louvre/grille." />
+                        </menu>
+                    
                     <button id="Plenum" label="Plenum" onAction="TraceFunction" tag="PutPlenumLoss" imageMso="_3DSurfaceMetalClassic" screentip="Noise > Mech > Plenum" supertip="Calculates down-duct attenuation from plenums." keytip="MP" />
                     <button id="DuctBreakout" label="Duct Breakout" onAction="TraceFunction" tag="PutDuctBreakOut" imageMso="DiagramExpandClassic" screentip="Noise > Mech > Duct Breakout" supertip="Calculates attenuation from duct breakout." keytip="MBO" />
                     <button id="DuctBreakin" label="Duct Break-in" onAction="TraceFunction" tag="PutDuctBreakIn" imageMso="ReadingViewClose" screentip="Noise > Mech > Duct Break-in" supertip="Calculates attenuation from duct break-in." keytip="MBI" />
                         <menu id="mRegenNoise" label="Regen Noise" imageMso="GroupCompressMedia" keytip="MG">
                             <button id="DamperRegen" label="Damper" onAction="TraceFunction" tag="PutDamperRegen" screentip="Noise > Mech > Regen. Noise > Damper" />
                             <button id="DiffuserRegen" label="Diffuser" onAction="TraceFunction" tag="PutDiffuserRegen" screentip="Noise > Mech > Regen. Noise > Diffuser" enabled="false" />
-                            <button id="ElbowRegen" label="Elbow/Bend" onAction="TraceFunction" tag="PutElbowRegen" screentip="Noise > Mech > Regen. Noise > Elbow/Bend" />
+                            <button id="ElbowRegen" label="Elbow/Bend" onAction="TraceFunction" tag="PutElbowRegen" screentip="Noise > Mech > Regen. Noise > Elbow/Bend" supertip="Predicts regenerated noise through an elbow (with and without vanes) using NEBB methods and presents ASHRAE graphs of regen noise in elbows at fixed speeds." />
                             <button id="JunctionRegen" label="Junction" onAction="TraceFunction" tag="PutJunctionRegen" screentip="Noise > Mech > Regen. Noise > Junction" enabled="false" />
                             <button id="SilencerRegen" label="Silencer" onAction="TraceFunction" tag="PutSilencerRegen" screentip="Noise > Mech > Regen. Noise" supertip="Empirically determined regenerated noise from rectangular silencers" />
                             <button id="TransitionRegen" label="Transition" onAction="TraceFunction" tag="PutTransitionRegen" screentip="Noise > Mech > Regen. Noise > Transition" enabled="false" />
@@ -221,8 +266,13 @@
 				</group>
 
 				<group id="gSheetFuncs" label="Sheet Tools" insertAfterMso="GroupEditingExcel">
-					<button id="HeaderBlock" label="Fill in Header" size="normal" onAction="TraceFunction" tag="`FillHeaderBlock" imageMso="AutoFormatChange" screentip="Sheet Tools > Fill in Header Block" supertip="Completes header details with Project Number, Project Name, Author Initials and the current Date/Time." keytip="TH" />
-					<button id="ClearHeaderBlock" label="Clear Header" size="normal" onAction="TraceFunction" tag="`ClearHeaderBlock" imageMso="Delete" screentip="Sheet Tools > Clear Header Block" supertip="Clears all data from the Header Block" keytip="TC" />
+					<splitButton id="bHeaderBlock">
+					<button id="HeaderBlock" label="Fill in Header"  onAction="TraceFunction" tag="`FillHeaderBlock" imageMso="AutoFormatChange" screentip="Sheet Tools > Fill in Header Block" supertip="Completes header details with Project Number, Project Name, Author Initials and the current Date/Time." keytip="TH" />
+					<menu id="mHeaderBlock" keytip="TT">
+                    <button id="ClearHeaderBlock" label="Clear Header" onAction="TraceFunction" tag="`ClearHeaderBlock" imageMso="Delete" screentip="Sheet Tools > Clear Header Block" supertip="Clears all data from the Header Block" keytip="TC" />
+					</menu>
+					</splitButton>
+					<button id="OptionsAnalysis" label="Options Analysis" size="normal" onAction="TraceFunction" tag="OptionsAnalysis" imageMso="CompareProjects" screentip="SheetTools > Options Analysis" supertip="Compares all combination of two variables and saves the result to a selected destination." />
 					<button id="FormatBorders" label="Format Borders" size="normal" onAction="TraceFunction" tag="`FormatBorders" imageMso="BorderInsideHorizontal" screentip="Sheet Tools > Format Borders" supertip="Solid line on selection edge, dash line inside vertical, solid line horizontal." keytip="TB" />
 					<button id="Plot" label="Plot" size="normal" onAction="TraceFunction" tag="Plot" imageMso="ChartLines" screentip="Sheet Tools > Plot" supertip="Creates a chart object with the selected rows of data." keytip="TP" />
 					<button id="HeatMap" label="Heat Map" size="normal" onAction="TraceFunction" tag="HeatMap" imageMso="ConditionalFormattingColorScalesGallery" screentip="Sheet Tools > Heat Map" supertip="Applies conditional formatting to selected rows. Red is the highest value, green is the lowest. Formatting can be done for the entire block of values or row-by-row." keytip="TM"/>
@@ -275,7 +325,7 @@
 					</menu>
 
 					<button id="Target" label="Target" size="normal" onAction="TraceFunction" tag="Target" imageMso="StopLeftToRight" keytip="ST"/>
-
+                    
 				</group>
 				    
                 <!--Note: the prefix "`" skips the lines of code which set the global variables-->

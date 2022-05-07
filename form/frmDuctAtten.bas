@@ -213,14 +213,14 @@ Dim thicknessParam As Double
             Me.txt4k.Value = DuctAtten_Reynolds(4000, CDbl(Me.txtH.Value), CDbl(Me.txtW.Value), thicknessParam, CDbl(Me.txtL.Value))
             Me.txt8k.Value = DuctAtten_Reynolds(8000, CDbl(Me.txtH.Value), CDbl(Me.txtW.Value), thicknessParam, CDbl(Me.txtL.Value))
             ElseIf Me.optCir.Value = True Then 'CIRCULAR METHOD - REYNOLDS
-            Me.txt63.Value = Round(DuctAttenCircular_Reynolds(63, CDbl(Me.txtH.Value), thicknessParam, CDbl(Me.txtL.Value)), 1)
-            Me.txt125.Value = Round(DuctAttenCircular_Reynolds(125, CDbl(Me.txtH.Value), thicknessParam, CDbl(Me.txtL.Value)), 1)
-            Me.txt250.Value = Round(DuctAttenCircular_Reynolds(250, CDbl(Me.txtH.Value), thicknessParam, CDbl(Me.txtL.Value)), 1)
-            Me.txt500.Value = Round(DuctAttenCircular_Reynolds(500, CDbl(Me.txtH.Value), thicknessParam, CDbl(Me.txtL.Value)), 1)
-            Me.txt1k.Value = Round(DuctAttenCircular_Reynolds(1000, CDbl(Me.txtH.Value), thicknessParam, CDbl(Me.txtL.Value)), 1)
-            Me.txt2k.Value = Round(DuctAttenCircular_Reynolds(2000, CDbl(Me.txtH.Value), thicknessParam, CDbl(Me.txtL.Value)), 1)
-            Me.txt4k.Value = Round(DuctAttenCircular_Reynolds(4000, CDbl(Me.txtH.Value), thicknessParam, CDbl(Me.txtL.Value)), 1)
-            Me.txt8k.Value = Round(DuctAttenCircular_Reynolds(8000, CDbl(Me.txtH.Value), thicknessParam, CDbl(Me.txtL.Value)), 1)
+            Me.txt63.Value = CheckNumericValue(DuctAttenCircular_Reynolds(63, CDbl(Me.txtH.Value), thicknessParam, CDbl(Me.txtL.Value)), 1)
+            Me.txt125.Value = CheckNumericValue(DuctAttenCircular_Reynolds(125, CDbl(Me.txtH.Value), thicknessParam, CDbl(Me.txtL.Value)), 1)
+            Me.txt250.Value = CheckNumericValue(DuctAttenCircular_Reynolds(250, CDbl(Me.txtH.Value), thicknessParam, CDbl(Me.txtL.Value)), 1)
+            Me.txt500.Value = CheckNumericValue(DuctAttenCircular_Reynolds(500, CDbl(Me.txtH.Value), thicknessParam, CDbl(Me.txtL.Value)), 1)
+            Me.txt1k.Value = CheckNumericValue(DuctAttenCircular_Reynolds(1000, CDbl(Me.txtH.Value), thicknessParam, CDbl(Me.txtL.Value)), 1)
+            Me.txt2k.Value = CheckNumericValue(DuctAttenCircular_Reynolds(2000, CDbl(Me.txtH.Value), thicknessParam, CDbl(Me.txtL.Value)), 1)
+            Me.txt4k.Value = CheckNumericValue(DuctAttenCircular_Reynolds(4000, CDbl(Me.txtH.Value), thicknessParam, CDbl(Me.txtL.Value)), 1)
+            Me.txt8k.Value = CheckNumericValue(DuctAttenCircular_Reynolds(8000, CDbl(Me.txtH.Value), thicknessParam, CDbl(Me.txtL.Value)), 1)
             End If
             
         ElseIf Me.optSRL.Value = True Then

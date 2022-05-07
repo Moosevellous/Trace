@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmPlotTool 
    Caption         =   "Plot Tool"
-   ClientHeight    =   9285
+   ClientHeight    =   9285.001
    ClientLeft      =   120
    ClientTop       =   465
    ClientWidth     =   11205
@@ -242,8 +242,8 @@ Private Sub btnMakeDashLines_Click()
 
 ActiveChart.ChartArea.Select
     For i = 1 To ActiveChart.FullSeriesCollection.Count
-    ActiveChart.FullSeriesCollection(i).Select
-        With Selection.Format.Line
+    '.Select
+        With ActiveChart.FullSeriesCollection(i).Format.Line
             Select Case i Mod 7 '7 options of dash
             Case Is = 0
             .DashStyle = msoLineLongDashDot
@@ -268,10 +268,7 @@ End Sub
 Private Sub btnMakeSolidLines_Click()
 ActiveChart.ChartArea.Select
     For i = 1 To ActiveChart.FullSeriesCollection.Count
-    ActiveChart.FullSeriesCollection(i).Select
-        With Selection.Format.Line
-        .DashStyle = msoLineSolid
-        End With
+        ActiveChart.FullSeriesCollection(i).Format.Line.DashStyle = msoLineSolid
      Next i
 End Sub
 
@@ -706,8 +703,7 @@ End Sub
 Sub MarkerBordersOff()
 ActiveChart.ChartArea.Select
     For i = 1 To ActiveChart.FullSeriesCollection.Count
-    ActiveChart.FullSeriesCollection(i).Select
-    Selection.MarkerForegroundColorIndex = xlColorIndexNone
+    ActiveChart.FullSeriesCollection(i).MarkerForegroundColorIndex = xlColorIndexNone
     Next i
 End Sub
 
@@ -715,12 +711,13 @@ Sub ApplyLabels()
     For i = 1 To ActiveChart.FullSeriesCollection.Count
     ActiveChart.FullSeriesCollection(i).Select
     ActiveChart.FullSeriesCollection(i).ApplyDataLabels
-    ActiveChart.FullSeriesCollection(i).DataLabels.Select
-    Selection.ShowSeriesName = True
-    Selection.ShowValue = False
-    Selection.Position = xlLabelPositionAbove
-    Selection.Orientation = xlDownward
-    Selection.Format.TextFrame2.Orientation = msoTextOrientationDownward
+        With ActiveChart.FullSeriesCollection(i).DataLabels
+        .ShowSeriesName = True
+        .ShowValue = False
+        .Position = xlLabelPositionAbove
+        .Orientation = xlDownward
+        .Format.TextFrame2.Orientation = msoTextOrientationDownward
+        End With
     Next i
 End Sub
 
@@ -728,17 +725,18 @@ Sub ApplyLineWeight(S)
     If IsNumeric(S) And S > 0.5 Then
         ActiveChart.ChartArea.Select
         For i = 1 To ActiveChart.FullSeriesCollection.Count
-        ActiveChart.FullSeriesCollection(i).Select
-        Selection.Format.Line.Weight = S
+        ActiveChart.FullSeriesCollection(i).Format.Line.Weight = S
         Next i
     End If
 End Sub
 
 Sub ApplyLineTransparency(tVal)
-    If tVal <> "" And tVal <= 100 Then
+    If tVal <> "" And tVal <= 100 And tVal > 0 Then
         For i = 1 To ActiveChart.FullSeriesCollection.Count
-        ActiveChart.FullSeriesCollection(i).Format.Line.DashStyle = 1
-        ActiveChart.FullSeriesCollection(i).Format.Line.Transparency = tVal / 100
+            With ActiveChart.FullSeriesCollection(i)
+            .Format.Line.DashStyle = 1
+            .Format.Line.Transparency = tVal / 100
+            End With
         Next i
     End If
 End Sub
@@ -895,7 +893,7 @@ SelectedValue = -1 'catch errors
     SelectedValue = -1
 
     End Select
-MarkerListBoxIndex = SelectedValue - 1 'stupid list indeces
+MarkerListBoxIndex = SelectedValue - 1 'stupid list indices
 End Function
 
 'Me.cBoxMarkerStyle.AddItem ("1 - Square")

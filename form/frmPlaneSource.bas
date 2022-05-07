@@ -25,7 +25,7 @@ End Sub
 Private Sub btnOK_Click()
 btnOkPressed = True
 PlaneH = CDbl(Me.txtHeight.Value)
-PlaneL = CDbl(Me.txtWidth.Value)
+PlaneW = CDbl(Me.txtWidth.Value)
 PlaneDist = CDbl(Me.txtDistance.Value)
 Me.Hide
 End Sub

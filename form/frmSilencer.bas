@@ -110,8 +110,13 @@ Me.txt8k.Value = IL8k(i)
 Me.txtFA.Value = FA(i)
 Me.txtLength.Value = Length(i)
 SplitSeries = Split(Series(i), " ")
-Me.txtSupplier.Value = SplitSeries(0)
-Me.txtSeries.Value = SplitSeries(1)
+    If UBound(SplitSeries) >= 1 Then
+    Me.txtSupplier.Value = SplitSeries(0)
+    Me.txtSeries.Value = SplitSeries(1)
+    Else
+    Me.txtSupplier.Value = "ERROR"
+    Me.txtSeries.Value = "ERROR"
+    End If
 End Sub
 
 Private Sub optCircular_Click()
@@ -311,6 +316,7 @@ Dim SilAddr() As String
 Dim SilRw As Integer
 Dim TestLevel As Double
 Dim SilCols As Integer
+Dim PercentComplete As Double
 
 targetAddr = Split(TargetRng, "$", Len(TargetRng), vbTextCompare) 'TODO error checking for row
 SilAddr = Split(SilRng, "$", Len(SilRng), vbTextCompare)
@@ -319,6 +325,7 @@ SilAddr = Split(SilRng, "$", Len(SilRng), vbTextCompare)
     
     targetRw = targetAddr(2)
     SilRw = SilAddr(2)
+    Cells(SilRw, T_Description).Select
     'send to public variable
     SolverRow = SilRw
     
@@ -332,18 +339,22 @@ Application.Calculation = xlCalculationManual
 
     'search for compliant silencers
         'place in cells
-        For Rw = 2 To UBound(SilencerArray)
+
+        For Rw = 2 To UBound(SilNameArray) 'loop through name list only         'OLD:    For Rw = 2 To UBound(SilencerArray)
         SilCols = 0
-            For Col = T_LossGainStart + 1 To T_LossGainEnd - 1
+            For col = T_LossGainStart + 1 To T_LossGainEnd - 1
             'Debug.Print SilencerArray(rw, Col - 4)
-            Cells(SilRw, Col).Value = SilencerArray(Rw, 2 + SilCols) 'start from element 2
+            Cells(SilRw, col).Value = SilencerArray(Rw, 2 + SilCols) 'start from element 2
             SilCols = SilCols + 1 'index write row
-            Next Col
+            Next col
             
         'Debug.Print UBound(SilNameArray)
             If UBound(SilNameArray) >= Rw Then
             Cells(SilRw, T_Description).Value = SilNameArray(Rw)
-            Me.lblStatus.Caption = "Checking: " & SilNameArray(Rw)
+            PercentComplete = ((Rw - 2) / UBound(SilNameArray) * 100)
+            PercentComplete = Application.WorksheetFunction.MRound(PercentComplete, 5)
+            Me.lblStatus.Caption = PercentComplete & "%      " & _
+                "Checking: " & SilNameArray(Rw)
             Else
             Me.lblStatus.Caption = ""
             End If
@@ -358,7 +369,9 @@ Application.Calculation = xlCalculationManual
         TestLevel = Round(Cells(targetRw, T_LossGainStart - 1).Value, 1)
         End If
         
-        If TestLevel <= NoiseGoal And TestLevel >= (NoiseGoal - CDbl(Me.txtDesignTolerance.Value)) Then 'silencer achieves target, but doesn't overshoot
+        If TestLevel <= NoiseGoal And _
+            TestLevel >= (NoiseGoal - CDbl(Me.txtDesignTolerance.Value)) Then 'silencer achieves target, but doesn't overshoot
+            
         Me.lstOptions.AddItem (SilNameArray(Rw))
         ResizeArray (Me.lstOptions.ListCount)
         IL63(Me.lstOptions.ListCount - 1) = SilencerArray(Rw, 2)
@@ -377,11 +390,17 @@ Application.Calculation = xlCalculationManual
         Next Rw
     End If 'ubound close loop
     
-If Me.lstOptions.ListCount > 0 Then
-Me.btnInsert.Enabled = True
-Else
-Me.btnInsert.Enabled = False
-End If
+'clear last row, should already be selected
+ClearRow (True)
+
+
+
+    'Enable button if suitable options found
+    If Me.lstOptions.ListCount > 0 Then
+    Me.btnInsert.Enabled = True
+    Else
+    Me.btnInsert.Enabled = False
+    End If
 
 Application.Calculation = xlCalculationAutomatic
 

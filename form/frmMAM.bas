@@ -19,7 +19,7 @@ Unload Me
 End Sub
 
 Private Sub btnHelp_Click()
-'GotoWikiPage ("Estimator-Functions#electric-motor")
+GotoWikiPage ("Basics#mass-air-mass-calculator")
 End Sub
 
 Private Sub btnOK_Click()
@@ -163,7 +163,7 @@ Sub PreviewValues()
 Dim MAM As Double
 Dim m1 As Double
 Dim m2 As Double
-Dim d As Double
+Dim D As Double
 Dim thickness1 As Double
 Dim thickness2 As Double
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -175,7 +175,7 @@ Dim thickness2 As Double
     Me.txtSurfDensity1.BackColor = &HC0FFFF
     
     'set variable m1
-    m1 = ScreenInput(Me.txtSurfDensity1.Value)
+    m1 = CheckNumericValue(Me.txtSurfDensity1.Value)
 
     Else 'calculate surface density based on thickness
     Me.txtLayerThickness1.Enabled = True
@@ -205,7 +205,7 @@ Dim thickness2 As Double
     Me.txtLayerThickness2.BackColor = &H80000005
     Me.txtSurfDensity2.Enabled = True
     Me.txtSurfDensity2.BackColor = &HC0FFFF
-    m2 = ScreenInput(Me.txtSurfDensity1.Value)
+    m2 = CheckNumericValue(Me.txtSurfDensity1.Value)
     
     Else 'calculate surface density based on thickness
     Me.txtLayerThickness2.Enabled = True

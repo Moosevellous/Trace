@@ -142,6 +142,7 @@ Application.ScreenUpdating = False
     For Rw = Selection.Row To Selection.Row + Selection.Rows.Count - 1
     
     'Description
+    Cells(Rw, 1).ClearContents
     Cells(Rw, T_Description).ClearContents
     Cells(Rw, T_Description).ClearComments
     Cells(Rw, T_Description).Validation.Delete 'for dropdown boxes
@@ -203,7 +204,7 @@ End Sub
 ' Desc:     Makes selected calls (or row) negative values. Maintains the
 '           formula and will revert back.
 ' Args:     None
-' Comments: (1) SkipUserInput defaults to false
+' Comments: (1) Updated to skip empty cells
 '==============================================================================
 Sub FlipSign()
 Dim Rw As Integer
@@ -211,186 +212,27 @@ Dim startCol As Integer
 Dim endCol As Integer
 
     For Rw = Selection.Row To Selection.Row + Selection.Rows.Count - 1
-        For Col = T_LossGainStart To T_LossGainEnd
-            If Cells(Rw, Col).HasFormula Then
+        For col = T_LossGainStart To T_LossGainEnd
+        
+            'two cases, depending on formulas or static values
+            If Cells(Rw, col).HasFormula Then
                 'check if second character of formula is minus
-                If Mid(Cells(Rw, Col).Formula, 2, 1) = "-" Then
-                Cells(Rw, Col).Formula = Replace(Cells(Rw, Col).Formula, _
-                    "=-", "=", 1, Len(Cells(Rw, Col).Formula), vbTextCompare)
+                If Mid(Cells(Rw, col).Formula, 2, 1) = "-" Then
+                Cells(Rw, col).Formula = Replace(Cells(Rw, col).Formula, _
+                    "=-", "=", 1, Len(Cells(Rw, col).Formula), vbTextCompare)
                 Else
-                Cells(Rw, Col).Formula = Replace(Cells(Rw, Col).Formula, _
-                    "=", "=-", 1, Len(Cells(Rw, Col).Formula), vbTextCompare)
+                Cells(Rw, col).Formula = Replace(Cells(Rw, col).Formula, _
+                    "=", "=-", 1, Len(Cells(Rw, col).Formula), vbTextCompare)
                 End If
-            Else
-                Cells(Rw, Col).Value = Cells(Rw, Col).Value * -1
+            Else 'static value
+                'check if cell is empty
+                If IsEmpty(Cells(Rw, col)) = False Then
+                Cells(Rw, col).Value = Cells(Rw, col).Value * -1
+                End If
             End If
-        Next Col
+            
+        Next col
     Next Rw
-
-End Sub
-
-'==============================================================================
-' Name:     A_weight_Corrections
-' Author:   PS
-' Desc:     Returns value of the A-weighting correction
-' Args:     None
-' Comments: (1) Could we do this a simpler way? <--TODO: upgrade for Trace 3.0
-'==============================================================================
-
-Sub A_weight_Corrections()
-
-
-'If T_SheetType = "OCT" Then
-'    For col = 2 To 13
-'        Select Case col
-'        Case 2
-'        Cells(T_FreqRow, col).Value = "A Weighting"
-'        Case 5
-'        Cells(T_FreqRow, col).Value = -39.4
-'        Case 6
-'        Cells(T_FreqRow, col).Value = -26.2
-'        Case 7
-'        Cells(T_FreqRow, col).Value = -16.1
-'        Case 8
-'        Cells(T_FreqRow, col).Value = -8.6
-'        Case 9
-'        Cells(T_FreqRow, col).Value = -3.2
-'        Case 10
-'        Cells(T_FreqRow, col).Value = 0#
-'        Case 11
-'        Cells(T_FreqRow, col).Value = -1.2
-'        Case 12
-'        Cells(T_FreqRow, col).Value = 1#
-'        Case 13
-'        Cells(T_FreqRow, col).Value = -1.1
-'        End Select
-'    Next col
-'ElseIf T_SheetType = "OCTA" Then
-'    For col = 2 To 13
-'        Select Case col
-'        Case 2
-'        Cells(T_FreqRow, col).Value = "A Weighting"
-'        Case 5
-'        Cells(T_FreqRow, col).Value = 39.4
-'        Case 6
-'        Cells(T_FreqRow, col).Value = 26.2
-'        Case 7
-'        Cells(T_FreqRow, col).Value = 16.1
-'        Case 8
-'        Cells(T_FreqRow, col).Value = 8.6
-'        Case 9
-'        Cells(T_FreqRow, col).Value = 3.2
-'        Case 10
-'        Cells(T_FreqRow, col).Value = 0#
-'        Case 11
-'        Cells(T_FreqRow, col).Value = 1.2
-'        Case 12
-'        Cells(T_FreqRow, col).Value = 1#
-'        Case 13
-'        Cells(T_FreqRow, col).Value = 1.1
-'        End Select
-'    Next col
-'ElseIf T_SheetType = "TO" Then
-' For col = 2 To 25
-'        Select Case col
-'        Case 2
-'        Cells(T_FreqRow, col).Value = "A Weighting"
-'        Case 5
-'        Cells(T_FreqRow, col).Value = -30.2
-'        Case 6
-'        Cells(T_FreqRow, col).Value = -26.2
-'        Case 7
-'        Cells(T_FreqRow, col).Value = -22.5
-'        Case 8
-'        Cells(T_FreqRow, col).Value = -19.1
-'        Case 9
-'        Cells(T_FreqRow, col).Value = -16.1
-'        Case 10
-'        Cells(T_FreqRow, col).Value = -13.4
-'        Case 11
-'        Cells(T_FreqRow, col).Value = -10.9
-'        Case 12
-'        Cells(T_FreqRow, col).Value = -8.6
-'        Case 13
-'        Cells(T_FreqRow, col).Value = -6.6
-'        Case 14
-'        Cells(T_FreqRow, col).Value = -4.8
-'        Case 15
-'        Cells(T_FreqRow, col).Value = -3.2
-'        Case 16
-'        Cells(T_FreqRow, col).Value = -1.9
-'        Case 17
-'        Cells(T_FreqRow, col).Value = -0.8
-'        Case 18
-'        Cells(T_FreqRow, col).Value = 0#
-'        Case 19
-'        Cells(T_FreqRow, col).Value = 0.6
-'        Case 20
-'        Cells(T_FreqRow, col).Value = 1#
-'        Case 21
-'        Cells(T_FreqRow, col).Value = 1.2
-'        Case 22
-'        Cells(T_FreqRow, col).Value = 1.3
-'        Case 23
-'        Cells(T_FreqRow, col).Value = 1.2
-'        Case 24
-'        Cells(T_FreqRow, col).Value = 1#
-'        Case 25
-'        Cells(T_FreqRow, col).Value = 0.5
-'        End Select
-'    Next col
-'    ElseIf T_SheetType = "TOA" Then
-'    For col = 2 To 25
-'        Select Case col
-'        Case 2
-'        Cells(T_FreqRow, col).Value = "A Weighting"
-'        Case 5
-'        Cells(T_FreqRow, col).Value = 30.2
-'        Case 6
-'        Cells(T_FreqRow, col).Value = 26.2
-'        Case 7
-'        Cells(T_FreqRow, col).Value = 22.5
-'        Case 8
-'        Cells(T_FreqRow, col).Value = 19.1
-'        Case 9
-'        Cells(T_FreqRow, col).Value = 16.1
-'        Case 10
-'        Cells(T_FreqRow, col).Value = 13.4
-'        Case 11
-'        Cells(T_FreqRow, col).Value = 10.9
-'        Case 12
-'        Cells(T_FreqRow, col).Value = 8.6
-'        Case 13
-'        Cells(T_FreqRow, col).Value = 6.6
-'        Case 14
-'        Cells(T_FreqRow, col).Value = 4.8
-'        Case 15
-'        Cells(T_FreqRow, col).Value = 3.2
-'        Case 16
-'        Cells(T_FreqRow, col).Value = 1.9
-'        Case 17
-'        Cells(T_FreqRow, col).Value = 0.8
-'        Case 18
-'        Cells(T_FreqRow, col).Value = 0#
-'        Case 19
-'        Cells(T_FreqRow, col).Value = -0.6
-'        Case 20
-'        Cells(T_FreqRow, col).Value = -1#
-'        Case 21
-'        Cells(T_FreqRow, col).Value = -1.2
-'        Case 22
-'        Cells(T_FreqRow, col).Value = -1.3
-'        Case 23
-'        Cells(T_FreqRow, col).Value = -1.2
-'        Case 24
-'        Cells(T_FreqRow, col).Value = -1#
-'        Case 25
-'        Cells(T_FreqRow, col).Value = -0.5
-'        End Select
-'    Next col
-'Else
-'ErrorTypeCode
-'End If
 
 End Sub
 
@@ -399,44 +241,55 @@ End Sub
 ' Author:   PS
 ' Desc:     Moves selected calculation row(s) up by 1.
 ' Args:     None
-' Comments: (1) Should maintain links, but may break data validation?
+' Comments: (1)
 '==============================================================================
 
 Sub MoveUp()
-Dim StartRw As Integer
-Dim EndRw As Integer
+Dim startRw As Integer
+Dim endRw As Integer
+Dim LastCol As Integer
 
 Application.ScreenUpdating = False
 
-StartRw = Selection.Row
-EndRw = Selection.Row + Selection.Rows.Count - 1
+startRw = Selection.Row
+endRw = Selection.Row + Selection.Rows.Count - 1
 
     'check for adjacent empty row
-    If Cells(StartRw - 1, 2).Value <> "" Then
+    If Cells(startRw - 1, 2).Value <> "" Then
     msg = MsgBox("There appears to be data in the cells above.  " & _
         "Continuing will delete this data. Do you want to continue?", _
         vbYesNo, "Check yo'self")
         If msg = vbNo Then End
     End If
 
-Range("B" & StartRw & ":D" & EndRw).Cut Destination:=Range("B" & StartRw - 1 & ":D" & EndRw - 1) 'Description
-    'TODO: update for Trace 3
-    If Left(T_SheetType, 3) = "OCT" Then
-    Range("E" & StartRw & ":O" & EndRw).Cut Destination:=Range("E" & StartRw - 1 & ":O" & EndRw - 1) 'Formulas
-    Range("B" & StartRw - 1 & ":O" & StartRw - 1).Copy 'formats
-    Range("B" & StartRw & ":O" & StartRw).PasteSpecial Paste:=xlPasteFormats
-    ElseIf Left(T_SheetType, 2) = "TO" Then
-    Range("E" & StartRw & ":AA" & EndRw).Cut Destination:=Range("E" & StartRw - 1 & ":AA" & EndRw - 1) 'Formulas
-    Range("B" & StartRw - 1 & ":AA" & StartRw - 1).Copy 'formats
-    Range("B" & StartRw & ":AA" & StartRw).PasteSpecial Paste:=xlPasteFormats
-    ElseIf T_SheetType = "LF_TO" Then
-    Range("E" & StartRw & ":AG" & EndRw).Cut Destination:=Range("E" & StartRw - 1 & ":AG" & EndRw - 1) 'Formulas
-    Range("B" & StartRw - 1 & ":AG" & StartRw - 1).Copy 'formats
-    Range("B" & EndRw & ":AG" & EndRw).PasteSpecial Paste:=xlPasteFormats
-    End If
+'    OLD VERSION
+'    If Left(T_SheetType, 3) = "OCT" Then
+'    Range("E" & startRw & ":O" & endRw).Cut Destination:=Range("E" & startRw - 1 & ":O" & endRw - 1) 'Formulas
+'    Range("B" & startRw - 1 & ":O" & startRw - 1).Copy 'formats
+'    Range("B" & startRw & ":O" & startRw).PasteSpecial Paste:=xlPasteFormats
+'    ElseIf Left(T_SheetType, 2) = "TO" Then
+'    Range("E" & startRw & ":AA" & endRw).Cut Destination:=Range("E" & startRw - 1 & ":AA" & endRw - 1) 'Formulas
+'    Range("B" & startRw - 1 & ":AA" & startRw - 1).Copy 'formats
+'    Range("B" & startRw & ":AA" & startRw).PasteSpecial Paste:=xlPasteFormats
+'    ElseIf T_SheetType = "LF_TO" Then
+'    Range("E" & startRw & ":AG" & endRw).Cut Destination:=Range("E" & startRw - 1 & ":AG" & endRw - 1) 'Formulas
+'    Range("B" & startRw - 1 & ":AG" & startRw - 1).Copy 'formats
+'    Range("B" & endRw & ":AG" & endRw).PasteSpecial Paste:=xlPasteFormats
+'    End If
+
+'TODO: move in three parts to preserve merged cells?
+LastCol = Application.WorksheetFunction.Max(T_LossGainEnd, T_ParamEnd)
+'formulas
+Range(Cells(startRw, T_Description), Cells(endRw, LastCol)).Cut _
+    Destination:=Range(Cells(startRw - 1, T_Description), Cells(endRw - 1, LastCol))
+'formats
+Range(Cells(startRw - 1, T_Description), Cells(startRw - 1, LastCol)).Copy
+Range(Cells(endRw, T_Description), Cells(endRw, LastCol)).PasteSpecial Paste:=xlPasteFormats
+
+ClearRow (True)
     
 'move to select lower row
-Range(Cells(StartRw - 1, 2), Cells(EndRw - 1, 2)).Select
+Range(Cells(startRw - 1, T_Description), Cells(endRw - 1, T_Description)).Select
 
 Application.CutCopyMode = False
 Application.ScreenUpdating = True
@@ -447,44 +300,58 @@ End Sub
 ' Author:   PS
 ' Desc:     Moves selected calculation row(s) down by 1.
 ' Args:     None
-' Comments: (1) Should maintain links, but may break data validation?
+' Comments: (1)
 '==============================================================================
 
 Sub MoveDown()
-Dim StartRw As Integer
-Dim EndRw As Integer
+Dim startRw As Integer
+Dim endRw As Integer
 
 Application.ScreenUpdating = False
 
-StartRw = Selection.Row
-EndRw = Selection.Row + Selection.Rows.Count - 1
+startRw = Selection.Row
+endRw = Selection.Row + Selection.Rows.Count - 1
 
     'check for adjacent empty row
-    If Cells(EndRw + 1, 2).Value <> "" Then
-    msg = MsgBox("There appears to be data in the cells above.  " & _
+    If Cells(endRw + 1, 2).Value <> "" Then
+    msg = MsgBox("There appears to be data in the cells below.  " & _
         "Continuing will delete this data. Do you want to continue?", _
         vbYesNo, "Check yo'self")
         If msg = vbNo Then End
     End If
 
-Range("B" & StartRw & ":D" & EndRw).Cut Destination:=Range("B" & StartRw + 1 & ":D" & EndRw + 1) 'Description
-    'TODO: update for Trace 3
-    If Left(T_SheetType, 3) = "OCT" Then
-    Range("E" & StartRw & ":O" & EndRw).Cut Destination:=Range("E" & StartRw + 1 & ":O" & EndRw + 1) 'Formulas
-    Range("B" & StartRw + 1 & ":O" & StartRw + 1).Copy 'formats
-    Range("B" & StartRw & ":O" & StartRw).PasteSpecial Paste:=xlPasteFormats
-    ElseIf Left(T_SheetType, 2) = "TO" Then
-    Range("E" & StartRw & ":AA" & EndRw).Cut Destination:=Range("E" & StartRw + 1 & ":AA" & EndRw + 1) 'Formulas
-    Range("B" & StartRw + 1 & ":AA" & StartRw + 1).Copy 'formats
-    Range("B" & StartRw & ":AA" & StartRw).PasteSpecial Paste:=xlPasteFormats
-    ElseIf T_SheetType = "LF_TO" Then
-    Range("E" & StartRw & ":AG" & EndRw).Cut Destination:=Range("E" & StartRw + 1 & ":AG" & EndRw + 1) 'Formulas
-    Range("B" & StartRw + 1 & ":AG" & StartRw + 1).Copy 'formats
-    Range("B" & StartRw & ":AG" & StartRw).PasteSpecial Paste:=xlPasteFormats
-    End If
+'Range("B" & startRw & ":D" & endRw).Cut Destination:=Range("B" & startRw + 1 & ":D" & endRw + 1) 'Description
+'    'TODO: update for Trace 3
+'    If Left(T_SheetType, 3) = "OCT" Then
+'    Range("E" & startRw & ":O" & endRw).Cut Destination:=Range("E" & startRw + 1 & ":O" & endRw + 1) 'Formulas
+'    Range("B" & startRw + 1 & ":O" & startRw + 1).Copy 'formats
+'    Range("B" & startRw & ":O" & startRw).PasteSpecial Paste:=xlPasteFormats
+'    ElseIf Left(T_SheetType, 2) = "TO" Then
+'    Range("E" & startRw & ":AA" & endRw).Cut Destination:=Range("E" & startRw + 1 & ":AA" & endRw + 1) 'Formulas
+'    Range("B" & startRw + 1 & ":AA" & startRw + 1).Copy 'formats
+'    Range("B" & startRw & ":AA" & startRw).PasteSpecial Paste:=xlPasteFormats
+'    ElseIf T_SheetType = "LF_TO" Then
+'    Range("E" & startRw & ":AG" & endRw).Cut Destination:=Range("E" & startRw + 1 & ":AG" & endRw + 1) 'Formulas
+'    Range("B" & startRw + 1 & ":AG" & startRw + 1).Copy 'formats
+'    Range("B" & startRw & ":AG" & startRw).PasteSpecial Paste:=xlPasteFormats
+'    End If
+'
+''move to select lower row
+'Range(Cells(startRw + 1, 2), Cells(endRw + 1, 2)).Select
 
+'TODO: move in three parts to preserve merged cells?
+LastCol = Application.WorksheetFunction.Max(T_LossGainEnd, T_ParamEnd)
+'formulas
+Range(Cells(startRw, T_Description), Cells(endRw, LastCol)).Cut _
+    Destination:=Range(Cells(startRw + 1, T_Description), Cells(endRw + 1, LastCol))
+'formats
+Range(Cells(startRw + 1, T_Description), Cells(startRw + 1, LastCol)).Copy
+Range(Cells(startRw, T_Description), Cells(startRw, LastCol)).PasteSpecial Paste:=xlPasteFormats
+
+ClearRow (True)
+    
 'move to select lower row
-Range(Cells(StartRw + 1, 2), Cells(EndRw + 1, 2)).Select
+Range(Cells(startRw + 1, T_Description), Cells(endRw + 1, T_Description)).Select
 
 Application.CutCopyMode = False
 
@@ -501,21 +368,21 @@ End Sub
 '==============================================================================
 
 Sub MoveLeft()
-Dim StartRw As Integer
-Dim EndRw As Integer
+Dim startRw As Integer
+Dim endRw As Integer
 Dim startCol As Integer
 Dim endCol As Integer
 
 Application.ScreenUpdating = False
 
-StartRw = Selection.Row
-EndRw = Selection.Row + Selection.Rows.Count - 1
+startRw = Selection.Row
+endRw = Selection.Row + Selection.Rows.Count - 1
 'startCol = GetSheetTypeColumns(SheetType, "LossGainStart")
 'endCol = GetSheetTypeColumns(SheetType, "LossGainEnd")
 
-Range(Cells(StartRw, T_LossGainStart + 1), Cells(EndRw, T_LossGainEnd)).Copy
-Cells(StartRw, T_LossGainStart).PasteSpecial Paste:=xlPasteValues
-Cells(StartRw, T_LossGainEnd).ClearContents
+Range(Cells(startRw, T_LossGainStart + 1), Cells(endRw, T_LossGainEnd)).Copy
+Cells(startRw, T_LossGainStart).PasteSpecial Paste:=xlPasteValues
+Cells(startRw, T_LossGainEnd).ClearContents
 
 Application.CutCopyMode = False
 
@@ -529,24 +396,24 @@ End Sub
 ' Desc:     Moves selected spectrum one band to the right
 ' Args:     None
 ' Comments: (1) Applies to main columns only, descriptions stay put
-'==============================================================================
+'===============================================================================
 
 Sub MoveRight()
-Dim StartRw As Integer
-Dim EndRw As Integer
+Dim startRw As Integer
+Dim endRw As Integer
 Dim startCol As Integer
 Dim endCol As Integer
 
 Application.ScreenUpdating = False
 
-StartRw = Selection.Row
-EndRw = Selection.Row + Selection.Rows.Count - 1
+startRw = Selection.Row
+endRw = Selection.Row + Selection.Rows.Count - 1
 'startCol = GetSheetTypeColumns(SheetType, "LossGainStart")
 'endCol = GetSheetTypeColumns(SheetType, "LossGainEnd")
 
-Range(Cells(StartRw, T_LossGainStart), Cells(EndRw, T_LossGainEnd - 1)).Copy
-Cells(StartRw, T_LossGainStart + 1).PasteSpecial Paste:=xlPasteValues
-Cells(EndRw, T_LossGainStart).ClearContents
+Range(Cells(startRw, T_LossGainStart), Cells(endRw, T_LossGainEnd - 1)).Copy
+Cells(startRw, T_LossGainStart + 1).PasteSpecial Paste:=xlPasteValues
+Cells(endRw, T_LossGainStart).ClearContents
 
 Application.CutCopyMode = False
 
@@ -560,14 +427,24 @@ End Sub
 ' Desc:     Puts in a reference to data in another row or sheet
 ' Args:     None
 ' Comments: (1) Updated to work across sheets
-'==============================================================================
+'===============================================================================
 
 Sub RowReference()
 Dim FirstRow As Integer
 Dim LastRow As Integer
 Dim SheetName As String
 Dim DestinationCol As Integer
+Dim CellVal As String
 
+    'read existing validation and put in the form
+    If HasDataValidation(Cells(Selection.Row, T_Description)) Then
+    frmRowReference.refRangeSelector.Value = _
+        Cells(Selection.Row, T_Description).Validation.Formula1
+    Else
+    frmRowReference.refRangeSelector.Value = ""
+    End If
+
+    'Allow regen for MECH sheet layout
     If T_SheetType = "MECH" Then
     frmRowReference.optRegenSWL.Enabled = True
     Else
@@ -604,6 +481,10 @@ LastRow = GetLastRow(UserSelectedAddress)
     ExtendFunction (RegenDestinationRange)
     
     Else 'multimode = true
+    
+        'trim equals character if already there
+        If Left(SheetName, 1) = "=" Then SheetName = Right(SheetName, Len(SheetName) - 1)
+        
     SetDataValidation T_Description, "=" & SheetName & "$B$" & FirstRow & _
         ":$B$" & LastRow
         
@@ -612,8 +493,6 @@ LastRow = GetLastRow(UserSelectedAddress)
     
         'create index-match formula <--TODO: update this for Trace 3
         If T_SheetType = "OCT" Then
-        'Debug.Print "=INDEX(" & SheetName & "$E$" & FirstRow & ":$M$" & LastRow & ",MATCH('" & ActiveSheet.Name & "'!$B$" & Selection.Row & _
-        "," & SheetName & "$B$" & FirstRow & ":$B$" & LastRow & ",0),MATCH('" & ActiveSheet.Name & "'!" & T_FreqStartRng & "," & SheetName & "$" & T_FreqStartRng & ":$M$6,0))"
         Cells(Selection.Row, DestinationCol).Value = "=INDEX(" & SheetName & "$E$" & FirstRow & ":$M$" & LastRow & ",MATCH('" & ActiveSheet.Name & "'!$B$" & Selection.Row & _
         "," & SheetName & "$B$" & FirstRow & ":$B" & LastRow & ",0),MATCH('" & ActiveSheet.Name & "'!" & T_FreqStartRng & "," & SheetName & "$" & T_FreqStartRng & ":$M$6,0))" '<----note that SheetName includes apostrophe character and ActiveSheet.Name does not.....trickyyyyy
         ExtendFunction
@@ -643,10 +522,12 @@ End Sub
 '           between active and inactive. Preserves original formula and format.
 ' Args:     None
 ' Comments: (1) Edited to make column selection dependant on cursor position
+'           (2) Updated to work on multiple rows
 '==============================================================================
 
 Sub ToggleActive()
-Dim startCol As Integer, endCol As Integer, WrkRow As Integer
+Dim startCol As Integer, endCol As Integer
+Dim startRw As Integer, endRw As Integer, WrkRow As Integer
 Dim CharKeep As Integer
 Dim Orig As String, OrigFmt As String, FormatArchive As String
 Dim NewValue As String
@@ -664,61 +545,65 @@ WrkRow = Selection.Row
     startCol = T_LossGainStart
     endCol = T_LossGainEnd
     End If
-
-'CHECK FOR NON HEADER ROWS
-CheckTemplateRow (WrkRow)
-
-    ' Toggles between active and inactive
-    For i = startCol To endCol
     
-        ' If currently inactive, toggle active. Looks for [,"\*] within formula.
-        If InStr(1, Cells(WrkRow, i).Formula, ",""\*") <> 0 Then
-            Orig = Cells(WrkRow, i).Formula
-            Dim Pos1 As Integer, Pos2_1 As Integer
-            Pos1 = 7
-            Pos2_1 = InStr(1, Orig, ",""\*") - Pos1 'looks for position of [,"\*]
-            NewValue = Mid(Orig, Pos1, Pos2_1)
-            
-            ' Whether original cell value was a formula or not
-            If Mid(Orig, InStr(1, Orig, "T(N(") + 4, 1) = 1 Then
-                Cells(WrkRow, i).Value = NewValue
-            Else
-                Cells(WrkRow, i).Value = "=" & NewValue
-            End If
-                
-        ' If cell is not empty, toggle inactive
-        ElseIf IsEmpty(Cells(WrkRow, i)) = False Then
-            
-            ' If cell is not empty, and is a formula
-            If Left(Cells(WrkRow, i).Formula, 1) = "=" Then
-                Orig = Cells(WrkRow, i).Formula
-                CharKeep = 2
-            
-            ' If cell is not empty, but isn't a formula
-            Else
-                Orig = Cells(WrkRow, i).Value
-                CharKeep = 1
-                
-            End If
-            ' Take current cell value/formula and rework to new commented formula
-            OrigFmt = Cells(WrkRow, i).NumberFormat
-            FormatArchive = Replace(OrigFmt, """", """""")
-            FormatArchive = "\*" & FormatArchive & "\*;\*-" & FormatArchive _
-                & "\*;\*" & FormatArchive & "\*"
-            
-            ' The following is a janky work-around way of keeping information
-            ' within the cell formula. Arg [CharKeep] has the unintended side
-            ' effect of storing whether the original cell was a formula or a
-            ' simple value. The "&T(N(xxx))" method used store the value in the
-            ' formula, and is such a roundabout method because the displayed cell
-            ' result is text, not a number.
-            Cells(WrkRow, i).Value = "=TEXT(" & Mid(Orig, CharKeep) & ",""" & _
-                FormatArchive & """)" & "&T(N(" & CharKeep & "))"
-                
-        End If
-        
-    Next i
+startRw = Selection.Row
+endRw = Selection.Row + Selection.Rows.Count - 1
+'CHECK FOR NON HEADER ROWS
+CheckTemplateRow (startRw)
 
+    For WrkRow = startRw To endRw
+        ' Toggles between active and inactive
+        For i = startCol To endCol
+        
+            ' If currently inactive, toggle active. Looks for [,"\*] within formula.
+            If InStr(1, Cells(WrkRow, i).Formula, ",""\*") <> 0 Then
+                Orig = Cells(WrkRow, i).Formula
+                Dim Pos1 As Integer, Pos2_1 As Integer
+                Pos1 = 7
+                Pos2_1 = InStr(1, Orig, ",""\*") - Pos1 'looks for position of [,"\*]
+                NewValue = Mid(Orig, Pos1, Pos2_1)
+                
+                ' Whether original cell value was a formula or not
+                If Mid(Orig, InStr(1, Orig, "T(N(") + 4, 1) = 1 Then
+                    Cells(WrkRow, i).Value = NewValue
+                Else
+                    Cells(WrkRow, i).Value = "=" & NewValue
+                End If
+                    
+            ' If cell is not empty, toggle inactive
+            ElseIf IsEmpty(Cells(WrkRow, i)) = False Then
+                
+                ' If cell is not empty, and is a formula
+                If Left(Cells(WrkRow, i).Formula, 1) = "=" Then
+                    Orig = Cells(WrkRow, i).Formula
+                    CharKeep = 2
+                
+                ' If cell is not empty, but isn't a formula
+                Else
+                    Orig = Cells(WrkRow, i).Value
+                    CharKeep = 1
+                    
+                End If
+                ' Take current cell value/formula and rework to new commented formula
+                OrigFmt = Cells(WrkRow, i).NumberFormat
+                FormatArchive = Replace(OrigFmt, """", """""")
+                FormatArchive = "\*" & FormatArchive & "\*;\*-" & FormatArchive _
+                    & "\*;\*" & FormatArchive & "\*"
+                
+                ' The following is a janky work-around way of keeping information
+                ' within the cell formula. Arg [CharKeep] has the unintended side
+                ' effect of storing whether the original cell was a formula or a
+                ' simple value. The "&T(N(xxx))" method used store the value in the
+                ' formula, and is such a roundabout method because the displayed cell
+                ' result is text, not a number.
+                Cells(WrkRow, i).Value = "=TEXT(" & Mid(Orig, CharKeep) & ",""" & _
+                    FormatArchive & """)" & "&T(N(" & CharKeep & "))"
+                    
+            End If
+            
+        Next i
+    Next WrkRow
+    
 End Sub
 
 
@@ -867,7 +752,8 @@ End Sub
 ' Desc:     Sums all rows until a blank row is reached.
 ' Args:     ApplyStyleCode - String that says what style to use
 '           LineDescStr - String for the T_description column
-' Comments: (1)
+' Comments: (1) !!!!! needs update to scan first active column, if using a reduced
+'           working range
 '==============================================================================
 Sub AutoSum(Optional ApplyStyleCode As String, Optional LineDescStr As String)
 Dim FindRw As Integer
@@ -882,9 +768,11 @@ Dim FoundRw As Boolean
 
 'find end of range
 FindRw = Selection.Row - 1 'one above findrw
+'TODO: set ScanCol based on active columns
 ScanCol = Selection.Column
-foudnRw = False
+FoundRw = False
 
+    'loop to find end start of calculation
     While FoundRw = False
     FindRw = FindRw - 1
     
@@ -943,7 +831,7 @@ Dim splitAddr() As String 'array for extracting elements from range
 Dim SheetName As String 'for referencing the name of the sheet
 Dim WriteRw As Integer 'first row where the result is going
 Dim Rw As Integer 'row inside loop
-Dim Col As Integer 'column inside loop
+Dim col As Integer 'column inside loop
 Dim RwStart As Integer 'first row to be coverted
 Dim RwEnd As Integer 'last row to be converted
 Dim ColStart As Integer 'first column result
@@ -1005,7 +893,7 @@ WriteRw = Selection.Row
     SetDescription "Conversion from one-thirds - " & SumAverageMode, WriteRw
     
         'loop through each column
-        For Col = ColStart To ColEnd
+        For col = ColStart To ColEnd
         
         targetRange = Range(Cells(Rw, refCol), _
             Cells(Rw, refCol + 2)).Address(False, False)
@@ -1013,18 +901,18 @@ WriteRw = Selection.Row
             'build formula based on the mode
             Select Case SumAverageMode 'selected from radio boxes in form frmConvert
             Case Is = "Sum"
-            Cells(WriteRw, Col).Value = "=SPLSUM(" & SheetName & targetRange & ")"
+            Cells(WriteRw, col).Value = "=SPLSUM(" & SheetName & targetRange & ")"
             Case Is = "Average"
-            Cells(WriteRw, Col).Value = "=AVERAGE(" & SheetName & targetRange & ")"
+            Cells(WriteRw, col).Value = "=AVERAGE(" & SheetName & targetRange & ")"
             Case Is = "Log Av"
-            Cells(WriteRw, Col).Value = "=SPLAV(" & SheetName & targetRange & ")"
+            Cells(WriteRw, col).Value = "=SPLAV(" & SheetName & targetRange & ")"
             Case Is = "TL"
-            Cells(WriteRw, Col).Value = "=TL_ThirdsToOctave(" & SheetName & targetRange & ")"
+            Cells(WriteRw, col).Value = "=TL_ThirdsToOctave(" & SheetName & targetRange & ")"
             End Select
             
         refCol = refCol + 3
         
-        Next Col
+        Next col
     WriteRw = WriteRw + 1
     Next Rw
     
@@ -1110,7 +998,7 @@ End Sub
 ' Comments: (1)
 '==============================================================================
 Sub CVT_OneThirds2Oct()
-    If IsNamedRange("TYPECODE") Then 'send to normal conversion form
+    If NamedRangeExists("TYPECODE") Then 'send to normal conversion form
     SetSheetTypeControls
     OneThirdsToOctave
     End If
@@ -1125,6 +1013,7 @@ End Sub
 ' Comments: (1)
 '==============================================================================
 Sub BuildFormula(FormulaStr, Optional IsRegen As Boolean)
+
     If IsEmpty(IsRegen) Then IsRegen = False
     
 'Debug.Print FormulaStr
@@ -1148,7 +1037,14 @@ End Sub
 Sub ExtendFunction(Optional ApplyToRegen As Boolean)
 Dim StartAddr As String
 Dim Rw As Integer
+Dim col As Integer
+Dim CopyColStart As Integer 'the copying will start here
+Dim CopyColEnd As Integer 'the copying will end here
+
+'note starting position
 StartAddr = Selection.Address
+Application.ScreenUpdating = False
+
     If T_LossGainStart < 1 Or T_LossGainEnd < 1 Then
     'public variables not defined, let's fix that
     SetSheetTypeControls
@@ -1156,19 +1052,34 @@ StartAddr = Selection.Address
     
     'loop for each row
     For Rw = Selection.Row To Selection.Row + Selection.Rows.Count - 1
+        
+        'set copying range
         If ApplyToRegen = True Then
-        Cells(Rw, T_RegenStart).Copy
-        Range(Cells(Rw, T_RegenStart), _
-            Cells(Rw, T_RegenEnd)).PasteSpecial (xlPasteFormulas)
+        CopyColStart = T_RegenStart
+        CopyColEnd = T_RegenEnd
         Else
-        Cells(Rw, T_LossGainStart).Copy
-        Range(Cells(Rw, T_LossGainStart), _
-            Cells(Rw, T_LossGainEnd)).PasteSpecial (xlPasteFormulas)
+        CopyColStart = T_LossGainStart
+        CopyColEnd = T_LossGainEnd
         End If
+        
+    Cells(Rw, CopyColStart).Copy
+        
+        'loop through columns, skiping first column
+        For col = CopyColStart + 1 To CopyColEnd
+            If Right(Cells(T_FreqRow, col).Value, 1) <> "*" Then
+            Range(Cells(Rw, col), Cells(Rw, col)).PasteSpecial (xlPasteFormulas)
+            End If
+        Next col
+        
+        'clear first column
+        If Right(Cells(T_FreqRow, CopyColStart).Value, 1) = "*" Then Cells(Rw, CopyColStart).ClearContents
+    
     Next Rw
     
 Application.CutCopyMode = False
+'go back to starting position
 Range(StartAddr).Select
+Application.ScreenUpdating = True
 End Sub
 
 '==============================================================================
@@ -1285,33 +1196,34 @@ WriteRw = Selection.Row 'start from here
     For sh = 2 To Sheets.Count
     Sheets(sh).Activate
         'check if typecode is RT
-        If IsNamedRange("RT") Then
-        
-        'hyperlink
-        FormulaStr = "=HYPERLINK(""#'" & Sheets(sh).Name & "'!A1"",""" & _
-            Sheets(sh).Name & """)"
-            'Debug.Print FormulaStr
-        
-        Sheets("SUMMARY").Cells(WriteRw, T_Description).Value = FormulaStr
+        If NamedRangeExists("TYPECODE") Then
+            If Range("TYPECODE").Value = "RT" Then
+            'hyperlink
+            FormulaStr = "=HYPERLINK(""#'" & Sheets(sh).Name & "'!A1"",""" & _
+                Sheets(sh).Name & """)"
+                'Debug.Print FormulaStr
             
-            'Values
-            For Col = 2 To 7
-            Sheets("SUMMARY").Cells(WriteRw, Col + 5).Value = _
-                "='" & Sheets(sh).Name & "'!" & Cells(29, Col + 5).Address
-            Sheets("SUMMARY").Cells(WriteRw, Col + 5).NumberFormat = "0.0"
-            Next Col
-            
-            'finishes
-            FinishesStr = ""
-            For materialrw = 13 To 24
-                If Cells(materialrw, 3).Value > 0 Then
-                FinishesStr = FinishesStr & ";" & Cells(materialrw, 5).Value
-                End If
-            Next materialrw
-            'Debug.Print FinishesStr
-            Sheets("SUMMARY").Cells(WriteRw, 16).Value = FinishesStr
-            
-        WriteRw = WriteRw + 1
+            Sheets("SUMMARY").Cells(WriteRw, T_Description).Value = FormulaStr
+                
+                'Values
+                For col = 2 To 7
+                Sheets("SUMMARY").Cells(WriteRw, col + 5).Value = _
+                    "='" & Sheets(sh).Name & "'!" & Cells(29, col + 5).Address
+                Sheets("SUMMARY").Cells(WriteRw, col + 5).NumberFormat = "0.0"
+                Next col
+                
+                'finishes
+                FinishesStr = ""
+                For materialrw = 13 To 24
+                    If Cells(materialrw, 3).Value > 0 Then
+                    FinishesStr = FinishesStr & ";" & Cells(materialrw, 5).Value
+                    End If
+                Next materialrw
+                'Debug.Print FinishesStr
+                Sheets("SUMMARY").Cells(WriteRw, 16).Value = FinishesStr
+                
+            WriteRw = WriteRw + 1
+            End If
         End If
     Next sh
 Sheets("SUMMARY").Activate
@@ -1362,8 +1274,8 @@ End Sub
 '           ValidationOptionsStr - String of options to be set
 ' Comments: (1)
 '==============================================================================
-Sub SetDataValidation(Col As Integer, ValidationOptionStr As String)
-    With Cells(Selection.Row, Col).Validation
+Sub SetDataValidation(col As Integer, ValidationOptionStr As String)
+    With Cells(Selection.Row, col).Validation
     .Delete
     .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
     xlBetween, Formula1:=ValidationOptionStr
@@ -1388,7 +1300,7 @@ End Sub
 '           append - set to TRUE to append the comment to the existing comment
 ' Comments: (1) Deletes previous comment unless append is TRUE
 '==============================================================================
-Sub InsertComment(CommentStr As String, Col As Integer, _
+Sub InsertComment(CommentStr As String, col As Integer, _
     Optional append As Boolean, Optional InputRw As Integer)
     
 Dim CheckRng As Range
@@ -1402,7 +1314,7 @@ Dim Rw As Integer
     End If
     
 'add comment with more detail
-Set CheckRng = Cells(Rw, Col)
+Set CheckRng = Cells(Rw, col)
 
     If Not CheckRng.Comment Is Nothing Then
         If append = False Then 'delete!
@@ -1417,7 +1329,20 @@ CheckRng.AddComment CommentStr
 CheckRng.Comment.Shape.TextFrame.AutoSize = True
 End Sub
 
-
+'==============================================================================
+' Name:     MarkRow
+' Author:   PS
+' Desc:     Inserts marker on column 1
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub MarkRow()
+    If Cells(Selection.Row, 1).Value = "" Then
+    Cells(Selection.Row, 1).Value = chr(174)
+    Else
+    Cells(Selection.Row, 1).ClearContents
+    End If
+End Sub
 
 
 '**************

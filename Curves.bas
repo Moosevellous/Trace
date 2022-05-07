@@ -218,7 +218,7 @@ Dim A_f As Variant
 Dim B_f As Variant
 Dim NR_f, NR As Double
 Dim NRTemp As Double
-Dim IStart, Col As Integer
+Dim IStart, col As Integer
 
     If DataTable.Rows.Count <> 1 Then
         NR_rate = "ERROR!"
@@ -239,15 +239,15 @@ B_f = Array(0.681, 0.79, 0.87, 0.93, 0.974, 1, 1.015, 1.025, 1.03)
 IStart = GetArrayIndex_OCT(fStr, 1)
     
     'Debug.Print DataTable.Columns.Count
-    For Col = 1 To DataTable.Columns.Count
-        If IsNumeric(DataTable(1, Col)) Then
-            NR_f = (DataTable(1, Col) - A_f(IStart + Col - 1)) / _
-                B_f(IStart + Col - 1) 'get the NR for that octave band
+    For col = 1 To DataTable.Columns.Count
+        If IsNumeric(DataTable(1, col)) Then
+            NR_f = (DataTable(1, col) - A_f(IStart + col - 1)) / _
+                B_f(IStart + col - 1) 'get the NR for that octave band
             If NR_f > NR Then 'if greater than highest NR found so far
                 NR = NR_f
             End If
         End If
-    Next Col
+    Next col
     
     If NR > 100 Then
         NR_rate = "OVER 100!"
@@ -376,7 +376,7 @@ Function NCrate(DataTable As Variant, Optional fStr As String)
 Dim NC As Double
 Dim freq As Double
 Dim IStart As Integer
-Dim Col As Integer
+Dim col As Integer
 Dim NCtemp As Integer
    
    If DataTable.Rows.Count <> 1 Then
@@ -402,17 +402,17 @@ IStart = GetArrayIndex_OCT(fStr, 2)
     While found = False
     'Debug.Print "Checking NC"; i
     test_freq = octaveBands(IStart)
-        For Col = 1 To DataTable.Columns.Count 'all input value
-        test_freq = octaveBands(IStart + Col - 1) 'DataTable is indexed from 1, not 0
-            If IsNumeric(DataTable(1, Col)) Then
+        For col = 1 To DataTable.Columns.Count 'all input value
+        test_freq = octaveBands(IStart + col - 1) 'DataTable is indexed from 1, not 0
+            If IsNumeric(DataTable(1, col)) Then
             'get value of curve at that band
             NC_curve_value = NCcurve(NCtemp, CStr(test_freq))
             'Debug.Print DataTable(1, Col + 1).Value; "    NCvalue: "; NC_curve_value
-                If DataTable(1, Col).Value > NC_curve_value Then
-                SumExceedances = SumExceedances + (DataTable(1, Col) - NC_curve_value)
+                If DataTable(1, col).Value > NC_curve_value Then
+                SumExceedances = SumExceedances + (DataTable(1, col) - NC_curve_value)
                 End If
             End If
-        Next Col
+        Next col
     
         'catch error
         If NCtemp > 70 Then
@@ -495,73 +495,83 @@ End Function
 '           Buildings and of Building Elements  - Part 1: Airborne Sound
 '           Insulation
 '           (2) Assumed to start at 100Hz (third oct) or 125Hz (oct) band
+'           (3) Now references the function RwCurve to centralise
+'           (4) To allow negative Rw spectra, there's now a multiplier of -1
+'               when calculating deficiencies
 '==============================================================================
 Function RwRate(DataTable As Variant, Optional Mode As String)
 
 Dim CurveIndex As Integer
 Dim SumDeficiencies As Double
 Dim Deficiencies(16) As Double 'empty array for deficiences
+Dim Multiplier As Double
+Dim MaxDeficiencies As Double
+Dim fStr As String
 
-'<-------------------------TODO - make this reference RwCurve
+'Legacy baseline curves for reference, I guess
 'Rw10 curves
-'band          100 125 160 200 250 315 400 500 630 800 1k 1.2k 1.6k 2k 2.5k 3.15k
-Rw_ThOct = Array(-9, -6, -3, 0, 3, 6, 9, 10, 11, 12, 13, 14, 14, 14, 14, 14)
-'band         125 250 500 1k  2k
-Rw_Oct = Array(-6, 3, 10, 13, 14)
+''band          100 125 160 200 250 315 400 500 630 800 1k 1.2k 1.6k 2k 2.5k 3.15k
+'Rw_ThOct = Array(-9, -6, -3, 0, 3, 6, 9, 10, 11, 12, 13, 14, 14, 14, 14, 14)
+''band         125 250 500 1k  2k
+'Rw_Oct = Array(-6, 3, 10, 13, 14)
 
 SumDeficiencies = 0
 
-CurveIndex = Rw_ThOct(7) '500 Hz band
+    'check for negative values
+    If DataTable(1) < 0 Then
+    Multiplier = -1
+    Else
+    Multiplier = 1
+    End If
 
+    'set variables for modes and build array of frequencies
     If Mode = "oct" Then
-        While SumDeficiencies <= 10
-            For y = LBound(Rw_Oct) To UBound(Rw_Oct)
-            Rw_Oct(y) = Rw_Oct(y) + 1
-            Next y
-            
-            CurveIndex = CurveIndex + 1
-        
-        SumDeficiencies = 0 'reset at each evaluation
-            
-            For x = LBound(Rw_Oct) To UBound(Rw_Oct)
-            CheckDef = Rw_Oct(x) - DataTable(x + 1) ' VBA and it's stupid 1 indexing
-                If CheckDef > 0 Then 'only positive values are deficient
-                Deficiencies(x) = CheckDef
-                Else
-                Deficiencies(x) = 0
-                End If
-            SumDeficiencies = SumDeficiencies + Deficiencies(x)
-            Next x
-    '    Debug.Print "SUM DEFICIENCIES= " & SumDeficiencies
-    '    Debug.Print "Rw = " & CurveIndex
-        Wend
-    Else 'one-third octave mode
-        While SumDeficiencies <= 32#
-        
-            'index Rw curves
-            For y = LBound(Rw_ThOct) To UBound(Rw_ThOct)
-            Rw_ThOct(y) = Rw_ThOct(y) + 1
-            Next y
-            
-            CurveIndex = CurveIndex + 1
-        
-        SumDeficiencies = 0 'reset at each evaluation
+    MaxDeficiencies = 10#
+    bands = Array("125", "250", "500", "1k", "2k")
+    Else
+    MaxDeficiencies = 32#
+    bands = Array("100", "125", "160", "200", "250", "315", "400", "500", _
+        "630", "800", "1k", "1.25k", "1.6k", "2k", "2.5k", "3.15k")
+    End If
+
+'build curve from Rw5 (500Hz band)
+CurveIndex = 5
+ReDim Rw_curve(UBound(bands))
+    For j = LBound(bands) To UBound(bands)
+    fStr = bands(j)
+    Rw_curve(j) = RwCurve(CurveIndex, fStr, Mode)
+    Next j
+
+    'Evaluate each Rw Curve
+    While SumDeficiencies <= MaxDeficiencies
     
-            For x = LBound(Rw_ThOct) To UBound(Rw_ThOct)
-            CheckDef = Rw_ThOct(x) - DataTable(x + 1) ' VBA and it's stupid 1 indexing
-                If CheckDef > 0 Then 'only positive values are deficient
-                Deficiencies(x) = CheckDef
-                Else
-                Deficiencies(x) = 0
-                End If
-            SumDeficiencies = SumDeficiencies + Deficiencies(x)
-            Next x
-'        Debug.Print "Rw = " & CurveIndex
-'        Debug.Print "SUM DEFICIENCIES= " & SumDeficiencies
-        Wend
-    End If 'end of Mode switch
+        'index Rw_curve +1dB
+        For y = LBound(bands) To UBound(bands)
+        Rw_curve(y) = Rw_curve(y) + 1
+        Next y
+        
+        CurveIndex = CurveIndex + 1
+    
+    SumDeficiencies = 0 'reset at each evaluation
+        
+        'Loop over all values and add those below the curve to the sum of deficiencies
+        For x = LBound(bands) To UBound(bands)
+        CheckDef = Rw_curve(x) - DataTable(x + 1) * Multiplier ' VBA and it's stupid 1 indexing
+            If CheckDef > 0 Then 'only positive values are deficient
+            Deficiencies(x) = CheckDef
+            Else
+            Deficiencies(x) = 0
+            End If
+        SumDeficiencies = SumDeficiencies + Deficiencies(x)
+        Next x
+'   Debug.Print "Rw = " & CurveIndex
+'   Debug.Print "SUM DEFICIENCIES= " & SumDeficiencies
+    Wend
 
 RwRate = CurveIndex - 1
+
+'don't return anything less than Rw5
+If RwRate <= 5 Then RwRate = "-"
 
 End Function
 
@@ -876,7 +886,7 @@ Dim Exceedances(16) As Long
 Dim MaxExceedance As Long
 Dim CheckDef As Long
 
-'Reference curve, from ASTM E9890-6, from 100Hz
+'Reference curve, from ASTM E989-06, from 100Hz
 'bands         100 125 160 200250315400500 630 800 1k 1.2k 1.6k 2k 2.5k 3.15k
 IIC_ThOct = Array(2, 2, 2, 2, 2, 2, 1, 0, -1, -2, -3, -6, -9, -12, -15, -18)
 
@@ -1052,19 +1062,6 @@ i = GetArrayIndex_OCT(fStr, 2)
     RCcurve = BaseCurve(i) + Delta
     End If
 
-End Function
-
-
-'==============================================================================
-' Name:     MassLaw
-' Author:   PS
-' Desc:     Calculates mass law
-' Args:     SurfaceDensity
-' Comments: (1)
-'==============================================================================
-Function MassLaw(fStr As String, SurfaceDensity As Double)
-freq = freqStr2Num(fStr)
-MassLaw = 20 * Application.WorksheetFunction.Log10(freq * SurfaceDensity) - 48
 End Function
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''

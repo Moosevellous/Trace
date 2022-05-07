@@ -4,7 +4,7 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmElbowRegen
    ClientHeight    =   7935
    ClientLeft      =   120
    ClientTop       =   465
-   ClientWidth     =   8655
+   ClientWidth     =   8655.001
    OleObjectBlob   =   "frmElbowRegen.frx":0000
    StartUpPosition =   1  'CenterOwner
 End
@@ -35,12 +35,12 @@ PreviewValues
     FlowUnitsM3ps = Me.optMetresCubed.Value 'true if m3/s
         
     'set numeric variables
-    FlowRate = ScreenInput(Me.txtFlowRate.Value)
-    PressureLoss = ScreenInput(Me.txtPressureDrop.Value)
-    ElementW = ScreenInput(Me.txtW.Value)
-    ElementH = ScreenInput(Me.txtH.Value)
-    BendCordLength = ScreenInput(Me.txtCordLength.Value)
-    ElbowRadius = ScreenInput(Me.txtRadius.Value)
+    FlowRate = CheckNumericValue(Me.txtFlowRate.Value)
+    PressureLoss = CheckNumericValue(Me.txtPressureDrop.Value)
+    ElementW = CheckNumericValue(Me.txtW.Value)
+    ElementH = CheckNumericValue(Me.txtH.Value)
+    BendCordLength = CheckNumericValue(Me.txtCordLength.Value)
+    ElbowRadius = CheckNumericValue(Me.txtRadius.Value)
     'set boolean switches
     IncludeTurbulence = Me.chkTurb.Value
     MainDuctCircular = Me.optCircular.Value
@@ -235,26 +235,28 @@ SelectControls
             'check for vanes and preview values
                 
             'vanes
-            If Me.optVanes.Value = True And IsNumeric(Me.txtCordLength.Value) Then
-            Me.txt63.Value = Round(ElbowWithVanesRegen_NEBB("63", Me.txtFlowRate.Value, Me.txtPressureDrop.Value, Me.txtW.Value, Me.txtH.Value, Me.txtCordLength.Value, Me.txtNumVanes.Value, Me.optMetresCubed.Value), 1)
-            Me.txt125.Value = Round(ElbowWithVanesRegen_NEBB("125", Me.txtFlowRate.Value, Me.txtPressureDrop.Value, Me.txtW.Value, Me.txtH.Value, Me.txtCordLength.Value, Me.txtNumVanes.Value, Me.optMetresCubed.Value), 1)
-            Me.txt250.Value = Round(ElbowWithVanesRegen_NEBB("250", Me.txtFlowRate.Value, Me.txtPressureDrop.Value, Me.txtW.Value, Me.txtH.Value, Me.txtCordLength.Value, Me.txtNumVanes.Value, Me.optMetresCubed.Value), 1)
-            Me.txt500.Value = Round(ElbowWithVanesRegen_NEBB("500", Me.txtFlowRate.Value, Me.txtPressureDrop.Value, Me.txtW.Value, Me.txtH.Value, Me.txtCordLength.Value, Me.txtNumVanes.Value, Me.optMetresCubed.Value), 1)
-            Me.txt1k.Value = Round(ElbowWithVanesRegen_NEBB("1k", Me.txtFlowRate.Value, Me.txtPressureDrop.Value, Me.txtW.Value, Me.txtH.Value, Me.txtCordLength.Value, Me.txtNumVanes.Value, Me.optMetresCubed.Value), 1)
-            Me.txt2k.Value = Round(ElbowWithVanesRegen_NEBB("2k", Me.txtFlowRate.Value, Me.txtPressureDrop.Value, Me.txtW.Value, Me.txtH.Value, Me.txtCordLength.Value, Me.txtNumVanes.Value, Me.optMetresCubed.Value), 1)
-            Me.txt4k.Value = Round(ElbowWithVanesRegen_NEBB("4k", Me.txtFlowRate.Value, Me.txtPressureDrop.Value, Me.txtW.Value, Me.txtH.Value, Me.txtCordLength.Value, Me.txtNumVanes.Value, Me.optMetresCubed.Value), 1)
-            Me.txt8k.Value = Round(ElbowWithVanesRegen_NEBB("8k", Me.txtFlowRate.Value, Me.txtPressureDrop.Value, Me.txtW.Value, Me.txtH.Value, Me.txtCordLength.Value, Me.txtNumVanes.Value, Me.optMetresCubed.Value), 1)
-            ElseIf Me.optVanes = False And IsNumeric(Me.txtRadius.Value) Then 'no vanes
-            Me.txt63.Value = Round(ElbowOrJunctionRegen_NEBB("63", Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtRadius.Value, Me.chkTurb.Value, 1, False, Me.optMetresCubed.Value), 1)
-            Me.txt125.Value = Round(ElbowOrJunctionRegen_NEBB("125", Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtRadius.Value, Me.chkTurb.Value, 1, False, Me.optMetresCubed.Value), 1)
-            Me.txt250.Value = Round(ElbowOrJunctionRegen_NEBB("250", Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtRadius.Value, Me.chkTurb.Value, 1, False, Me.optMetresCubed.Value), 1)
-            Me.txt500.Value = Round(ElbowOrJunctionRegen_NEBB("500", Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtRadius.Value, Me.chkTurb.Value, 1, False, Me.optMetresCubed.Value), 1)
-            Me.txt1k.Value = Round(ElbowOrJunctionRegen_NEBB("1k", Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtRadius.Value, Me.chkTurb.Value, 1, False, Me.optMetresCubed.Value), 1)
-            Me.txt2k.Value = Round(ElbowOrJunctionRegen_NEBB("2k", Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtRadius.Value, Me.chkTurb.Value, 1, False, Me.optMetresCubed.Value), 1)
-            Me.txt4k.Value = Round(ElbowOrJunctionRegen_NEBB("4k", Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtRadius.Value, Me.chkTurb.Value, 1, False, Me.optMetresCubed.Value), 1)
-            Me.txt8k.Value = Round(ElbowOrJunctionRegen_NEBB("8k", Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtFlowRate.Value, Me.optCircular.Value, Me.txtW.Value, Me.txtH.Value, Me.txtRadius.Value, Me.chkTurb.Value, 1, False, Me.optMetresCubed.Value), 1)
+            With Me
+            If optVanes.Value = True And IsNumeric(txtCordLength.Value) Then
+            'txtCordLengthCorrection.Value = 10 * Application.WorksheetFunction.Log(0.039 * txtCordLength)
+            txt63.Value = Round(ElbowWithVanesRegen_NEBB("63", txtFlowRate.Value, txtPressureDrop.Value, txtW.Value, txtH.Value, txtCordLength.Value, txtNumVanes.Value, optMetresCubed.Value), 1)
+            txt125.Value = Round(ElbowWithVanesRegen_NEBB("125", txtFlowRate.Value, txtPressureDrop.Value, txtW.Value, txtH.Value, txtCordLength.Value, txtNumVanes.Value, optMetresCubed.Value), 1)
+            txt250.Value = Round(ElbowWithVanesRegen_NEBB("250", txtFlowRate.Value, txtPressureDrop.Value, txtW.Value, txtH.Value, txtCordLength.Value, txtNumVanes.Value, optMetresCubed.Value), 1)
+            txt500.Value = Round(ElbowWithVanesRegen_NEBB("500", txtFlowRate.Value, txtPressureDrop.Value, txtW.Value, txtH.Value, txtCordLength.Value, txtNumVanes.Value, optMetresCubed.Value), 1)
+            txt1k.Value = Round(ElbowWithVanesRegen_NEBB("1k", txtFlowRate.Value, txtPressureDrop.Value, txtW.Value, txtH.Value, txtCordLength.Value, txtNumVanes.Value, optMetresCubed.Value), 1)
+            txt2k.Value = Round(ElbowWithVanesRegen_NEBB("2k", txtFlowRate.Value, txtPressureDrop.Value, txtW.Value, txtH.Value, txtCordLength.Value, txtNumVanes.Value, optMetresCubed.Value), 1)
+            txt4k.Value = Round(ElbowWithVanesRegen_NEBB("4k", txtFlowRate.Value, txtPressureDrop.Value, txtW.Value, txtH.Value, txtCordLength.Value, txtNumVanes.Value, optMetresCubed.Value), 1)
+            txt8k.Value = Round(ElbowWithVanesRegen_NEBB("8k", txtFlowRate.Value, txtPressureDrop.Value, txtW.Value, txtH.Value, txtCordLength.Value, txtNumVanes.Value, optMetresCubed.Value), 1)
+            ElseIf optVanes = False And IsNumeric(txtRadius.Value) Then 'no vanes
+            txt63.Value = Round(ElbowOrJunctionRegen_NEBB("63", txtFlowRate.Value, optCircular.Value, txtW.Value, txtH.Value, txtFlowRate.Value, optCircular.Value, txtW.Value, txtH.Value, txtRadius.Value, chkTurb.Value, 1, False, optMetresCubed.Value), 1)
+            txt125.Value = Round(ElbowOrJunctionRegen_NEBB("125", txtFlowRate.Value, optCircular.Value, txtW.Value, txtH.Value, txtFlowRate.Value, optCircular.Value, txtW.Value, txtH.Value, txtRadius.Value, chkTurb.Value, 1, False, optMetresCubed.Value), 1)
+            txt250.Value = Round(ElbowOrJunctionRegen_NEBB("250", txtFlowRate.Value, optCircular.Value, txtW.Value, txtH.Value, txtFlowRate.Value, optCircular.Value, txtW.Value, txtH.Value, txtRadius.Value, chkTurb.Value, 1, False, optMetresCubed.Value), 1)
+            txt500.Value = Round(ElbowOrJunctionRegen_NEBB("500", txtFlowRate.Value, optCircular.Value, txtW.Value, txtH.Value, txtFlowRate.Value, optCircular.Value, txtW.Value, txtH.Value, txtRadius.Value, chkTurb.Value, 1, False, optMetresCubed.Value), 1)
+            txt1k.Value = Round(ElbowOrJunctionRegen_NEBB("1k", txtFlowRate.Value, optCircular.Value, txtW.Value, txtH.Value, txtFlowRate.Value, optCircular.Value, txtW.Value, txtH.Value, txtRadius.Value, chkTurb.Value, 1, False, optMetresCubed.Value), 1)
+            txt2k.Value = Round(ElbowOrJunctionRegen_NEBB("2k", txtFlowRate.Value, optCircular.Value, txtW.Value, txtH.Value, txtFlowRate.Value, optCircular.Value, txtW.Value, txtH.Value, txtRadius.Value, chkTurb.Value, 1, False, optMetresCubed.Value), 1)
+            txt4k.Value = Round(ElbowOrJunctionRegen_NEBB("4k", txtFlowRate.Value, optCircular.Value, txtW.Value, txtH.Value, txtFlowRate.Value, optCircular.Value, txtW.Value, txtH.Value, txtRadius.Value, chkTurb.Value, 1, False, optMetresCubed.Value), 1)
+            txt8k.Value = Round(ElbowOrJunctionRegen_NEBB("8k", txtFlowRate.Value, optCircular.Value, txtW.Value, txtH.Value, txtFlowRate.Value, optCircular.Value, txtW.Value, txtH.Value, txtRadius.Value, chkTurb.Value, 1, False, optMetresCubed.Value), 1)
             End If
-            
+            End With
         Else
         Me.txt63.Value = "-"
         Me.txt125.Value = "-"

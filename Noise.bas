@@ -5,7 +5,7 @@ Attribute VB_Name = "Noise"
 
 'plane waves
 Public PlaneH As Double
-Public PlaneL As Double
+Public PlaneW As Double
 Public PlaneDist As Double
 
 'rooms
@@ -194,6 +194,7 @@ Rc = (S_total * alpha(bandIndex)) / (1 - alpha_av)
 
 End Function
 
+
 '==============================================================================
 ' Name:     ParallelipipedSurfaceArea
 ' Author:   PS
@@ -207,6 +208,23 @@ Function ParallelipipedSurfaceArea(L As Double, W As Double, H As Double, _
 ParallelipipedSurfaceArea = ((L + (Offset * 2)) * (W + (Offset * 2)) + _
     (W + (Offset * 2)) * (H + (Offset * 2)) + _
     (L + (Offset * 2)) * (H + (Offset * 2))) * 2
+    
+End Function
+
+'==============================================================================
+' Name:     DistancePlaneSource
+' Author:   PS
+' Desc:     Parallel box method, integrated into area correction
+' Args:     W: width of the plane source in metres
+'           H: height of the plane source in metres
+'           distance: Distance to the plane source, in metres
+' Comments: (1)
+'==============================================================================
+Function DistancePlaneSource(H As Double, W As Double, Distance As Double)
+    
+DistancePlaneSource = -10 * Application.WorksheetFunction.Log(W * H) + _
+    10 * Application.WorksheetFunction.Log( _
+    Atn((W * H) / (2 * Distance * ((W ^ 2) + (H ^ 2) + (4 * Distance ^ 2)) ^ (1 / 2)))) - 2
     
 End Function
 
@@ -299,15 +317,18 @@ If btnOkPressed = False Then End 'catch cancel
 
 SetDescription "Distance Attenuation - plane"
 
-BuildFormula "-10*LOG(" & PlaneH & "*" & _
-    PlaneL & ")+10*LOG(ATAN((" & PlaneH & "*" & PlaneL & ")/(2*" & T_ParamRng(0) & _
-    "*SQRT((" & PlaneH & "^2)+(" & PlaneL & "^2)+(4*" & T_ParamRng(0) & "^2)))))-2"
+ParameterMerge (Selection.Row)
+Cells(Selection.Row, T_ParamStart) = PlaneDist
 
+BuildFormula "DistancePlaneSource(" & PlaneH & "," & PlaneW & "," & _
+    T_ParamRng(0) & ")"
+'old version of build
+'BuildFormula "-10*LOG(" & PlaneH & "*" & _
+'    PlaneW & ")+10*LOG(ATAN((" & PlaneH & "*" & PlaneW & ")/(2*" & T_ParamRng(0) & _
+'    "*SQRT((" & PlaneH & "^2)+(" & PlaneW & "^2)+(4*" & T_ParamRng(0) & "^2)))))-2"
+InsertComment "Plane source: " & PlaneH & "m x " & PlaneW & "m", T_ParamStart, False
 SetTraceStyle "Input", True
 
-ParameterMerge (Selection.Row)
-
-Cells(Selection.Row, T_ParamStart) = PlaneDist
 SetUnits "m", T_ParamStart, 1
 
 End Sub
@@ -621,8 +642,8 @@ Sub DirectReverberantSum()
 Dim SpareRow As Integer
 Dim SpareCol As Integer
 Dim isSpace As Boolean
-Dim StartRw As Integer
-Dim EndRw As Integer
+Dim startRw As Integer
+Dim endRw As Integer
 Dim ScanCol As Integer
 Dim TopOfSheet As Boolean
 
@@ -651,21 +672,21 @@ isSpace = True
     End If
 
 'find sum range
-StartRw = Selection.Row - 1 'one above currently seelcted
+startRw = Selection.Row - 1 'one above currently seelcted
 ScanCol = Selection.Column
-    While Cells(StartRw, ScanCol).Value <> "" 'looks for blank cell
-    StartRw = StartRw - 1
-        If StartRw < 7 Then
+    While Cells(startRw, ScanCol).Value <> "" 'looks for blank cell
+    startRw = startRw - 1
+        If startRw < 7 Then
         TopOfSheet = True
         'msg = MsgBox("AutoSum Error", vbOKOnly, "ERROR")
         'End
         End If
     Wend
-StartRw = StartRw + 1
+startRw = startRw + 1
 'check if selection is in the forbidden zone
-If TopOfSheet = True Then StartRw = 7
+If TopOfSheet = True Then startRw = 7
 
-EndRw = Selection.Row - 1 'for reveberant sum
+endRw = Selection.Row - 1 'for reveberant sum
 
 '<---------------------------------------TODO: Show form and let the user see the range to be summed
 
@@ -677,8 +698,8 @@ SelectNextRow
 SetSheetTypeControls
 'Sum direct
 BuildFormula "SUM(" & _
-    Cells(StartRw, T_LossGainStart).Address(False, False) & ":" & _
-    Cells(EndRw + 1, T_LossGainStart).Address(False, False) & ")"
+    Cells(startRw, T_LossGainStart).Address(False, False) & ":" & _
+    Cells(endRw + 1, T_LossGainStart).Address(False, False) & ")"
     
 
 SetDescription "Direct component"
@@ -702,8 +723,8 @@ SelectNextRow
 
 'Sum reverb
 BuildFormula "SUM(" & _
-    Cells(StartRw, T_LossGainStart).Address(False, False) & ":" & _
-    Cells(EndRw, T_LossGainStart).Address(False, False) & "," & _
+    Cells(startRw, T_LossGainStart).Address(False, False) & ":" & _
+    Cells(endRw, T_LossGainStart).Address(False, False) & "," & _
     Cells(Selection.Row - 2, T_LossGainStart).Address(False, False) & ":" & _
     Cells(Selection.Row - 1, T_LossGainStart).Address(False, False) & ")"
 

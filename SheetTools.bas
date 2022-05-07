@@ -289,8 +289,8 @@ End Sub
 '==============================================================================
 Sub Plot()
 
-Dim StartRw As Integer
-Dim EndRw As Integer
+Dim startRw As Integer
+Dim endRw As Integer
 Dim TraceChartObj As ChartObject
 Dim XaxisTitle As String
 Dim YaxisTitle As String
@@ -311,8 +311,8 @@ Dim SeriesNo As Integer
         End If
     
     'set plot ranges
-    StartRw = Selection.Row
-    EndRw = Selection.Row + Selection.Rows.Count - 1
+    startRw = Selection.Row
+    endRw = Selection.Row + Selection.Rows.Count - 1
     
         'set X-axis title
         Select Case T_BandType
@@ -334,13 +334,13 @@ Dim SeriesNo As Integer
     'create chart
     '    Left, Top,                Width, Height
     Set TraceChartObj = ActiveSheet.ChartObjects.Add _
-        (600, Cells(StartRw, 1).Top + 5, 340, 400)
+        (600, Cells(startRw, 1).Top + 5, 340, 400)
     TraceChartObj.Chart.ChartType = xlLine
     TraceChartObj.Placement = xlFreeFloating 'don't resize with cells
     TraceChartObj.ShapeRange.Line.Visible = msoFalse
     'add series
     SeriesNo = 1
-        For plotrw = StartRw To EndRw
+        For plotrw = startRw To endRw
             'set name and values
             With TraceChartObj.Chart.SeriesCollection.NewSeries
             .Name = "=" & SheetName & Cells(plotrw, 2).Address
@@ -406,17 +406,17 @@ End Sub
 '==============================================================================
 Sub HeatMap(Optional SkipCheck As Boolean)
 Dim RowByRow As Boolean
-Dim StartRw As Integer
-Dim EndRw As Integer
+Dim startRw As Integer
+Dim endRw As Integer
 Dim SelectRw As Integer
 Dim InitialSelection As String
 
 InitialSelection = Selection.Address
 
-StartRw = Selection.Row
-EndRw = StartRw + Selection.Rows.Count - 1
+startRw = Selection.Row
+endRw = startRw + Selection.Rows.Count - 1
 
-    If StartRw = EndRw Then 'only one row
+    If startRw = endRw Then 'only one row
     RowByRow = False
     ElseIf SkipCheck = True Then
     RowByRow = False
@@ -437,11 +437,11 @@ EndRw = StartRw + Selection.Rows.Count - 1
 
 
 'clear any existing formatting
-Range(Cells(StartRw, T_Description), Cells(EndRw, T_LossGainEnd)).Select
+Range(Cells(startRw, T_Description), Cells(endRw, T_LossGainEnd)).Select
 Selection.FormatConditions.Delete
     
     If RowByRow = True Then
-        For SelectRw = StartRw To EndRw 'loop for each row
+        For SelectRw = startRw To endRw 'loop for each row
         'select one row
         Range(Cells(SelectRw, T_LossGainStart), _
             Cells(SelectRw, T_LossGainEnd)).Select
@@ -449,8 +449,8 @@ Selection.FormatConditions.Delete
         GreenYellowRed
         Next SelectRw
     Else
-    Range(Cells(StartRw, T_LossGainStart), _
-            Cells(EndRw, T_LossGainEnd)).Select
+    Range(Cells(startRw, T_LossGainStart), _
+            Cells(endRw, T_LossGainEnd)).Select
         GreenYellowRed
     End If
     
@@ -689,11 +689,26 @@ Dim Res_StartCol As Integer
 Dim Res_EndCol As Integer
 Dim Tar_StartCol As Integer
 Dim Tar_EndCol As Integer
-
+Dim AnalysisInputsString As String
+Dim PreviousInputs() As String
+Dim CheckRng As Range
 
 '<-TODO: Title row
 '<-TODO: check number of rows
-
+frmOptionsAnalysis.RefTargetRng = "'" & ActiveSheet.Name & "'!" & Selection.Address
+'check for previous run
+Set CheckRng = Cells(Selection.Row, T_Description)
+    If Not CheckRng.Comment Is Nothing Then
+    PreviousInputs = Split(CheckRng.Comment.Text, ",")
+        If UBound(PreviousInputs) = 2 Then
+            With frmOptionsAnalysis
+            .RefVar1Rng = PreviousInputs(0)
+            .RefVar2Rng = PreviousInputs(1)
+            .RefResult = PreviousInputs(2)
+            End With
+        End If
+    End If
+        
 frmOptionsAnalysis.Show
 
     If btnOkPressed = False Then End
@@ -718,6 +733,8 @@ ResultSheet = TrimSheetName(ResultSheet)
 ResultSheetType = Sheets(ResultSheet).Range("TYPECODE").Value
 CalcSheetType = Sheets(CalcSheet).Range("TYPECODE").Value
 TargetSheetType = Sheets(TargetSheet).Range("TYPECODE").Value
+'Store inputs for future use
+AnalysisInputsString = RngVar1 & "," & RngVar2 & "," & ResultRng
 
 Sheets(CalcSheet).Activate
 
@@ -747,30 +764,35 @@ Sheets(CalcSheet).Activate
         
         'Debug.Print Var1Options(S, 1) & " // " & Var2Options(a, 1)
         
-        'set description (and thereby values)
-        Range(Var1Selector).Value = Var1Options(S, 1)
-        Range(Var2Selector).Value = Var2Options(a, 1)
+            If Var1Options(S, 1) <> "" And Var2Options(a, 1) <> "" Then 'skip blank entries
+            'set description (and thereby values)
+            Range(Var1Selector).Value = Var1Options(S, 1)
+            Range(Var2Selector).Value = Var2Options(a, 1)
+            
+            'write to output
+            Sheets(TargetSheet).Cells(TargetRow, T_Description).Value = _
+                Var1Options(S, 1) & " // " & Var2Options(a, 1)
+            
+            'set ranges for Results / Target sheets
+            Res_StartCol = GetSheetTypeColumns(ResultSheetType, "LossGainStart")
+            Res_EndCol = GetSheetTypeColumns(ResultSheetType, "LossGainEnd")
+            Tar_StartCol = GetSheetTypeColumns(TargetSheetType, "LossGainStart")
+            Tar_EndCol = GetSheetTypeColumns(TargetSheetType, "LossGainEnd")
+            'results
+            ResultsAddr = Range(Cells(ResultRow, Res_StartCol), Cells(ResultRow, Res_EndCol)).Address
+            WriteAddr = Range(Cells(TargetRow, Tar_StartCol), Cells(TargetRow, Tar_EndCol)).Address '<--TODO: make input variable
+            Sheets(TargetSheet).Range(WriteAddr).Value = Range(ResultsAddr).Value
+            TargetRow = TargetRow + 1
+            End If
         
-        'write to output
-        Sheets(TargetSheet).Cells(TargetRow, T_Description).Value = _
-            Var1Options(S, 1) & " // " & Var2Options(a, 1)
-        
-        'set ranges for Results / Target sheets
-        Res_StartCol = GetSheetTypeColumns(ResultSheetType, "LossGainStart")
-        Res_EndCol = GetSheetTypeColumns(ResultSheetType, "LossGainEnd")
-        Tar_StartCol = GetSheetTypeColumns(TargetSheetType, "LossGainStart")
-        Tar_EndCol = GetSheetTypeColumns(TargetSheetType, "LossGainEnd")
-        'results
-        ResultsAddr = Range(Cells(ResultRow, Res_StartCol), Cells(ResultRow, Res_EndCol)).Address
-        WriteAddr = Range(Cells(TargetRow, Tar_StartCol), Cells(TargetRow, Tar_EndCol)).Address '<--TODO: make input variable
-        Sheets(TargetSheet).Range(WriteAddr).Value = Range(ResultsAddr).Value
-        
-        TargetRow = TargetRow + 1
         Next a
         
     Next S
     
 Sheets(TargetSheet).Activate
+
+
+InsertComment AnalysisInputsString, T_Description, False
 
     'colours are nice
     If ApplyHeatMap = True Then
@@ -778,15 +800,88 @@ Sheets(TargetSheet).Activate
         Cells(TargetRow - 1, T_LossGainStart)).Select
     HeatMap (True)
     End If
+    
 End Sub
 
 
 
+'==============================================================================
+' Name:     ApplyFreqValidation
+' Author:   PS
+' Desc:     Applies validation to frequency headers, calls conditional
+'           formatting
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub ApplyFreqValidation()
+
+Dim col As Integer
+Dim ValidationString As String
+Dim StartAddr As String
+
+StartAddr = Selection.Address 'save where the cursor is
+
+Cells(T_FreqRow, T_LossGainStart).Select
+
+    For col = T_LossGainStart To T_LossGainEnd
+        If HasDataValidation(Cells(T_FreqRow, col)) = False Then
+        ValidationString = Cells(T_FreqRow, col).Value & "," & _
+            Cells(T_FreqRow, col).Value & "*"
+        SetDataValidation col, ValidationString
+        End If
+    Next col
+    
+ApplyFreqConditionalFormat T_LossGainStart, T_LossGainEnd
+
+    If T_SheetType = "MECH" Then
+        For col = T_RegenStart To T_RegenEnd
+            If HasDataValidation(Cells(T_FreqRow, col)) = False Then
+            ValidationString = Cells(T_FreqRow, col).Value & "," & _
+                Cells(T_FreqRow, col).Value & "*"
+            SetDataValidation col, ValidationString
+            End If
+        Next col
+    ApplyFreqConditionalFormat T_RegenStart, T_RegenEnd
+    End If
+
+Range(StartAddr).Select
+
+End Sub
 
 
 
+'==============================================================================
+' Name:     ApplyFreqConditionalFormat
+' Author:   PS
+' Desc:     Applies conditinoal formatting to frequency headers
+' Args:     FirstCol - first column
+'           LastCol - final column
+' Comments: (1) Set as T_Lossgain or T_Regen variables
+'==============================================================================
+Sub ApplyFreqConditionalFormat(FirstCol As Integer, LastCol As Integer)
 
+Dim FirstBand As String
+Dim rngBands As Range
 
+'conditional formatting
+Set rngBands = Range(Cells(T_FreqRow, FirstCol), Cells(T_FreqRow, LastCol))
+rngBands.FormatConditions.Delete
+
+FirstBand = Cells(T_FreqRow, FirstCol).Address(False, False)
+
+'apply new formatting
+rngBands.FormatConditions.Add Type:=xlExpression, Formula1:= _
+        "=RIGHT(" & FirstBand & ",1)=""*"""
+rngBands.FormatConditions(rngBands.FormatConditions.Count).SetFirstPriority
+
+    With rngBands.FormatConditions(1).Font
+        .Bold = True
+        .Italic = True
+        .ThemeColor = xlThemeColorDark1
+        .TintAndShade = -0.349986266670736
+    End With
+    
+End Sub
 
 
 
