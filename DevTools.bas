@@ -91,7 +91,7 @@ frmExport.lblFolder.Caption = fldr
     
         'only export modules and forms
         If TraceComponent.Type = 1 Or TraceComponent.Type = 3 Then
-        frmExport.lblFileName.Caption = TraceComponent.Name
+        frmExport.lblFilename.Caption = TraceComponent.Name
         frmExport.Repaint
         
             If Left(TraceComponent.Name, 3) = "frm" Then 'put in forms subfolder
@@ -144,4 +144,30 @@ catch:
 Debug.Print "Error: Add-In path not found"
 End Sub
 
+
+
+'==============================================================================
+' Name:     CodeCounter
+' Author:   Kendethar (internet
+' Desc:     Counts how many lines of code are in the project
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub CodeCounter()
+
+On Error GoTo CodeLineCount_Err
+Dim CodeLineCount As Double
+Set CodeLineCount_Var = ThisWorkbook.VBProject
+
+    For Each CodeLineCount_Var In CodeLineCount_Var.VBComponents
+        CodeLineCount = CodeLineCount + CodeLineCount_Var.CodeModule.CountOfLines
+    Next
+
+CodeLineCount_Total = CodeLineCount
+
+CodeLineCount_Err:
+Set CodeLineCount_Var = Nothing
+MsgBox Format(CodeLineCount_Total, "0,0") & " lines", vbOKOnly, "One line of code, ah ah ah..."
+
+End Sub
 

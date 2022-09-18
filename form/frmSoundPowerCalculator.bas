@@ -24,15 +24,26 @@ End Sub
 
 Private Sub btnOK_Click()
 'Set public variables
-roomL = Me.txtL.Value
-roomW = Me.txtW.Value
-roomH = Me.txtH.Value
-OffsetDistance = Me.txtOffset.Value
-btnOkPressed = True
+    If IsNumeric(Me.txtL.Value) And IsNumeric(Me.txtW.Value) And IsNumeric(Me.txtH.Value) And IsNumeric(Me.txtOffset.Value) Then
+    roomL = Me.txtL.Value
+    roomW = Me.txtW.Value
+    roomH = Me.txtH.Value
+    OffsetDistance = Me.txtOffset.Value
+    btnOkPressed = True
+    End If
 Unload Me
 End Sub
 
 
+Private Sub optConformal_Click()
+lblStotal.Caption = "Conformal surface area="
+PreviewValues
+End Sub
+
+Private Sub optParallel_Click()
+lblStotal.Caption = "Parallel box surface area="
+PreviewValues
+End Sub
 
 Private Sub txtH_Change()
 PreviewValues
@@ -43,6 +54,14 @@ PreviewValues
 End Sub
 
 Private Sub txtOffset_Change()
+    If IsNumeric(Me.txtOffset.Value) Then
+        If Me.txtOffset.Value < 1 Then
+        Me.lblWarning.Visible = True
+        Else
+        Me.lblWarning.Visible = False
+        End If
+    End If
+
 PreviewValues
 End Sub
 
@@ -60,7 +79,11 @@ PreviewValues
 End Sub
 
 Sub PreviewValues()
-    If IsNumeric(Me.txtL.Value) And IsNumeric(Me.txtW.Value) And IsNumeric(Me.txtH.Value) Then
-    Me.txtStotal = ParallelipipedSurfaceArea(Me.txtL.Value, Me.txtW.Value, Me.txtH.Value, Me.txtOffset.Value)
+    If IsNumeric(Me.txtL.Value) And IsNumeric(Me.txtW.Value) And IsNumeric(Me.txtH.Value) And IsNumeric(Me.txtOffset.Value) Then
+        If Me.optConformal.Value = True Then
+        Me.txtStotal = Round(ConformalSurfaceArea(Me.txtL.Value, Me.txtW.Value, Me.txtH.Value, Me.txtOffset.Value), 1)
+        Else
+        Me.txtStotal = Round(ParallelipipedSurfaceArea(Me.txtL.Value, Me.txtW.Value, Me.txtH.Value, Me.txtOffset.Value), 1)
+        End If
     End If
 End Sub

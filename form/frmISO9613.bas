@@ -240,6 +240,10 @@ Private Sub chkDoubleDiffraction_Click()
 PreviewAbar
 End Sub
 
+Private Sub chkGroundReflections_Click()
+PreviewAbar
+End Sub
+
 Private Sub chkMultiSource_Click()
 PreviewAbar
 End Sub
@@ -389,6 +393,10 @@ PreviewAgr
 PreviewAbar
 End Sub
 
+Private Sub txtSrcToBarrierEdge_Change()
+PreviewAbar
+End Sub
+
 Private Sub UserForm_Activate()
 btnOkPressed = False
     With Me
@@ -404,11 +412,11 @@ End Sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 Sub CalcDistances()
-    If IsNumeric(Me.txtDistance) And IsNumeric(Me.txtRecToBarrier) And IsNumeric(Me.txtBarrierThickness.Value) Then
+    If IsNumeric(Me.txtDistance) And IsNumeric(Me.txtRectoBarrier) And IsNumeric(Me.txtBarrierThickness.Value) Then
         If Me.chkDoubleDiffraction = True Then
-        Me.txtRecToBarrier.Value = Me.txtDistance.Value - Me.txtSourceToBarrier.Value - Me.txtBarrierThickness
+        Me.txtRectoBarrier.Value = Me.txtDistance.Value - Me.txtSourceToBarrier.Value - Me.txtBarrierThickness
         Else
-        Me.txtRecToBarrier.Value = Me.txtDistance.Value - Me.txtSourceToBarrier.Value
+        Me.txtRectoBarrier.Value = Me.txtDistance.Value - Me.txtSourceToBarrier.Value
         End If
     End If
 End Sub
@@ -537,7 +545,7 @@ Dim G_middle As Double
     End If
     
     'calc values - round to 2 decimal places, as a string
-    If IsNumeric(Me.txtSrcHeight.Value) And IsNumeric(Me.txtRecHeight.Value) And (Me.txtDistance.Value) Then
+    If IsNumeric(Me.txtSrcHeight.Value) And IsNumeric(Me.txtRecHeight.Value) And IsNumeric(Me.txtDistance.Value) Then
     Me.txtAgr63.Value = Round(ISO9613_Agr("63", Me.txtSrcHeight.Value, Me.txtRecHeight.Value, Me.txtDistance.Value, G_source, G_receiver, G_middle), 1)
     Me.txtAgr125.Value = Round(ISO9613_Agr("125", Me.txtSrcHeight.Value, Me.txtRecHeight.Value, Me.txtDistance.Value, G_source, G_receiver, G_middle), 1)
     Me.txtAgr250.Value = Round(ISO9613_Agr("250", Me.txtSrcHeight.Value, Me.txtRecHeight.Value, Me.txtDistance.Value, G_source, G_receiver, G_middle), 1)
@@ -553,16 +561,39 @@ Sub PreviewAbar()
 CalcDistances
     'preview values
     If CheckAbarInputs = True Then
+    
     Me.txtAbar63.Value = Round(ISO9613_Abar("63", Me.txtSrcHeight.Value, Me.txtRecHeight.Value, Me.txtDistance.Value, Me.txtSourceToBarrier.Value, Me.txtSrcToBarrierEdge.Value, _
-    Me.txtRecToBarrierEdge.Value, Me.txtBarrierHeight.Value, Me.chkDoubleDiffraction.Value, Me.txtBarrierThickness.Value, Me.txtBarrierHeightRec.Value, Me.chkMultiSource.Value, _
-    Me.txtAgr63.Value), 1)
-    Me.txtAbar125.Value = Round(ISO9613_Abar("125", Me.txtSrcHeight.Value, Me.txtRecHeight.Value, Me.txtDistance.Value, Me.txtSourceToBarrier.Value, Me.txtSrcToBarrierEdge.Value, Me.txtRecToBarrierEdge.Value, Me.txtBarrierHeight.Value, Me.chkDoubleDiffraction.Value, Me.txtBarrierThickness.Value, Me.txtBarrierHeightRec.Value, Me.chkMultiSource.Value, Me.txtAgr125.Value), 1)
-    Me.txtAbar250.Value = Round(ISO9613_Abar("250", Me.txtSrcHeight.Value, Me.txtRecHeight.Value, Me.txtDistance.Value, Me.txtSourceToBarrier.Value, Me.txtSrcToBarrierEdge.Value, Me.txtRecToBarrierEdge.Value, Me.txtBarrierHeight.Value, Me.chkDoubleDiffraction.Value, Me.txtBarrierThickness.Value, Me.txtBarrierHeightRec.Value, Me.chkMultiSource.Value, Me.txtAgr250.Value), 1)
-    Me.txtAbar500.Value = Round(ISO9613_Abar("500", Me.txtSrcHeight.Value, Me.txtRecHeight.Value, Me.txtDistance.Value, Me.txtSourceToBarrier.Value, Me.txtSrcToBarrierEdge.Value, Me.txtRecToBarrierEdge.Value, Me.txtBarrierHeight.Value, Me.chkDoubleDiffraction.Value, Me.txtBarrierThickness.Value, Me.txtBarrierHeightRec.Value, Me.chkMultiSource.Value, Me.txtAgr500.Value), 1)
-    Me.txtAbar1k.Value = Round(ISO9613_Abar("1k", Me.txtSrcHeight.Value, Me.txtRecHeight.Value, Me.txtDistance.Value, Me.txtSourceToBarrier.Value, Me.txtSrcToBarrierEdge.Value, Me.txtRecToBarrierEdge.Value, Me.txtBarrierHeight.Value, Me.chkDoubleDiffraction.Value, Me.txtBarrierThickness.Value, Me.txtBarrierHeightRec.Value, Me.chkMultiSource.Value, Me.txtAgr1k.Value), 1)
-    Me.txtAbar2k.Value = Round(ISO9613_Abar("2k", Me.txtSrcHeight.Value, Me.txtRecHeight.Value, Me.txtDistance.Value, Me.txtSourceToBarrier.Value, Me.txtSrcToBarrierEdge.Value, Me.txtRecToBarrierEdge.Value, Me.txtBarrierHeight.Value, Me.chkDoubleDiffraction.Value, Me.txtBarrierThickness.Value, Me.txtBarrierHeightRec.Value, Me.chkMultiSource.Value, Me.txtAgr2k.Value), 1)
-    Me.txtAbar4k.Value = Round(ISO9613_Abar("4k", Me.txtSrcHeight.Value, Me.txtRecHeight.Value, Me.txtDistance.Value, Me.txtSourceToBarrier.Value, Me.txtSrcToBarrierEdge.Value, Me.txtRecToBarrierEdge.Value, Me.txtBarrierHeight.Value, Me.chkDoubleDiffraction.Value, Me.txtBarrierThickness.Value, Me.txtBarrierHeightRec.Value, Me.chkMultiSource.Value, Me.txtAgr4k.Value), 1)
-    Me.txtAbar8k.Value = Round(ISO9613_Abar("8k", Me.txtSrcHeight.Value, Me.txtRecHeight.Value, Me.txtDistance.Value, Me.txtSourceToBarrier.Value, Me.txtSrcToBarrierEdge.Value, Me.txtRecToBarrierEdge.Value, Me.txtBarrierHeight.Value, Me.chkDoubleDiffraction.Value, Me.txtBarrierThickness.Value, Me.txtBarrierHeightRec.Value, Me.chkMultiSource.Value, Me.txtAgr8k.Value), 1)
+        Me.txtRecToBarrierEdge.Value, Me.txtBarrierHeight.Value, Me.chkDoubleDiffraction.Value, Me.txtBarrierThickness.Value, Me.txtBarrierHeightRec.Value, Me.chkMultiSource.Value, _
+        Me.txtAgr63.Value), 1)
+        
+    Me.txtAbar125.Value = Round(ISO9613_Abar("125", Me.txtSrcHeight.Value, Me.txtRecHeight.Value, Me.txtDistance.Value, Me.txtSourceToBarrier.Value, Me.txtSrcToBarrierEdge.Value, _
+        Me.txtRecToBarrierEdge.Value, Me.txtBarrierHeight.Value, Me.chkDoubleDiffraction.Value, Me.txtBarrierThickness.Value, Me.txtBarrierHeightRec.Value, Me.chkMultiSource.Value, _
+        Me.txtAgr125.Value), 1)
+        
+    Me.txtAbar250.Value = Round(ISO9613_Abar("250", Me.txtSrcHeight.Value, Me.txtRecHeight.Value, Me.txtDistance.Value, Me.txtSourceToBarrier.Value, Me.txtSrcToBarrierEdge.Value, _
+        Me.txtRecToBarrierEdge.Value, Me.txtBarrierHeight.Value, Me.chkDoubleDiffraction.Value, Me.txtBarrierThickness.Value, Me.txtBarrierHeightRec.Value, Me.chkMultiSource.Value, _
+        Me.txtAgr250.Value), 1)
+        
+    Me.txtAbar500.Value = Round(ISO9613_Abar("500", Me.txtSrcHeight.Value, Me.txtRecHeight.Value, Me.txtDistance.Value, Me.txtSourceToBarrier.Value, Me.txtSrcToBarrierEdge.Value, _
+        Me.txtRecToBarrierEdge.Value, Me.txtBarrierHeight.Value, Me.chkDoubleDiffraction.Value, Me.txtBarrierThickness.Value, Me.txtBarrierHeightRec.Value, Me.chkMultiSource.Value, _
+        Me.txtAgr500.Value), 1)
+        
+    Me.txtAbar1k.Value = Round(ISO9613_Abar("1k", Me.txtSrcHeight.Value, Me.txtRecHeight.Value, Me.txtDistance.Value, Me.txtSourceToBarrier.Value, Me.txtSrcToBarrierEdge.Value, _
+        Me.txtRecToBarrierEdge.Value, Me.txtBarrierHeight.Value, Me.chkDoubleDiffraction.Value, Me.txtBarrierThickness.Value, Me.txtBarrierHeightRec.Value, Me.chkMultiSource.Value, _
+        Me.txtAgr1k.Value), 1)
+        
+    Me.txtAbar2k.Value = Round(ISO9613_Abar("2k", Me.txtSrcHeight.Value, Me.txtRecHeight.Value, Me.txtDistance.Value, Me.txtSourceToBarrier.Value, Me.txtSrcToBarrierEdge.Value, _
+        Me.txtRecToBarrierEdge.Value, Me.txtBarrierHeight.Value, Me.chkDoubleDiffraction.Value, Me.txtBarrierThickness.Value, Me.txtBarrierHeightRec.Value, Me.chkMultiSource.Value, _
+        Me.txtAgr2k.Value), 1)
+        
+    Me.txtAbar4k.Value = Round(ISO9613_Abar("4k", Me.txtSrcHeight.Value, Me.txtRecHeight.Value, Me.txtDistance.Value, Me.txtSourceToBarrier.Value, Me.txtSrcToBarrierEdge.Value, _
+        Me.txtRecToBarrierEdge.Value, Me.txtBarrierHeight.Value, Me.chkDoubleDiffraction.Value, Me.txtBarrierThickness.Value, Me.txtBarrierHeightRec.Value, Me.chkMultiSource.Value, _
+        Me.txtAgr4k.Value), 1)
+        
+    Me.txtAbar8k.Value = Round(ISO9613_Abar("8k", Me.txtSrcHeight.Value, Me.txtRecHeight.Value, Me.txtDistance.Value, Me.txtSourceToBarrier.Value, Me.txtSrcToBarrierEdge.Value, _
+        Me.txtRecToBarrierEdge.Value, Me.txtBarrierHeight.Value, Me.chkDoubleDiffraction.Value, Me.txtBarrierThickness.Value, Me.txtBarrierHeightRec.Value, Me.chkMultiSource.Value, _
+        Me.txtAgr8k.Value), 1)
+        
     End If
     
 End Sub

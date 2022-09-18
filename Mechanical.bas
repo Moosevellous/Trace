@@ -317,10 +317,10 @@ Function DuctAttenCircular_Reynolds(fStr As String, dia As Double, _
 thickness As Double, L As Double)
 
 'declare Arrays from Table 5.7 of NEBB book
-D1 = Array(0.1, 0.1, 0.16, 0.16, 0.33, 0.33, 0.33)
-D2 = Array(0.1, 0.1, 0.1, 0.16, 0.23, 0.23, 0.23)
-D3 = Array(0.07, 0.07, 0.07, 0.1, 0.16, 0.16, 0.16)
-D4 = Array(0.03, 0.03, 0.03, 0.07, 0.07, 0.07, 0.07)
+d1 = Array(0.1, 0.1, 0.16, 0.16, 0.33, 0.33, 0.33)
+d2 = Array(0.1, 0.1, 0.1, 0.16, 0.23, 0.23, 0.23)
+d3 = Array(0.07, 0.07, 0.07, 0.1, 0.16, 0.16, 0.16)
+d4 = Array(0.03, 0.03, 0.03, 0.07, 0.07, 0.07, 0.07)
 
 'declare Arrays from Table 5.8 of NEBB book
 'bands     63      125     250     500     1k     2k    4k   8k
@@ -343,13 +343,13 @@ i = GetArrayIndex_OCT(fStr) '63Hz is element 0
         'choose diameter in mm
         Select Case dia
         Case Is <= 180
-        DuctAttenCircular_Reynolds = D1(i) * L * -1
+        DuctAttenCircular_Reynolds = d1(i) * L * -1
         Case Is <= 381
-        DuctAttenCircular_Reynolds = D2(i) * L * -1
+        DuctAttenCircular_Reynolds = d2(i) * L * -1
         Case Is <= 762
-        DuctAttenCircular_Reynolds = D3(i) * L * -1
+        DuctAttenCircular_Reynolds = d3(i) * L * -1
         Case Is <= 1524
-        DuctAttenCircular_Reynolds = D4(i) * L * -1
+        DuctAttenCircular_Reynolds = d4(i) * L * -1
         Case Is > 1524
         DuctAttenCircular_Reynolds = "-"
         End Select
@@ -638,6 +638,7 @@ End Function
 '           dia - duct diameter in mm
 '           L - duct length in m
 ' Comments: (1) locked to values in text file, no interpolation
+'           (2) added found=true after a value is matched
 '==============================================================================
 Function FlexDuctAtten_ASHRAE(freq As String, dia As Integer, L As Double)
 
@@ -700,6 +701,8 @@ i = 0 '<-line number
                     Case Else
                     FlexDuctAtten_ASHRAE = ""
                     End Select
+                'escape the loop!
+                found = True
                 End If
         End If
     i = i + 1
@@ -2148,7 +2151,7 @@ End Function
 ' Author:   AA
 ' Desc:     Calculates elbow (with vanes) regenerated noise according to the
 '           NEBB method.
-' Args:     fstr - Octave band centre frequency (Hz, string)
+' Args:     fStr - Octave band centre frequency (Hz, string)
 '           FlowRate - volumetric flow rate (L/s, double)
 '           dP - delta Pressure, i.e. drop across damper (Pa, double)
 '           DuctWidth - Duct Width normal to vane axis (mm, double)
@@ -2219,7 +2222,7 @@ End Function
 ' Author:   AA
 ' Desc:     Calculates elbow (without vanes) or junction regenerated noise
 '           according to the NEBB method.
-' Args:     fstr - Octave band centre frequency (Hz, string)
+' Args:     fStr - Octave band centre frequency (Hz, string)
 '           FlowRate - main duct volumetric flow rate (L/s)
 '           IsMainCircular - set to TRUE if the main duct is circular
 '           DuctWidth - diameter or width of main duct (mm, Double)
@@ -2365,7 +2368,7 @@ End Function
 ' Name:     RegenDiffuser_NEBB
 ' Author:   AA
 ' Desc:     Calculates diffuser regenerated noise according to the NEBB method.
-' Args:     fstr - Octave band centre frequency (Hz, string)
+' Args:     fStr - Octave band centre frequency (Hz, string)
 '           dP - pressure drop across a diffuser (Pa)
 '           Q - volume flow rate (L/s)
 '           DW - width (mm, double).
@@ -2470,7 +2473,7 @@ End Function
 ' Author:   PS
 ' Desc:     Inserts directivity for a louvre or grille according to Noise
 '           Control In Building Services - Sound Research Laboratories
-' Args:     fstr - Octave band centre frequency (Hz, string)
+' Args:     fStr - Octave band centre frequency (Hz, string)
 '           WidthOrHeight - of louvre in metres
 '           Angle - Theta in degrees
 ' Comments: (1)
@@ -2513,7 +2516,12 @@ ThetaCol = 999 'for checking
     End If
 
     Do Until EOF(1) Or foundValue = True
+    
+    'read in line from text file
     Line Input #1, ReadStr
+    Debug.Print ReadStr
+    
+    'split into elements
     SplitStr = Split(ReadStr, vbTab, Len(ReadStr), vbTextCompare)
 
         If Left(SplitStr(0), 1) = "*" Then
@@ -2574,7 +2582,9 @@ ParameterUnmerge (Selection.Row)
     If ductMethod = "Reynolds" Then
     Cells(Selection.Row, T_ParamStart) = ductLiningThickness
     InsertComment "Duct lining thickness", T_ParamStart, False
+    InsertComment "Duct length", T_ParamStart + 1, False
     SetUnits "mm", T_ParamStart, 0
+    
         If InStr(1, ductShape, "R", vbTextCompare) > 0 Then 'rectangular duct
         BuildFormula "DuctAtten_Reynolds(" & _
             T_FreqStartRng & "," & ductH & "," & ductW & "," & T_ParamRng(0) & _
@@ -2586,6 +2596,7 @@ ParameterUnmerge (Selection.Row)
         Else
         ErrorUnexpectedValue
         End If
+        
     ElseIf ductMethod = "ASHRAE" Then
     SetDataValidation T_ParamStart, "0 R,0 C,25 R,50 R,25 C,50 C"
     BuildFormula "DuctAtten_ASHRAE(" & _
@@ -2594,6 +2605,7 @@ ParameterUnmerge (Selection.Row)
     Cells(Selection.Row, T_ParamStart) = ductShape
     Cells(Selection.Row, T_ParamStart).NumberFormat = xlGeneral
     InsertComment TXT_HEAD & chr(10) & TXT_RAW, T_ParamStart, False
+    
     ElseIf ductMethod = "SRL" Then
     SetDataValidation T_ParamStart, "R,C"
     'note, ductH hold diameter
@@ -2602,6 +2614,7 @@ ParameterUnmerge (Selection.Row)
         "," & T_ParamRng(1) & ")"
     Cells(Selection.Row, T_ParamStart) = Right(ductShape, 1)
     InsertComment TXT_HEAD & chr(10) & TXT_RAW, T_ParamStart, False
+    
     Else
     'unrecognised method
     End If
@@ -2664,6 +2677,8 @@ frmDuctSplit.Show
     End If
 
     If T_BandType <> "oct" Then ErrorOctOnly
+    
+    ''''''''''''''''''''''''''''''''''''''''
     
     Select Case ductSplitType
     
@@ -2907,6 +2922,12 @@ End Sub
 ' Comments: (1) This one's a doozy
 '==============================================================================
 Sub PutPlenumLoss()
+
+'Todo: extract ALL the things and put them in the form
+'this was used previously?
+'InStr(1, Cells(Selection.Row - 1, T_LossGainStart + 5).Formula, _
+        "DuctAtten_ASHRAE", vbTextCompare) > 0
+'maybe put in its own function???
 
 frmPlenum.Show
 

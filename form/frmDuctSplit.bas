@@ -65,7 +65,7 @@ Me.txtW1.Enabled = True
 Me.txtW2.Enabled = True
 Me.lblEqn.Enabled = True
 Me.lblAtten.Enabled = True
-Me.lblDB.Enabled = True
+Me.lbldb.Enabled = True
 Me.optA1Circular.Enabled = True
 Me.optA1Rectangular.Enabled = True
 Me.optA2Circular.Enabled = True
@@ -91,7 +91,7 @@ Me.txtW1.Enabled = False
 Me.txtW2.Enabled = False
 Me.lblEqn.Enabled = False
 Me.lblAtten.Enabled = False
-Me.lblDB.Enabled = False
+Me.lbldb.Enabled = False
 Me.optA1Circular.Enabled = False
 Me.optA1Rectangular.Enabled = False
 Me.optA2Circular.Enabled = False
@@ -118,7 +118,7 @@ Me.txtW1.Enabled = False
 Me.txtW2.Enabled = False
 Me.lblEqn.Enabled = False
 Me.lblAtten.Enabled = False
-Me.lblDB.Enabled = False
+Me.lbldb.Enabled = False
 Me.optA1Circular.Enabled = False
 Me.optA1Rectangular.Enabled = False
 Me.optA2Circular.Enabled = False
@@ -217,8 +217,8 @@ End Sub
 Private Sub CalcDuctAreas()
 Dim A1 As Single
 Dim A2 As Single
-Dim P1 As Double
-Dim P2 As Double
+Dim p1 As Double
+Dim p2 As Double
 Dim Ratio As Double
 Dim Atten As Double
     
@@ -248,12 +248,12 @@ Dim Atten As Double
     End If
     
     If optPercentageSplit.Value = True Then
-    P1 = CDbl(txtP1.Value)
-    P2 = CDbl(txtP2.Value)
-        If P1 = 0 Then
+    p1 = CDbl(txtP1.Value)
+    p2 = CDbl(txtP2.Value)
+        If p1 = 0 Then
         Atten = 0
         Else
-        Atten = 10 * Application.WorksheetFunction.Log10(P1 / 100)
+        Atten = 10 * Application.WorksheetFunction.Log10(p1 / 100)
         End If
     lblAttenP = CStr(Round(Atten, 0))
     End If

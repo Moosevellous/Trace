@@ -45,6 +45,7 @@ Unload Me
 End Sub
 
 Sub SelectPower()
+'static values
     If Me.optUpTo1_5kW.Value = True Then
     Me.txt31.Value = 82
     Me.txt63.Value = 81

@@ -60,6 +60,56 @@ Cells(3, 3).Value = _
 End Sub
 
 '==============================================================================
+' Name:     FillHeaderBlockAll
+' Author:   PS
+' Desc:     Loops through all sheets and fills in headers
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub FillHeaderBlockAll()
+
+Dim StartSheet As String
+
+    If T_SheetType = "NR1L" Or T_SheetType = "R2R" Or T_SheetType = "N1L" Or _
+        T_SheetType = "BA" Then '<-TODO make this more flexible
+    msg = MsgBox("Header block not supported for Sheet Type '" & _
+        T_SheetType & "'", vbOKOnly, "Error - header block")
+    End
+    End If
+
+StartSheet = ActiveSheet.Name
+
+'Project No and Name
+GetProjectInfoHTML
+
+    For sh = 1 To ActiveWorkbook.Sheets.Count
+
+    Sheets(sh).Activate
+        
+        'check for typecode, which means there's a header block
+        If NamedRangeExists("TYPECODE", True) Then
+        'todo: check for header block in sheet?
+
+        Cells(1, 3).Value = PROJECTNO
+        Cells(2, 3).Value = PROJECTNAME
+        'Date
+        Cells(1, 10).Value = Now
+        'Engineer
+            If ENGINEER = "" Then Update_ENGINEER
+        Cells(2, 11).Value = ENGINEER
+        'Description
+        Cells(3, 3).Value = _
+            "=MID(CELL(""filename"",A1),FIND(""]"",CELL(""filename"",A1))+1,255)"
+        End If
+
+    Next sh
+
+'go back to where you started
+Sheets(StartSheet).Activate
+
+End Sub
+
+'==============================================================================
 ' Name:     ClearHeaderBlock
 ' Author:   PS
 ' Desc:     Clear project info in the header block
@@ -298,6 +348,8 @@ Dim TraceChartTitle As String
 Dim SheetName As String
 Dim SeriesNameStr As String
 Dim SeriesNo As Integer
+Dim DefaultWidth As Integer
+Dim DefaultHeight As Integer
 
     'catch if chart is already selected, build chart if not
     If ActiveChart Is Nothing Then
@@ -331,10 +383,14 @@ Dim SeriesNo As Integer
         YaxisTitle = "Sound Pressure Level, dB"
         End If
     
-    'create chart
+
+    DefaultHeight = Application.CentimetersToPoints(14)
+    DefaultWidth = Application.CentimetersToPoints(19)
+    
+        'create chart
     '    Left, Top,                Width, Height
     Set TraceChartObj = ActiveSheet.ChartObjects.Add _
-        (600, Cells(startRw, 1).Top + 5, 340, 400)
+        (600, Cells(startRw, 1).Top + 5, DefaultWidth, DefaultHeight)
     TraceChartObj.Chart.ChartType = xlLine
     TraceChartObj.Placement = xlFreeFloating 'don't resize with cells
     TraceChartObj.ShapeRange.Line.Visible = msoFalse
@@ -359,7 +415,7 @@ Dim SeriesNo As Integer
         With TraceChartObj.Chart
         
         'legend
-        .Legend.Position = xlLegendPositionBottom
+        .Legend.Position = xlLegendPositionRight
         .Legend.Font.size = 9
         .SetElement (msoElementPrimaryCategoryAxisTitleBelowAxis)
         .SetElement (msoElementPrimaryValueAxisTitleBelowAxis)

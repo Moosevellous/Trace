@@ -7,7 +7,7 @@ Attribute VB_Name = "Curves"
 ' Name:     AWeightCorrections
 ' Author:   PS
 ' Desc:     Returns the A-weighting corrections in one-thrd octave bands
-' Args:     fstr (frequency band)
+' Args:     fStr (frequency band)
 ' Comments: (1) From 10Hz to 20kHz
 '==============================================================================
 Function AWeightCorrections(fStr As String)
@@ -50,7 +50,7 @@ End Function
 ' Name:     CWeightCorrections
 ' Author:   PS
 ' Desc:     Returns the C-weighting corrections in one-thrd octave bands
-' Args:     fstr (frequency band)
+' Args:     fStr (frequency band)
 ' Comments: (1) From 10Hz to 20kHz
 '==============================================================================
 Function CWeightCorrections(fStr As String)
@@ -96,7 +96,7 @@ End Function
 ' Name:     NRcurve
 ' Author:   PS
 ' Desc:     Returns the values of the NR curve, at CurveNo
-' Args:     CurveNo (name/number of the curve) fstr (frequency band)
+' Args:     CurveNo (name/number of the curve) fStr (frequency band)
 ' Comments: (1) Based on AS1469 - Acoustics - Methods for the determination of
 '           noise rating numbers
 '==============================================================================
@@ -125,7 +125,7 @@ End Function
 ' Name:     PNCcurve
 ' Author:   PS
 ' Desc:     Returns the value of the PNC curve at that frequency band
-' Args:     fstr, the frequency band centre frequency as a string, CurveNo the
+' Args:     fStr, the frequency band centre frequency as a string, CurveNo the
 '           index number of the curve
 ' Comments: (1) Based on someone else's code I think?
 '==============================================================================
@@ -209,7 +209,7 @@ End Function
 ' Author:   PS
 ' Desc:     Rates an input spectrum against NR curves and returns the rating
 ' Args:     DataTable the spectrum to be rated, assumed to start at 31.5Hz band
-'           fstr, the starting frequency
+'           fStr, the starting frequency
 ' Comments: (1) Based on AS1469 - Acoustics - Methods for the determination of
 '           noise rating numbers
 '==============================================================================
@@ -261,7 +261,7 @@ End Function
 ' Author:   PS
 ' Desc:     Returns the value of the NC curve at input freuqency. Calls
 '           InterpolateNCcurve is curve is not defined in ANSI S12.2
-' Args:     CurveNo, the index number of the NC curve, fstr, the frequency band
+' Args:     CurveNo, the index number of the NC curve, fStr, the frequency band
 '           as a string
 ' Comments: (1) Based on ANSI S12.2 2008
 '==============================================================================
@@ -335,7 +335,7 @@ End Function
 ' Author:   PS
 ' Desc:     Returns the value of the interpolated NC curve at input freuqency
 ' Args:     CurveNo, the index number of the NC curve,
-'           fstr, the frequency band as a string
+'           fStr, the frequency band as a string
 ' Comments: (1) Based on ANSI S12.2 2008
 '==============================================================================
 Function InterpolateNCcurve(CurveNo As Integer, fStr As String)
@@ -368,7 +368,7 @@ End Function
 ' Author:   PS
 ' Desc:     Rates the input spectrum against the NC curve
 ' Args:     DataTable - the spectrum to be rated, assumed to start at 16Hz band
-'           Optional fstr, the starting frequency band
+'           Optional fStr, the starting frequency band
 ' Comments: (1) Calls NCcurve for values
 '==============================================================================
 Function NCrate(DataTable As Variant, Optional fStr As String)
@@ -436,8 +436,8 @@ End Function
 '==============================================================================
 ' Name:     RwCurve
 ' Author:   PS
-' Desc:     Returns the value of the RwCurve at frequency fstr
-' Args:     CurveNo (index at 500Hz band), fstr(frequency band), Mode (can
+' Desc:     Returns the value of the RwCurve at frequency fStr
+' Args:     CurveNo (index at 500Hz band), fStr(frequency band), Mode (can
 '           optionally set to 'oct' mode)
 ' Comments: (1) Based on ISO717.1 - Acoustics Rating of Sound Insulation in
 '           Buildings and of Building Elements  - Part 1: Airborne Sound
@@ -603,13 +603,50 @@ PartialSum = 0
         PartialSum = PartialSum + (10 ^ ((Ctr_Oct(i) - DataTable(i + 1)) / 10)) ' VBA and it's stupid 1 indexing
         Next i
     Else 'One third octave band mode
-        For i = 0 To 15
+        For i = LBound(Ctr_ThOct) To UBound(Ctr_ThOct)
         PartialSum = PartialSum + (10 ^ ((Ctr_ThOct(i) - DataTable(i + 1)) / 10)) ' VBA and it's stupid 1 indexing
         Next i
     End If
     
 a = Round(-10 * Application.WorksheetFunction.Log10(PartialSum), 0)
 CtrRate = a - Rw
+End Function
+
+'==============================================================================
+' Name:     CRate
+' Author:   PS
+' Desc:     Rates the input data against the C curves and returns the single
+'           value rating.
+' Args:     DataTable (spectrum of TLs), rw (Rating curve from RwRate,
+'           Mode (can optionally set to 'oct' mode)
+' Comments: (1) Based on ISO717.1 - Acoustics Rating of Sound Insulation in
+'           Buildings and of Building Elements  - Part 1: Airborne Sound
+'           Insulation
+'==============================================================================
+Function CRate(DataTable As Variant, Rw As Integer, Optional Mode As String)
+Dim i As Integer
+Dim PartialSum As Double
+Dim a As Double
+'curves from ISO717.1
+'band             100  125  160  200  250  315  400  500  630  800 1k  1.2k 1.6k 2k 2.5k 3.15k
+C_ThOct = Array(-29, -26, -23, -21, -19, -17, -15, -13, -12, -11, -10, -9, -9, -9, -9, -9) 'as per ISO717-1
+'band           125  250  500 1k  2k
+C_Oct = Array(-21, -14, -8, -5, -4) 'as per ISO717-1
+PartialSum = 0
+
+    'Octave Band mode
+    If Mode = "oct" Or Mode = "Oct" Or Mode = "OCT" Then
+        For i = LBound(C_Oct) To UBound(C_Oct)
+        PartialSum = PartialSum + (10 ^ ((C_Oct(i) - DataTable(i + 1)) / 10)) ' VBA and it's stupid 1 indexing
+        Next i
+    Else 'One third octave band mode
+        For i = LBound(C_ThOct) To UBound(C_ThOct)
+        PartialSum = PartialSum + (10 ^ ((C_ThOct(i) - DataTable(i + 1)) / 10)) ' VBA and it's stupid 1 indexing
+        Next i
+    End If
+    
+a = Round(-10 * Application.WorksheetFunction.Log10(PartialSum), 0)
+CRate = a - Rw
 End Function
 
 '==============================================================================
@@ -629,6 +666,7 @@ Dim Deficiencies(16) As Long
 'REFERENCE CURVES from Table 1 of ASTM E413-16
 'band           125  160  200  250  315 400 500 600 1k 1.2k 1.6k 2k 2.5k 3.15k 4k
 STC_ThOct = Array(-16, -13, -10, -7, -4, -1, 0, 1, 2, 3, 4, 4, 4, 4, 4, 4) 'STC0
+'TODO: STC octave band mode
 CurveIndex = STC_ThOct(6) '500 Hz band
 
     While SumDeficiencies <= 32 And MaxDeficiency <= 8
@@ -666,8 +704,8 @@ End Function
 '==============================================================================
 ' Name:     STCCurve
 ' Author:   PS
-' Desc:     Returns the value of the STC Curve at frequency fstr
-' Args:     CurveNo (index at 500Hz band), fstr(frequency band)
+' Desc:     Returns the value of the STC Curve at frequency fStr
+' Args:     CurveNo (index at 500Hz band), fStr(frequency band)
 ' Comments: (1) Based on ASTM E413-16 Classification for Rating Sound Insulation
 '==============================================================================
 Function STCCurve(CurveNo As Variant, fStr As String) 'Optional Mode As String)
@@ -703,9 +741,9 @@ End Function
 '==============================================================================
 ' Name:     LnwCurve
 ' Author:   PS
-' Desc:     Returns the value of the Lnw Curve at frequency fstr
+' Desc:     Returns the value of the Lnw Curve at frequency fStr
 ' Args:     CurveNo (index at 500Hz band)
-'           fstr(frequency band)
+'           fStr(frequency band)
 '           Mode - Set to "oct" for octave band
 ' Comments: (1) Based on ISO717-2 Acoustics — Rating of sound insulation
 '           in buildings and of building elements - Part 2:  Impact sound
@@ -776,7 +814,7 @@ Lnw_ThOct = Array(90, 90, 90, 90, 90, 90, 89, 88, 87, 86, 85, 82, 79, 76, 73, 70
 
 SumDeficiencies = 0
     
-    If Mode = "oct" Then
+    If Mode = "oct" Then 'octave band mode
         While SumDeficiencies <= 10
             'move curve down by one
             For y = LBound(Lnw_Oct) To UBound(Lnw_Oct)
@@ -800,7 +838,7 @@ SumDeficiencies = 0
     '    Debug.Print "Rw = " & CurveIndex
         Wend
         
-    Else 'one-third octave mode
+    Else 'one-third octaves mode
         
         While SumDeficiencies <= 32
         
@@ -923,8 +961,8 @@ End Function
 '==============================================================================
 ' Name:     IICCurve
 ' Author:   PS
-' Desc:     Returns the value of the IIC curve at frequency band fstr
-' Args:     CurveNo, fstr
+' Desc:     Returns the value of the IIC curve at frequency band fStr
+' Args:     CurveNo, fStr
 ' Comments: (1) rough as guts!
 '==============================================================================
 Function IICCurve(CurveNo As Variant, fStr As String) 'Optional Mode As String)
@@ -958,8 +996,8 @@ End Function
 '==============================================================================
 ' Name:     RNCcurve
 ' Author:   PS
-' Desc:     Returns the value of the RNC curve at frequency band fstr
-' Args:     CurveNo, fstr
+' Desc:     Returns the value of the RNC curve at frequency band fStr
+' Args:     CurveNo, fStr
 ' Comments: (1) rough as guts!
 '==============================================================================
 Function RNCcurve(CurveNo As Integer, fStr As String) '<------TODO check this function
@@ -1039,8 +1077,8 @@ End Function
 '==============================================================================
 ' Name:     RCcurve
 ' Author:   PS
-' Desc:     Returns the value of the RC (MarkII) curve at frequency band fstr
-' Args:     CurveNo, fstr
+' Desc:     Returns the value of the RC (MarkII) curve at frequency band fStr
+' Args:     CurveNo, fStr
 ' Comments: (1) First cut
 '==============================================================================
 Function RCcurve(CurveNo As Integer, fStr As String)
@@ -1063,6 +1101,89 @@ i = GetArrayIndex_OCT(fStr, 2)
     End If
 
 End Function
+
+'==============================================================================
+' Name:     AlphaWRate
+' Author:   PS
+' Desc:     Calculates weighted absorption
+' Args:     alphaTable - table of input values from 250Hz to 4kHz
+' Comments: (1) As per ISO11654
+'==============================================================================
+Function AlphaWRate(inputTable As Variant)
+Dim SumDeficiencies As Double
+Dim CheckDef As Double
+Dim RefCurve
+Dim y As Integer
+Dim alphaTable(5) As Double
+'octave bands  250, 500, 1k, 2k, 4k
+RefCurve = Array(0.8, 1#, 1#, 1#, 0.9) 'From ISO11654
+
+'IMPORTANT: Arrays are indexed from zero, Variants are indexed from one
+
+    'fix input values and put them into an array
+    For y = 1 To 5
+        If inputTable(y) > 1 Then 'max out alphaTable values at 1.0
+        alphaTable(y - 1) = 1
+        Else 'round to nearest 0.5
+        alphaTable(y - 1) = Application.WorksheetFunction.MRound(inputTable(y), 0.05) 'zero
+        End If
+    Next y
+
+SumDeficiencies = 0
+    While SumDeficiencies <= 0.1
+    'Debug.Print "alpha: " & RefCurve(1) '500Hz value
+    SumDeficiencies = 0
+        For i = LBound(RefCurve) To UBound(RefCurve)
+        CheckDef = alphaTable(i) - RefCurve(i)
+            If CheckDef > 0 Then
+            SumDeficiencies = SumDeficiencies + CheckDef
+            End If
+        Next i
+        
+    'Debug.Print "Sum of deficiencies: " & SumDeficiencies
+        'move up curve
+        For i = LBound(RefCurve) To UBound(RefCurve)
+        RefCurve(i) = RefCurve(i) - 0.05
+        Next i
+    
+    Wend
+
+'Curve number is the value at 500Hz
+AlphaWRate = RefCurve(1) + 0.05
+    
+End Function
+
+
+'==============================================================================
+' Name:     AlphaWCurve
+' Author:   PS
+' Desc:     Returns value of Weighted alpha curve from index at 500Hz
+' Args:
+' Comments: (1) As per ISO11654
+'==============================================================================
+Function AlphaWCurve(CurveValue As Double, fStr As String)
+Dim RefCurve
+Dim freq As Integer
+Dim CurveDifference As Double
+Dim i As Integer
+
+RefCurve = Array(0.8, 1#, 1#, 1#, 0.9) 'From ISO11654
+
+freq = freqStr2Num(fStr)
+
+    If freq < 250 Or freq > 4000 Then 'catch out of range errors
+    AlphaWCurve = "-"
+    Exit Function
+    End If
+
+i = GetArrayIndex_OCT(fStr, -2) 'from 250Hz onwards
+
+CurveDifference = CurveValue - RefCurve(1) '500Hz value
+
+AlphaWCurve = Application.WorksheetFunction.Max(RefCurve(i) + CurveDifference, 0)
+
+End Function
+
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -1157,13 +1278,17 @@ End Sub
 ' Author:   PS
 ' Desc:     Builds the Rw rating and curve formulas for the row above
 ' Args:     None
-' Comments: (1)
+' Comments: (1) Includes Ctr correction by default
+'           (2) Updated to include description set from ParamCol
 '==============================================================================
 Sub PutRw()
 Dim StartBandCol As Integer
 Dim EndBandCol As Integer
 
-SetDescription "Rw Curve"
+SetDescription "=CONCAT(""Rw ""," & T_ParamRng(0) & ","" curve"")"
+
+    ''''''''''''''''''''''''''''''''''''''''''''''''''
+    'octave bands
     ''''''''''''''''''''''''''''''''''''''''''''''''''
     If T_BandType = "oct" Then
     'Rw Curve
@@ -1171,6 +1296,10 @@ SetDescription "Rw Curve"
         & "," & T_FreqStartRng & ",""oct"")"
     StartBandCol = FindFrequencyBand("125")
     EndBandCol = FindFrequencyBand("2k")
+    
+        'check the frequency bands were found
+        If StartBandCol = 0 Or EndBandCol = 0 Then ErrorFrequencyBandMissing
+    
     'Rw Rate
     Cells(Selection.Row, T_ParamStart).Value = "=RwRate(" & Range( _
         Cells(Selection.Row - 1, StartBandCol), Cells(Selection.Row - 1, EndBandCol)) _
@@ -1179,6 +1308,9 @@ SetDescription "Rw Curve"
     Cells(Selection.Row, T_ParamStart + 1).Value = "=CtrRate(" & Range( _
         Cells(Selection.Row - 1, StartBandCol), Cells(Selection.Row - 1, EndBandCol)) _
         .Address(False, False) & "," & T_ParamRng(0) & ",""oct"")"
+        
+    ''''''''''''''''''''''''''''''''''''''''''''''''''
+    'one-third octave bands
     ''''''''''''''''''''''''''''''''''''''''''''''''''
     ElseIf T_BandType = "to" Then
     'Rw Curve
@@ -1206,11 +1338,110 @@ SetTraceStyle "Input", True
 End Sub
 
 '==============================================================================
+' Name:     PutCtr
+' Author:   PS
+' Desc:     Puts the Ctr correction into a row with an Rw rating in it
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub PutCtr()
+Dim StartBandCol As Integer
+Dim EndBandCol As Integer
+
+
+    ''''''''''''''''''''''''''''''''''''''''''''''''''
+    'octave bands
+    ''''''''''''''''''''''''''''''''''''''''''''''''''
+    If T_BandType = "oct" Then
+    StartBandCol = FindFrequencyBand("125")
+    EndBandCol = FindFrequencyBand("2k")
+    
+        If StartBandCol = 0 Or EndBandCol = 0 Then ErrorFrequencyBandMissing
+        
+    'Ctr Rate
+    Cells(Selection.Row, T_ParamStart + 1).Value = "=CtrRate(" & Range( _
+        Cells(Selection.Row - 1, StartBandCol), Cells(Selection.Row - 1, EndBandCol)) _
+        .Address(False, False) & "," & T_ParamRng(0) & ",""oct"")"
+        
+    ''''''''''''''''''''''''''''''''''''''''''''''''''
+    'one-third octave bands
+    ''''''''''''''''''''''''''''''''''''''''''''''''''
+    ElseIf T_BandType = "to" Then
+    StartBandCol = FindFrequencyBand("100")
+    EndBandCol = FindFrequencyBand("3.15k")
+    
+        If StartBandCol = 0 Or EndBandCol = 0 Then ErrorFrequencyBandMissing
+        
+    'Ctr rate
+    Cells(Selection.Row, T_ParamStart + 1).Value = "=CtrRate(" & Range( _
+        Cells(Selection.Row - 1, StartBandCol), Cells(Selection.Row - 1, EndBandCol)) _
+        .Address(False, False) & "," & _
+    T_ParamRng(0) & ")"
+    End If
+
+'formatting
+Cells(Selection.Row, T_ParamStart + 1).NumberFormat = """Ctr"" 0;""Ctr -""0"
+
+SetTraceStyle "Input", True
+
+End Sub
+
+'==============================================================================
+' Name:     PutC
+' Author:   PS
+' Desc:     Builds the Rw rating and curve formulas for the row above
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub PutC()
+Dim StartBandCol As Integer
+Dim EndBandCol As Integer
+
+
+    ''''''''''''''''''''''''''''''''''''''''''''''''''
+    'octave bands
+    ''''''''''''''''''''''''''''''''''''''''''''''''''
+    If T_BandType = "oct" Then
+    StartBandCol = FindFrequencyBand("125")
+    EndBandCol = FindFrequencyBand("2k")
+    
+        If StartBandCol = 0 Or EndBandCol = 0 Then ErrorFrequencyBandMissing
+        
+    'Ctr Rate
+    Cells(Selection.Row, T_ParamStart + 1).Value = "=CRate(" & Range( _
+        Cells(Selection.Row - 1, StartBandCol), Cells(Selection.Row - 1, EndBandCol)) _
+        .Address(False, False) & "," & T_ParamRng(0) & ",""oct"")"
+        
+    ''''''''''''''''''''''''''''''''''''''''''''''''''
+    'one-third octave bands
+    ''''''''''''''''''''''''''''''''''''''''''''''''''
+    ElseIf T_BandType = "to" Then
+    StartBandCol = FindFrequencyBand("100")
+    EndBandCol = FindFrequencyBand("3.15k")
+    
+        If StartBandCol = 0 Or EndBandCol = 0 Then ErrorFrequencyBandMissing
+        
+    'Ctr rate
+    Cells(Selection.Row, T_ParamStart + 1).Value = "=CRate(" & Range( _
+        Cells(Selection.Row - 1, StartBandCol), Cells(Selection.Row - 1, EndBandCol)) _
+        .Address(False, False) & "," & _
+    T_ParamRng(0) & ")"
+    End If
+
+'formatting
+Cells(Selection.Row, T_ParamStart + 1).NumberFormat = """C"" 0;""C -""0"
+
+SetTraceStyle "Input", True
+
+End Sub
+
+'==============================================================================
 ' Name:     PutSTC
 ' Author:   PS
 ' Desc:     Builds the STC rating and curve formulas for the row above
 ' Args:     None
 ' Comments: (1) only enabled for third-octave sheets
+'           (2) Updated to include description set from ParamCol
 '==============================================================================
 Sub PutSTC()
 Dim StartBandCol As Integer
@@ -1221,7 +1452,10 @@ Dim EndBandCol As Integer
     ElseIf T_BandType = "to" Then
     StartBandCol = FindFrequencyBand("125")
     EndBandCol = FindFrequencyBand("4k")
-    SetDescription "STC Curve"
+    
+        If StartBandCol = 0 Or EndBandCol = 0 Then ErrorFrequencyBandMissing
+    
+    SetDescription "=CONCAT(""STC ""," & T_ParamRng(0) & ","" curve"")"
     ParameterMerge (Selection.Row)
     'STC curve
     BuildFormula "STCCurve(" & T_ParamRng(0) _
@@ -1255,6 +1489,9 @@ ParameterMerge (Selection.Row)
     If T_BandType = "oct" Then 'octave band mode
     StartBandCol = FindFrequencyBand("125")
     EndBandCol = FindFrequencyBand("2k")
+    
+        If StartBandCol = 0 Or EndBandCol = 0 Then ErrorFrequencyBandMissing
+        
     'Lnw Curve
     BuildFormula "LnwCurve(" & T_ParamRng(0) _
         & "," & T_FreqStartRng & ",""oct"")"
@@ -1266,6 +1503,9 @@ ParameterMerge (Selection.Row)
     ElseIf T_BandType = "to" Then 'one third octave band mode
     StartBandCol = FindFrequencyBand("100")
     EndBandCol = FindFrequencyBand("3.15k")
+        
+        If StartBandCol = 0 Or EndBandCol = 0 Then ErrorFrequencyBandMissing
+        
     'Lnw Curve
     BuildFormula "LnwCurve(" & T_ParamRng(0) _
         & "," & T_FreqStartRng & ")"
@@ -1365,6 +1605,41 @@ Cells(Selection.Row, T_ParamStart).NumberFormat = "0.0 ""kg/m" & chr(178) & """"
 SetTraceStyle "Curve"
 SetTraceStyle "Input", True
 End Sub
+
+
+'==============================================================================
+' Name:     PutAlphaW
+' Author:   PS
+' Desc:     Inserts formula for weighted average absorption
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub PutAlphaW()
+Dim StartBandCol As Integer
+Dim EndBandCol As Integer
+
+If T_BandType <> "oct" Then ErrorOctOnly
+
+ParameterMerge (Selection.Row)
+
+StartBandCol = FindFrequencyBand("250")
+EndBandCol = FindFrequencyBand("4k")
+
+'alpha_w Rate
+Cells(Selection.Row, T_ParamStart).Value = "=AlphaWRate(" & Range( _
+    Cells(Selection.Row - 1, StartBandCol), Cells(Selection.Row - 1, EndBandCol)) _
+    .Address(False, False) & ")"
+        
+BuildFormula "AlphaWCurve(" & T_ParamRng(0) & "," & T_FreqStartRng & ")"
+SetDescription "Weighted Alpha"
+
+'formatting
+SetTraceStyle "Input", True
+Cells(Selection.Row, T_ParamStart).NumberFormat = """alpha_w=""0.0"
+Range(Cells(Selection.Row, T_LossGainStart), Cells(Selection.Row, T_LossGainEnd)) _
+    .NumberFormat = "0.0"
+End Sub
+
 
 '''''''''''''''''
 'RC curve

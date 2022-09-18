@@ -74,6 +74,9 @@ End Function
 Public Function LF_OCT_cols() As Variant
 LF_OCT_cols = Array(2, 5, 14, -1, -1, 15, 16, 17, 6)
 End Function
+Public Function FS_cols()
+FS_cols = Array(2, 5, 35, -1, -1, 36, 41, 42, 6)
+End Function
 
 '==============================================================================
 ' Name:     CurrentSheetColumns
@@ -106,6 +109,8 @@ Dim SheetType As String
     CurrentSheetColumns = LF_TO_cols
     ElseIf SheetType = "LF_OCT" Then
     CurrentSheetColumns = LF_OCT_cols
+    ElseIf SheetType = "FS" Then 'full spectrum
+    CurrentSheetColumns = FS_cols
     '<---------------------------------TODO: exception for standard calc sheets
     Else
     ErrorTypeCode
@@ -125,16 +130,18 @@ Public Function CurrentSheetBands() As Variant
     CurrentSheetBands = "oct"
     ElseIf Left(T_SheetType, 2) = "TO" Then 'TO OR TOA
     CurrentSheetBands = "to"
-    ElseIf T_SheetType = "LF" Then
+    ElseIf T_SheetType = "LF" Then 'low frequency
     CurrentSheetBands = "to"
-    ElseIf T_SheetType = "MECH" Then
+    ElseIf T_SheetType = "MECH" Then 'mechanical
     CurrentSheetBands = "oct"
-    ElseIf T_SheetType = "CVT" Then
+    ElseIf T_SheetType = "CVT" Then 'convert
     CurrentSheetBands = "cvt"
-    ElseIf T_SheetType = "LF_TO" Then
+    ElseIf T_SheetType = "LF_TO" Then 'low frequency third octave
     CurrentSheetBands = "to"
-    ElseIf T_SheetType = "LF_OCT" Then
+    ElseIf T_SheetType = "LF_OCT" Then 'low frequency octave
     CurrentSheetBands = "oct"
+    ElseIf T_SheetType = "FS" Then 'full spectrum, third octave
+    CurrentSheetBands = "to"
     Else
     ErrorTypeCode
     End If
@@ -152,11 +159,14 @@ Public Sub GetSettings()
 
 On Error Resume Next
 
+frmLoading.lblStatus.Caption = "Getting global settings..."
+
     'catches the error where excel doesn't know how to do its job
     If Application.AddIns.Count = 0 Then
     'hard coded location of AddIn as a fallback
     ROOTPATH = "U:\SectionData\Property\Specialist Services\Acoustics\1 - Technical Library\Excel Add-in\Trace"
     Else
+    frmLoading.lblStatus.Caption = "Finding path..."
     ROOTPATH = Application.AddIns("Trace").Path
     End If
 
@@ -175,6 +185,8 @@ ACOUSTIC_LOUVRES = ROOTPATH & "\DATA\Louvres.txt"
 DUCT_DIRLOSS = ROOTPATH & "\DATA\DuctDir.txt"
 SRL_LG_DIRECTIVITY = ROOTPATH & "\DATA\SRL_LouvreGrilleDirectivity.txt"
 SRL_DUCTS = ROOTPATH & "\DATA\SRL_Ducts.txt"
+
+frmLoading.lblStatus.Caption = "Testing locations..."
 
 TestLocation TEMPLATELOCATION, vbDirectory
 TestLocation STANDARDCALCLOCATION, vbDirectory
@@ -262,6 +274,8 @@ Function TestLocation(PathStr As String, Optional SearchType)
 
 If IsMissing(SearchType) Then SearchType = vbNormal
 
+frmLoading.lblStatus.Caption = "Testing location: " & PathStr
+
     If Dir(PathStr, SearchType) = "" Then
     TestLocation = False
         If SearchType = vbDirectory Then
@@ -294,6 +308,7 @@ End Function
 ' Args:     X, Variant
 ' Comments: (1) Used mostly in forms
 '           (2) updated NumDigits to be a variant so IsMissing works
+'           (3) changed to return an dash character to make it clear it's working
 '==============================================================================
 Function CheckNumericValue(x As Variant, Optional NumDigits As Variant)
     If IsNumeric(x) Then
@@ -303,7 +318,7 @@ Function CheckNumericValue(x As Variant, Optional NumDigits As Variant)
         CheckNumericValue = Round(CDbl(x), NumDigits)
         End If
     Else
-    CheckNumericValue = Empty
+    CheckNumericValue = "-" 'returns a dash
     End If
 End Function
 
@@ -406,19 +421,26 @@ End Sub
 ' Comments: (1) Useful in Rw and STC
 '==============================================================================
 Public Function FindFrequencyBand(SearchBand As String)
+
 Dim i As Integer
+Dim found As Boolean
+
 i = -1
+
     For i = T_LossGainStart To T_LossGainEnd
         If Cells(T_FreqRow, i).Value = SearchBand Then
         FindFrequencyBand = i
         Exit Function
         End If
     Next i
+    
+    'if not found, show an error
+    If found = False Then
+    MsgBox "Frequency band """ & CStr(SearchBand) & """ not found", vbOKOnly, _
+        "Error - FindFrequencyBand"
+    End If
+
 End Function
-
-
-
-
 
 
 

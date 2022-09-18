@@ -523,6 +523,7 @@ End Sub
 ' Args:     None
 ' Comments: (1) Edited to make column selection dependant on cursor position
 '           (2) Updated to work on multiple rows
+'           (3) Turn off calculation while this happens
 '==============================================================================
 
 Sub ToggleActive()
@@ -531,6 +532,8 @@ Dim startRw As Integer, endRw As Integer, WrkRow As Integer
 Dim CharKeep As Integer
 Dim Orig As String, OrigFmt As String, FormatArchive As String
 Dim NewValue As String
+
+Application.Calculation = xlManual
 
 WrkRow = Selection.Row
 
@@ -552,6 +555,7 @@ endRw = Selection.Row + Selection.Rows.Count - 1
 CheckTemplateRow (startRw)
 
     For WrkRow = startRw To endRw
+    Application.StatusBar = "Toggle Row: " & WrkRow
         ' Toggles between active and inactive
         For i = startCol To endCol
         
@@ -603,7 +607,10 @@ CheckTemplateRow (startRw)
             
         Next i
     Next WrkRow
-    
+
+Application.Calculation = xlAutomatic
+Application.StatusBar = False
+
 End Sub
 
 
@@ -1010,20 +1017,32 @@ End Sub
 ' Desc:     Creates formula in chosen range
 ' Args:     FormulaStr - Formula to be included
 '           IsRegen - set to true for Regen columns
-' Comments: (1)
+' Comments: (1) Updated to catch equals sign - can have it or not, either way.
 '==============================================================================
 Sub BuildFormula(FormulaStr, Optional IsRegen As Boolean)
+
+Dim FirstCharacter As String
 
     If IsEmpty(IsRegen) Then IsRegen = False
     
 'Debug.Print FormulaStr
 
-    If IsRegen = True Then
-    Cells(Selection.Row, T_RegenStart).Formula = "=" & FormulaStr
-    Else 'default to LossGain
-    Cells(Selection.Row, T_LossGainStart).Formula = "=" & FormulaStr
+    'catch missing equals sign
+    If Left(FormulaStr, 1) = "=" Then
+    FirstCharacter = "" 'no need to add the equals
+    Else
+    FirstCharacter = "=" 'add the equals sign
     End If
+
+    'Write the formula to the correct area
+    If IsRegen = True Then
+    Cells(Selection.Row, T_RegenStart).Formula = FirstCharacter & FormulaStr
+    Else 'default to LossGain
+    Cells(Selection.Row, T_LossGainStart).Formula = FirstCharacter & FormulaStr
+    End If
+    
 ExtendFunction (IsRegen)
+
 End Sub
 
 '==============================================================================
@@ -1106,12 +1125,20 @@ End Sub
 ' Desc:     Unmerges parameter columns, sets borders
 ' Args:     rw - row number
 ' Comments: (1) Neat.
+'           (2) Used variable TargetRng and checks for merged property. Neater.
 '==============================================================================
 Sub ParameterUnmerge(Rw As Integer)
 
-Range(Cells(Rw, T_ParamStart), Cells(Rw, T_ParamEnd)).UnMerge
+Dim TargetRng As Range
 
-    With Range(Cells(Rw, T_ParamStart), Cells(Rw, T_ParamEnd))
+'Todo: make unmerge loop through all combinations?
+Set TargetRng = Range(Cells(Rw, T_ParamStart), Cells(Rw, T_ParamEnd))
+
+    If TargetRng.MergeCells Then 'check for merged property
+    TargetRng.UnMerge
+    End If
+
+    With TargetRng
     .Borders.LineStyle = xlContinuous
     .Borders(xlInsideVertical).LineStyle = xlContinuous
     .Borders(xlInsideVertical).Weight = xlHairline

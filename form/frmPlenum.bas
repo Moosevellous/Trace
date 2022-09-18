@@ -13,14 +13,14 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-Dim SoS As Single
+Dim SOS As Single
 Dim b As Single
 Dim n As Single
 Dim Vol As Single
 Dim InletArea As Single
 Dim OutletArea As Single
 Dim R As Single
-Dim theta As Single
+Dim Theta As Single
 'Dim PlenumL As Long 'not requried as already public variables
 'Dim PlenumW As Long
 'Dim PlenumH As Long
@@ -303,20 +303,20 @@ End Sub
 Sub Calc_R_and_Theta()
 
 Dim R As Single
-Dim theta As Long
+Dim Theta As Long
 
     If Me.txtHorizontalOffset.Value <> "" And Me.txtVerticalOffset.Value <> "" Then
     R = PlenumDistanceR(Me.txtHorizontalOffset.Value, Me.txtVerticalOffset.Value, Me.txtL.Value)
-    theta = PlenumAngleTheta(Me.txtL.Value, R)
+    Theta = PlenumAngleTheta(Me.txtL.Value, R)
     
         'warning for >45 degrees
-        If theta > 45 Then
+        If Theta > 45 Then
         msg = MsgBox("Please note that the ASHRAE method only allows offset angles up to 45 degrees. " & chr(10) _
         & "Consider using the End In -> Side out (90 degree) option.", vbOKOnly, "Warning: ASHRAE Plenum Method")
         End If
     
     Me.txtR.Value = Round(R, 1)
-    Me.txtTheta.Value = theta
+    Me.txtTheta.Value = Theta
     End If
     
 End Sub

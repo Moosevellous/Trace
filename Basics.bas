@@ -26,7 +26,7 @@ Public RoomVolume As Double
 ' Name:     freqStr2Num
 ' Author:   PS
 ' Desc:     Converts octave band strings to values
-' Args:     fstr, the frequency band centre frequency as a string
+' Args:     fStr, the frequency band centre frequency as a string
 ' Comments: (1) Used almost everywhere, because '2k' beats writing '2000' etc
 '==============================================================================
 Function freqStr2Num(fStr As String) As Double
@@ -506,6 +506,7 @@ Public Function CompositeTL(TL_Range As Range, AreaRange As Range) As Variant
 Dim TotalArea As Double
 Dim TotalWeightedTL As Double
 Dim Switch As Integer
+Dim i As Integer
 
 TotalArea = 0
 TotalWeightedTL = 0
@@ -518,7 +519,7 @@ i = 1
     End If
     
     'calculate weighted TLs
-    For Each a In AreaRange
+    For Each a In AreaRange 'a is the cell?
     TotalArea = TotalArea + a
     TotalWeightedTL = TotalWeightedTL + a * (10 ^ (Switch * TL_Range(i) / 10))
     i = i + 1
@@ -844,7 +845,7 @@ End Function
 ' Name:     Wavelength
 ' Author:   PS
 ' Desc:     Returns wavelength for an input frequency and speed of sound
-' Args:     fstr, SoundSpeed
+' Args:     fStr, SoundSpeed
 ' Comments: (1) Simple, yeah?
 '==============================================================================
 Function Wavelength(fStr As String, SoundSpeed As Long)
@@ -1070,6 +1071,7 @@ Function MassLaw(fStr As String, SurfaceDensity As Double)
 freq = freqStr2Num(fStr)
 MassLaw = 20 * Application.WorksheetFunction.Log10(freq * SurfaceDensity) - 48
 End Function
+
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -1413,6 +1415,13 @@ End Sub
 ' Comments: (1)
 '==============================================================================
 Sub PutRCPlantroom()
+
+SetDescription "Reverberation Time, sec"
+SetTraceStyle "Input", False
+'move down
+Cells(Selection.Row + 1, Selection.Column).Select
+SetSheetTypeControls
+
 SetDescription "Room Loss (Plantrooms)"
 
 ParameterMerge Selection.Row
@@ -1425,3 +1434,56 @@ BuildFormula "-10*log(" & T_ParamRng(0) & ")+10*log(" & _
 InsertComment "Room volume, m" & chr(179), T_ParamStart, False
 
 End Sub
+
+'==============================================================================
+' Name:     PutCompositeTL
+' Author:   PS
+' Desc:     Builds formula for Composite TLs and areas
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub PutCompositeTL()
+Dim FirstRow As Integer
+Dim LastRow As Integer
+Dim TLRng As Range
+Dim AreaRng As Range
+
+'TODO: put in a form with the number of elements to be composited
+'TODO: Loop through the number of elements for the build
+
+SetDescription "TL1"
+SetTraceStyle "Input", False
+ParameterMerge Selection.Row
+Cells(Selection.Row, T_ParamStart).Value = 0
+SetTraceStyle "Input", True
+SetUnits "m2", T_ParamStart
+FirstRow = Selection.Row
+'move down
+Cells(Selection.Row + 1, Selection.Column).Select
+SetSheetTypeControls
+
+
+SetDescription "TL2"
+SetTraceStyle "Input", False
+ParameterMerge Selection.Row
+Cells(Selection.Row, T_ParamStart).Value = 0
+SetTraceStyle "Input", True 'input
+SetUnits "m2", T_ParamStart
+LastRow = Selection.Row
+Rng2 = Range(Cells(Selection.Row, T_LossGainStart), Cells(Selection.Row, T_LossGainEnd))
+'move down
+Cells(Selection.Row + 1, Selection.Column).Select
+SetSheetTypeControls
+
+Set TLRng = Range(Cells(FirstRow, T_LossGainStart), Cells(LastRow, T_LossGainStart))
+Set AreaRng = Range(Cells(FirstRow, T_ParamStart), Cells(LastRow, T_ParamStart))
+
+SetDescription "Composite TL"
+
+'TODO: build this formula
+BuildFormula "CompositeTL(" & TLRng.Address(False, False) & "," & _
+    AreaRng.Address(False, True) & ")"
+'InsertComment
+
+End Sub
+

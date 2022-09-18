@@ -3,6 +3,7 @@ Attribute VB_Name = "FormatStyle"
 'PUBLIC VARIABLES
 '==============================================================================
 Public targetType As String
+Public targetBands As Boolean
 Public targetRange As String
 Public targetLimitValue As Single
 Public targetMarginValue As Single
@@ -50,6 +51,7 @@ StyleExists = False
     'Debug.Print ActiveWorkbook.Styles(i).Name
         If ActiveWorkbook.Styles(i).Name = StyleName Then
         StyleExists = True
+        Exit Function
         End If
     Next i
     
@@ -177,10 +179,12 @@ Dim numconditions As Integer
 
 frmTarget.Show
 
-If btnOkPressed = False Then End
+    If btnOkPressed = False Then End
+    
+    If targetType = "" Then End
 
-If targetType = "" Then End
-
+'Set conditional formatting to a range
+'TODO: set colouring for all bands
     Select Case targetType
     Case Is = "dB"
     targetRange = Cells(Selection.Row, T_LossGainStart - 2).Address
@@ -190,11 +194,13 @@ If targetType = "" Then End
     Case Is = "dBC" '<- TODO check for C-weighted range
     targetRange = Cells(Selection.Row, T_LossGainStart - 1).Address
     Case Is = "NR"
+    MoveDown
     PutNR
-    Case Is = "Band"
-    '<- TODO band limits
+    targetRange = Range(Cells(Selection.Row, T_LossGainStart), _
+        Cells(Selection.Row, T_LossGainEnd)).Address
     End Select
 
+'clear previous conditional formatting
 Range(targetRange).Select
 
     If Selection.FormatConditions.Count > 0 Then
@@ -203,6 +209,7 @@ Range(targetRange).Select
 
 numconditions = 1
 
+    'Add conditional formatting for limit colours
     If targetLimitValue <> 0 Then
         With Selection
         .FormatConditions.Add Type:=xlCellValue, Operator:=xlGreater, _
@@ -212,6 +219,7 @@ numconditions = 1
     numconditions = numconditions + 1
     End If
     
+    'Add conditional formatting for marginal colours
     If targetCompliantValue <> 0 Then
         With Selection
         'marginal format
@@ -261,7 +269,7 @@ End Sub
 ' Desc:     Checks is style exists, then applies the style to the row.
 ' Args:     StyleName - Full name of style
 '           ApplyTorow
-' Comments: (1)
+' Comments: (1) TODO: make this apply style to Regen columns in a clever way?
 '==============================================================================
 Sub ApplyTraceStyle(StyleName As String, ApplyToRow As Integer, _
 Optional isParamCol As Boolean) '<--TODO: set range description, not just isParamCol

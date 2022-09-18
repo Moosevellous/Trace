@@ -47,7 +47,11 @@ Dim i As Integer
 
 On Error GoTo errors:
 
+OpenLoadingDialog (ImportName)
+
 GetSettings 'get all variable information
+
+frmLoading.lblStatus.Caption = "Finding path to template..."
 
 Set CurrentBook = ActiveWorkbook
     
@@ -81,11 +85,15 @@ Application.AskToUpdateLinks = False
 'turn off screen updating
 Application.ScreenUpdating = False
 
+frmLoading.lblStatus.Caption = "Opening file..."
+
 'open file
 Workbooks.Open fileName:=TemplatePath, ReadOnly:=True, Notify:=False
 Application.DisplayAlerts = True
 Application.AskToUpdateLinks = True
 DoEvents
+
+frmLoading.lblStatus.Caption = "Inserting sheet..."
 
 Set TemplateBook = ActiveWorkbook
     'loop through all sheets and copy
@@ -108,7 +116,7 @@ Application.ScreenUpdating = True
     'there are buttons on this sheet that need to be repointed
     If ImportName = "CVT" Then ReassignConversionButtons
 
-
+CloseLoadingDialog
 
 Exit Sub
 
@@ -152,7 +160,7 @@ End Sub
 ' Author:   PS
 ' Desc:     Opens another sheet of the same type as the current sheet
 ' Args:     None
-' Comments: (1)
+' Comments: (1) Is this still used?
 '==============================================================================
 Sub Same_Type()
 Dim TemplateBook As Workbook
@@ -176,6 +184,8 @@ GetSettings 'get all variable information
         vbOKOnly, "Oh sheet...")
     Exit Sub
     End If
+    
+OpenLoadingDialog (TypeCode)
     
 Set CurrentBook = ActiveWorkbook
 NumSheets = ActiveWorkbook.Sheets.Count
@@ -208,6 +218,8 @@ TemplateBook.Close SaveChanges:=False
 Application.DisplayAlerts = True
 Application.EnableEvents = True
 Application.ScreenUpdating = True
+
+CloseLoadingDialog
 
 'catch errrors
 errors:
@@ -295,7 +307,7 @@ BottomBuffer = 50 'px: space at the bottom
     'create radio buttons
     For Each standardSheet In ScanFolder.Files
     'Debug.Print standardSheet.Name
-        If Left(standardSheet.Name, 1) <> "~" Then
+        If Left(standardSheet.Name, 1) <> "~" Then 'tilde character means temporary file, skip!
         'CheckColumn
         Set optControl = frmStandardCalc.mPageSheets.Pages(CurrentPage) _
                         .Controls.Add("Forms.OptionButton.1")
@@ -331,8 +343,6 @@ Application.StatusBar = False
     If btnOkPressed = False Then
     End
     End If
-
-Application.StatusBar = "Opening " & ImportSheetName
 
 If ImportSheetName = "" Then Exit Sub
 
@@ -403,4 +413,33 @@ FileNameStr = Format(CStr(Now), "yyyymmdd") & " " & SaveAsName
     If Ret <> False Then
     ActiveWorkbook.SaveAs (Ret)
     End If
+End Sub
+
+
+'==============================================================================
+' Name:     OpenLoadingDialog
+' Author:   PS
+' Desc:     Shows the loading dialog box
+' Args:     Name - name of file being loaded
+' Comments: (1)
+'==============================================================================
+Sub OpenLoadingDialog(Name As String)
+frmLoading.lblFilename.Caption = Name
+frmLoading.lblStartTime.Caption = Format(Now, "dd/mm/yyyy hh:mm:ss")
+frmLoading.lblStatus.Caption = "Loading..."
+Application.ScreenUpdating = False
+frmLoading.Show (False)
+End Sub
+
+'==============================================================================
+' Name:     CloseLoadingDialog
+' Author:   PS
+' Desc:     Shows the loading dialog box
+' Args:
+' Comments: (1)
+'==============================================================================
+Sub CloseLoadingDialog()
+frmLoading.lblStatus.Caption = "Import done"
+frmLoading.Hide
+Application.ScreenUpdating = True
 End Sub

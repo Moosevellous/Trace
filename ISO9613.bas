@@ -40,7 +40,7 @@ End Function
 ' Name:     ISO9613_A_atm
 ' Author:   AN
 ' Desc:     Atmospheric correction
-' Args:     fstr (octave frequency band), Distance (in metres), Temperature
+' Args:     fStr (octave frequency band), Distance (in metres), Temperature
 '           (in degrees C), RelHumidity (value our of 100)
 ' Comments: (1) No interpolation, just straight out of the standard
 '==============================================================================
@@ -179,7 +179,7 @@ End Function
 ' Name:     ISO9613_A_bar
 ' Author:   AN
 ' Desc:     Barrier Effect
-' Args:     fstr - octave band centre frequency
+' Args:     fStr - octave band centre frequency
 '           SourceHeight - Source height above ground in metres
 '           ReceiverHeight - Receiver height above ground in metres
 '           SourceReceiverDistance - distance between them in metres
@@ -536,12 +536,12 @@ If T_BandType <> "oct" Then ErrorOctOnly
     SetUnits "m", T_ParamStart, 1
         If ISOFullElements(0) = True Then 'Three rows above has A-div, so we can use the same input for distance!
         BuildFormula "ISO9613_Abar(" & T_FreqStartRng & "," & iso9613_SourceHeight & "," & iso9613_ReceiverHeight & ",$N" & Selection.Row - 3 & "," & iso9613_SourceToBarrier & "," & _
-        iso9613_SrcToBarrierEdge & "," & iso9613_RecToBarrierEdge & "," & "$N" & Selection.Row & "," & iso9613_DoubleDiffraction & "," & iso9613_BarrierThickness & "," & _
-        iso9613_BarrierHeightReceiverSide & "," & iso9613_MultiSource & ",E$" & Selection.Row - 1 & ")"
+            iso9613_SrcToBarrierEdge & "," & iso9613_RecToBarrierEdge & "," & "$N" & Selection.Row & "," & iso9613_DoubleDiffraction & "," & iso9613_BarrierThickness & "," & _
+            iso9613_BarrierHeightReceiverSide & "," & iso9613_MultiSource & ",E$" & Selection.Row - 1 & ")"
         Else
         BuildFormula "ISO9613_Abar(" & T_FreqStartRng & "," & iso9613_SourceHeight & "," & iso9613_ReceiverHeight & "," & iso9613_d & "," & iso9613_SourceToBarrier & "," & _
-        iso9613_SrcToBarrierEdge & "," & iso9613_RecToBarrierEdge & "," & "$N" & Selection.Row & "," & iso9613_DoubleDiffraction & "," & iso9613_BarrierThickness & "," & _
-        iso9613_BarrierHeightReceiverSide & "," & iso9613_MultiSource & ",E$" & Selection.Row - 1 & ")"
+            iso9613_SrcToBarrierEdge & "," & iso9613_RecToBarrierEdge & "," & "$N" & Selection.Row & "," & iso9613_DoubleDiffraction & "," & iso9613_BarrierThickness & "," & _
+            iso9613_BarrierHeightReceiverSide & "," & iso9613_MultiSource & ",E$" & Selection.Row - 1 & ")"
         End If
     
     SetTraceStyle "Input", True

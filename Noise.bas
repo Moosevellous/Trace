@@ -16,6 +16,25 @@ Public roomH As Double
 Public roomLossType As String
 Public OffsetDistance As Double
 
+'barriers
+Public Barrier_Method As String
+Public Barrier_SourceToBarrier As Double
+Public Barrier_SourceHeight As Double
+Public Barrier_GroundUnderSrc As Double
+Public Barrier_RecToBarrier As Double
+Public Barrier_ReceiverHeight As Double
+Public Barrier_GroundUnderRec As Double
+Public Barrier_BarrierHeight As Double
+Public Barrier_SpreadingType As String
+Public Barrier_SrcToBarrierEdge As Double
+Public Barrier_RecToBarrierEdge As Double
+Public Barrier_BarrierHeightReceiverSide As Double
+Public Barrier_DoubleDiffraction As Double
+Public Barrier_BarrierThickness As Double
+Public Barrier_MultiSource As Double
+Public Barrier_SrcRecDistance As Double
+Public Barrier_GtoRecheight As Double
+Public Barrier_GtoSrcHeight As Double
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -120,7 +139,7 @@ End Function
 ' Author:   PS
 ' Desc:     Returns the SWL to SPL conversion in octave bands, given input
 '           dimensions and roomType descriptor
-' Args:     fstr - octave band centre frequency
+' Args:     fStr - octave band centre frequency
 '           L/W/H - room dimensions in metres
 '           rooomType - description string of room reverberance
 ' Comments: (1) Generalised for alpha values from Potorff AIM, these seem to be
@@ -199,15 +218,46 @@ End Function
 ' Name:     ParallelipipedSurfaceArea
 ' Author:   PS
 ' Desc:     Parallel box method, integrated into area correction
-' Args:
+' Args:     L - length in metres
+'           W - width in metres
+'           H - height in metres
+'           Offset - distance to the surface of the object, in metres
 ' Comments: (1)
 '==============================================================================
 Function ParallelipipedSurfaceArea(L As Double, W As Double, H As Double, _
     Offset As Double)
+Dim a As Double
+Dim b As Double
+Dim c As Double
+
+a = (0.5 * L) + Offset
+b = (0.5 * W) + Offset
+c = H + Offset
+
+'Area is:
+    '2 x sides front/back
+    '2 x sides left/right
+    '1 x top (ieno bottom)
     
-ParallelipipedSurfaceArea = ((L + (Offset * 2)) * (W + (Offset * 2)) + _
-    (W + (Offset * 2)) * (H + (Offset * 2)) + _
-    (L + (Offset * 2)) * (H + (Offset * 2))) * 2
+ParallelipipedSurfaceArea = 4 * ((a * b) + (b * c) + (c * a))
+    
+End Function
+
+'==============================================================================
+' Name:     ConformalSurfaceArea
+' Author:   PS
+' Desc:     Conformal area method, integrated into area correction
+' Args:     L - length in metres
+'           W - width in metres
+'           H - height in metres
+'           Offset - distance to the surface of the object, in metres
+' Comments: (1)
+'==============================================================================
+Function ConformalSurfaceArea(L As Double, W As Double, H As Double, _
+    Offset As Double)
+    
+ConformalSurfaceArea = (L + W) * ((2 * H) + (Application.WorksheetFunction.Pi * Offset)) _
+    + ((2 * Application.WorksheetFunction.Pi * Offset) * (H + Offset)) + (L * W)
     
 End Function
 
@@ -226,6 +276,276 @@ DistancePlaneSource = -10 * Application.WorksheetFunction.Log(W * H) + _
     10 * Application.WorksheetFunction.Log( _
     Atn((W * H) / (2 * Distance * ((W ^ 2) + (H ^ 2) + (4 * Distance ^ 2)) ^ (1 / 2)))) - 2
     
+End Function
+
+
+'==============================================================================
+' Name:     BarrierAtten_KurzeAnderson
+' Author:   PS & CT
+' Desc:
+' Args:     fStr - frequency band, as string
+'           SrcDistToBarrier - distance from source to barrier
+'           SrcHeight - height of source above floor
+'           GroundUnderSrc - height of floor above ground
+'           RecDistToBarrier- distance from receiver to barrier
+'           RecHeight - height of receiver above floor
+'           GroundUnderRec - height of floor above ground
+'           BarrierHeight - height of barrier above ground
+'           IncludeMultiPAth - default to false, don't calc them!
+' Comments: (1)
+'==============================================================================
+Function BarrierAtten_KurzeAnderson(fStr As String, SrcDistToBarrier As Double, SrcHeight As Double, _
+    GroundUnderSrc As Double, RecDistToBarrier As Double, RecHeight As Double, _
+    GroundUnderRec As Double, BarrierHeight As Double, Optional IncludeMultiPath As Boolean)
+
+'paths
+Dim p1 As Double
+Dim p2 As Double
+Dim p3 As Double
+Dim p4 As Double
+'distances
+Dim d0 As Double
+Dim d1 As Double
+Dim d2 As Double
+Dim d3 As Double
+Dim d4 As Double
+Dim d5 As Double
+Dim d6 As Double
+Dim d7 As Double
+Dim d8 As Double
+Dim d9 As Double
+'Level from each path
+Dim L1 As Double
+Dim L2 As Double
+Dim L3 As Double
+Dim L4 As Double
+
+Dim DirectSPL As Double
+Dim BarrierSPL As Double
+
+    'check for line of sight
+    If BarrierCutsLineofSight(SrcDistToBarrier, SrcHeight, GroundUnderSrc, _
+        RecDistToBarrier, RecHeight, GroundUnderRec, BarrierHeight) = False Then
+    BarrierAtten_KurzeAnderson = "-"
+    Exit Function
+    End If
+
+'calculate path lengths
+d0 = ((SrcDistToBarrier + RecDistToBarrier) ^ 2 + _
+    ((SrcHeight + GroundUnderSrc) - (RecHeight + GroundUnderRec)) ^ 2) ^ 0.5
+d1 = (SrcDistToBarrier ^ 2 + _
+    (BarrierHeight - (SrcHeight + GroundUnderSrc)) ^ 2) ^ 0.5
+d2 = (RecDistToBarrier ^ 2 + (BarrierHeight - (RecHeight + GroundUnderRec)) ^ 2) ^ 0.5
+'d3 = ((SrcDistToBarrier / 2) ^ 2 + (SrcHeight ^ 2)) ^ 0.5
+d4 = ((SrcDistToBarrier / 2) ^ 2 + (BarrierHeight - GroundUnderSrc) ^ 2) ^ 0.5
+d5 = ((RecDistToBarrier / 2) ^ 2 + (BarrierHeight - GroundUnderRec) ^ 2) ^ 0.5
+'d6 = ((RecDistToBarrier / 2) ^ 2 + RecHeight ^ 2) ^ 0.5
+d7 = (((SrcDistToBarrier / 2) + (RecDistToBarrier)) ^ 2 + _
+    ((RecHeight + GroundUnderRec) - (GroundUnderSrc)) ^ 2) ^ 0.5
+d8 = (((SrcDistToBarrier) + (RecDistToBarrier / 2)) ^ 2 + _
+    ((SrcHeight + GroundUnderSrc) - (GroundUnderRec)) ^ 2) ^ 0.5
+d9 = ((SrcDistToBarrier / 2 + RecDistToBarrier / 2) ^ 2 + _
+    (Abs(GroundUnderSrc - GroundUnderRec)) ^ 2) ^ 0.5
+
+
+'path 1
+p1 = BarrierAtten_KA_path(d2, d1, d0, fStr) 'long + long - short
+
+    'option for multipath
+    If IncludeMultiPath = True Then
+    'Path 2
+    p2 = BarrierAtten_KA_path(d4, d2, d7, fStr)
+    'path 3
+    p3 = BarrierAtten_KA_path(d1, d5, d8, fStr)
+    'path 4
+    p4 = BarrierAtten_KA_path(d4, d5, d9, fStr)
+    
+    DirectSPL = 100 - 10 * Application.WorksheetFunction.Log(4 * _
+        Application.WorksheetFunction.Pi() * (d0 ^ 2)) 'nominal, start from 100
+    
+    L1 = DirectSPL - p1
+    L2 = DirectSPL - p2
+    L3 = DirectSPL - p3
+    L4 = DirectSPL - p4
+    
+    'Debug.Print L1; L2; L3; L4
+    
+    BarrierSPL = SPLSUM(L1, L2, L3, L4)
+    
+    BarrierAtten_KurzeAnderson = BarrierSPL - DirectSPL
+    
+    Else 'most of the time, default to the regular KA method
+    BarrierAtten_KurzeAnderson = -1 * p1 '- DirectSPL
+    End If
+
+    'check for practical maximum value 30dB
+    If BarrierAtten_KurzeAnderson < -30 Then
+    BarrierAtten_KurzeAnderson = -30
+    End If
+    
+End Function
+
+'==============================================================================
+' Name:     BarrierAtten_KA_path
+' Author:   PS & CT
+' Desc:     Calculates noise level over barrier from path length inputs
+' Args:     d0 - short path length in metres
+'           d1 - long path length pt1 (source to barrier top) in metres
+'           d2 - long path length pt2 (receiver to barrier top) in metres
+'           fStr - frequency as string
+' Comments: (1)
+'==============================================================================
+Function BarrierAtten_KA_path(d1 As Double, d2 As Double, d0 As Double, fStr As String)
+
+Dim SOS As Double
+Dim f As Double
+Dim Wavelength As Double
+Dim FresnelNo As Double
+Dim TwoPi As Double
+f = freqStr2Num(fStr)
+
+SOS = SpeedOfSound(20) 'm/s 'todo: add optional input for temperature??
+Wavelength = SOS / f
+TwoPi = 2 * Application.WorksheetFunction.Pi() 'save on characters later
+'Debug.Print "Path difference; "; (d1 + d2 - d0)
+
+FresnelNo = (2 / Wavelength) * (d1 + d2 - d0)
+
+BarrierAtten_KA_path = 5 + 20 * Application.WorksheetFunction.Log( _
+    ((TwoPi * FresnelNo) ^ 0.5) / _
+    Application.WorksheetFunction.Tanh((TwoPi * FresnelNo) ^ 0.5))
+End Function
+
+
+'==============================================================================
+' Name:     BarrierAtten_Menounou
+' Author:   PS
+' Desc:     Menounou's method for barrier insertion loss
+' Args:     fStr - frequency band, as string
+'           SrcDistToBarrier - distance from source to barrier
+'           SrcHeight - height of source above floor
+'           GroundUnderSrc - height of floor above ground
+'           RecDistToBarrier- distance from receiver to barrier
+'           RecHeight - height of receiver above floor
+'           GroundUnderRec - height of floor above ground
+'           BarrierHeight - height of barrier above ground
+'           SpreadingType - string with either sphere cylinder or plane
+' Comments: (1) All distances are in metres
+'==============================================================================
+Function BarrierAtten_Menounou(fStr As String, SrcDistToBarrier As Double, _
+    SrcHeight As Double, GroundUnderSrc As Double, RecDistToBarrier As Double, _
+    RecHeight As Double, GroundUnderRec As Double, BarrierHeight As Double, _
+    SpreadingType As String)
+
+'variables
+Dim d0 As Double 'straight-line distance from src to rec
+Dim d1 As Double 'distance from source to top of barrier
+Dim d2 As Double 'distance from barrier to receiver
+Dim dx As Double 'distance of the mirror source to the receiver????
+Dim f As Double 'frequency in Hz
+Dim Theta As Double
+Dim Wavelength As Double 'in metres
+Dim FresnelNo As Double 'of path length difference
+Dim TwoPi As Double
+Dim N2 As Double 'Fresnel number of mirror source
+
+'Variables from Menounou's method
+Dim IL_s As Double
+Dim IL_b As Double
+Dim IL_sb As Double
+Dim IL_sp As Double
+
+    'check for line of sight
+    If BarrierCutsLineofSight(SrcDistToBarrier, SrcHeight, GroundUnderSrc, _
+        RecDistToBarrier, RecHeight, GroundUnderRec, BarrierHeight) = False Then
+    BarrierAtten_Menounou = "-"
+    Exit Function
+    
+    'check spreading type is a defined option
+    ElseIf SpreadingType <> "Plane" And SpreadingType <> "Cylindrical" And _
+        SpreadingType <> "Spherical" Then
+    BarrierAtten_Menounou = "-"
+    Exit Function
+    End If
+
+'convert to value
+f = freqStr2Num(fStr)
+
+
+'calc distances with pythagoras
+d0 = ((SrcDistToBarrier + RecDistToBarrier) ^ 2 + _
+    ((SrcHeight + GroundUnderSrc) - (RecHeight + GroundUnderRec)) ^ 2) ^ 0.5
+d1 = (SrcDistToBarrier ^ 2 + (BarrierHeight - (SrcHeight + GroundUnderSrc)) ^ 2) ^ 0.5
+d2 = (RecDistToBarrier ^ 2 + (BarrierHeight - (RecHeight + GroundUnderRec)) ^ 2) ^ 0.5
+
+
+SOS = SpeedOfSound(20) 'm/s 'todo: add optional input for temperature??
+Wavelength = SOS / f
+TwoPi = 2 * Application.WorksheetFunction.Pi() 'save on characters later
+FresnelNo = (2 / Wavelength) * (d1 + d2 - d0)
+Theta = 2 * Application.WorksheetFunction.Acos(SrcDistToBarrier / d1)
+
+dx = ((d1 ^ 2) + (d2 ^ 2) + (2 * d1 * d2 * Cos(Theta))) ^ 0.5
+N2 = (2 / Wavelength) * dx 'the other Fresnel's number, for dx
+
+'let's calculate each component of the method!
+
+IL_s = 20 * Application.WorksheetFunction.Log( _
+    ((TwoPi * FresnelNo) ^ 0.5) / _
+    Application.WorksheetFunction.Tanh((TwoPi * FresnelNo) ^ 0.5)) - 1
+    
+IL_b = 20 * Application.WorksheetFunction.Log(1 + _
+    Application.WorksheetFunction.Tanh( _
+    0.6 * Application.WorksheetFunction.Log(N2 / FresnelNo)))
+    
+IL_sb = (Application.WorksheetFunction.Tanh(N2 ^ 0.5 - 2 - IL_b)) * _
+    (1 - Application.WorksheetFunction.Tanh((10 * FresnelNo) ^ 0.5))
+
+    Select Case SpreadingType
+    Case Is = "Spherical"
+    IL_sp = 10 * Application.WorksheetFunction.Log(((d1 + d2) ^ 2 / d0 ^ 2) + _
+        ((d1 + d2) / d0))
+    Case Is = "Cylindrical"
+    IL_sp = 10 * Application.WorksheetFunction.Log(1 + ((d1 + d2) / d0))
+    Case Is = "Plane"
+    IL_sp = 3
+    End Select
+
+'Debug.Print IL_s; IL_b; IL_sb; IL_sp
+
+'add them up and make it negative!
+BarrierAtten_Menounou = -1 * (IL_s + IL_b + IL_sb + IL_sp)
+'what are the last two terms? D_Theta_R & D_Theta_B
+
+End Function
+
+'==============================================================================
+' Name:     BarrierCutsLineofSight
+' Author:   CT
+' Desc:     Returns TRUE if barrier cuts line of sight (source to receiver line)
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Function BarrierCutsLineofSight(SourceToBarrier As Double, SrcHeight As Double, _
+    SrcGroundHeight As Double, RecDistToBarrier As Double, RecHeight As Double, _
+    GroundUnderRec As Double, BarrierHeight As Double) As Boolean
+
+Dim SlopeSrcRec As Double 'Slope of source and receiver
+Dim SlopeSrcBar As Double 'Slope of source to the top of the barrier
+
+SlopeSrcRec = (RecHeight + GroundUnderRec - SrcHeight - SrcGroundHeight) / _
+    (SourceToBarrier + RecDistToBarrier)
+    
+    If SourceToBarrier <= 0 Then Exit Function
+
+SlopeSrcBar = (BarrierHeight - SrcHeight - SrcGroundHeight) / (SourceToBarrier)
+    
+    If SlopeSrcBar > SlopeSrcRec Then
+    BarrierCutsLineofSight = True
+    Else
+    BarrierCutsLineofSight = False
+    End If
+
 End Function
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -410,6 +730,7 @@ End Sub
 ' Comments: (1) What's in the box?????????
 '==============================================================================
 Sub ParallelipipedCorrection()
+frmSoundPowerCalculator.optParallel.Value = True
 frmSoundPowerCalculator.Show
     If btnOkPressed = False Then End
     
@@ -418,6 +739,27 @@ BuildFormula "10*LOG(" & T_ParamRng(0) & ")"
     
 ParameterMerge (Selection.Row)
 Cells(Selection.Row, T_ParamStart) = "=ParallelipipedSurfaceArea(" & _
+    roomL & "," & roomW & "," & roomH & "," & OffsetDistance & ")"
+SetUnits "m2", T_ParamStart
+End Sub
+
+'==============================================================================
+' Name:     ParallelipipedCorrection
+' Author:   PS
+' Desc:     Calculated area of perpendicular box and correction from SPL to SWL
+' Args:     None
+' Comments: (1) What's in the box?????????
+'==============================================================================
+Sub ConformalAreaCorrection()
+frmSoundPowerCalculator.optConformal.Value = True
+frmSoundPowerCalculator.Show
+    If btnOkPressed = False Then End
+    
+SetDescription "Conformal Surface Area Correction"
+BuildFormula "10*LOG(" & T_ParamRng(0) & ")"
+    
+ParameterMerge (Selection.Row)
+Cells(Selection.Row, T_ParamStart) = "=ConformalSurfaceArea(" & _
     roomL & "," & roomW & "," & roomH & "," & OffsetDistance & ")"
 SetUnits "m2", T_ParamStart
 End Sub
@@ -743,3 +1085,55 @@ SetDescription "Total"
 SetTraceStyle "Total"
 
 End Sub
+
+'==============================================================================
+' Name:     BarrierAtten
+' Author:   PS
+' Desc:     Calls form and inserts barrier attenuation
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub BarrierAtten()
+
+frmBarrierAtten.Show
+
+    If btnOkPressed = False Then End
+
+
+SetDescription "Barrier Attenuation"
+
+ParameterMerge (Selection.Row)
+Cells(Selection.Row, T_ParamStart) = Barrier_BarrierHeight
+SetTraceStyle "Input", True
+
+    If Barrier_Method = "ISO9613_Abar" Then
+    BuildFormula "ISO9613_Abar(" & T_FreqStartRng & "," & iso9613_SourceHeight & "," & iso9613_ReceiverHeight & "," & iso9613_d & "," & iso9613_SourceToBarrier & "," & _
+        iso9613_SrcToBarrierEdge & "," & iso9613_RecToBarrierEdge & "," & "$N" & Selection.Row & "," & iso9613_DoubleDiffraction & "," & iso9613_BarrierThickness & "," & _
+        iso9613_BarrierHeightReceiverSide & "," & iso9613_MultiSource & ")"
+    Else 'other two methods have the same input order
+    BuildFormula Barrier_Method & "(" & T_FreqStartRng & "," & Barrier_SourceToBarrier & "," & Barrier_SourceHeight & "," & _
+        Barrier_GroundUnderSrc & "," & Barrier_RecToBarrier & "," & Barrier_ReceiverHeight & "," & _
+        Barrier_GroundUnderRec & "," & Barrier_BarrierHeight & ")" 'todo: option for multi-path
+    End If
+
+
+End Sub
+
+'Public Barrier_Method As String
+'Public Barrier_SourceToBarrier As Double
+'Public Barrier_SourceHeight As Double
+'Public Barrier_GroundUnderSrc As Double
+'Public Barrier_RecToBarrier As Double
+'Public Barrier_ReceiverHeight As Double
+'Public Barrier_GroundUnderRec As Double
+'Public Barrier_BarrierHeight As Double
+'Public Barrier_SpreadingType As Double
+'Public Barrier_SrcToBarrierEdge As Double
+'Public Barrier_RecToBarrierEdge As Double
+'Public Barrier_BarrierHeightReceiverSide As Double
+'Public Barrier_DoubleDiffraction As Double
+'Public Barrier_BarrierThickness As Double
+'Public Barrier_MultiSource As Double
+'Public Barrier_SrcRecDistance As Double
+'Public Barrier_GtoRecheight As Double
+'Public Barrier_GtoSrcHeight As Double

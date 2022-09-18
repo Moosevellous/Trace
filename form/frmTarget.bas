@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmTarget 
    Caption         =   "Set Target / Limit"
-   ClientHeight    =   5145
+   ClientHeight    =   4650
    ClientLeft      =   120
    ClientTop       =   465
    ClientWidth     =   5235
@@ -17,11 +17,28 @@ Dim defaultCompliant As Long
 Dim defaultMargin As Long
 Dim defaultLimit As Long
 
+Private Sub optdB_Click()
+SetUnits ("dB")
+End Sub
+
+Sub SetUnits(Unit As String)
+Me.lblUnit.Caption = Unit
+Me.lblUnit2.Caption = Unit
+End Sub
+
+Private Sub optdBA_Click()
+SetUnits ("dBA")
+End Sub
+
+Private Sub optdBC_Click()
+SetUnits ("dBC")
+End Sub
+
 Private Sub UserForm_Initialize()
 'set default colours
-defaultCompliant = RGB(146, 208, 80)
-defaultMargin = RGB(255, 235, 156)
-defaultLimit = RGB(224, 68, 68)
+defaultCompliant = RGB(146, 208, 80) 'green
+defaultMargin = RGB(255, 235, 156) 'orange/yellow
+defaultLimit = RGB(224, 68, 68) 'red
 DefaultColours
 End Sub
 
@@ -55,11 +72,20 @@ End Sub
 Private Sub btnOK_Click()
 'check target type
 targetType = "" 'public variable
+
     If Me.optdB.Value = True Then targetType = "dB"
     If Me.optdBA.Value = True Then targetType = "dBA"
     If Me.optdBC.Value = True Then targetType = "dBC"
     If Me.optNR.Value = True Then targetType = "NR"
-    If Me.optBand.Value = True Then targetType = "Band"
+    
+    'switch for band-based limits
+    If Me.optOverall = True Then
+    targetBands = False
+    Else
+    targetBands = True
+    End If
+    
+    'check for no selection
     If targetType = "" Then ErrorIncompleteForm 'no target selected
 
     If Me.optWholeValue.Value = True Then
@@ -80,10 +106,10 @@ targetType = "" 'public variable
     targetCompliantValue = Me.txtCompliantVal.Value
     End If
     
-    'colurs
-    targetLimitColour = Me.LimitColourBox.BackColor
-    targetMarginColour = Me.MarginColourBox.BackColor
-    targetCompliantColour = Me.CompliantColourBox.BackColor
+'colurs
+targetLimitColour = Me.LimitColourBox.BackColor
+targetMarginColour = Me.MarginColourBox.BackColor
+targetCompliantColour = Me.CompliantColourBox.BackColor
     
 btnOkPressed = True
 Me.Hide
@@ -154,7 +180,6 @@ Application.Dialogs(xlDialogEditColor).Show 1, defaultLimit Mod 256, (defaultLim
 FullColourCode = ActiveWorkbook.Colors(1)
 Me.LimitColourBox.BackColor = FullColourCode
 End Sub
-
 
 Private Sub MarginColourBox_Change()
 Me.MarginColourBox.Text = ""

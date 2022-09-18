@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmPlotTool 
    Caption         =   "Plot Tool"
-   ClientHeight    =   9285.001
+   ClientHeight    =   9285
    ClientLeft      =   120
    ClientTop       =   465
    ClientWidth     =   11205
@@ -215,6 +215,8 @@ Dim ReplaceText As String
 Dim OldFormula As String
 Dim NewFormula As String
 
+On Error GoTo catch:
+
 FindText = Me.txtFindText.Value
 ReplaceText = Me.txtReplaceText.Value
 
@@ -230,6 +232,11 @@ ReplaceText = Me.txtReplaceText.Value
 
 'update the scan of the formulas
 btnScanSeries_Click
+
+catch:
+    If Err.Number = 1004 Then
+    ActiveChart.SeriesCollection(i).Formula = OldFormula
+    End If
 
 End Sub
 
