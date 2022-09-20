@@ -1105,20 +1105,30 @@ InsertComment Barrier_Method, T_Description, False
 
 'parameter
 ParameterMerge (Selection.Row)
-Cells(Selection.Row, T_ParamStart) = Barrier_BarrierHeight
+
 SetTraceStyle "Input", True
 SetUnits "m", T_ParamStart, 1
 InsertComment "Barrier height", T_ParamStart, False
 
     'formula
     If Barrier_Method = "ISO9613_Abar" Then
+    Cells(Selection.Row, T_ParamStart) = iso9613_BarrierHeight
+    '@ISO9613_Abar(fStr,SourceHeight,ReceiverHeight,SourceReceiverDistance,SourceBarrierDistance,SrcDistanceEdge,RecDistanceEdge,HeightBarrierSource,DoubleDiffraction,BarrierThickness,HeightBarrierReceiver,multisource,GroundEffect)
     BuildFormula "ISO9613_Abar(" & T_FreqStartRng & "," & iso9613_SourceHeight & "," & iso9613_ReceiverHeight & "," & iso9613_d & "," & iso9613_SourceToBarrier & "," & _
-        iso9613_SrcToBarrierEdge & "," & iso9613_RecToBarrierEdge & "," & "$N" & Selection.Row & "," & iso9613_DoubleDiffraction & "," & iso9613_BarrierThickness & "," & _
-        iso9613_BarrierHeightReceiverSide & "," & iso9613_MultiSource & ")"
-    Else 'other two methods have the same input order
-    BuildFormula Barrier_Method & "(" & T_FreqStartRng & "," & Barrier_SourceToBarrier & "," & Barrier_SourceHeight & "," & _
+        iso9613_SrcToBarrierEdge & "," & iso9613_RecToBarrierEdge & "," & T_ParamRng(0) & "," & iso9613_DoubleDiffraction & "," & iso9613_BarrierThickness & "," & _
+        iso9613_BarrierHeightReceiverSide & "," & iso9613_MultiSource & ",3)"
+    ElseIf Barrier_Method = "KurzeAnderson" Then
+    Cells(Selection.Row, T_ParamStart) = Barrier_BarrierHeight
+    BuildFormula "BarrierAtten_" & Barrier_Method & "(" & T_FreqStartRng & "," & Barrier_SourceToBarrier & "," & Barrier_SourceHeight & "," & _
         Barrier_GroundUnderSrc & "," & Barrier_RecToBarrier & "," & Barrier_ReceiverHeight & "," & _
-        Barrier_GroundUnderRec & "," & T_ParamRng(0) & ",""" & Barrier_SpreadingType & """)" 'todo: option for multi-path
+        Barrier_GroundUnderRec & "," & T_ParamRng(0) & ")" 'todo: option for multi-path
+    ElseIf Barrier_Method = "Menounou" Then
+    Cells(Selection.Row, T_ParamStart) = Barrier_BarrierHeight
+    BuildFormula "BarrierAtten_" & Barrier_Method & "(" & T_FreqStartRng & "," & Barrier_SourceToBarrier & "," & Barrier_SourceHeight & "," & _
+        Barrier_GroundUnderSrc & "," & Barrier_RecToBarrier & "," & Barrier_ReceiverHeight & "," & _
+        Barrier_GroundUnderRec & "," & T_ParamRng(0) & ",""" & Barrier_SpreadingType & """)"
+    Else
+    MsgBox "Method not found!", vbOKOnly, "Error - Calc method"
     End If
 
 

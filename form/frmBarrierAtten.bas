@@ -83,17 +83,25 @@ btnOkPressed = True
     
     'Method Identifier
     If Me.optKA.Value = True Then
-    Barrier_Method = "BarrierAtten_KurzeAnderson"
+    Barrier_Method = "KurzeAnderson"
     ElseIf Me.optISO9613.Value = True Then
     Barrier_Method = "ISO9613_Abar"
     ElseIf Me.optMenounou.Value = True Then
-    Barrier_Method = "BarrierAtten_Menounou"
+    Barrier_Method = "Menounou"
     End If
 
 
     'ISO method
     If Me.optISO9613.Value = True Then
-    iso9613_ReceiverHeight = Me.txtRecHeight.Value
+    
+    TotalRecHeight = CDbl(Me.txtRecGroundHeight.Value) + CDbl(Me.txtRecHeight.Value)
+    TotalSrcHeight = CDbl(Me.txtSrcGroundHeight.Value) + CDbl(Me.txtSrcHeight.Value)
+    SrcRecDistance = CDbl(Me.txtSourceToBarrier.Value) + CDbl(Me.txtRectoBarrier.Value)
+    
+    iso9613_d = SrcRecDistance
+    iso9613_SourceHeight = TotalSrcHeight
+    iso9613_ReceiverHeight = TotalRecHeight
+    
     iso9613_SourceToBarrier = Me.txtSourceToBarrier.Value
     iso9613_SrcToBarrierEdge = Me.txtSrcToBarrierEdge.Value
     iso9613_RecToBarrierEdge = Me.txtRecToBarrierEdge.Value
