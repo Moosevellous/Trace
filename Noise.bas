@@ -1091,7 +1091,7 @@ End Sub
 ' Author:   PS
 ' Desc:     Calls form and inserts barrier attenuation
 ' Args:     None
-' Comments: (1)
+' Comments: (1) Fixed on 20220920 as 'hot patch' after rollout
 '==============================================================================
 Sub BarrierAtten()
 
@@ -1099,13 +1099,18 @@ frmBarrierAtten.Show
 
     If btnOkPressed = False Then End
 
-
+'description
 SetDescription "Barrier Attenuation"
+InsertComment Barrier_Method, T_Description, False
 
+'parameter
 ParameterMerge (Selection.Row)
 Cells(Selection.Row, T_ParamStart) = Barrier_BarrierHeight
 SetTraceStyle "Input", True
+SetUnits "m", T_ParamStart, 1
+InsertComment "Barrier height", T_ParamStart, False
 
+    'formula
     If Barrier_Method = "ISO9613_Abar" Then
     BuildFormula "ISO9613_Abar(" & T_FreqStartRng & "," & iso9613_SourceHeight & "," & iso9613_ReceiverHeight & "," & iso9613_d & "," & iso9613_SourceToBarrier & "," & _
         iso9613_SrcToBarrierEdge & "," & iso9613_RecToBarrierEdge & "," & "$N" & Selection.Row & "," & iso9613_DoubleDiffraction & "," & iso9613_BarrierThickness & "," & _
@@ -1113,27 +1118,8 @@ SetTraceStyle "Input", True
     Else 'other two methods have the same input order
     BuildFormula Barrier_Method & "(" & T_FreqStartRng & "," & Barrier_SourceToBarrier & "," & Barrier_SourceHeight & "," & _
         Barrier_GroundUnderSrc & "," & Barrier_RecToBarrier & "," & Barrier_ReceiverHeight & "," & _
-        Barrier_GroundUnderRec & "," & Barrier_BarrierHeight & ")" 'todo: option for multi-path
+        Barrier_GroundUnderRec & "," & T_ParamRng(0) & ",""" & Barrier_SpreadingType & """)" 'todo: option for multi-path
     End If
 
 
 End Sub
-
-'Public Barrier_Method As String
-'Public Barrier_SourceToBarrier As Double
-'Public Barrier_SourceHeight As Double
-'Public Barrier_GroundUnderSrc As Double
-'Public Barrier_RecToBarrier As Double
-'Public Barrier_ReceiverHeight As Double
-'Public Barrier_GroundUnderRec As Double
-'Public Barrier_BarrierHeight As Double
-'Public Barrier_SpreadingType As Double
-'Public Barrier_SrcToBarrierEdge As Double
-'Public Barrier_RecToBarrierEdge As Double
-'Public Barrier_BarrierHeightReceiverSide As Double
-'Public Barrier_DoubleDiffraction As Double
-'Public Barrier_BarrierThickness As Double
-'Public Barrier_MultiSource As Double
-'Public Barrier_SrcRecDistance As Double
-'Public Barrier_GtoRecheight As Double
-'Public Barrier_GtoSrcHeight As Double
