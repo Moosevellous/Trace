@@ -2,7 +2,7 @@
 	<ribbon>
 		<tabs>
 			<tab id="customTab" label="Trace v3.09" insertAfterMso="TabView" keytip="X">
-<!--EDIT DATE 20220918 -->
+<!--EDIT DATE 20230304 -->
 <!--'tag' is the function to be called by the Universal Builder, the 'id' is the function input, if required -->
 
 				<group id="gNew" label="New" insertAfterMso="GroupEditingExcel">
@@ -43,18 +43,6 @@
 				        <item id="FreqRangeCustom" label="Set range from selection" />
 				        <!--<button id="btnFreqRange0" label="Full Spectrum" />-->
 				    </dropDown>
-				    
-				    <!--<menu id="sbFreqRange">
-                    <button id="btnSelectedFR" label="Frequency Range" imageMso="HappyFace"/>
-                    <menu id="mFreqRange" label="Freq. Range">
-                    <checkBox id="tbFreqRange1" label="63Hz to 8kHz" getPressed="GetFrequencyRange" onAction="SetFrequencyRange" />
-                    <checkBox id="tbFreqRange2" label="63Hz to 4kHz" getPressed="GetFrequencyRange" onAction="SetFrequencyRange" />
-                    <checkBox id="tbFreqRange3" label="125Hz to 8kHz" getPressed="GetFrequencyRange" onAction="SetFrequencyRange" />
-                    <checkBox id="tbFreqRange4" label="125Hz to 4kHz" getPressed="GetFrequencyRange" onAction="SetFrequencyRange" />
-                    <menuSeparator id="SepSpectrumRange" />
-                    <checkBox id="tbFreqRange0" label="Full spectrum" getPressed="GetFrequencyRange" onAction="SetFrequencyRange" />
-                    </menu>
-                    </splitButton>-->
                         
 					<menu id="Functions" label="Functions" imageMso="Formula" size="normal" screentip="Basics > Functions" supertip="Add, Subtract, Frequencies, Wavelengths...you know, the basics." keytip="F">
 					    
@@ -115,7 +103,7 @@
                         <button id="Boiler" label="Boiler" onAction="TraceFunction" tag="Boiler" imageMso="Coffee" />
                         <button id="Compressor" label="Compressor" onAction="TraceFunction" tag="CompressorSmall" imageMso="RecursiveSection" screentip="SWL Estimation > Plant/Equipment > Compressor" supertip="Estimates SWL for small compressors (up to 75kW), given range of input power." />
                         <button id="CoolingTower" label="Cooling Tower" onAction="TraceFunction" tag="CoolingTower" imageMso="GroupAccessLayoutWeb" screentip="SWL Estimation > Plant/Equipment > Cooling Tower" supertip="Estimates SWL for a cooling tower, given input power, type of tower, and measurement location. Directivity effects may also be applied." />
-                        <!--<button id="DieselEngine" label="Diesel Engine" onAction="TraceFunction" tag="DieselEngine" imageMso="ColorWhite" screentip="SWL Estimation > Plant/Equipment > DieselEngine" supertip="Estimates SWL for a diesel engine. Includes options for exhaust, inlet, and casing breakout." />  -->
+                        <button id="DieselEngine" label="Diesel Engine" onAction="TraceFunction" tag="DieselEngine" imageMso="ColorWhite" screentip="SWL Estimation > Plant/Equipment > DieselEngine" supertip="Estimates SWL for a diesel engine. Includes options for exhaust, inlet, and casing breakout." /> 
                         <button id="ElectricMotor" label="Electric Motor" onAction="TraceFunction" tag="ElectricMotorSmall" imageMso="_3DTiltUpClassic" screentip="SWL Estimation > Plant/Equipment > Electric Motor" supertip="Estimates SWL for an electric motor, given input power and input speed. Further corrections are applied for Totally Enclosed Fan Cooled and Drip Proof Motors. Suitable for up to 300kW rating only."/>
                         <button id="FanSimple" label="Fan Simple" onAction="TraceFunction" tag="FanSimple" imageMso="ActiveXRadioButton" screentip="SWL Estimation > Plant/Equipment > Fan Simple" supertip="Estimates SWL for a fan, given input air velocity, pressure and fan type." />
                         <button id="PumpSimple" label="Pump Simple" onAction="TraceFunction" tag="PumpSimple" imageMso="SyncMenu" screentip="SWL Estimation > Plant/Equipment > Pump Simple" supertip="Estimates SWL for a pump, given input power and RPM." />
