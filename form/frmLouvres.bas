@@ -23,7 +23,7 @@ Dim IL2k() As Variant
 Dim IL4k() As Variant
 Dim IL8k() As Variant
 Dim FA() As String 'unlike silencer code, this is a string
-Dim Length() As Variant
+Dim length() As Variant
 Dim L_Series() As String
 Dim LouvreArray(0 To 280, 0 To 11) As Double
 Dim LouvreNameArray(0 To 280) As String
@@ -76,7 +76,7 @@ Me.txt2k.Value = IL2k(i)
 Me.txt4k.Value = IL4k(i)
 Me.txt8k.Value = IL8k(i)
 Me.txtFA.Value = FA(i)
-Me.txtLength.Value = Length(i)
+Me.txtLength.Value = length(i)
 Me.txtSeries.Value = L_Series(i)
 
 End Sub
@@ -125,7 +125,7 @@ Dim ReadStr() As String
                 ResizeArray (Me.lstOptions.ListCount)
                 
                 'Length
-                Length(Me.lstOptions.ListCount - 1) = CheckNumericValue(SplitStr(1))
+                length(Me.lstOptions.ListCount - 1) = CheckNumericValue(SplitStr(1))
                 
                 'Insertion Losses
                 IL63(Me.lstOptions.ListCount - 1) = CheckNumericValue(SplitStr(2))
@@ -168,7 +168,7 @@ ReDim Preserve IL2k(size)
 ReDim Preserve IL4k(size)
 ReDim Preserve IL8k(size)
 ReDim Preserve FA(size)
-ReDim Preserve Length(size)
+ReDim Preserve length(size)
 ReDim Preserve L_Series(size)
 End Sub
 

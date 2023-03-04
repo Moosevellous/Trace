@@ -7,8 +7,10 @@ Attribute VB_Name = "SheetTools"
 Public RngVar1 As String
 Public RngVar2 As String
 Public TargetRng As String
-Public ApplyHeatMap As Boolean
+
 Public ResultRng As String
+Public CreateHeading As Boolean
+
 
 '==============================================================================
 ' Name:     TrimSheetName
@@ -237,7 +239,12 @@ On Error GoTo errCatch
             PROJECTINFODIRECTORY = ""
             Else
             
+            'old paths split on the characters PS e.g. \\corp.pbwan.net\ANZ\Projects\PS116962_State_Basketball\4_WIP\Doc_Disc\AC_Acoustics
             SplitPS = Split(testPath, "PS", Len(testPath), vbTextCompare)
+            'new BD planner paths are different e.g. U:\ProjectsAU\200xxx\200095_Gilbert_and_Tobin_a
+            SplitBDP = Split(testPath, "xxx\", Len(testPath), vbTextCompare)
+            
+            'Check which file path type it is
                 If UBound(SplitPS) > 0 Then
                     'for projects in the new ProjectsAU folders,
                     'e.g. U:\ProjectsAU\PS117xxx
@@ -263,6 +270,23 @@ On Error GoTo errCatch
                     PROJECTINFODIRECTORY = testPath & "\" & checkExists
                     'Debug.Print "****PATH FOUND****"
                     End If
+                    
+                ElseIf UBound(SplitBDP) > 0 Then
+                ProjNoExtract = Left(SplitBDP(1), 6)
+                HTMLFilePath = Right(testPath, Len(testPath)) & "\*" & _
+                    ProjNoExtract & "*.html"
+                Application.StatusBar = "Scanning: " & testPath
+                Debug.Print HTMLFilePath
+                checkExists = Dir(HTMLFilePath)
+                
+                    'if HTML file was found, stores in public Variable
+                    If Len(checkExists) > 0 Then
+                    Application.StatusBar = "Project HTML file found!"
+                    foundProjectDirectory = True
+                    PROJECTINFODIRECTORY = testPath & "\" & checkExists
+                    'Debug.Print "****PATH FOUND****"
+                    End If
+                    
                 End If
             End If
         searchLevel = searchLevel + 1
@@ -282,286 +306,12 @@ Application.StatusBar = False
 End Sub
 
 '==============================================================================
-' Name:     FormatBorders
-' Author:   PS
-' Desc:     Makes boders to match the Trace Style
-' Args:     None
-' Comments: (1)
-'==============================================================================
-Sub FormatBorders()
-Selection.Borders(xlDiagonalDown).LineStyle = xlNone
-Selection.Borders(xlDiagonalUp).LineStyle = xlNone
-    With Selection.Borders(xlEdgeLeft)
-        .LineStyle = xlContinuous
-        .colorIndex = 0
-        .TintAndShade = 0
-        .Weight = xlThin
-    End With
-    With Selection.Borders(xlEdgeTop)
-        .LineStyle = xlContinuous
-        .colorIndex = 0
-        .TintAndShade = 0
-        .Weight = xlThin
-    End With
-    With Selection.Borders(xlEdgeBottom)
-        .LineStyle = xlContinuous
-        .colorIndex = 0
-        .TintAndShade = 0
-        .Weight = xlThin
-    End With
-    With Selection.Borders(xlEdgeRight)
-        .LineStyle = xlContinuous
-        .colorIndex = 0
-        .TintAndShade = 0
-        .Weight = xlThin
-    End With
-    With Selection.Borders(xlInsideVertical)
-        .LineStyle = xlContinuous
-        .colorIndex = 0
-        .TintAndShade = 0
-        .Weight = xlHairline
-    End With
-    With Selection.Borders(xlInsideHorizontal)
-        .LineStyle = xlContinuous
-        .colorIndex = 0
-        .TintAndShade = 0
-        .Weight = xlThin
-    End With
-End Sub
-
-'==============================================================================
-' Name:     Plot
-' Author:   PS
-' Desc:     Plots spectrum for each row, calls the form frmPlot, which makes
-'           it look nice gives more formatting tools.
-' Args:     None
-' Comments: (1)
-'==============================================================================
-Sub Plot()
-
-Dim startRw As Integer
-Dim endRw As Integer
-Dim TraceChartObj As ChartObject
-Dim XaxisTitle As String
-Dim YaxisTitle As String
-Dim TraceChartTitle As String
-Dim SheetName As String
-Dim SeriesNameStr As String
-Dim SeriesNo As Integer
-Dim DefaultWidth As Integer
-Dim DefaultHeight As Integer
-
-    'catch if chart is already selected, build chart if not
-    If ActiveChart Is Nothing Then
-    
-        'check if sheet name contains space and needs quotation marks
-        If Left(ActiveSheet.Name, 1) <> "'" And _
-            Right(ActiveSheet.Name, 1) <> "'" Then
-        SheetName = "'" & ActiveSheet.Name & "'!"
-        Else
-        SheetName = ActiveSheet.Name & "!"
-        End If
-    
-    'set plot ranges
-    startRw = Selection.Row
-    endRw = Selection.Row + Selection.Rows.Count - 1
-    
-        'set X-axis title
-        Select Case T_BandType
-        Case Is = "oct"
-        XaxisTitle = "Octave Band Centre Frequency, Hz"
-        Case Is = "to"
-        XaxisTitle = "One-Third Octave Band Centre Frequency, Hz"
-        Case Is = "cvt"
-        XaxisTitle = "One-Third Octave Band Centre Frequency, Hz"
-        End Select
-        
-        'check for A-weighting for Y-axis title
-        If Right(T_SheetType, 1) = "A" Then
-        YaxisTitle = "Sound Pressure Level, dBA"
-        Else
-        YaxisTitle = "Sound Pressure Level, dB"
-        End If
-    
-
-    DefaultHeight = Application.CentimetersToPoints(14)
-    DefaultWidth = Application.CentimetersToPoints(19)
-    
-        'create chart
-    '    Left, Top,                Width, Height
-    Set TraceChartObj = ActiveSheet.ChartObjects.Add _
-        (600, Cells(startRw, 1).Top + 5, DefaultWidth, DefaultHeight)
-    TraceChartObj.Chart.ChartType = xlLine
-    TraceChartObj.Placement = xlFreeFloating 'don't resize with cells
-    TraceChartObj.ShapeRange.Line.Visible = msoFalse
-    'add series
-    SeriesNo = 1
-        For plotrw = startRw To endRw
-            'set name and values
-            With TraceChartObj.Chart.SeriesCollection.NewSeries
-            .Name = "=" & SheetName & Cells(plotrw, 2).Address
-            .values = Range(Cells(plotrw, T_LossGainStart), _
-                            Cells(plotrw, T_LossGainEnd))
-            End With
-        'set x-axis values
-        TraceChartObj.Chart.FullSeriesCollection(SeriesNo).XValues = _
-            "=" & SheetName & Range(Cells(T_FreqRow, T_LossGainStart), _
-            Cells(T_FreqRow, T_LossGainEnd)).Address
-        SeriesNo = SeriesNo + 1
-        Next plotrw
-    DoEvents
-        
-        'format legend, axis labels etc
-        With TraceChartObj.Chart
-        
-        'legend
-        .Legend.Position = xlLegendPositionRight
-        .Legend.Font.size = 9
-        .SetElement (msoElementPrimaryCategoryAxisTitleBelowAxis)
-        .SetElement (msoElementPrimaryValueAxisTitleBelowAxis)
-        
-        'chart titles
-'        .SetElement (msoElementChartTitleAboveChart)
-'        .ChartTitle.Font.size = 12
-        .SetElement (msoElementChartTitleNone)
-        
-        'axis
-        .Axes(xlValue, xlPrimary).MajorUnit = 10
-        .Axes(xlValue, xlPrimary).MinorUnit = 5
-        .Axes(xlValue, xlPrimary).HasMinorGridlines = True
-        .Axes(xlCategory, xlPrimary).AxisBetweenCategories = False
-        'set 60dB range
-        .Axes(xlValue, xlPrimary).MinimumScale = _
-            .Axes(xlValue, xlPrimary).MaximumScale - 60
-            
-        
-        'variable YaxisTitle is set earlier in the code
-        .Axes(xlValue, xlPrimary).AxisTitle.Text = YaxisTitle
-        .Axes(xlCategory, xlPrimary).AxisTitle.Text = XaxisTitle
-        End With
-    
-    'Call graph formatter
-    TraceChartObj.Select
-    End If
-
-'launch the formatting tool!
-frmPlotTool.Show
-
-End Sub
-
-
-'==============================================================================
-' Name:     HeatMap
-' Author:   PS
-' Desc:     Applies conditional formatting for the spectrum
-' Args:     None
-' Comments: (1) Includes options for row-by-row formatting, or the entire range
-'           (2) Calls GreenYellowRed. Might add other colour schemes later.
-'           (3) Added optional input, which skips the check and applies to
-'               whole group. Called by Options Analysis subroutine.
-'==============================================================================
-Sub HeatMap(Optional SkipCheck As Boolean)
-Dim RowByRow As Boolean
-Dim startRw As Integer
-Dim endRw As Integer
-Dim SelectRw As Integer
-Dim InitialSelection As String
-
-InitialSelection = Selection.Address
-
-startRw = Selection.Row
-endRw = startRw + Selection.Rows.Count - 1
-
-    If startRw = endRw Then 'only one row
-    RowByRow = False
-    ElseIf SkipCheck = True Then
-    RowByRow = False
-    Else
-    
-    msg = MsgBox("Apply heat map row-by-row?", vbYesNo, _
-        "I love a sunburnt country")
-        
-        If msg = vbYes Then
-        RowByRow = True
-        ElseIf msg = vbNo Then
-        RowByRow = False
-        Else 'just in case
-        End
-        End If
-        
-    End If
-
-
-'clear any existing formatting
-Range(Cells(startRw, T_Description), Cells(endRw, T_LossGainEnd)).Select
-Selection.FormatConditions.Delete
-    
-    If RowByRow = True Then
-        For SelectRw = startRw To endRw 'loop for each row
-        'select one row
-        Range(Cells(SelectRw, T_LossGainStart), _
-            Cells(SelectRw, T_LossGainEnd)).Select
-        'make-a-the-pretty-colours!
-        GreenYellowRed
-        Next SelectRw
-    Else
-    Range(Cells(startRw, T_LossGainStart), _
-            Cells(endRw, T_LossGainEnd)).Select
-        GreenYellowRed
-    End If
-    
-'go back to initially selected range
-Range(InitialSelection).Select
-
-End Sub
-
-'==============================================================================
-' Name:     GreenYellowRed
-' Author:   PS
-' Desc:     Applies formatting style for heat hap
-' Args:     None
-' Comments: (1)
-'==============================================================================
-Sub GreenYellowRed()
-'add colour scale
-Selection.FormatConditions.AddColorScale ColorScaleType:=3
-Selection.FormatConditions(Selection.FormatConditions.Count).SetFirstPriority
-
-    With Selection.FormatConditions(1)
-    'green
-    .ColorScaleCriteria(1).Type = xlConditionValueLowestValue
-        With .ColorScaleCriteria(1).FormatColor
-        .Color = 8109667
-        .TintAndShade = 0
-        End With
-    
-    'yellow
-    .ColorScaleCriteria(2).Type = xlConditionValuePercentile
-    .ColorScaleCriteria(2).Value = 50
-        With .ColorScaleCriteria(2).FormatColor
-        .Color = 8711167
-        .TintAndShade = 0
-        End With
-        
-    'red
-    .ColorScaleCriteria(3).Type = xlConditionValueHighestValue
-        With .ColorScaleCriteria(3).FormatColor
-        .Color = 7039480
-        .TintAndShade = 0
-        End With
-        
-    End With
-    
-End Sub
-
-
-'==============================================================================
 ' Name:     FixReferences
 ' Author:   PS
 ' Desc:     Fixes formula references to other copies of Trace
 ' Args:     Mode - String set by Ribbon control to loop through all sheets
 '           within a workbook
-' Comments: (1)
+' Comments: (1) Changed to make default run on this sheet only, and not replace legacy functions
 '==============================================================================
 Sub FixReferences(Mode As String)
 
@@ -600,11 +350,13 @@ PurgeStr = Mid(inputFormula, AposPos, ExPos - AposPos + 1)
 'Debug.Print "Purging: " PurgeStr
 
     'if all sheets, then loop through
-    If Mode = "FixReferencesAll" Or Mode = "FixReferencesDefault" Then
+    If Mode = "FixReferencesAll" Then
     ReplaceFormulaReferences PurgeStr, "", False
     'Fix Legacy Functions
     FixLegacyFunctions False
-    Else 'current sheet only, no loops
+    ElseIf Mode = "FixReferencesDefault" Then
+    ReplaceFormulaReferences PurgeStr, "", True
+    Else 'current sheet only, no loops, fix
     ReplaceFormulaReferences PurgeStr, "", True
     FixLegacyFunctions True
     End If
@@ -682,13 +434,13 @@ End Sub
 '           ReplaceStr - The new formula
 '           ThisSheetOnly - set to TRUE for the current sheet only, othewise
 '           code will loop through all sheets
-' Comments: (1)
+' Comments: (1) Will now turn off calculation during update
 '==============================================================================
 Sub ReplaceFormulaReferences(FindStr As String, ReplaceStr As String, _
 Optional ThisSheetOnly As Boolean)
 
 Application.StatusBar = "REPLACING: " & FindStr & "      WITH: " & ReplaceStr
-
+Application.Calculation = xlCalculationManual
 Dim sh As Integer
 Dim ReturnSheet As String 'sheet to return to when it's all done
 
@@ -711,7 +463,7 @@ ReturnSheet = ActiveSheet.Name
     
 'go back to sheet where you started
 Sheets(ReturnSheet).Activate
-
+Application.Calculation = xlAutomatic
 Application.StatusBar = False
 
 End Sub
@@ -813,27 +565,28 @@ Sheets(CalcSheet).Activate
     End If
 
     'loop through each source
-    For S = 1 To UBound(Var1Options)
+    For s = 1 To UBound(Var1Options)
     
         'loop through each attenuator
-        For a = 1 To UBound(Var2Options)
+        For A = 1 To UBound(Var2Options)
         
         'Debug.Print Var1Options(S, 1) & " // " & Var2Options(a, 1)
         
-            If Var1Options(S, 1) <> "" And Var2Options(a, 1) <> "" Then 'skip blank entries
+            If Var1Options(s, 1) <> "" And Var2Options(A, 1) <> "" Then 'skip blank entries
             'set description (and thereby values)
-            Range(Var1Selector).Value = Var1Options(S, 1)
-            Range(Var2Selector).Value = Var2Options(a, 1)
+            Range(Var1Selector).Value = Var1Options(s, 1)
+            Range(Var2Selector).Value = Var2Options(A, 1)
             
             'write to output
             Sheets(TargetSheet).Cells(TargetRow, T_Description).Value = _
-                Var1Options(S, 1) & " // " & Var2Options(a, 1)
+                Var1Options(s, 1) & " // " & Var2Options(A, 1)
             
             'set ranges for Results / Target sheets
             Res_StartCol = GetSheetTypeColumns(ResultSheetType, "LossGainStart")
             Res_EndCol = GetSheetTypeColumns(ResultSheetType, "LossGainEnd")
             Tar_StartCol = GetSheetTypeColumns(TargetSheetType, "LossGainStart")
             Tar_EndCol = GetSheetTypeColumns(TargetSheetType, "LossGainEnd")
+            
             'results
             ResultsAddr = Range(Cells(ResultRow, Res_StartCol), Cells(ResultRow, Res_EndCol)).Address
             WriteAddr = Range(Cells(TargetRow, Tar_StartCol), Cells(TargetRow, Tar_EndCol)).Address '<--TODO: make input variable
@@ -841,9 +594,9 @@ Sheets(CalcSheet).Activate
             TargetRow = TargetRow + 1
             End If
         
-        Next a
+        Next A
         
-    Next S
+    Next s
     
 Sheets(TargetSheet).Activate
 
@@ -905,7 +658,6 @@ Range(StartAddr).Select
 End Sub
 
 
-
 '==============================================================================
 ' Name:     ApplyFreqConditionalFormat
 ' Author:   PS
@@ -940,6 +692,21 @@ rngBands.FormatConditions(rngBands.FormatConditions.Count).SetFirstPriority
 End Sub
 
 
+'==============================================================================
+' Name:     ScheduleBuilder
+' Author:   PS
+' Desc:     Makes an attenuator schedule out of all sheets
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub ScheduleBuilder()
+'put current range in form
+frmScheduleBuilder.RefTargetRng.Value = "'" & ActiveSheet.Name & "'!" & _
+    Selection.Address
+'show form, the rest of the code is in there
+frmScheduleBuilder.Show
+
+End Sub
 
 '**************
 'Code Graveyard

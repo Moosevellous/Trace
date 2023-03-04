@@ -112,7 +112,7 @@ Dim DuctAreaMsq As Double
 Dim VelocityMps As Double
 
 Dim Model As String
-Dim Length As Integer
+Dim length As Integer
 Dim FreeArea As Integer
 Dim SplitModel() As String
 

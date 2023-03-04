@@ -18,6 +18,10 @@ btnOkPressed = False
 Me.Hide
 End Sub
 
+Private Sub btnHelp_Click()
+GotoWikiPage '<-TODO: help link
+End Sub
+
 Private Sub btnOK_Click()
 'set public variables
 roomL = Me.txtL.Value

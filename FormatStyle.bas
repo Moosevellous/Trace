@@ -12,6 +12,7 @@ Public targetRoundingWholeNumber As Boolean
 Public targetLimitColour As Long
 Public targetMarginColour As Long
 Public targetCompliantColour As Long
+Public ApplyHeatMap As Boolean
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 'FUNCTIONS
@@ -94,15 +95,15 @@ End Function
 '==============================================================================
 Sub SetTraceStyle(StyleName As String, Optional isParamCol As Boolean)
 Dim FullStyleName As String
-Dim Rw As Integer
+Dim rw As Integer
 FullStyleName = "Trace " & StyleName
-    For Rw = Selection.Row To Selection.Row + Selection.Rows.Count - 1
+    For rw = Selection.Row To Selection.Row + Selection.Rows.Count - 1
         If IsEmpty(isParamCol) Then
-        ApplyTraceStyle FullStyleName, Rw
+        ApplyTraceStyle FullStyleName, rw
         Else
-        ApplyTraceStyle FullStyleName, Rw, isParamCol
+        ApplyTraceStyle FullStyleName, rw, isParamCol
         End If
-    Next Rw
+    Next rw
 End Sub
 
 '==============================================================================
@@ -250,14 +251,17 @@ Sub ImportTraceStyles()
 Dim BlankBookName As String
 Dim CurrentBookName As String
 Dim StylesSheet As String
+
 'set variables
 GetSettings
 CurrentBookName = ActiveWorkbook.Name
 StylesSheet = TEMPLATELOCATION & "\STYLE.xlsm"
+
 'open the style sheet
 Application.Workbooks.Open (StylesSheet)
 BlankBookName = ActiveWorkbook.Name
 Workbooks(CurrentBookName).Activate
+
 'merge styles
 ActiveWorkbook.Styles.Merge (BlankBookName)
 Workbooks(BlankBookName).Close (False)
@@ -322,17 +326,330 @@ LastStyleIndex = ActiveWorkbook.Styles.Count
 End Sub
 
 '==============================================================================
-' Name:     MarkRowAs
+' Name:     ApplyTraceMarker
 ' Author:   PS
 ' Desc:     Adds symbols to first column
 ' Args:     None
+' Comments: (1) Formerly named 'MarkRowAs'
+'==============================================================================
+Sub ApplyTraceMarker(MarkerType As String)
+
+'catch function calls from ribbon which start with 'Mrk'
+If Left(MarkerType, 3) = "Mrk" Then
+    MarkerType = Right(MarkerType, Len(MarkerType) - 3)
+End If
+
+For rw = Selection.Row To Selection.Row + Selection.Rows.Count - 1
+    Select Case MarkerType
+    Case Is = "Clear"
+    Cells(rw, 1).ClearContents
+    Case Is = "Sum"
+    Cells(rw, 1) = ChrW(T_MrkSum)
+    Case Is = "Average"
+    Cells(rw, 1) = ChrW(T_MrkAverage)
+    Case Is = "Silencer"
+    Cells(rw, 1) = ChrW(T_MrkSilencer)
+    Case Is = "Louvre"
+    Cells(rw, 1) = ChrW(T_MrkLouvre)
+    Case Is = "Result"
+    Cells(rw, 1) = ChrW(T_MrkResult)
+    Case Is = "Schedule"
+    Cells(rw, 1) = ChrW(T_MrkSchedule)
+    Case Else
+    MsgBox "Error: Symbol 'Mrk" & MarkerType & "' not found.", vbOKOnly, _
+        "Function: ApplyTraceMarker()"
+    End Select
+Next rw
+End Sub
+
+'==============================================================================
+' Name:     FormatBorders
+' Author:   PS
+' Desc:     Makes boders to match the Trace Style
+' Args:     None
 ' Comments: (1)
 '==============================================================================
-Sub MarkRowAs(MarkerType As String)
-    Select Case MarkerType
-    Case Is = "SUM"
-    Cells(Selection.Row, 1) = ChrW(931)
-    Case Is = "AV"
-    Cells(Selection.Row, 1) = ChrW(956)
-    End Select
+Sub FormatBorders()
+Selection.Borders(xlDiagonalDown).LineStyle = xlNone
+Selection.Borders(xlDiagonalUp).LineStyle = xlNone
+    With Selection.Borders(xlEdgeLeft)
+        .LineStyle = xlContinuous
+        .colorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeTop)
+        .LineStyle = xlContinuous
+        .colorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeBottom)
+        .LineStyle = xlContinuous
+        .colorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlEdgeRight)
+        .LineStyle = xlContinuous
+        .colorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
+    With Selection.Borders(xlInsideVertical)
+        .LineStyle = xlContinuous
+        .colorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlHairline
+    End With
+    With Selection.Borders(xlInsideHorizontal)
+        .LineStyle = xlContinuous
+        .colorIndex = 0
+        .TintAndShade = 0
+        .Weight = xlThin
+    End With
 End Sub
+
+'==============================================================================
+' Name:     Plot
+' Author:   PS
+' Desc:     Plots spectrum for each row, calls the form frmPlot, which makes
+'           it look nice gives more formatting tools.
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub Plot()
+
+Dim StartRw As Integer
+Dim endRw As Integer
+Dim TraceChartObj As ChartObject
+Dim XaxisTitle As String
+Dim YaxisTitle As String
+Dim TraceChartTitle As String
+Dim SheetName As String
+Dim SeriesNameStr As String
+Dim SeriesNo As Integer
+Dim DefaultWidth As Integer
+Dim DefaultHeight As Integer
+
+    'catch if chart is already selected, build chart if not
+    If ActiveChart Is Nothing Then
+    
+        'check if sheet name contains space and needs quotation marks
+        If Left(ActiveSheet.Name, 1) <> "'" And _
+            Right(ActiveSheet.Name, 1) <> "'" Then
+        SheetName = "'" & ActiveSheet.Name & "'!"
+        Else
+        SheetName = ActiveSheet.Name & "!"
+        End If
+    
+    'set plot ranges
+    StartRw = Selection.Row
+    endRw = Selection.Row + Selection.Rows.Count - 1
+    
+        'set X-axis title
+        Select Case T_BandType
+        Case Is = "oct"
+        XaxisTitle = "Octave Band Centre Frequency, Hz"
+        Case Is = "to"
+        XaxisTitle = "One-Third Octave Band Centre Frequency, Hz"
+        Case Is = "cvt"
+        XaxisTitle = "One-Third Octave Band Centre Frequency, Hz"
+        End Select
+        
+        'check for A-weighting for Y-axis title
+        If Right(T_SheetType, 1) = "A" Then
+        YaxisTitle = "Sound Pressure Level, dBA"
+        Else
+        YaxisTitle = "Sound Pressure Level, dB"
+        End If
+    
+
+    DefaultHeight = Application.CentimetersToPoints(14)
+    DefaultWidth = Application.CentimetersToPoints(19)
+    
+        'create chart
+    '    Left, Top,                Width, Height
+    Set TraceChartObj = ActiveSheet.ChartObjects.Add _
+        (600, Cells(StartRw, 1).Top + 5, DefaultWidth, DefaultHeight)
+    TraceChartObj.Chart.ChartType = xlLine
+    TraceChartObj.Placement = xlFreeFloating 'don't resize with cells
+    TraceChartObj.ShapeRange.Line.Visible = msoFalse
+    'add series
+    SeriesNo = 1
+        For plotrw = StartRw To endRw
+            'set name and values
+            With TraceChartObj.Chart.SeriesCollection.NewSeries
+            .Name = "=" & SheetName & Cells(plotrw, 2).Address
+            .values = Range(Cells(plotrw, T_LossGainStart), _
+                            Cells(plotrw, T_LossGainEnd))
+            End With
+        'set x-axis values
+        TraceChartObj.Chart.FullSeriesCollection(SeriesNo).XValues = _
+            "=" & SheetName & Range(Cells(T_FreqRow, T_LossGainStart), _
+            Cells(T_FreqRow, T_LossGainEnd)).Address
+        SeriesNo = SeriesNo + 1
+        Next plotrw
+    DoEvents
+        
+        'format legend, axis labels etc
+        With TraceChartObj.Chart
+        
+        'legend
+        .Legend.Position = xlLegendPositionRight
+        .Legend.Font.size = 9
+        .SetElement (msoElementPrimaryCategoryAxisTitleBelowAxis)
+        .SetElement (msoElementPrimaryValueAxisTitleBelowAxis)
+        
+        'chart titles
+'        .SetElement (msoElementChartTitleAboveChart)
+'        .ChartTitle.Font.size = 12
+        .SetElement (msoElementChartTitleNone)
+        
+        'axis
+        .Axes(xlValue, xlPrimary).MajorUnit = 10
+        .Axes(xlValue, xlPrimary).MinorUnit = 5
+        .Axes(xlValue, xlPrimary).HasMinorGridlines = True
+        .Axes(xlCategory, xlPrimary).AxisBetweenCategories = False
+        'set 60dB range
+        .Axes(xlValue, xlPrimary).MinimumScale = _
+            .Axes(xlValue, xlPrimary).MaximumScale - 60
+            
+        
+        'variable YaxisTitle is set earlier in the code
+        .Axes(xlValue, xlPrimary).AxisTitle.Text = YaxisTitle
+        .Axes(xlCategory, xlPrimary).AxisTitle.Text = XaxisTitle
+        End With
+    
+    'Call graph formatter
+    TraceChartObj.Select
+    End If
+
+'launch the formatting tool!
+frmPlotTool.Show
+
+End Sub
+
+
+'==============================================================================
+' Name:     HeatMap
+' Author:   PS
+' Desc:     Applies conditional formatting for the spectrum
+' Args:     None
+' Comments: (1) Includes options for row-by-row formatting, or the entire range
+'           (2) Calls GreenYellowRed. Might add other colour schemes later.
+'           (3) Added optional input, which skips the check and applies to
+'               whole group. Called by Options Analysis subroutine.
+'==============================================================================
+Sub HeatMap(Optional SkipCheck As Boolean)
+Dim RowByRow As Boolean
+Dim StartRw As Integer
+Dim endRw As Integer
+Dim SelectRw As Integer
+Dim InitialSelection As String
+
+InitialSelection = Selection.Address
+
+StartRw = Selection.Row
+endRw = StartRw + Selection.Rows.Count - 1
+
+    If StartRw = endRw Then 'only one row
+    RowByRow = False
+    ElseIf SkipCheck = True Then
+    RowByRow = False
+    Else
+    
+    msg = MsgBox("Apply heat map row-by-row?", vbYesNo, _
+        "I love a sunburnt country")
+        
+        If msg = vbYes Then
+        RowByRow = True
+        ElseIf msg = vbNo Then
+        RowByRow = False
+        Else 'just in case
+        End
+        End If
+        
+    End If
+
+
+'clear any existing formatting
+Range(Cells(StartRw, T_Description), Cells(endRw, T_LossGainEnd)).Select
+Selection.FormatConditions.Delete
+    
+    If RowByRow = True Then
+        For SelectRw = StartRw To endRw 'loop for each row
+        'select one row
+        Range(Cells(SelectRw, T_LossGainStart), _
+            Cells(SelectRw, T_LossGainEnd)).Select
+        'make-a-the-pretty-colours!
+        GreenYellowRed
+        Next SelectRw
+    Else
+    Range(Cells(StartRw, T_LossGainStart), _
+            Cells(endRw, T_LossGainEnd)).Select
+        GreenYellowRed
+    End If
+    
+'go back to initially selected range
+Range(InitialSelection).Select
+
+End Sub
+
+'==============================================================================
+' Name:     ClearHeatMap
+' Author:   PS
+' Desc:     Deletes conditional formatting for all selected rows
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub ClearHeatMap()
+Dim StartRw As Integer
+Dim endRw As Integer
+StartRw = Selection.Row
+endRw = StartRw + Selection.Rows.Count - 1
+'remove heatmap
+Range(Cells(StartRw, T_Description), Cells(endRw, T_LossGainEnd)).FormatConditions.Delete
+End Sub
+
+'==============================================================================
+' Name:     GreenYellowRed
+' Author:   PS
+' Desc:     Applies formatting style for heat hap
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub GreenYellowRed()
+'add colour scale
+Selection.FormatConditions.AddColorScale ColorScaleType:=3
+Selection.FormatConditions(Selection.FormatConditions.Count).SetFirstPriority
+
+    With Selection.FormatConditions(1)
+    'green
+    .ColorScaleCriteria(1).Type = xlConditionValueLowestValue
+        With .ColorScaleCriteria(1).FormatColor
+        .Color = 8109667
+        .TintAndShade = 0
+        End With
+    
+    'yellow
+    .ColorScaleCriteria(2).Type = xlConditionValuePercentile
+    .ColorScaleCriteria(2).Value = 50
+        With .ColorScaleCriteria(2).FormatColor
+        .Color = 8711167
+        .TintAndShade = 0
+        End With
+        
+    'red
+    .ColorScaleCriteria(3).Type = xlConditionValueHighestValue
+        With .ColorScaleCriteria(3).FormatColor
+        .Color = 7039480
+        .TintAndShade = 0
+        End With
+        
+    End With
+    
+End Sub
+
+
+

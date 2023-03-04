@@ -11,6 +11,7 @@ Public AmplificationType As String
 Public AS2670_Axis As String
 Public AS2670_Multiplier As Single
 Public AS2670_Order
+Public AS2670_Category As String
 Public AS2670_dbUnit As Boolean
 Public AS2670_RateCurve As Boolean
 Public VibRateAddr As String 'address of range to be rated
@@ -40,12 +41,21 @@ Dim VC_B() As Variant
 Dim VC_C() As Variant
 Dim VC_D() As Variant
 Dim VC_E() As Variant
+Dim VC_F() As Variant
+Dim VC_G() As Variant
+Dim VC_H() As Variant
 Dim i As Integer
 Dim f As Double
 Dim ChosenCurve() As Variant
 
 'bands         2       2.5     3.15    4       5       6.3     8       10 _
 '     12.5     16      20      25      31.5    40      50      63      80
+VC_H = Array(0.0004, 0.0004, 0.0004, 0.0004, 0.0004, 0.0004, 0.0004, 0.0004, _
+    0.0004, 0.0004, 0.0004, 0.0004, 0.0004, 0.0004, 0.0004, 0.0004, 0.0004)
+VC_G = Array(0.0008, 0.0008, 0.0008, 0.0008, 0.0008, 0.0008, 0.0008, 0.0008, _
+    0.0008, 0.0008, 0.0008, 0.0008, 0.0008, 0.0008, 0.0008, 0.0008, 0.0008)
+VC_F = Array(0.0016, 0.0016, 0.0016, 0.0016, 0.0016, 0.0016, 0.0016, 0.0016, _
+    0.0016, 0.0016, 0.0016, 0.0016, 0.0016, 0.0016, 0.0016, 0.0016, 0.0016)
 VC_E = Array(0.0032, 0.0032, 0.0032, 0.0032, 0.0032, 0.0032, 0.0032, 0.0032, _
     0.0032, 0.0032, 0.0032, 0.0032, 0.0032, 0.0032, 0.0032, 0.0032, 0.0032)
 VC_D = Array(0.0064, 0.0064, 0.0064, 0.0064, 0.0064, 0.0064, 0.0064, 0.0064, _
@@ -75,6 +85,12 @@ VC_OR = Array(0.306, 0.2548, 0.2122, 0.1767, 0.1471, 0.1225, 0.102, 0.102, _
     ChosenCurve = VC_D
     Case "VC-E"
     ChosenCurve = VC_E
+    Case "VC-F"
+    ChosenCurve = VC_F
+    Case "VC-G"
+    ChosenCurve = VC_G
+    Case "VC-H"
+    ChosenCurve = VC_H
     Case Is = ""
     ChosenCurve = Array(0, 0, 0, 0, 0, 0, 0, 0, _
                         0, 0, 0, 0, 0, 0, 0, 0, 0)
@@ -113,34 +129,47 @@ Dim CurrentCurve As Integer
 Dim i As Integer
 
 MaxCurve = 0
+' CurrentCurve    0       1       2      3       4       5       6       7       8
+MapValue = Array("VC-H", "VC-G", "VC-F", "VC-E", "VC-D", "VC-C", "VC-B", "VC-A", "VC-OR")
+    
+    For i = 0 To 24 '25 columns is all you'll need
 
-MapValue = Array("VC-E", "VC-D", "VC-C", "VC-B", "VC-A", "VC-OR")
-    
-    For i = 0 To 26 '26 columns is all you'll need
-    
-        Select Case DataTable(i)
+        Select Case DataTable.Cells(1, i + 1)
         
-        Case Is > VCcurve("VC-OR", CStr(freqTable(i)))
+        Case Is > VCcurve("VC-OR", freqTable.Cells(1, i + 1))
+        CurrentCurve = 9
+        Case Is > VCcurve("VC-A", freqTable.Cells(1, i + 1))
+        CurrentCurve = 8
+        Case Is > VCcurve("VC-B", freqTable.Cells(1, i + 1))
+        CurrentCurve = 7
+        Case Is > VCcurve("VC-C", freqTable.Cells(1, i + 1))
         CurrentCurve = 6
-        Case Is > VCcurve("VC-A", CStr(freqTable(i)))
+        Case Is > VCcurve("VC-D", freqTable.Cells(1, i + 1))
         CurrentCurve = 5
-        Case Is > VCcurve("VC-B", CStr(freqTable(i)))
+        Case Is > VCcurve("VC-E", freqTable.Cells(1, i + 1))
         CurrentCurve = 4
-        Case Is > VCcurve("VC-C", CStr(freqTable(i)))
+        Case Is > VCcurve("VC-F", freqTable.Cells(1, i + 1))
         CurrentCurve = 3
-        Case Is > VCcurve("VC-D", CStr(freqTable(i)))
+        Case Is > VCcurve("VC-G", freqTable.Cells(1, i + 1))
         CurrentCurve = 2
-        Case Is > VCcurve("VC-E", CStr(freqTable(i)))
+        Case Is > VCcurve("VC-H", freqTable.Cells(1, i + 1))
         CurrentCurve = 1
+        Case Else
+        
         End Select
         
         If CurrentCurve > MaxCurve Then
         MaxCurve = CurrentCurve
         End If
-        
+    
     Next i
-
-VcRate = MapValue(MaxCurve)
+    
+    'and finally...
+    If MaxCurve = 9 Then 'too far!
+    VcRate = "-"
+    Else
+    VcRate = MapValue(MaxCurve)
+    End If
 
 End Function
 
@@ -481,23 +510,46 @@ End Sub
 ' Author:   PS
 ' Desc:     Inserts rating formula and presents VC curve
 ' Args:     None
-' Comments: (1)
+' Comments: (1) updated to include the VCrate function in the parameter column
 '==============================================================================
 Sub PutVCcurve()
+Dim StartBandCol As Integer
+Dim EndBandCol As Integer
+Dim Unit As String
+Dim rw As Integer
 
 msg = MsgBox("Linear values (mm/s)? " & chr(10) & _
     "[Note that 'No' will choose dB mode.]", vbYesNoCancel, "Lin/Log mode")
-If msg = vbCancel Then End
+
+'catch cancel and set unit
+If msg = vbCancel Then
+    End
+    ElseIf msg = vbYes Then
+    Unit = "mm/s"
+    ElseIf msg = vbNo Then
+    Unit = "dB"
+End If
 
 ParameterMerge (Selection.Row)
 
 'Low frequency third-octave sheet check
     If T_SheetType <> "LF_TO" Then ErrorLFTOOnly
 
-SetDescription "VC Curve"
+SetDescription "=CONCAT(" & T_ParamRng(0) & ","" curve, " & Unit & """)"
 
+'set bands for VCrate
+StartBandCol = FindFrequencyBand("2.5") 'lowest ASHRAE curve freq
+EndBandCol = FindFrequencyBand("80") ' highest ASHRAE curve freq
+rw = Selection.Row - 1 'one before this one
+
+'build rating
+Cells(Selection.Row, T_ParamStart).Value = "=VCRate(" & Range( _
+    Cells(rw, StartBandCol), Cells(rw, EndBandCol)) _
+    .Address(False, False) & "," & Range( _
+    Cells(T_FreqRow, StartBandCol), Cells(T_FreqRow, EndBandCol)) _
+    .Address(True, False) & ")"
+    
 'build formula
-Cells(Selection.Row, T_ParamStart) = "VC-A"
     If msg = vbYes Then
     BuildFormula "VCcurve(" & T_ParamRng(0) & _
         "," & T_FreqStartRng & ")"
@@ -505,7 +557,6 @@ Cells(Selection.Row, T_ParamStart) = "VC-A"
     BuildFormula "VCcurve(" & T_ParamRng(0) & _
         "," & T_FreqStartRng & ",""dB"")"
     End If
-
     
 'format parameter columns
 SetTraceStyle "Input", True

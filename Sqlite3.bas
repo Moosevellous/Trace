@@ -532,7 +532,7 @@ Private Const CP_UTF8 As Long = 65001
 
 Private Declare PtrSafe Function MultiByteToWideChar Lib "kernel32" (ByVal CodePage As Long, ByVal dwFlags As Long, ByVal lpMultiByteStr As LongPtr, ByVal cbMultiByte As Long, ByVal lpWideCharStr As LongPtr, ByVal cchWideChar As Long) As Long
 Private Declare PtrSafe Function WideCharToMultiByte Lib "kernel32" (ByVal CodePage As Long, ByVal dwFlags As Long, ByVal lpWideCharStr As LongPtr, ByVal cchWideChar As Long, ByVal lpMultiByteStr As LongPtr, ByVal cbMultiByte As Long, ByVal lpDefaultChar As LongPtr, ByVal lpUsedDefaultChar As LongPtr) As Long
-Private Declare PtrSafe Sub RtlMoveMemory Lib "kernel32" (ByVal pDest As LongPtr, ByVal pSource As LongPtr, ByVal Length As Long)
+Private Declare PtrSafe Sub RtlMoveMemory Lib "kernel32" (ByVal pDest As LongPtr, ByVal pSource As LongPtr, ByVal length As Long)
 Private Declare PtrSafe Function lstrcpynW Lib "kernel32" (ByVal pwsDest As LongPtr, ByVal pwsSource As LongPtr, ByVal cchCount As Long) As LongPtr
 Private Declare PtrSafe Function lstrcpyW Lib "kernel32" (ByVal pwsDest As LongPtr, ByVal pwsSource As LongPtr) As LongPtr
 Private Declare PtrSafe Function lstrlenW Lib "kernel32" (ByVal pwsString As LongPtr) As Long
@@ -543,7 +543,7 @@ Private Declare PtrSafe Function FreeLibrary Lib "kernel32" (ByVal hLibModule As
 #Else
 Private Declare Function MultiByteToWideChar Lib "kernel32" (ByVal CodePage As Long, ByVal dwFlags As Long, ByVal lpMultiByteStr As Long, ByVal cbMultiByte As Long, ByVal lpWideCharStr As Long, ByVal cchWideChar As Long) As Long
 Private Declare Function WideCharToMultiByte Lib "kernel32" (ByVal CodePage As Long, ByVal dwFlags As Long, ByVal lpWideCharStr As Long, ByVal cchWideChar As Long, ByVal lpMultiByteStr As Long, ByVal cbMultiByte As Long, ByVal lpDefaultChar As Long, ByVal lpUsedDefaultChar As Long) As Long
-Private Declare Sub RtlMoveMemory Lib "kernel32" (ByVal pDest As Long, ByVal pSource As Long, ByVal Length As Long)
+Private Declare Sub RtlMoveMemory Lib "kernel32" (ByVal pDest As Long, ByVal pSource As Long, ByVal length As Long)
 Private Declare Function lstrcpynW Lib "kernel32" (ByVal pwsDest As Long, ByVal pwsSource As Long, ByVal cchCount As Long) As Long
 Private Declare Function lstrcpyW Lib "kernel32" (ByVal pwsDest As Long, ByVal pwsSource As Long) As Long
 Private Declare Function lstrlenW Lib "kernel32" (ByVal pwsString As Long) As Long
@@ -919,13 +919,13 @@ Public Function SQLite3ColumnBlob(ByVal stmtHandle As Long, ByVal ZeroBasedColIn
     Dim ptr As Long
 #End If
 
-    Dim Length As Long
+    Dim length As Long
     Dim buf() As Byte
     
     ptr = sqlite3_column_blob(stmtHandle, ZeroBasedColIndex)
-    Length = sqlite3_column_bytes(stmtHandle, ZeroBasedColIndex)
-    ReDim buf(Length - 1)
-    RtlMoveMemory VarPtr(buf(0)), ptr, Length
+    length = sqlite3_column_bytes(stmtHandle, ZeroBasedColIndex)
+    ReDim buf(length - 1)
+    RtlMoveMemory VarPtr(buf(0)), ptr, length
     SQLite3ColumnBlob = buf
 End Function
 '=====================================================================================
@@ -968,9 +968,9 @@ Public Function SQLite3BindBlob(ByVal stmtHandle As LongPtr, ByVal OneBasedParam
 #Else
 Public Function SQLite3BindBlob(ByVal stmtHandle As Long, ByVal OneBasedParamIndex As Long, ByRef Value() As Byte) As Long
 #End If
-    Dim Length As Long
-    Length = UBound(Value) - LBound(Value) + 1
-    SQLite3BindBlob = sqlite3_bind_blob(stmtHandle, OneBasedParamIndex, VarPtr(Value(0)), Length, SQLITE_TRANSIENT)
+    Dim length As Long
+    length = UBound(Value) - LBound(Value) + 1
+    SQLite3BindBlob = sqlite3_bind_blob(stmtHandle, OneBasedParamIndex, VarPtr(Value(0)), length, SQLITE_TRANSIENT)
 End Function
 
 #If Win64 Then

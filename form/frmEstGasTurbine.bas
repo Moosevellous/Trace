@@ -161,7 +161,6 @@ Sub SelectPath()
         If Me.optCasing.Value = True Then '<--------CASING
         Me.lblGasEqn.Caption = "Lw=120+5*log(MW)"
         LwTurbine = 120 + (5 * Application.WorksheetFunction.Log(Me.txtPower.Value))
-        Me.txtLw.Value = Round(LwTurbine, 1)
         Me.txt31adj.Value = -10
         Me.txt63adj.Value = -7
         Me.txt125adj.Value = -5
@@ -172,11 +171,10 @@ Sub SelectPath()
         Me.txt4kadj.Value = -4
         Me.txt8kadj.Value = -4
         Me.cboxEnclosure.Enabled = True
-        CalcSpectrum
+        
         ElseIf Me.optInlet.Value = True Then '<--------INLET
         Me.lblGasEqn.Caption = "Lw=127+15*log(MW)"
         LwTurbine = 127 + (15 * Application.WorksheetFunction.Log(Me.txtPower.Value))
-        Me.txtLw.Value = Round(LwTurbine, 1)
         Me.txt31adj.Value = -19
         Me.txt63adj.Value = -18
         Me.txt125adj.Value = -17
@@ -188,11 +186,10 @@ Sub SelectPath()
         Me.txt8kadj.Value = -6
         Me.cboxEnclosure.ListIndex = 0 'no enclosure! no capes!
         Me.cboxEnclosure.Enabled = False
-        CalcSpectrum
+        
         ElseIf Me.optExhaust.Value = True Then '<--------EXHAUST
         Me.lblGasEqn.Caption = "Lw=133+10*log(MW)"
         LwTurbine = 133 + (10 * Application.WorksheetFunction.Log(Me.txtPower.Value))
-        Me.txtLw.Value = Round(LwTurbine, 1)
         Me.txt31adj.Value = -12
         Me.txt63adj.Value = -8
         Me.txt125adj.Value = -6
@@ -204,9 +201,10 @@ Sub SelectPath()
         Me.txt8kadj.Value = -21
         Me.cboxEnclosure.ListIndex = 0 'no enclosure! no capes!
         Me.cboxEnclosure.Enabled = False
-        CalcSpectrum
         End If
         
+    Me.txtLw.Value = Round(LwTurbine, 1)
+    CalcSpectrum
 
     Else 'no power, no values
     Me.txt31.Value = "-"
@@ -218,6 +216,7 @@ Sub SelectPath()
     Me.txt2k.Value = "-"
     Me.txt4k.Value = "-"
     Me.txt8k.Value = "-"
+    
     Me.txt31adj.Value = "-"
     Me.txt63adj.Value = "-"
     Me.txt125adj.Value = "-"

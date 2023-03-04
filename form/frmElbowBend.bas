@@ -97,9 +97,9 @@ ductW = txtW.Value
     End If
     
     If Me.optVanes.Value Then
-    ElbowVanes = "Vanes"
+    elbowVanes = "Vanes"
     Else
-    ElbowVanes = "No Vanes"
+    elbowVanes = "No Vanes"
     End If
     
     If Me.chkCalcRegen.Value = True Then

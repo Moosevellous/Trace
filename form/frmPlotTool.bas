@@ -47,7 +47,7 @@ FirstRun = True
     Else
     'Me.cBoxMarkerStyle.ListIndex = ActiveChart.FullSeriesCollection(1).MarkerStyle - 1 'list item number 1 is marker style 0?
     Me.chkShowMarkers.Value = True
-    Me.cBoxMarkerStyle.ListIndex = MarkerListBoxIndex(ActiveChart.FullSeriesCollection(1).MarkerStyle)
+    Me.cBoxMarkerStyle.ListIndex = MarkerListBoxIndex(ActiveChart.FullSeriesCollection(1).MarkerStyle) 'TODO: will have to update this for multi-markers
     Me.txtMarkerSize.Value = ActiveChart.FullSeriesCollection(1).MarkerSize
     
     End If
@@ -302,10 +302,10 @@ Dim PrintStr As String
 PrintStr = ""
 With ActiveChart
     For i = 1 To .SeriesCollection.Count
-    PrintStr = PrintStr & .SeriesCollection(i).Formula & chr(10) & chr(10)
+        PrintStr = PrintStr & .SeriesCollection(i).Formula & chr(10) & chr(10)
     Next i
     Me.txtScanResults.Value = PrintStr
-    End With
+End With
 Me.Repaint
 End Sub
 
@@ -332,13 +332,23 @@ Me.txtDecimal.Value = 0
 End Sub
 
 Private Sub btnYMinus5_Click()
-Me.txtYRangeMax.Value = Me.txtYRangeMax.Value - 5
-Me.txtYRangeMin.Value = Me.txtYRangeMin.Value - 5
+If Me.chkLogScale.Value = False Then
+    Me.txtYRangeMax.Value = Me.txtYRangeMax.Value - 5
+    Me.txtYRangeMin.Value = Me.txtYRangeMin.Value - 5
+Else 'true: log scale is on
+    Me.txtYRangeMin.Value = Me.txtYRangeMin.Value / 10
+    Me.txtYRangeMax.Value = Me.txtYRangeMax.Value / 10
+End If
 End Sub
 
 Private Sub btnYPlus5_Click()
-Me.txtYRangeMax.Value = Me.txtYRangeMax.Value + 5
-Me.txtYRangeMin.Value = Me.txtYRangeMin.Value + 5
+If Me.chkLogScale.Value = False Then
+    Me.txtYRangeMax.Value = Me.txtYRangeMax.Value + 5
+    Me.txtYRangeMin.Value = Me.txtYRangeMin.Value + 5
+Else 'true: log scale is on
+    Me.txtYRangeMin.Value = Me.txtYRangeMin.Value * 10
+    Me.txtYRangeMax.Value = Me.txtYRangeMax.Value * 10
+End If
 End Sub
 
 Private Sub cBoxLineColours_Click()
@@ -378,7 +388,57 @@ Private Sub chkChartTitle_Click()
 End Sub
 
 Private Sub chkLogScale_Click()
-MakeYaxisLogScale
+
+    'turn off/on gridline controls
+    If Me.chkLogScale.Value = True Then
+    
+    Me.chkMajor.Enabled = False
+    Me.optMajor10.Enabled = False
+    Me.optMajor5.Enabled = False
+    Me.optMajor1.Enabled = False
+    Me.txtMajorGridValue.Enabled = False
+    
+    Me.chkMinor.Enabled = False
+    Me.optMinor10.Enabled = False
+    Me.optMinor5.Enabled = False
+    Me.optMinor1.Enabled = False
+    Me.txtMinorGridValue.Enabled = False
+    
+    Me.btnYMinus5.Caption = "/ 10"
+    Me.btnYPlus5.Caption = "X 10"
+    
+    Else 'false
+    Me.chkMajor.Enabled = True
+    Me.optMajor10.Enabled = True
+    Me.optMajor5.Enabled = True
+    Me.optMajor1.Enabled = True
+    Me.txtMajorGridValue.Enabled = True
+    
+    Me.chkMinor.Enabled = True
+    Me.optMinor10.Enabled = True
+    Me.optMinor5.Enabled = True
+    Me.optMinor1.Enabled = True
+    Me.txtMinorGridValue.Enabled = True
+    
+    Me.btnYMinus5.Caption = "-5dB"
+    Me.btnYPlus5.Caption = "+5dB"
+    
+    End If
+
+'set scales
+With ActiveChart.Axes(xlValue, xlPrimary)
+
+    If Me.chkLogScale.Value = True Then
+        .ScaleType = xlScaleLogarithmic
+    Else
+        .ScaleType = xlScaleLinear
+    End If
+    
+    Me.txtYRangeMax.Value = .MaximumScale
+    Me.txtYRangeMin.Value = .MinimumScale
+    
+End With
+
 End Sub
 
 Private Sub chkMajor_Click()
@@ -401,7 +461,6 @@ ApplyMarkerStyle
 ApplyMarkerSize
 End Sub
 
-
 Private Sub optdB_Click()
 YaxisLabel
 End Sub
@@ -418,18 +477,23 @@ Me.optdBA.Enabled = False
 YaxisLabel
 End Sub
 
-
-Private Sub optLegendBottom_Click()
-ActiveChart.SetElement (msoElementLegendBottom)
-End Sub
-
+'legend''''''''''''''''''''''''''''''''''''''''''''''''''''
 Private Sub optLegendNone_Click()
 ActiveChart.Legend.Delete
 End Sub
 
-Private Sub optLegendRight_Click()
-ActiveChart.SetElement (msoElementLegendRight)
+Private Sub optLegendBottom_Click()
+ActiveChart.Legend.Position = xlLegendPositionBottom
 End Sub
+
+Private Sub optLegendRight_Click()
+ActiveChart.Legend.Position = xlLegendPositionRight
+End Sub
+
+Private Sub optLegendTopRight_Click()
+ActiveChart.Legend.Position = xlLegendPositionCorner
+End Sub
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 Private Sub optMajor10_Click()
 ApplyMajorGridlines
@@ -636,6 +700,7 @@ Me.cBoxMarkerStyle.AddItem ("6 - Dash")
 Me.cBoxMarkerStyle.AddItem ("7 - Big Dash")
 Me.cBoxMarkerStyle.AddItem ("8 - Circle")
 Me.cBoxMarkerStyle.AddItem ("9 - Plus")
+Me.cBoxMarkerStyle.AddItem ("10 - Multi-marker")
 End Sub
 
 Sub PopulateLineColourComboBox()
@@ -648,16 +713,15 @@ Me.cBoxLineColours.AddItem ("Green")
 Me.cBoxLineColours.AddItem ("Grey")
 End Sub
 
-
 Sub ApplyMarkerSize()
 
     If Me.txtMarkerSize.Value <> "" Then
-    S = CInt(Me.txtMarkerSize.Value)
-        If S <> "" And S > 1 And ActiveChart.FullSeriesCollection(1).MarkerStyle <> xlMarkerStyleNone Then
+    s = CInt(Me.txtMarkerSize.Value)
+        If s <> "" And s > 1 And ActiveChart.FullSeriesCollection(1).MarkerStyle <> xlMarkerStyleNone Then
             ActiveChart.ChartArea.Select
             For i = 1 To ActiveChart.FullSeriesCollection.Count
                 With ActiveChart.FullSeriesCollection(i)
-                .MarkerSize = S
+                .MarkerSize = s
                 End With
             Next i
         End If
@@ -667,22 +731,41 @@ End Sub
 
 Sub ApplyMarkerStyle()
 Dim getMarkerIndex() As String
-'split cBox into array
+Dim m_style As Integer
+Dim MultiMarkerNo As Integer
+
+MultiMarkerNo = 1
+'split cBox into array, first thing is the number
 getMarkerIndex = Split(Me.cBoxMarkerStyle.Value, " ", Len(Me.cBoxMarkerStyle.Value), vbTextCompare)
 
-    If UBound(getMarkerIndex) <> -1 Then 'nothing selected
-        If Me.chkShowMarkers = True Then
+If UBound(getMarkerIndex) <> -1 Then 'nothing selected
+    If Me.chkShowMarkers = True Then
         m_style = getMarkerIndex(0) 'first element
-        Else
+    Else
         m_style = 0
-        End If
     End If
+End If
     
+If m_style = 10 Then 'multi-marker!
     'set sizes, loop through all series
     For i = 1 To ActiveChart.FullSeriesCollection.Count
-    ActiveChart.FullSeriesCollection(i).MarkerStyle = m_style
-    Next i
     
+        ActiveChart.FullSeriesCollection(i).MarkerStyle = MultiMarkerNo
+        
+        If MultiMarkerNo >= 9 Then
+        MultiMarkerNo = 1 'loop around
+        Else
+        MultiMarkerNo = MultiMarkerNo + 1 'index up
+        End If
+        
+    Next i
+Else
+    'set sizes, loop through all series
+    For i = 1 To ActiveChart.FullSeriesCollection.Count
+        ActiveChart.FullSeriesCollection(i).MarkerStyle = m_style
+    Next i
+End If
+
 End Sub
 
 Sub ApplyMarkerFill()
@@ -728,11 +811,11 @@ Sub ApplyLabels()
     Next i
 End Sub
 
-Sub ApplyLineWeight(S)
-    If IsNumeric(S) And S > 0.5 Then
+Sub ApplyLineWeight(s)
+    If IsNumeric(s) And s > 0.5 Then
         ActiveChart.ChartArea.Select
         For i = 1 To ActiveChart.FullSeriesCollection.Count
-        ActiveChart.FullSeriesCollection(i).Format.Line.Weight = S
+        ActiveChart.FullSeriesCollection(i).Format.Line.Weight = s
         Next i
     End If
 End Sub
@@ -770,8 +853,6 @@ Sub ApplyMinorGridlines()
     End If
 End Sub
 
-
-
 Sub ApplyMajorGridlines()
     If Me.chkMajor.Value = True Then
     ActiveChart.Axes(xlValue).HasMajorGridlines = True
@@ -792,86 +873,79 @@ Sub ApplyMajorGridlines()
 End Sub
 
 Sub YaxisLabel()
-    If FirstRun = False Then
-        If Me.optYNone.Value = False Then
-            If Me.optYOther.Value = False Then 'only if not 'other'
-                If Me.optSPL.Value = True Then
-                    If Me.optdB.Value = True Then
-                    Me.txtYAxis.Text = "Sound Pressure Level, dB"
-                    Else
-                    Me.txtYAxis.Text = "Sound Pressure Level, dBA"
-                    End If
-                ElseIf Me.optSWL.Value Then
-                    If Me.optdB.Value = True Then
-                    Me.txtYAxis.Text = "Sound Power Level, dB"
-                    Else
-                    Me.txtYAxis.Text = "Sound Power Level, dBA"
-                    End If
-                ElseIf Me.optTL.Value = True Then
-                Me.txtYAxis.Text = "Transmission Loss, dB"
-                ElseIf Me.optIL.Value = True Then
-                Me.txtYAxis.Text = "Insertion Loss, dB"
+'guard clause
+If FirstRun = True Then Exit Sub
+
+    If Me.optYNone.Value = False Then
+        If Me.optYOther.Value = False Then 'only if not 'other'
+            If Me.optSPL.Value = True Then
+                If Me.optdB.Value = True Then
+                Me.txtYAxis.Text = "Sound Pressure Level, dB"
+                Else
+                Me.txtYAxis.Text = "Sound Pressure Level, dBA"
                 End If
+            ElseIf Me.optSWL.Value Then
+                If Me.optdB.Value = True Then
+                Me.txtYAxis.Text = "Sound Power Level, dB"
+                Else
+                Me.txtYAxis.Text = "Sound Power Level, dBA"
+                End If
+            ElseIf Me.optTL.Value = True Then
+            Me.txtYAxis.Text = "Transmission Loss, dB"
+            ElseIf Me.optIL.Value = True Then
+            Me.txtYAxis.Text = "Insertion Loss, dB"
             End If
-            
-            If FirstRun = False Then 'only apply if not initial setup
-                With ActiveChart.Axes(xlValue, xlPrimary)
-                    If .HasTitle = False Then
-                    .HasTitle = True
-                    End If
-                .AxisTitle.Text = Me.txtYAxis.Text 'this line is problematic
-                End With
-            End If
-        Else
-        ActiveChart.Axes(xlValue, xlPrimary).HasTitle = False
         End If
+        
+
+        With ActiveChart.Axes(xlValue, xlPrimary)
+            If .HasTitle = False Then
+            .HasTitle = True
+            End If
+        .AxisTitle.Text = Me.txtYAxis.Text 'this line is problematic
+        End With
+
+    Else
+    ActiveChart.Axes(xlValue, xlPrimary).HasTitle = False
     End If
+        
 End Sub
 
 Sub XaxisLabel()
-    If FirstRun = False Then 'only apply if not initial setup
-        If Me.optXNone.Value = False Then
+'guard clause
+If FirstRun = True Then Exit Sub
+
+If Me.optXNone.Value = False Then
+
+    With ActiveChart.Axes(xlCategory, xlPrimary)
+        If .HasTitle = False Then
+        .HasTitle = True
+        End If
+    .AxisTitle.Text = Me.txtXaxis.Text
+    End With
         
-                With ActiveChart.Axes(xlCategory, xlPrimary)
-                    If .HasTitle = False Then
-                    .HasTitle = True
-                    End If
-                .AxisTitle.Text = Me.txtXaxis.Text
-                End With
-                
-                'Put labels in textbox
-                If Me.optXOther.Value = False Then 'only if not 'other'
-                    If Me.optOct.Value = True Then
-                    Me.txtXaxis.Text = "Octave Band Centre Frequency, Hz"
-                    Else
-                    Me.txtXaxis.Text = "One-Third Octave Band Centre Frequency, Hz"
-                    End If
-                End If
-                
+    'Put labels in textbox
+    If Me.optXOther.Value = False Then 'only if not 'other'
+        If Me.optOct.Value = True Then
+        Me.txtXaxis.Text = "Octave Band Centre Frequency, Hz"
         Else
-        ActiveChart.Axes(xlCategory, xlPrimary).HasTitle = False
+        Me.txtXaxis.Text = "One-Third Octave Band Centre Frequency, Hz"
         End If
     End If
-End Sub
+        
+Else
+ActiveChart.Axes(xlCategory, xlPrimary).HasTitle = False
+End If
 
-
-Sub MakeYaxisLogScale()
-    If FirstRun = False Then
-        With ActiveChart.Axes(xlValue, xlPrimary)
-            If Me.chkLogScale.Value = True Then
-            .ScaleType = xlScaleLogarithmic
-            Else
-            .ScaleType = xlScaleLinear
-            End If
-        Me.txtYRangeMax.Value = .MaximumScale
-        Me.txtYRangeMin.Value = .MinimumScale
-        End With
-    End If
 End Sub
 
 
 Function MarkerListBoxIndex(MarkerType As Long)
 Dim SelectedValue As Long
+'Dim MarkerFormatList() As Long
+
+MarkerFormatList = Array(1, 2, 3, 4, 5, 8, 8, 10, 7, 6)
+
 SelectedValue = -1 'catch errors
     Select Case MarkerType
     Case 1 'square
@@ -888,6 +962,12 @@ SelectedValue = -1 'catch errors
     SelectedValue = 8
     Case 9 'square with plus
     SelectedValue = 8
+'    Case 10
+'        If SelectedValue = UBound(MarkerFormatList) Then 'next one will fall off
+'        SelectedValue = 0
+'        Else
+'        SelectedValue = SelectedValue + 1
+'        End If
     Case -4105 'automatic
     SelectedValue = 10
     Case -4115 'long bar

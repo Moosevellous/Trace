@@ -126,6 +126,7 @@ AS2670_Axis = SelectedAxis
 AS2670_Multiplier = Me.txtMult.Value
 AS2670_Order = SelectedOrder
 VibRateAddr = Me.RefVibRange.Value
+AS2670_Category = Me.cBoxMult.Value
 
 ' Close and unload form
 Me.Hide

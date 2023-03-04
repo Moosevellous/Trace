@@ -32,12 +32,12 @@ Private Function getDuctShape()
     End If
     
     If Me.optCir.Value Then
-    S = "C"
+    s = "C"
     ElseIf Me.optRect.Value Then
-    S = "R"
+    s = "R"
     End If
 
-getDuctShape = CStr(W) & " " & S
+getDuctShape = CStr(W) & " " & s
 
 End Function
 

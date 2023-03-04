@@ -44,7 +44,7 @@ End Function
 '           (in degrees C), RelHumidity (value our of 100)
 ' Comments: (1) No interpolation, just straight out of the standard
 '==============================================================================
-Function ISO9613_Aatm(fStr As String, Distance As Double, Temperature As Integer, _
+Function ISO9613_Aatm(fstr As String, Distance As Double, Temperature As Integer, _
 RelHumidity As Integer)
 
 'These are the values from Table 2 of ISO9613
@@ -63,7 +63,7 @@ FifteenTwenty = Array(0.3, 0.6, 1.2, 2.7, 8.2, 28.2, 88.8, 202)
 FifteenFifty = Array(0.1, 0.5, 1.2, 2.2, 4.2, 10.8, 36.2, 129)
 FifteenEighty = Array(0.1, 0.3, 1.1, 2.4, 4.1, 8.3, 23.7, 82.8)
 
-elem = GetArrayIndex_OCT(fStr)
+elem = GetArrayIndex_OCT(fstr)
 
     If elem = 999 Or elem = -1 Then 'catch error
     ISO9613_Aatm = "-"
@@ -97,7 +97,7 @@ End Function
 '           between 0 And 1), q (defined for the purpose of adding to the Am)
 ' Comments: (1) As implemented in the standard.
 '==============================================================================
-Function ISO9613_Agr(fStr As String, SourceHeight As Double, ReceiverHeight As Double, _
+Function ISO9613_Agr(fstr As String, SourceHeight As Double, ReceiverHeight As Double, _
 dP As Double, Gsrc As Double, Grec As Double, Optional Gmid As Double)
 
 Dim ahs As Double
@@ -137,7 +137,7 @@ bhr = 1.5 + ((8.6 * Exp(-0.09 * ReceiverHeight ^ 2)) * (1 - Exp(-dP / 50)))
 chr = 1.5 + ((14 * Exp(-0.46 * ReceiverHeight ^ 2)) * (1 - Exp(-dP / 50)))
 dhr = 1.5 + ((5 * Exp(-0.9 * ReceiverHeight ^ 2)) * (1 - Exp(-dP / 50)))
 
-elem = GetArrayIndex_OCT(fStr)
+elem = GetArrayIndex_OCT(fstr)
 
 'Debug.Print "Gsrc: "; Gsrc
 'Debug.Print "Gmid: "; Gmid
@@ -198,7 +198,7 @@ End Function
 ' Comments: (1) distances are input as horizontal distances, with the
 '           hypotenuse calculated during the function
 '==============================================================================
-Function ISO9613_Abar(fStr As String, SourceHeight As Double, ReceiverHeight As Double, _
+Function ISO9613_Abar(fstr As String, SourceHeight As Double, ReceiverHeight As Double, _
 SourceReceiverDistance As Double, SourceBarrierDistance As Double, _
 SrcDistanceEdge As Double, RecDistanceEdge As Double, HeightBarrierSource As Double, _
 Optional DoubleDiffraction As Boolean, Optional BarrierThickness As Double, _
@@ -214,7 +214,7 @@ Dim f As Double
 Dim dss As Double 'distance from source to the first diffraction edge
 Dim dsr As Double 'distance from the (second) diffraction edge to the receiver
 Dim DistanceRecBarrier As Double 'distance from Receiver to the barrier (near side)
-Dim a As Double 'a is the horizontal offset distance between the source and the receivers
+Dim A As Double 'a is the horizontal offset distance between the source and the receivers
 Dim lambda As Double 'wavelength
 Dim z As Double 'difference in path lengths of diffracted and direct sound in metres
 Dim Kmet As Double
@@ -222,9 +222,9 @@ Dim d_standard As Double 'includes vertical component
 
 If IsMissing(BarrierThickness) Or DoubleDiffraction = False Then BarrierThickness = 0
 
-f = freqStr2Num(fStr)
+f = freqStr2Num(fstr)
 lambda = (343) / f 'as defined in the method
-a = Abs(SrcDistanceEdge - RecDistanceEdge)
+A = Abs(SrcDistanceEdge - RecDistanceEdge)
     
     If IsNumeric(GroundEffect) = False Then
     ISO9613_Abar = "-"
@@ -249,7 +249,7 @@ d_standard = (((SourceReceiverDistance ^ 2) + ((ReceiverHeight - SourceHeight) ^
     If DoubleDiffraction = True And BarrierThickness > 0 Then
     Cthree = (1 + ((5 * lambda / BarrierThickness) * (5 * lambda / BarrierThickness))) / _
             (1 / 3 + ((5 * lambda / BarrierThickness) * (5 * lambda / BarrierThickness)))
-    z = ((((dss + dsr + BarrierThickness) ^ 2) + (a ^ 2)) ^ (1 / 2)) - d_standard
+    z = ((((dss + dsr + BarrierThickness) ^ 2) + (A ^ 2)) ^ (1 / 2)) - d_standard
     
     'Here the case of double diffraction is considered it actually says if lambda is << e
     'so here we have considered half of the value
@@ -258,7 +258,7 @@ d_standard = (((SourceReceiverDistance ^ 2) + ((ReceiverHeight - SourceHeight) ^
         End If
     Else 'double diffraction is false
     Cthree = 1
-    z = ((((dss + dsr) ^ 2) + (a ^ 2)) ^ (1 / 2)) - d_standard
+    z = ((((dss + dsr) ^ 2) + (A ^ 2)) ^ (1 / 2)) - d_standard
     End If
 
 'calculate the Kmet: the meteorological correction
@@ -309,7 +309,7 @@ End Function
 ' Args:
 ' Comments: (1)
 '==============================================================================
-Function ISO9613_Cmet(fStr As String, hs, hr, dP, c0)
+Function ISO9613_Cmet(fstr As String, hs, hr, dP, c0)
 'TODO: One day we'll need this for something
 End Function
 

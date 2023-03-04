@@ -24,7 +24,7 @@ CountOptions
 End Sub
 
 Private Sub btnHelp_Click()
-GotoWikiPage
+GotoWikiPage "Sheet-Functions#options-analysis"
 End Sub
 
 Private Sub btnOK_Click()

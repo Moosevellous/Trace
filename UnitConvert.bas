@@ -18,7 +18,7 @@ Feet2Metres = inputValue / 3.28084
 End Function
 
 'FORWARDING FUNCTIONS
-Function DuctAtten_ASHRAE_IU(freq As String, DuctHeight As Long, DuctWidth As Long, DuctType As String, Length As Double)
+Function DuctAtten_ASHRAE_IU(freq As String, DuctHeight As Long, DuctWidth As Long, DuctType As String, length As Double)
 Dim H_metric As Long
 Dim W_metric As Long
 Dim Length_metric As Double
@@ -26,7 +26,7 @@ Dim Length_metric As Double
 'convert units
 H_metric = Inches2mm(DuctHeight)
 W_metric = Inches2mm(DuctWidth)
-Length_metric = Metres2Feet(Length)
+Length_metric = Metres2Feet(length)
 
 'call metric function
 DuctAtten_ASHRAE_IU = DuctAtten_ASHRAE(freq, H_metric, W_metric, DuctType, Length_metric)

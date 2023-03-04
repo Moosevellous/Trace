@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmDuctSplit 
    Caption         =   "Duct Split"
-   ClientHeight    =   6105
+   ClientHeight    =   5820
    ClientLeft      =   45
    ClientTop       =   390
    ClientWidth     =   12195
@@ -57,6 +57,10 @@ Me.txtW2.Enabled = True
 CalcDuctAreas
 End Sub
 
+Private Sub optBranch_Click()
+
+End Sub
+
 Private Sub optDimensions_Click()
 
 Me.txtL1.Enabled = True
@@ -65,7 +69,7 @@ Me.txtW1.Enabled = True
 Me.txtW2.Enabled = True
 Me.lblEqn.Enabled = True
 Me.lblAtten.Enabled = True
-Me.lbldb.Enabled = True
+Me.lbldB.Enabled = True
 Me.optA1Circular.Enabled = True
 Me.optA1Rectangular.Enabled = True
 Me.optA2Circular.Enabled = True
@@ -91,7 +95,7 @@ Me.txtW1.Enabled = False
 Me.txtW2.Enabled = False
 Me.lblEqn.Enabled = False
 Me.lblAtten.Enabled = False
-Me.lbldb.Enabled = False
+Me.lbldB.Enabled = False
 Me.optA1Circular.Enabled = False
 Me.optA1Rectangular.Enabled = False
 Me.optA2Circular.Enabled = False
@@ -108,7 +112,6 @@ Me.lblEqn3.Enabled = False
 Me.lblAttenR.Enabled = False
 Me.lbldB3.Enabled = False
 
-
 End Sub
 
 Private Sub optRatio_Click()
@@ -118,7 +121,7 @@ Me.txtW1.Enabled = False
 Me.txtW2.Enabled = False
 Me.lblEqn.Enabled = False
 Me.lblAtten.Enabled = False
-Me.lbldb.Enabled = False
+Me.lbldB.Enabled = False
 Me.optA1Circular.Enabled = False
 Me.optA1Rectangular.Enabled = False
 Me.optA2Circular.Enabled = False
@@ -133,6 +136,10 @@ Me.txtRatio1.Enabled = True
 Me.lblEqn3.Enabled = True
 Me.lblAttenR.Enabled = True
 Me.lbldB3.Enabled = True
+
+End Sub
+
+Private Sub optTee_Click()
 
 End Sub
 

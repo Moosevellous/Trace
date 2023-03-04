@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmFrequencyBandCutoff 
    Caption         =   "Frequency Band Cutoff - ANSI S1.11"
-   ClientHeight    =   4365
+   ClientHeight    =   4575
    ClientLeft      =   120
    ClientTop       =   465
-   ClientWidth     =   10770
+   ClientWidth     =   11265
    OleObjectBlob   =   "frmFrequencyBandCutoff.frx":0000
    StartUpPosition =   1  'CenterOwner
 End

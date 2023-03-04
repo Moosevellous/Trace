@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmSilencer 
    Caption         =   "Select Fantech Silencer"
-   ClientHeight    =   6720
+   ClientHeight    =   7125
    ClientLeft      =   45
    ClientTop       =   390
    ClientWidth     =   14370
@@ -22,8 +22,9 @@ Dim IL2k() As Double
 Dim IL4k() As Double
 Dim IL8k() As Double
 Dim FA() As Double
-Dim Length() As Double
+Dim length() As Double
 Dim Series() As String
+Dim PredictedResult() As Double
 Dim SilencerArray(0 To 1000, 0 To 11) As Double 'TODO: make dynamic array?
 Dim SilNameArray() As String 'dynamic array
 Dim SilSeriesArray() As String 'dynamic array
@@ -84,15 +85,19 @@ Private Sub btnSearchAll_Click()
 Me.optSearch.Value = True
 Me.txtSearchName.Value = "<ALL>"
 btnSearch_Click
+Me.Repaint
 End Sub
 
 Private Sub btnSolve_Click()
+Me.optdBA.Enabled = False
+Me.optNR.Enabled = False
 Me.lblStatus.Caption = "Getting database file path..."
 GetSettings
 Me.lstOptions.Clear
 Me.lblStatus.Caption = "Solving..."
 SolveForSilencer Me.RefSilencerRange.Value, Me.RefTargetRange.Value, Me.optNR.Value, CDbl(Me.txtNoiseGoal.Value)
 Me.lblStatus.Caption = "Search complete: " & numResults & " results"
+Me.Repaint
 End Sub
 
 Private Sub lstOptions_Click()
@@ -108,7 +113,7 @@ Me.txt2k.Value = IL2k(i)
 Me.txt4k.Value = IL4k(i)
 Me.txt8k.Value = IL8k(i)
 Me.txtFA.Value = FA(i)
-Me.txtLength.Value = Length(i)
+Me.txtLength.Value = length(i)
 SplitSeries = Split(Series(i), " ")
     If UBound(SplitSeries) >= 1 Then
     Me.txtSupplier.Value = SplitSeries(0)
@@ -117,6 +122,7 @@ SplitSeries = Split(Series(i), " ")
     Me.txtSupplier.Value = "ERROR"
     Me.txtSeries.Value = "ERROR"
     End If
+Me.txtPredictedLevel.Value = PredictedResult(i)
 End Sub
 
 Private Sub optCircular_Click()
@@ -129,10 +135,15 @@ End Sub
 
 Private Sub optdBA_Click()
 Me.lblUnits = "dBA"
+Me.lblUnits2 = "dBA"
+Me.lbldBNR = "dBA"
+
 End Sub
 
 Private Sub optNR_Click()
 Me.lblUnits = "NR"
+Me.lblUnits2 = "NR"
+Me.lbldBNR = "NR"
 End Sub
 
 Private Sub optSearch_Click()
@@ -267,9 +278,9 @@ Open FANTECH_SILENCERS For Input As #1
             
             'Length
             If SplitStr(1) <> "" Then
-            Length(Me.lstOptions.ListCount - 1) = CDbl(SplitStr(1))
+            length(Me.lstOptions.ListCount - 1) = CDbl(SplitStr(1))
             Else
-            Length(Me.lstOptions.ListCount - 1) = 0
+            length(Me.lstOptions.ListCount - 1) = 0
             End If
             
             'series
@@ -303,12 +314,23 @@ ReDim Preserve IL2k(size)
 ReDim Preserve IL4k(size)
 ReDim Preserve IL8k(size)
 ReDim Preserve FA(size)
-ReDim Preserve Length(size)
+ReDim Preserve length(size)
 ReDim Preserve Series(size)
+ReDim Preserve PredictedResult(size)
 End Sub
 
-
-Function SolveForSilencer(SilRng As String, TargetRng As String, NRGoal As Boolean, NoiseGoal As Double)
+'==============================================================================
+' Name:     SolveForSilencer
+' Author:   PS
+' Desc:     Loops through all the silenncers in the list and puts the selections
+'           in a set of arrays
+' Args:     SilRng - address of where the silencer sits in the calculation
+'           TargetRng - address of where the predicted noise level is
+'           NRGoal - NR to be targeted
+'           NoiseGoal - dBA or NR to be targeted
+' Comments: (1)
+'==============================================================================
+Sub SolveForSilencer(SilRng As String, TargetRng As String, NRGoal As Boolean, NoiseGoal As Double)
 Dim found As Boolean
 Dim targetAddr() As String
 Dim targetRw As Integer
@@ -340,21 +362,21 @@ Application.Calculation = xlCalculationManual
     'search for compliant silencers
         'place in cells
 
-        For Rw = 2 To UBound(SilNameArray) 'loop through name list only         'OLD:    For Rw = 2 To UBound(SilencerArray)
+        For rw = 2 To UBound(SilNameArray) 'loop through name list only         'OLD:    For Rw = 2 To UBound(SilencerArray)
         SilCols = 0
-            For col = T_LossGainStart + 1 To T_LossGainEnd - 1
+            For col = T_LossGainStart + 1 To T_LossGainEnd '63Hz to 8kHz
             'Debug.Print SilencerArray(rw, Col - 4)
-            Cells(SilRw, col).Value = SilencerArray(Rw, 2 + SilCols) 'start from element 2
+            Cells(SilRw, col).Value = SilencerArray(rw, 2 + SilCols) 'start from element 2
             SilCols = SilCols + 1 'index write row
             Next col
             
         'Debug.Print UBound(SilNameArray)
-            If UBound(SilNameArray) >= Rw Then
-            Cells(SilRw, T_Description).Value = SilNameArray(Rw)
-            PercentComplete = ((Rw - 2) / UBound(SilNameArray) * 100)
+            If UBound(SilNameArray) >= rw Then
+            Cells(SilRw, T_Description).Value = SilNameArray(rw)
+            PercentComplete = ((rw - 2) / UBound(SilNameArray) * 100)
             PercentComplete = Application.WorksheetFunction.MRound(PercentComplete, 5)
             Me.lblStatus.Caption = PercentComplete & "%      " & _
-                "Checking: " & SilNameArray(Rw)
+                "Checking: " & SilNameArray(rw)
             Else
             Me.lblStatus.Caption = ""
             End If
@@ -366,34 +388,33 @@ Application.Calculation = xlCalculationManual
         'TestLevel = Cells(targetRw, 14).Value
         TestLevel = NR_rate(Range(Cells(targetRw, T_LossGainStart), Cells(targetRw, T_LossGainStart)))
         Else
-        TestLevel = Round(Cells(targetRw, T_LossGainStart - 1).Value, 1)
+        TestLevel = Round(Cells(targetRw, T_LossGainStart - 1).Value, 1) 'overall a weighted number
         End If
         
         If TestLevel <= NoiseGoal And _
             TestLevel >= (NoiseGoal - CDbl(Me.txtDesignTolerance.Value)) Then 'silencer achieves target, but doesn't overshoot
             
-        Me.lstOptions.AddItem (SilNameArray(Rw))
+        Me.lstOptions.AddItem (SilNameArray(rw))
         ResizeArray (Me.lstOptions.ListCount)
-        IL63(Me.lstOptions.ListCount - 1) = SilencerArray(Rw, 2)
-        IL125(Me.lstOptions.ListCount - 1) = SilencerArray(Rw, 3)
-        IL250(Me.lstOptions.ListCount - 1) = SilencerArray(Rw, 4)
-        IL500(Me.lstOptions.ListCount - 1) = SilencerArray(Rw, 5)
-        IL1k(Me.lstOptions.ListCount - 1) = SilencerArray(Rw, 6)
-        IL2k(Me.lstOptions.ListCount - 1) = SilencerArray(Rw, 7)
-        IL4k(Me.lstOptions.ListCount - 1) = SilencerArray(Rw, 8)
-        IL8k(Me.lstOptions.ListCount - 1) = SilencerArray(Rw, 9)
-        FA(Me.lstOptions.ListCount - 1) = SilencerArray(Rw, 10)
-        Length(Me.lstOptions.ListCount - 1) = SilencerArray(Rw, 1)
-        Series(Me.lstOptions.ListCount - 1) = SilSeriesArray(Rw)
+        IL63(Me.lstOptions.ListCount - 1) = SilencerArray(rw, 2)
+        IL125(Me.lstOptions.ListCount - 1) = SilencerArray(rw, 3)
+        IL250(Me.lstOptions.ListCount - 1) = SilencerArray(rw, 4)
+        IL500(Me.lstOptions.ListCount - 1) = SilencerArray(rw, 5)
+        IL1k(Me.lstOptions.ListCount - 1) = SilencerArray(rw, 6)
+        IL2k(Me.lstOptions.ListCount - 1) = SilencerArray(rw, 7)
+        IL4k(Me.lstOptions.ListCount - 1) = SilencerArray(rw, 8)
+        IL8k(Me.lstOptions.ListCount - 1) = SilencerArray(rw, 9)
+        FA(Me.lstOptions.ListCount - 1) = SilencerArray(rw, 10)
+        length(Me.lstOptions.ListCount - 1) = SilencerArray(rw, 1)
+        Series(Me.lstOptions.ListCount - 1) = SilSeriesArray(rw)
+        PredictedResult(Me.lstOptions.ListCount - 1) = TestLevel
         End If
         
-        Next Rw
+        Next rw
     End If 'ubound close loop
     
 'clear last row, should already be selected
 ClearRow (True)
-
-
 
     'Enable button if suitable options found
     If Me.lstOptions.ListCount > 0 Then
@@ -406,7 +427,7 @@ Application.Calculation = xlCalculationAutomatic
 
 numResults = Me.lstOptions.ListCount
 
-End Function
+End Sub
 
 
 Sub ScanFantechTextFile()

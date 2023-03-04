@@ -112,7 +112,7 @@ End Sub
 Private Sub PreviewValues()
 
 Dim V As Double
-Dim L As Double
+Dim l As Double
 Dim W As Double
 Dim H As Double
 Dim S_total As Double
@@ -132,26 +132,26 @@ Me.txt2k.Value = alphaValues(6)
 Me.txt4k.Value = alphaValues(7)
 Me.txt8k.Value = alphaValues(8)
 
-L = CDbl(Me.txtL.Value)
+l = CDbl(Me.txtL.Value)
 W = CDbl(Me.txtW.Value)
 H = CDbl(Me.txtH.Value)
 'volume
-V = L * W * H
+V = l * W * H
 Me.txtV.Value = Round(V, 1)
 'surface area
-S_total = (L * W * 2) + (L * H * 2) + (W * H * 2)
+S_total = (l * W * 2) + (l * H * 2) + (W * H * 2)
 Me.txtStotal = Round(S_total, 1)
 
 'Room Loss
-Me.txtSA31.Value = Round(RoomLossTypicalRT("31.5", L, W, H, Me.cBoxRT.Value), 1)
-Me.txtSA63.Value = Round(RoomLossTypicalRT("63", L, W, H, Me.cBoxRT.Value), 1)
-Me.txtSA125.Value = Round(RoomLossTypicalRT("125", L, W, H, Me.cBoxRT.Value), 1)
-Me.txtSA250.Value = Round(RoomLossTypicalRT("250", L, W, H, Me.cBoxRT.Value), 1)
-Me.txtSA500.Value = Round(RoomLossTypicalRT("500", L, W, H, Me.cBoxRT.Value), 1)
-Me.txtSA1k.Value = Round(RoomLossTypicalRT("1k", L, W, H, Me.cBoxRT.Value), 1)
-Me.txtSA2k.Value = Round(RoomLossTypicalRT("2k", L, W, H, Me.cBoxRT.Value), 1)
-Me.txtSA4k.Value = Round(RoomLossTypicalRT("4k", L, W, H, Me.cBoxRT.Value), 1)
-Me.txtSA8k.Value = Round(RoomLossTypicalRT("8k", L, W, H, Me.cBoxRT.Value), 1)
+Me.txtSA31.Value = Round(RoomLossTypicalRT("31.5", l, W, H, Me.cBoxRT.Value), 1)
+Me.txtSA63.Value = Round(RoomLossTypicalRT("63", l, W, H, Me.cBoxRT.Value), 1)
+Me.txtSA125.Value = Round(RoomLossTypicalRT("125", l, W, H, Me.cBoxRT.Value), 1)
+Me.txtSA250.Value = Round(RoomLossTypicalRT("250", l, W, H, Me.cBoxRT.Value), 1)
+Me.txtSA500.Value = Round(RoomLossTypicalRT("500", l, W, H, Me.cBoxRT.Value), 1)
+Me.txtSA1k.Value = Round(RoomLossTypicalRT("1k", l, W, H, Me.cBoxRT.Value), 1)
+Me.txtSA2k.Value = Round(RoomLossTypicalRT("2k", l, W, H, Me.cBoxRT.Value), 1)
+Me.txtSA4k.Value = Round(RoomLossTypicalRT("4k", l, W, H, Me.cBoxRT.Value), 1)
+Me.txtSA8k.Value = Round(RoomLossTypicalRT("8k", l, W, H, Me.cBoxRT.Value), 1)
 
 errorCatch:
 End Sub

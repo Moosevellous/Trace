@@ -11,6 +11,7 @@ Attribute VB_Name = "DevTools"
 ' Comments: (1) Called from EXPORT_TRACE_SOURCE_CODE
 '==============================================================================
 Function findTraceVBProject()
+On Error GoTo errCatch:
     For i = 1 To Application.VBE.VBProjects.Count
     'Debug.Print Application.VBE.VBProjects(i).Name
         If Application.VBE.VBProjects(i).Name = "Trace3" Then
@@ -18,6 +19,9 @@ Function findTraceVBProject()
         Exit Function
         End If
     Next i
+    
+errCatch:
+Debug.Print Err.Number; " "; Err.Description
 End Function
 
 '==============================================================================
@@ -123,25 +127,6 @@ msg = MsgBox("Export process complete: " & numFiles & " files", vbOKOnly, _
 frmExport.Hide
 'Application.StatusBar = False
 
-End Sub
-
-'==============================================================================
-' Name:     OpenTraceDirectory
-' Author:   PS
-' Desc:     Opens Windows Explorer wherever Trace is installed
-' Args:     None
-' Comments: (1) Where am I?!
-'==============================================================================
-Sub OpenTraceDirectory()
-On Error GoTo catch
-Dim TraceDir As String
-TraceDir = Application.AddIns("Trace").Path
-    If TraceDir <> "" Then
-    Call Shell("explorer.exe" & " " & TraceDir, vbNormalFocus)
-    End If
-    End
-catch:
-Debug.Print "Error: Add-In path not found"
 End Sub
 
 

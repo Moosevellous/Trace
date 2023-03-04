@@ -18,6 +18,8 @@ Public MAM_M1 As Double
 Public MAM_M2 As Double
 Public MAM_Width As Double
 Public MAM_Description As String
+Public MAM_AirTemp As Double
+Public MAM_InsulatedCavity As Boolean
 'Room Corrections
 Public DistanceFromSource As Double
 Public RoomVolume As Double
@@ -29,14 +31,26 @@ Public RoomVolume As Double
 ' Args:     fStr, the frequency band centre frequency as a string
 ' Comments: (1) Used almost everywhere, because '2k' beats writing '2000' etc
 '==============================================================================
-Function freqStr2Num(fStr As String) As Double
+Function freqStr2Num(fstr As String) As Double
 
-If Right(fStr, 1) = "*" Then 'trim stars
+If Right(fstr, 1) = "*" Then 'trim stars
     'trim
-    fStr = Left(fStr, Len(fStr) - 1)
+    fstr = Left(fstr, Len(fstr) - 1)
 End If
 
-    Select Case fStr
+    Select Case fstr
+    Case Is = "0.25"
+    freqStr2Num = 0.25
+    Case Is = "0.315"
+    freqStr2Num = 0.315
+    Case Is = "0.4"
+    freqStr2Num = 0.4
+    Case Is = "0.5"
+    freqStr2Num = 0.5
+    Case Is = "0.6"
+    freqStr2Num = 0.6
+    Case Is = "0.8"
+    freqStr2Num = 0.8
     Case Is = "1"
     freqStr2Num = 1
     Case Is = "1.25"
@@ -167,10 +181,10 @@ End Function
 '           OffsetBands - positive value=index up for a given band
 ' Comments: (1) Used a lot in ISO9613 but also elsewhere
 '==============================================================================
-Function GetArrayIndex_OCT(fStr As String, Optional OffsetBands As Integer)
+Function GetArrayIndex_OCT(fstr As String, Optional OffsetBands As Integer)
 Dim freq As Double
 
-freq = freqStr2Num(fStr) 'converts to Double
+freq = freqStr2Num(fstr) 'converts to Double
     Select Case freq
     Case Is = 16
     GetArrayIndex_OCT = -2 + OffsetBands
@@ -519,11 +533,11 @@ i = 1
     End If
     
     'calculate weighted TLs
-    For Each a In AreaRange 'a is the cell?
-    TotalArea = TotalArea + a
-    TotalWeightedTL = TotalWeightedTL + a * (10 ^ (Switch * TL_Range(i) / 10))
+    For Each A In AreaRange 'a is the cell?
+    TotalArea = TotalArea + A
+    TotalWeightedTL = TotalWeightedTL + A * (10 ^ (Switch * TL_Range(i) / 10))
     i = i + 1
-    Next a
+    Next A
 
 'take log of the whole thing
 CompositeTL = (Switch * -1) * 10 * Application.WorksheetFunction.Log _
@@ -567,7 +581,7 @@ SheetNm = IfRange.Worksheet.Name
 '    Debug.Print "Cell value: "; Sheets(SheetNm).Cells(C.Row, C.Column).Value
 '    Debug.Print ""
     
-    Rw = IfRange.Row - SumRange.Row
+    rw = IfRange.Row - SumRange.Row
     clmn = IfRange.Column - SumRange.Column
     
         Select Case ConditionType
@@ -575,37 +589,37 @@ SheetNm = IfRange.Worksheet.Name
             If c.Value > ConditionValue Then
             SPLSUMIF = 10 * Application.WorksheetFunction.Log10( _
                 (10 ^ (SPLSUMIF / 10)) + _
-                (10 ^ (Sheets(SheetNm).Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
+                (10 ^ (Sheets(SheetNm).Cells(c.Row - rw, c.Column - clmn).Value / 10)))
             End If
         Case Is = "GreaterThanEqualTo"
             If c.Value >= ConditionValue Then
             SPLSUMIF = 10 * Application.WorksheetFunction.Log10( _
                 (10 ^ (SPLSUMIF / 10)) + _
-                (10 ^ (Sheets(SheetNm).Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
+                (10 ^ (Sheets(SheetNm).Cells(c.Row - rw, c.Column - clmn).Value / 10)))
             End If
         Case Is = "LessThan"
             If c.Value < ConditionValue Then
             SPLSUMIF = 10 * Application.WorksheetFunction.Log10( _
                 (10 ^ (SPLSUMIF / 10)) + _
-                (10 ^ (Sheets(SheetNm).Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
+                (10 ^ (Sheets(SheetNm).Cells(c.Row - rw, c.Column - clmn).Value / 10)))
             End If
         Case Is = "LessThanEqualTo"
             If c.Value <= ConditionValue Then
             SPLSUMIF = 10 * Application.WorksheetFunction.Log10( _
                 (10 ^ (SPLSUMIF / 10)) + _
-                (10 ^ (Sheets(SheetNm).Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
+                (10 ^ (Sheets(SheetNm).Cells(c.Row - rw, c.Column - clmn).Value / 10)))
             End If
         Case Is = "Equals"
             If c.Value = ConditionValue Then
             SPLSUMIF = 10 * Application.WorksheetFunction.Log10( _
                 (10 ^ (SPLSUMIF / 10)) + _
-                (10 ^ (Sheets(SheetNm).Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
+                (10 ^ (Sheets(SheetNm).Cells(c.Row - rw, c.Column - clmn).Value / 10)))
             End If
         Case Is = "Match"
             If InStr(1, c.Value, ConditionValue, vbTextCompare) > 0 Then
             SPLSUMIF = 10 * Application.WorksheetFunction.Log10( _
                 (10 ^ (SPLSUMIF / 10)) + _
-                (10 ^ (Sheets(SheetNm).Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
+                (10 ^ (Sheets(SheetNm).Cells(c.Row - rw, c.Column - clmn).Value / 10)))
             End If
         Case Is = "" 'no condtion type
             SPLSUMIF = -99
@@ -654,7 +668,7 @@ numVals = 0
 '    Debug.Print "Cell value: "; SumRange(C.Row, C.Column).Value
 '    Debug.Print ""
     
-    Rw = IfRange.Row - SumRange.Row
+    rw = IfRange.Row - SumRange.Row
     clmn = IfRange.Column - SumRange.Column
     
         Select Case ConditionType
@@ -662,42 +676,42 @@ numVals = 0
             If c.Value > ConditionValue Then
             SPLSUM = 10 * Application.WorksheetFunction.Log10( _
                 (10 ^ (SPLSUM / 10)) + _
-                (10 ^ (Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
+                (10 ^ (Cells(c.Row - rw, c.Column - clmn).Value / 10)))
             numVals = numVals + 1
             End If
         Case Is = "GreaterThanEqualTo"
             If c.Value >= ConditionValue Then
             SPLSUM = 10 * Application.WorksheetFunction.Log10( _
                 (10 ^ (SPLSUM / 10)) + _
-                (10 ^ (Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
+                (10 ^ (Cells(c.Row - rw, c.Column - clmn).Value / 10)))
             numVals = numVals + 1
             End If
         Case Is = "LessThan"
             If c.Value < ConditionValue Then
             SPLSUM = 10 * Application.WorksheetFunction.Log10( _
                 (10 ^ (SPLSUM / 10)) + _
-                (10 ^ (Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
+                (10 ^ (Cells(c.Row - rw, c.Column - clmn).Value / 10)))
             numVals = numVals + 1
             End If
         Case Is = "LessThanEqualTo"
             If c.Value <= ConditionValue Then
             SPLSUM = 10 * Application.WorksheetFunction.Log10( _
                 (10 ^ (SPLSUM / 10)) + _
-                (10 ^ (Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
+                (10 ^ (Cells(c.Row - rw, c.Column - clmn).Value / 10)))
             numVals = numVals + 1
             End If
         Case Is = "Equals"
             If c.Value = ConditionValue Then
             SPLSUM = 10 * Application.WorksheetFunction.Log10( _
                 (10 ^ (SPLSUM / 10)) + _
-                (10 ^ (Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
+                (10 ^ (Cells(c.Row - rw, c.Column - clmn).Value / 10)))
             numVals = numVals + 1
             End If
         Case Is = "Match"
             If InStr(1, c.Value, ConditionValue, vbTextCompare) > 0 Then
             SPLSUM = 10 * Application.WorksheetFunction.Log10( _
                 (10 ^ (SPLSUM / 10)) + _
-                (10 ^ (Cells(c.Row - Rw, c.Column - clmn).Value / 10)))
+                (10 ^ (Cells(c.Row - rw, c.Column - clmn).Value / 10)))
             numVals = numVals + 1
             End If
         Case Is = "" 'no condtion type
@@ -848,8 +862,8 @@ End Function
 ' Args:     fStr, SoundSpeed
 ' Comments: (1) Simple, yeah?
 '==============================================================================
-Function Wavelength(fStr As String, SoundSpeed As Long)
-f = freqStr2Num(fStr)
+Function Wavelength(fstr As String, SoundSpeed As Long)
+f = freqStr2Num(fstr)
 Wavelength = SoundSpeed / f
 End Function
 
@@ -884,7 +898,7 @@ End Function
 '           baseTen - boolean (defaults to TRUE)
 ' Comments: (1) Also known as the crossover frequency
 '==============================================================================
-Function FrequencyBandCutoff(fStr As String, Mode As String, _
+Function FrequencyBandCutoff(fstr As String, Mode As String, _
 Optional bandwidth As Integer, Optional baseTen As Boolean)
 
 Dim G As Double 'gain
@@ -894,7 +908,7 @@ Dim b As Integer 'bandwidth denominator
 Dim x As Double
 
 
-f = freqStr2Num(fStr)
+f = freqStr2Num(fstr)
 fr = 1000
 b = GetBandwidthIndex(f)
 
@@ -962,25 +976,42 @@ End Function
 ' Args:     m1 - mass of first element in kg/m2
 '           m2 - mass of second element in kg/m2
 '           CavitySpace - distance between the leaves, in mm
+'           InsulatedCavity - set to TRUE for insulation in cavity, lowers by ~15.5%
 ' Comments: (1)
 '==============================================================================
-Function MassAirMass(m1 As Double, m2 As Double, CavitySpace As Double, Optional vAirTemp As Variant)
-Dim a As Double
+Function MassAirMass(m1 As Double, m2 As Double, CavitySpace As Double, _
+    Optional vAirTemp As Variant, Optional InsulatedCavity As Boolean)
+Dim A As Double
 Dim AirTemp As Long
-a = 1 / (2 * Application.WorksheetFunction.Pi())
+Dim InsCavCorrection As Double
+
+A = 1 / (2 * Application.WorksheetFunction.Pi())
 rho = 1.225 'constant for now
+
     If IsMissing(vAirTemp) Or vAirTemp = "" Then
     AirTemp = 20 'default to 20 degrees celsius
     Else
     AirTemp = CLng(vAirTemp)
     End If
+    
+    If InsulatedCavity = True Then
+    InsCavCorrection = 1 / (1.4 ^ 0.5)
+    Else
+    InsCavCorrection = 1
+    End If
+    
 c = SpeedOfSound(AirTemp, False)
 D = CavitySpace / 1000 'convert to metres
+
     If m1 > 0 And m2 > 0 Then
-    MassAirMass = a * ((rho * (c ^ 2) * (m1 + m2)) / (D * m1 * m2)) ^ (1 / 2)
+    MassAirMass = InsCavCorrection * A * ((rho * (c ^ 2) * (m1 + m2)) / _
+        (D * m1 * m2)) ^ (1 / 2)
     Else
     MassAirMass = 0
     End If
+    
+
+    
 End Function
 
 
@@ -998,14 +1029,14 @@ End Function
 ' Comments: (1) Source: Schultz, ASHRAE Transactions 1983, 91(1), pp 124-153.
 '           (2) Assumes a rectilinear room
 '==============================================================================
-Function RoomCorrection_Schultz(Length As Double, Width As Double, Height As Double, _
-    DistanceFromSource As Double, fStr As String)
+Function RoomCorrection_Schultz(length As Double, Width As Double, Height As Double, _
+    DistanceFromSource As Double, fstr As String)
     
 Dim Volume As Double ' room volume
 Dim f As Double ' frequency
 
-Volume = Length * Width * Height
-f = freqStr2Num(fStr)
+Volume = length * Width * Height
+f = freqStr2Num(fstr)
     
     'guard clause
     If DistanceFromSource <= 0 Then
@@ -1028,12 +1059,12 @@ End Function
 '
 ' Comments: (1) Assumes a rectilinear room
 '==============================================================================
-Function RoomCorrection_Plantroom(Length As Double, Width As Double, _
+Function RoomCorrection_Plantroom(length As Double, Width As Double, _
 Height As Double, RT As Double)
     
 Dim Volume As Double ' room volume
 
-Volume = Length * Width * Height
+Volume = length * Width * Height
 
 RoomCorrection_Plantroom = -10 * Application.WorksheetFunction.Log10(Volume) + _
     10 * Application.WorksheetFunction.Log10(RT) + 14
@@ -1046,7 +1077,7 @@ End Function
 ' Args:
 ' Comments: (1) Source for these RTs?
 '==============================================================================
-Function RoughRT(fStr As String, RT_at500Hz As Double)
+Function RoughRT(fstr As String, RT_at500Hz As Double)
 'Dim Masonry_RT(8) As Double
 'Dim SubstantalLF_RT(8) As Double
 
@@ -1054,7 +1085,7 @@ Function RoughRT(fStr As String, RT_at500Hz As Double)
 Masonry_RT = Array(1#, 1.2, 1.1, 1#, 1#, 0.9, 0.7, 0.5)
 SubstantalLF_RT = Array(0.7, 0.8, 0.9, 1#, 1#, 0.9, 0.7, 0.5)
 
-i = GetArrayIndex_OCT(fStr)
+i = GetArrayIndex_OCT(fstr)
 
 RoughRT = Masonry_RT(i) * RT_at500Hz
 
@@ -1064,12 +1095,13 @@ End Function
 ' Name:     MassLaw
 ' Author:   PS
 ' Desc:     Calculates mass law
-' Args:     SurfaceDensity
-' Comments: (1)
+' Args:     fStr - Frequency band
+'           SurfaceDensity - mass per unit area (kg/m2)
+' Comments: (1) Added
 '==============================================================================
-Function MassLaw(fStr As String, SurfaceDensity As Double)
-freq = freqStr2Num(fStr)
-MassLaw = 20 * Application.WorksheetFunction.Log10(freq * SurfaceDensity) - 48
+Function MassLaw(fstr As String, SurfaceDensity As Double)
+freq = freqStr2Num(fstr)
+MassLaw = (20 * Application.WorksheetFunction.Log10(freq * SurfaceDensity) - 48)
 End Function
 
 
@@ -1105,9 +1137,8 @@ End Sub
 ' Comments: (1) calls SwitchFrequencyColumns
 '==============================================================================
 Sub SetFrequencyRange(control As IRibbonControl, id As String, index As Integer)
-'Dim ribUI As IRibbonUI
-'Debug.Print control.id; vbTab; control.Tag
 
+'Debug.Print control.id; vbTab; control.Tag
 'Debug.Print id; index
 
 SetSheetTypeControls
@@ -1211,25 +1242,25 @@ Dim MarkerSymbol As String
     Select Case functionName
     Case Is = "SUM"
     frmBasicFunctions.optSum.Value = True
-    MarkRowAs ("SUM")
+    ApplyTraceMarker ("Sum")
     Case Is = "SPLSUM"
     frmBasicFunctions.optSPLSUM.Value = True
-    MarkRowAs ("SUM")
+    ApplyTraceMarker ("Sum")
     Case Is = "SPLAV"
     frmBasicFunctions.optSPLAV.Value = True
-    MarkRowAs ("AV")
+    ApplyTraceMarker ("Average")
     Case Is = "SPLMINUS"
     frmBasicFunctions.optSPLMINUS.Value = True
     'TODO: minus
     Case Is = "SPLSUMIF"
     frmBasicFunctions.optSPLSUMIF.Value = True
-    MarkRowAs ("SUM")
+    ApplyTraceMarker ("Sum")
     Case Is = "SPLAVIF"
     frmBasicFunctions.optSPLAVIF.Value = True
-    MarkRowAs ("AV")
+    ApplyTraceMarker ("Average")
     Case Is = "AV"
     frmBasicFunctions.optAverage.Value = True
-    MarkRowAs ("AV")
+    ApplyTraceMarker ("Average")
     End Select
 
 frmBasicFunctions.chkApplyToSheetType.Caption = "Apply for Sheet Type: " & _
@@ -1259,7 +1290,6 @@ If btnOkPressed = False Then End
    
 'set description
 SetDescription BasicFunctionType
-Cells(Selection.Row, 1).Value = MarkerSymbol 'symbol in first column
 
     'build formula
     If ApplyToSheetType = True Then
@@ -1297,14 +1327,17 @@ End Sub
 ' Comments: (1) includes code for setting up frmFrequencyBandCutoff
 '==============================================================================
 Sub BandCutoff()
+
     'set default values in the form, based on the Sheet Type
     If T_SheetType = "TO" Or T_SheetType = "TOA" Or T_SheetType = "LF_TO" Then
     frmFrequencyBandCutoff.optBand3 = True
     Else
     frmFrequencyBandCutoff.optBand1 = True
     End If
+    
 frmFrequencyBandCutoff.Show
-If btnOkPressed = False Then End
+    If btnOkPressed = False Then End
+    
 SetDescription "Frequency Band Cutoff (" & FBC_mode & ", Hz)"
 BuildFormula "FrequencyBandCutoff(" & _
     T_FreqStartRng & ",""" & FBC_mode & """," & FBC_bandwidth & "," & _
@@ -1360,18 +1393,24 @@ End Sub
 ' Author:   PS
 ' Desc:     Inserts formula for mass-air-mass
 ' Args:     None
-' Comments: (1)
+' Comments: (1) Defaults to 20 degrees C
+'           (2) Now includes tickbox option for insulated cavity
 '==============================================================================
 Sub PutMassAirMass()
 
+frmMAM.Show
+    If btnOkPressed = False Then End
+
 SetDescription "Mass-Air-Mass"
 
-frmMAM.Show
-If btnOkPressed = False Then End
+Debug.Print Cells(Selection.Row, T_ParamStart).Address(False, False)
+Debug.Print T_ParamRng(0)
 
 Cells(Selection.Row, T_ParamStart).Value = MAM_Width
 Cells(Selection.Row, T_ParamStart + 1).Value = "=MassAirMass(" & MAM_M1 & "," & _
-    MAM_M2 & "," & Cells(Selection.Row, T_ParamStart).Address(False, False) & ",20)"
+    MAM_M2 & "," & T_ParamRng(0) & "," & MAM_AirTemp & "," & MAM_InsulatedCavity & ")"
+    
+InsertComment "Cavity width", T_ParamStart
 InsertComment MAM_Description, T_ParamStart + 1
 
 'Formatting
@@ -1388,12 +1427,11 @@ End Sub
 ' Comments: (1)
 '==============================================================================
 Sub PutRCSchultz()
-SetDescription "Room Loss (Schultz)"
-
-'=RoomCorrection_Schultz(Length,Width,Height,DistanceFromSource,fStr)
 
 frmSchultz.Show
-If btnOkPressed = False Then End
+    If btnOkPressed = False Then End
+
+SetDescription "Room Loss (Schultz)"
 
 Cells(Selection.Row, T_ParamStart).Value = DistanceFromSource
 BuildFormula "RoomCorrection_Schultz(" & roomL & "," & _
@@ -1418,6 +1456,7 @@ Sub PutRCPlantroom()
 
 SetDescription "Reverberation Time, sec"
 SetTraceStyle "Input", False
+
 'move down
 Cells(Selection.Row + 1, Selection.Column).Select
 SetSheetTypeControls
@@ -1480,7 +1519,6 @@ Set AreaRng = Range(Cells(FirstRow, T_ParamStart), Cells(LastRow, T_ParamStart))
 
 SetDescription "Composite TL"
 
-'TODO: build this formula
 BuildFormula "CompositeTL(" & TLRng.Address(False, False) & "," & _
     AreaRng.Address(False, True) & ")"
 'InsertComment

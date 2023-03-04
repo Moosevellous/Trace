@@ -24,7 +24,7 @@ NamedRangeExists = True
         "This Trace function requires a blank sheet." & chr(10) & chr(10) _
         & "Try clicking '+ Sheet' on the Trace Ribbon (top left, in the 'New' group).", _
         vbOKOnly, "Sorryyyyyyyyyy")
-        End
+
         End If
     End If
     On Error GoTo 0
@@ -186,24 +186,6 @@ End Sub
 Sub btnStyle(control As IRibbonControl)
 SetSheetTypeControls
 SetTraceStyle control.Tag, False
-End Sub
-
-
-'==============================================================================
-'==============================================================================
-'HELP MODULE
-'==============================================================================
-'==============================================================================
-Sub btnOnlineHelp(control As IRibbonControl)
-GetHelp 'TODO: remove this?
-End Sub
-
-Sub btnAbout(control As IRibbonControl)
-frmAbout.Show
-End Sub
-
-Sub btnSettings(control As IRibbonControl)
-frmSettings.Show
 End Sub
 
 '==============================================================================

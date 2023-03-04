@@ -4,7 +4,7 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmMAM
    ClientHeight    =   5655
    ClientLeft      =   120
    ClientTop       =   465
-   ClientWidth     =   8130
+   ClientWidth     =   8565
    OleObjectBlob   =   "frmMAM.frx":0000
    StartUpPosition =   1  'CenterOwner
 End
@@ -42,18 +42,20 @@ Dim Side2 As String
     'determine dsescription strings for commenting
     'side 1
     If Me.optM1Other.Value = True Then
-    Side1 = "Side 1: " & Me.txtSurfDensity1.Value & "kg/m3"
+    Side1 = "Side 1: " & Me.txtLayerThickness1.Value & "mm " & Me.txtNumLayers1.Value & " = " & Me.txtSurfDensity1.Value & "kg/m3"
     Else
-    Side1 = "Side 1: " & Me.txtThickness1.Value & "mm " & GetDescription("m1") & " " _
-        & Me.txtSurfDensity1.Value & "kg/m3"
+    Side1 = "Side 1: " & Me.txtLayerThickness1.Value & "mm " & Me.txtNumLayers1.Value & " = " & Me.txtThickness1.Value & "mm " & GetDescription("m1") & " " & Me.txtSurfDensity1.Value & "kg/m3"
     End If
     'side 2
     If Me.optM2Other.Value = True Then
-    Side2 = "Side 2: " & Me.txtSurfDensity2.Value & "kg/m3"
+    Side2 = "Side 2: " & Me.txtLayerThickness1.Value & "mm " & Me.txtNumLayers2.Value & " = " & Me.txtSurfDensity2.Value & "kg/m3"
     Else
-    Side2 = "Side 2: " & Me.txtThickness2 & "mm " & GetDescription("m2") & " " _
-        & Me.txtSurfDensity2.Value & "kg/m3"
+    Side2 = "Side 2: " & Me.txtLayerThickness1.Value & "mm " & Me.txtNumLayers2.Value & " = " & Me.txtThickness2.Value & "mm " & GetDescription("m2") & " " & Me.txtSurfDensity2.Value & "kg/m3"
     End If
+    
+MAM_AirTemp = Me.txtAirTemp.Value
+
+MAM_InsulatedCavity = Me.chkInsulatedCavity.Value
 'set the string
 MAM_Description = Side1 & chr(10) & Side2
     
@@ -72,6 +74,10 @@ Function GetDescription(GroupName As String)
         End If
     Next i
 End Function
+
+Private Sub chkInsulatedCavity_Click()
+PreviewValues
+End Sub
 
 Private Sub optM1FRPB_Click()
 PreviewValues
@@ -238,7 +244,7 @@ Dim thickness2 As Double
     
     'Calculate Mass-air-mass
     If IsNumeric(Me.txtCavityWidth.Value) And IsNumeric(Me.txtSurfDensity1.Value) And IsNumeric(Me.txtSurfDensity2.Value) Then
-    MAM = MassAirMass(m1, m2, Me.txtCavityWidth.Value, Me.txtAirTemp.Value)
+    MAM = MassAirMass(m1, m2, Me.txtCavityWidth.Value, Me.txtAirTemp.Value, Me.chkInsulatedCavity.Value)
     Me.txtMAM.Value = Round(MAM, 1)
     Else
     Me.txtMAM.Value = "-"

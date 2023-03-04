@@ -146,7 +146,7 @@ End Function
 '           ok for office type spaces, but it would be great to verify where
 '           they apply and where they don't. <--TODO: this
 '==============================================================================
-Function RoomLossTypical(fStr As String, L As Double, W As Double, H As Double, _
+Function RoomLossTypical(fstr As String, l As Double, W As Double, H As Double, _
 roomType As String)
 
 Dim alpha() As Variant
@@ -155,14 +155,14 @@ Dim Rc As Double
 Dim bandIndex As Integer
 
     alpha = RoomAlphaDefault(roomType)
-    bandIndex = GetArrayIndex_OCT(fStr, 1)
+    bandIndex = GetArrayIndex_OCT(fstr, 1)
 
     If bandIndex = 999 Or bandIndex = -1 Then
     RoomLossTypical = "-" 'no band, no result!
     Else
     
-    S_total = (L * W * 2) + (L * H * 2) + (W * H * 2)
-    alpha_av = ((L * W * alpha(bandIndex) * 2) + (L * H * alpha(bandIndex) * 2) _
+    S_total = (l * W * 2) + (l * H * 2) + (W * H * 2)
+    alpha_av = ((l * W * alpha(bandIndex) * 2) + (l * H * alpha(bandIndex) * 2) _
         + (W * H * alpha(bandIndex) * 2)) / S_total
     Rc = (S_total * alpha(bandIndex)) / (1 - alpha_av)
     
@@ -186,7 +186,7 @@ End Function
 '           RT_Type - reverberance length as text descriptor (set in form)
 ' Comments: (1)
 '==============================================================================
-Function RoomLossTypicalRT(fStr As String, L As Double, W As Double, H As Double, _
+Function RoomLossTypicalRT(fstr As String, l As Double, W As Double, H As Double, _
 RT_Type As String)
 
 Dim alpha() As Variant
@@ -196,11 +196,11 @@ Dim bandIndex As Integer
 
 alpha = RoomAlphaRTcurves(RT_Type)
 
-bandIndex = GetArrayIndex_OCT(fStr, 1)
+bandIndex = GetArrayIndex_OCT(fstr, 1)
 
-S_total = (L * W * 2) + (L * H * 2) + (W * H * 2)
+S_total = (l * W * 2) + (l * H * 2) + (W * H * 2)
 
-alpha_av = ((L * W * alpha(bandIndex) * 2) + (L * H * alpha(bandIndex) * 2) + _
+alpha_av = ((l * W * alpha(bandIndex) * 2) + (l * H * alpha(bandIndex) * 2) + _
     (W * H * alpha(bandIndex) * 2)) / S_total
     
 Rc = (S_total * alpha(bandIndex)) / (1 - alpha_av)
@@ -224,13 +224,13 @@ End Function
 '           Offset - distance to the surface of the object, in metres
 ' Comments: (1)
 '==============================================================================
-Function ParallelipipedSurfaceArea(L As Double, W As Double, H As Double, _
+Function ParallelipipedSurfaceArea(l As Double, W As Double, H As Double, _
     Offset As Double)
-Dim a As Double
+Dim A As Double
 Dim b As Double
 Dim c As Double
 
-a = (0.5 * L) + Offset
+A = (0.5 * l) + Offset
 b = (0.5 * W) + Offset
 c = H + Offset
 
@@ -239,7 +239,7 @@ c = H + Offset
     '2 x sides left/right
     '1 x top (ieno bottom)
     
-ParallelipipedSurfaceArea = 4 * ((a * b) + (b * c) + (c * a))
+ParallelipipedSurfaceArea = 4 * ((A * b) + (b * c) + (c * A))
     
 End Function
 
@@ -253,11 +253,11 @@ End Function
 '           Offset - distance to the surface of the object, in metres
 ' Comments: (1)
 '==============================================================================
-Function ConformalSurfaceArea(L As Double, W As Double, H As Double, _
+Function ConformalSurfaceArea(l As Double, W As Double, H As Double, _
     Offset As Double)
     
-ConformalSurfaceArea = (L + W) * ((2 * H) + (Application.WorksheetFunction.Pi * Offset)) _
-    + ((2 * Application.WorksheetFunction.Pi * Offset) * (H + Offset)) + (L * W)
+ConformalSurfaceArea = (l + W) * ((2 * H) + (Application.WorksheetFunction.Pi * Offset)) _
+    + ((2 * Application.WorksheetFunction.Pi * Offset) * (H + Offset)) + (l * W)
     
 End Function
 
@@ -294,7 +294,7 @@ End Function
 '           IncludeMultiPAth - default to false, don't calc them!
 ' Comments: (1)
 '==============================================================================
-Function BarrierAtten_KurzeAnderson(fStr As String, SrcDistToBarrier As Double, SrcHeight As Double, _
+Function BarrierAtten_KurzeAnderson(fstr As String, SrcDistToBarrier As Double, SrcHeight As Double, _
     GroundUnderSrc As Double, RecDistToBarrier As Double, RecHeight As Double, _
     GroundUnderRec As Double, BarrierHeight As Double, Optional IncludeMultiPath As Boolean)
 
@@ -349,16 +349,16 @@ d9 = ((SrcDistToBarrier / 2 + RecDistToBarrier / 2) ^ 2 + _
 
 
 'path 1
-p1 = BarrierAtten_KA_path(d2, d1, d0, fStr) 'long + long - short
+p1 = BarrierAtten_KA_path(d2, d1, d0, fstr) 'long + long - short
 
     'option for multipath
     If IncludeMultiPath = True Then
     'Path 2
-    p2 = BarrierAtten_KA_path(d4, d2, d7, fStr)
+    p2 = BarrierAtten_KA_path(d4, d2, d7, fstr)
     'path 3
-    p3 = BarrierAtten_KA_path(d1, d5, d8, fStr)
+    p3 = BarrierAtten_KA_path(d1, d5, d8, fstr)
     'path 4
-    p4 = BarrierAtten_KA_path(d4, d5, d9, fStr)
+    p4 = BarrierAtten_KA_path(d4, d5, d9, fstr)
     
     DirectSPL = 100 - 10 * Application.WorksheetFunction.Log(4 * _
         Application.WorksheetFunction.Pi() * (d0 ^ 2)) 'nominal, start from 100
@@ -395,14 +395,14 @@ End Function
 '           fStr - frequency as string
 ' Comments: (1)
 '==============================================================================
-Function BarrierAtten_KA_path(d1 As Double, d2 As Double, d0 As Double, fStr As String)
+Function BarrierAtten_KA_path(d1 As Double, d2 As Double, d0 As Double, fstr As String)
 
 Dim SOS As Double
 Dim f As Double
 Dim Wavelength As Double
 Dim FresnelNo As Double
 Dim TwoPi As Double
-f = freqStr2Num(fStr)
+f = freqStr2Num(fstr)
 
 SOS = SpeedOfSound(20) 'm/s 'todo: add optional input for temperature??
 Wavelength = SOS / f
@@ -432,7 +432,7 @@ End Function
 '           SpreadingType - string with either sphere cylinder or plane
 ' Comments: (1) All distances are in metres
 '==============================================================================
-Function BarrierAtten_Menounou(fStr As String, SrcDistToBarrier As Double, _
+Function BarrierAtten_Menounou(fstr As String, SrcDistToBarrier As Double, _
     SrcHeight As Double, GroundUnderSrc As Double, RecDistToBarrier As Double, _
     RecHeight As Double, GroundUnderRec As Double, BarrierHeight As Double, _
     SpreadingType As String)
@@ -469,7 +469,7 @@ Dim IL_sp As Double
     End If
 
 'convert to value
-f = freqStr2Num(fStr)
+f = freqStr2Num(fstr)
 
 
 'calc distances with pythagoras
@@ -984,7 +984,7 @@ Sub DirectReverberantSum()
 Dim SpareRow As Integer
 Dim SpareCol As Integer
 Dim isSpace As Boolean
-Dim startRw As Integer
+Dim StartRw As Integer
 Dim endRw As Integer
 Dim ScanCol As Integer
 Dim TopOfSheet As Boolean
@@ -1014,19 +1014,19 @@ isSpace = True
     End If
 
 'find sum range
-startRw = Selection.Row - 1 'one above currently seelcted
+StartRw = Selection.Row - 1 'one above currently seelcted
 ScanCol = Selection.Column
-    While Cells(startRw, ScanCol).Value <> "" 'looks for blank cell
-    startRw = startRw - 1
-        If startRw < 7 Then
+    While Cells(StartRw, ScanCol).Value <> "" 'looks for blank cell
+    StartRw = StartRw - 1
+        If StartRw <= 7 Then
         TopOfSheet = True
         'msg = MsgBox("AutoSum Error", vbOKOnly, "ERROR")
         'End
         End If
     Wend
-startRw = startRw + 1
+StartRw = StartRw + 1
 'check if selection is in the forbidden zone
-If TopOfSheet = True Then startRw = 7
+If TopOfSheet = True Then StartRw = 8
 
 endRw = Selection.Row - 1 'for reveberant sum
 
@@ -1040,7 +1040,7 @@ SelectNextRow
 SetSheetTypeControls
 'Sum direct
 BuildFormula "SUM(" & _
-    Cells(startRw, T_LossGainStart).Address(False, False) & ":" & _
+    Cells(StartRw, T_LossGainStart).Address(False, False) & ":" & _
     Cells(endRw + 1, T_LossGainStart).Address(False, False) & ")"
     
 
@@ -1065,7 +1065,7 @@ SelectNextRow
 
 'Sum reverb
 BuildFormula "SUM(" & _
-    Cells(startRw, T_LossGainStart).Address(False, False) & ":" & _
+    Cells(StartRw, T_LossGainStart).Address(False, False) & ":" & _
     Cells(endRw, T_LossGainStart).Address(False, False) & "," & _
     Cells(Selection.Row - 2, T_LossGainStart).Address(False, False) & ":" & _
     Cells(Selection.Row - 1, T_LossGainStart).Address(False, False) & ")"
@@ -1133,3 +1133,4 @@ InsertComment "Barrier height", T_ParamStart, False
 
 
 End Sub
+

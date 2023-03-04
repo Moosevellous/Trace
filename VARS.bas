@@ -3,12 +3,14 @@ Attribute VB_Name = "VARS"
 'PUBLIC VARIABLES
 '==============================================================================
 'variables for centrally accessed text files
+Public Const T_VersionNo As String = "3.09"
 Public ROOTPATH As String
 Public TEMPLATELOCATION As String
 Public STANDARDCALCLOCATION As String
 Public FIELDSHEETLOCATION As String
 Public EQUIPMENTSHEETLOCATION As String
 Public ASHRAE_DUCT As String
+Public ASHRAE_DUCT_2019 As String
 Public ASHRAE_FLEX As String
 Public ASHRAE_REGEN As String
 Public PROJECTINFODIRECTORY As String
@@ -48,6 +50,14 @@ Public btnOkPressed As Boolean
 Public T_FreqRange As Variant
 Public T_FreqStart As Double
 Public T_FreqEnd As Double
+
+'Constants for symbols, use the hex code as strings
+Public Const T_MrkSilencer As String = "167" 'Curly S
+Public Const T_MrkLouvre As String = "76" 'Letter L OLD:"&H5DC"
+Public Const T_MrkSum As String = "931" 'Letter sigma
+Public Const T_MrkAverage As String = "956" 'Letter mu
+Public Const T_MrkResult As String = "&H2192" 'Right Arrow
+Public Const T_MrkSchedule As String = "11045" 'Black diamond
 
 '==============================================================================
 'MASTER SET OF RANGES FOR SHEET TYPES
@@ -177,6 +187,7 @@ STANDARDCALCLOCATION = ROOTPATH & "\Standard Calc Sheets"
 FIELDSHEETLOCATION = ROOTPATH & "\Field Sheets"
 EQUIPMENTSHEETLOCATION = ROOTPATH & "\Equipment Import Sheets"
 ASHRAE_DUCT = ROOTPATH & "\DATA\ASHRAE_DUCTS.txt"
+ASHRAE_DUCT_2019 = ROOTPATH & "\DATA\ASHRAE_DUCTS_2019.txt"
 ASHRAE_FLEX = ROOTPATH & "\DATA\ASHRAE_FLEX.txt"
 ASHRAE_REGEN = ROOTPATH & "\DATA\ASHRAE_REGEN.txt"
 FANTECH_SILENCERS = ROOTPATH & "\DATA\Silencers.txt"
@@ -193,6 +204,7 @@ TestLocation STANDARDCALCLOCATION, vbDirectory
 TestLocation FIELDSHEETLOCATION, vbDirectory
 TestLocation EQUIPMENTSHEETLOCATION, vbDirectory
 TestLocation (ASHRAE_DUCT)
+TestLocation (ASHRAE_DUCT_2019)
 TestLocation (ASHRAE_FLEX)
 TestLocation (ASHRAE_REGEN)
 TestLocation (FANTECH_SILENCERS)
@@ -335,8 +347,12 @@ End Function
 ' Comments: (1) Called whenever a function is input into a sheet
 '           (2) includes CheckTemplateRow
 '==============================================================================
-Sub SetSheetTypeControls()
+Sub SetSheetTypeControls(Optional CheckRow As Integer)
 Dim SheetCols() As Variant
+
+If IsMissing(CheckRow) Or CheckRow = 0 Then 'default to seelcted row
+CheckRow = Selection.Row
+End If
 
     If NamedRangeExists("TYPECODE") Then
     T_SheetType = ActiveSheet.Range("TYPECODE").Value
@@ -345,7 +361,7 @@ Dim SheetCols() As Variant
     End If
     
 'if you're setting columns for function import, check the row number as well
-CheckTemplateRow (Selection.Row)
+CheckTemplateRow (CheckRow)
 SheetCols = CurrentSheetColumns
 
 'set public variables for columns and rows
@@ -381,12 +397,12 @@ End Sub
 '           These rows are protected by this function.
 '           None shall Pass.
 '==============================================================================
-Public Sub CheckTemplateRow(Rw As Integer)
+Public Sub CheckTemplateRow(rw As Integer)
 Dim MoveToCalcRow As Long
 Dim FirstRow As Integer
     
     'set first row number
-    If T_SheetType = "MECH" And Rw > 38 Then
+    If T_SheetType = "MECH" And rw > 38 Then
     '********************
     End 'stop everything!
     '********************
@@ -395,7 +411,7 @@ Dim FirstRow As Integer
     End If
 
     'check if it's too far up
-    If Rw <= FirstRow Then
+    If rw <= FirstRow Then
     MoveToCalcRow = MsgBox("Looks like your cursor is in the header block. " & _
         chr(10) & "Do you want to move down to the first calculation row?", _
         vbYesNo, "Down down....")
@@ -441,8 +457,6 @@ i = -1
     End If
 
 End Function
-
-
 
 
 

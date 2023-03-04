@@ -47,6 +47,15 @@ Public BoilerEqn As String
 Public BoilerCorrection(0 To 9) As Long
 Public BoilerType As String
 
+'Diesel Engine
+Public DieselEqn As String
+Public DieselPower As Long
+Public DieselInExLength As Long
+Public DieselTurbo As Boolean
+Public DieselCorrection(0 To 9) As Long
+Public DieselEnclosure(0 To 9) As Long
+
+
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -67,6 +76,8 @@ Public BoilerType As String
 ' Comments: (1)
 '==============================================================================
 Function LwFanSimple(freq As String, V As Double, P As Double, FanType As String)
+
+Dim i As Integer
 
 LwOverall = 10 * Application.WorksheetFunction.Log10(V) + _
     20 * Application.WorksheetFunction.Log10(P) + 40
@@ -109,27 +120,123 @@ LwOverall = 10 * Application.WorksheetFunction.Log10(V) + _
     LwFanSimple = LwSimple
     End Select
     
-    Select Case freq
-    Case Is = "63"
-    LwFanSimple = LwOverall + Correction(0)
-    Case Is = "125"
-    LwFanSimple = LwOverall + Correction(1)
-    Case Is = "250"
-    LwFanSimple = LwOverall + Correction(2)
-    Case Is = "500"
-    LwFanSimple = LwOverall + Correction(3)
-    Case Is = "1k"
-    LwFanSimple = LwOverall + Correction(4)
-    Case Is = "2k"
-    LwFanSimple = LwOverall + Correction(5)
-    Case Is = "4k"
-    LwFanSimple = LwOverall + Correction(6)
-    Case Else
+i = GetArrayIndex_OCT(freq)
+    If i = 999 Then 'error
     LwFanSimple = ""
-    End Select
+    Else
+    LwFanSimple = LwOverall + Correction(i)
+    End If
+
     
 End Function
 
+'==============================================================================
+' Name:     Diesel_Exhaust
+' Author:   PS
+' Desc:     Sound power from exhaust of diesel engines
+' Args:     freq - octave band centre frequency string
+'           Power - kW rating of engine
+'           Turbo - boolean, set to TRUE if a turbo engine, applies -6dB
+'           ExhaustLength - in metres
+' Comments: (1) B&H method, section 11.12.1
+'==============================================================================
+Function Diesel_Exhaust(freq As String, Power As Double, Turbo As Boolean, _
+    ExhaustLength As Double)
+
+Dim TurboCorrection As Double
+'Dim Correction(9) As Integer
+Dim Overall As Double
+Dim ExPipeCorrection As Double
+Dim i As Integer
+
+Correction = Array(-5, -9, -3, -7, -15, -19, -25, -35, -43)
+
+    If Turbo = True Then
+    TurboCorrection = 6
+    Else
+    TurboCorrection = 0
+    End If
+
+ExPipeCorrection = ExhaustLength / 1.2 'dB
+
+Overall = 120 + 10 * Application.WorksheetFunction.Log(Power) - _
+    TurboCorrection - ExPipeCorrection
+
+i = GetArrayIndex_OCT(freq, 1)
+
+Diesel_Exhaust = Overall + Correction(i)
+
+End Function
+
+
+'==============================================================================
+' Name:     Diesel_Casing
+' Author:   PS
+' Desc:     Sound power from exhaust of diesel engines
+' Args:     freq - octave band centre frequency string
+'           Power - kW rating of engine
+'           Turbo - boolean, set to TRUE if a turbo engine, applies -6dB
+'           ExhaustLength - in metres
+' Comments: (1) B&H method, section 11.12.2
+'==============================================================================
+Function Diesel_Casing(freq As String, Power As Double, RPM As Integer, _
+    FuelType As String, CylinderType As String, AirIntake As String, _
+    RootsBlower As Boolean)
+
+Dim TurboCorrection As Double
+'Dim Correction(9) As Integer
+Dim Overall As Double
+Dim ExPipeCorrection As Double
+Dim i As Integer
+
+'Correction = Array(-5, -9, -3, -7, -15, -19, -25, -35, -43)
+i = GetArrayIndex_OCT(freq, 1)
+
+    If Turbo = True Then
+    TurboCorrection = 6
+    Else
+    TurboCorrection = 0
+    End If
+
+ExPipeCorrection = ExhaustLength / 1.2 'dB
+
+Overall = 93 + 10 * Application.WorksheetFunction.Log(Power) - _
+    A + b + c + D
+
+Diesel_Casing = Overall '+ Correction(i)
+
+End Function
+
+
+'==============================================================================
+' Name:     Diesel_Inlet
+' Author:   PS
+' Desc:     Sound power from Inlet of diesel engines
+' Args:     freq - octave band centre frequency string
+'           Power - kW rating of engine
+'           Turbo - boolean, set to TRUE if a turbo engine, applies -6dB
+'           ExhaustLength - in metres
+' Comments: (1) B&H method, section 11.12.3
+'==============================================================================
+Function Diesel_Inlet(freq As String, Power As Double, InletLength As Double)
+
+'Dim Correction(9) As Integer
+Dim Overall As Double
+Dim InPipeCorrection As Double
+Dim i As Integer
+
+Correction = Array(-4, -11, -13, -13, -12, -9, -8, -9)
+
+InPipeCorrection = InletLength / 1.8 'dB
+
+Overall = 95 + 5 * Application.WorksheetFunction.Log(Power) - _
+    InPipeCorrection 'eqn 11.87
+
+i = GetArrayIndex_OCT(freq, 1)
+
+Diesel_Inlet = Overall + Correction(i)
+
+End Function
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -460,7 +567,7 @@ SetUnits "kW", T_ParamStart
 TurbineEqn = Right(TurbineEqn, Len(TurbineEqn) - 3) 'trim 'Lw='
 TurbineEqn = Replace(TurbineEqn, "kW", T_ParamRng(o), 1, Len(TurbineEqn), _
     vbTextCompare)
-BuildFormula "" & TurbineEqn
+BuildFormula TurbineEqn
     For i = 0 To 8
         If TurbineCorrection(i) >= 0 Then 'add a plus to the formula
         Cells(Selection.Row, T_ParamStart + i).Formula = _
@@ -506,18 +613,19 @@ ParameterMerge (Selection.Row)
 
 Cells(Selection.Row, T_ParamStart).Value = BoilerPower
 BoilerEqn = Right(BoilerEqn, Len(BoilerEqn) - 3) 'trim 'Lw='
-    'build formula based on boiler type
-    If BoilerType = "General Purpose" Then
+
+'build formula based on boiler type
+If BoilerType = "General Purpose" Then
     SetUnits "kW", T_ParamStart
     BoilerEqn = Replace(BoilerEqn, "kW", T_ParamRng(0), 1, Len(BoilerEqn), _
-    vbTextCompare) 'for General, input is kW
-    ElseIf BoilerType = "Large Power Plant" Then
+        vbTextCompare) 'for General, input is kW
+ElseIf BoilerType = "Large Power Plant" Then
     SetUnits "MW", T_ParamStart
     BoilerEqn = Replace(BoilerEqn, "MW", T_ParamRng(0), 1, Len(BoilerEqn), _
-    vbTextCompare) 'for Large power plants, input is MW
-    Else
+        vbTextCompare) 'for Large power plants, input is MW
+Else
     msg = MsgBox("Error - nothing selected??????", vbOKOnly, "How????")
-    End If
+End If
 
 BuildFormula "" & BoilerEqn
 
@@ -537,4 +645,63 @@ SetTraceStyle "Input", True
 
 SetDescription "SWL Estimate - Boiler - " & BoilerType
 
+End Sub
+
+'==============================================================================
+' Name:     DieselEngine
+' Author:   PS
+' Desc:     Sound power estimation for Diesel Enginers from B&H
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub DieselEngine()
+
+frmEstDieselEngine.Show
+
+If btnOkPressed = False Then End
+If T_BandType <> "oct" Then ErrorOctOnly
+
+Cells(Selection.Row, T_ParamStart).Value = DieselPower
+Cells(Selection.Row, T_ParamStart + 1).Value = DieselInExLength
+DieselEqn = Right(DieselEqn, Len(DieselEqn) - 3) 'trim 'Lw='
+DieselEqn = Replace(DieselEqn, "kW", T_ParamRng(0), 1, Len(DieselEqn), _
+        vbTextCompare) 'input is kW
+DieselEqn = Replace(DieselEqn, "L", T_ParamRng(1), 1, Len(DieselEqn), _
+        vbTextCompare) 'replace length
+    
+If DieselTurbo = True Then
+    DieselEqn = Replace(DieselEqn, "K", 6, 1, Len(DieselEqn), _
+        vbTextCompare) 'Turbo:-6dB
+Else 'no K
+    DieselEqn = Replace(DieselEqn, "-K", "", 1, Len(DieselEqn), _
+        vbTextCompare) 'remove K
+End If
+
+BuildFormula DieselEqn
+
+
+For i = 0 To 8
+        If DieselCorrection(i) >= 0 Then 'add a plus to the formula
+        Cells(Selection.Row, T_ParamStart + i).Formula = _
+            Cells(Selection.Row, T_LossGainStart + i).Formula & "+" _
+            & DieselCorrection(i)
+        Else 'minus already in there
+        Cells(Selection.Row, T_ParamStart + i).Formula = _
+            Cells(Selection.Row, T_LossGainStart + i).Formula _
+            & DieselCorrection(i)
+        End If
+    Cells(Selection.Row + 1, T_ParamStart + i).Value = DieselEnclosure(i)
+    Next i
+
+    
+SetTraceStyle "Input", True
+
+SetDescription "SWL Estimate - Diesel Engine"
+SetDescription ("Diesel Engine Enclosure - " & EnclosureDescription), Selection.Row + 1
+'move down and sum
+Cells(Selection.Row + 2, 2).Select
+AutoSum
+SetDescription "SWL Estimate - Diesel Engine"
+
+                
 End Sub
