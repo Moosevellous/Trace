@@ -20,6 +20,7 @@ Dim l As Double
 Private Sub btnOK_Click()
 btnOkPressed = True
 DieselPower = Me.txtPower.Value
+DieselInExLength = Me.txtInExLength.Value
 DieselEqn = Me.lblDieselEqn.Caption
 DieselTurbo = Me.chkTurbo.Value
 Me.Hide

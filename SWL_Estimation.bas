@@ -663,11 +663,14 @@ If T_BandType <> "oct" Then ErrorOctOnly
 
 Cells(Selection.Row, T_ParamStart).Value = DieselPower
 Cells(Selection.Row, T_ParamStart + 1).Value = DieselInExLength
+
 DieselEqn = Right(DieselEqn, Len(DieselEqn) - 3) 'trim 'Lw='
+
 DieselEqn = Replace(DieselEqn, "kW", T_ParamRng(0), 1, Len(DieselEqn), _
         vbTextCompare) 'input is kW
-DieselEqn = Replace(DieselEqn, "L", T_ParamRng(1), 1, Len(DieselEqn), _
-        vbTextCompare) 'replace length
+        
+DieselEqn = Replace(DieselEqn, "(L", "(" & T_ParamRng(1), 1, Len(DieselEqn), _
+        vbTextCompare) 'replace length, but what about log?
     
 If DieselTurbo = True Then
     DieselEqn = Replace(DieselEqn, "K", 6, 1, Len(DieselEqn), _
@@ -677,16 +680,16 @@ Else 'no K
         vbTextCompare) 'remove K
 End If
 
+Debug.Print DieselEqn
 BuildFormula DieselEqn
 
-
-For i = 0 To 8
+    For i = 0 To 8
         If DieselCorrection(i) >= 0 Then 'add a plus to the formula
-        Cells(Selection.Row, T_ParamStart + i).Formula = _
+        Cells(Selection.Row, T_LossGainStart + i).Formula = _
             Cells(Selection.Row, T_LossGainStart + i).Formula & "+" _
             & DieselCorrection(i)
         Else 'minus already in there
-        Cells(Selection.Row, T_ParamStart + i).Formula = _
+        Cells(Selection.Row, T_LossGainStart + i).Formula = _
             Cells(Selection.Row, T_LossGainStart + i).Formula _
             & DieselCorrection(i)
         End If
@@ -699,7 +702,7 @@ SetTraceStyle "Input", True
 SetDescription "SWL Estimate - Diesel Engine"
 SetDescription ("Diesel Engine Enclosure - " & EnclosureDescription), Selection.Row + 1
 'move down and sum
-Cells(Selection.Row + 2, 2).Select
+Cells(Selection.Row + 1, 2).Select
 AutoSum
 SetDescription "SWL Estimate - Diesel Engine"
 
