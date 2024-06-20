@@ -73,7 +73,7 @@ Private Sub UserForm_Activate()
 btnOkPressed = False
     With Me
         .Top = (Application.Height - Me.Height) / 2
-        .Left = (Application.Width - Me.Width) / 2
+        .Left = (Application.width - Me.width) / 2
     End With
 PreviewValues
 End Sub

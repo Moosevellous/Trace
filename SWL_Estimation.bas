@@ -53,7 +53,8 @@ Public DieselPower As Long
 Public DieselInExLength As Long
 Public DieselTurbo As Boolean
 Public DieselCorrection(0 To 9) As Long
-Public DieselEnclosure(0 To 9) As Long
+Public EngineMuffler(0 To 9) As Long
+Public MufflerDescription As String
 
 
 
@@ -82,9 +83,9 @@ Dim i As Integer
 LwOverall = 10 * Application.WorksheetFunction.Log10(V) + _
     20 * Application.WorksheetFunction.Log10(P) + 40
  
-    Select Case FanType
+Select Case FanType
     Case Is = ""
-    LwFanSimple = LwSimple
+    LwFanSimple = LwOverall
     Case Is = "Forward curved centrifugal"
     'freqs              63 125  250   500 1k   2k    4k
     Correction = Array(-5, -10, -15, -20, -25, -28, -31) 'SRL
@@ -118,14 +119,16 @@ LwOverall = 10 * Application.WorksheetFunction.Log10(V) + _
     Correction = Array(3, 2, 1, 0, 0, 0, 1) 'RICHDS
     Case Is = ""
     LwFanSimple = LwSimple
-    End Select
+End Select
     
+
 i = GetArrayIndex_OCT(freq)
-    If i = 999 Then 'error
-    LwFanSimple = ""
-    Else
+
+If i = 999 Or i < 0 Or i > 6 Then 'error
+    LwFanSimple = "-"
+Else
     LwFanSimple = LwOverall + Correction(i)
-    End If
+End If
 
     
 End Function
@@ -201,7 +204,7 @@ i = GetArrayIndex_OCT(freq, 1)
 ExPipeCorrection = ExhaustLength / 1.2 'dB
 
 Overall = 93 + 10 * Application.WorksheetFunction.Log(Power) - _
-    A + b + c + D
+    A + B + C + D
 
 Diesel_Casing = Overall '+ Correction(i)
 
@@ -269,7 +272,7 @@ BuildFormula "LwFanSimple(" & _
     T_FreqStartRng & "," & T_ParamRng(0) & "," & T_ParamRng(1) & _
     ",""" & FanType & """)"
 'format parameter cells
-SetUnits "mps", T_ParamStart
+SetUnits "m3ps", T_ParamStart
 SetUnits "Pa", T_ParamStart + 1, 0
 SetDescription "SWL Estimate - Fan Simple"
 SetTraceStyle "Input", True
@@ -286,7 +289,7 @@ End Sub
 '==============================================================================
 Sub PumpSimple()
 
-Dim col, i As Integer
+Dim Col, i As Integer
 
 frmEstPumpLw.Show
 
@@ -303,10 +306,10 @@ PumpEqn = Right(PumpEqn, Len(PumpEqn) - 3)
 PumpEqn = Replace(PumpEqn, "kW", T_ParamRng(0), 1, Len(PumpEqn), vbTextCompare)
 
 i = 0
-    For col = T_LossGainStart To T_LossGainEnd
-    Cells(Selection.Row, col).Value = "=" & PumpEqn & PumpCorrections(i)
+    For Col = T_LossGainStart To T_LossGainEnd
+    Cells(Selection.Row, Col).Value = "=" & PumpEqn & PumpCorrections(i)
     i = i + 1
-    Next col
+    Next Col
 Cells(Selection.Row, T_ParamStart).Value = PumpPower
 
 'format parameter cells
@@ -339,11 +342,14 @@ End Sub
 Sub CoolingTower()
 
 Dim i As Integer
+Dim InitialCol As Integer
 
 frmEstCoolingTower.Show
 
-If btnOkPressed = False Then End
-If T_BandType <> "oct" Then ErrorOctOnly
+    If btnOkPressed = False Then End
+    If T_BandType <> "oct" Then ErrorOctOnly
+
+InitialCol = Selection.Column
 
 ParameterMerge (Selection.Row)
 
@@ -381,7 +387,7 @@ Cells(Selection.Row, T_ParamStart).Value = 6 'assume minimum distance 6m
 InsertComment "Minimum distance: 6m", T_Description, False
 
 'move down one row
-SelectNextRow
+SelectNextRow InitialCol
     
     'add directional effects
     If CT_Dir_checked = True Then
@@ -389,7 +395,7 @@ SelectNextRow
         Cells(Selection.Row, T_LossGainEnd)) = CT_Directivity
     SetDescription CStr(CT_Directivity(9))
     'move down one row
-    SelectNextRow
+    SelectNextRow InitialCol
     End If
 
 'add it up!
@@ -414,11 +420,14 @@ frmEstCompressorSmall.Show
 If btnOkPressed = False Then End
 If T_BandType <> "oct" Then ErrorOctOnly
 
-    For i = 0 To 8
+For i = 0 To 8
+    If Right(Cells(T_FreqRow, T_LossGainStart + i).Value, 1) <> "*" Then
     Cells(Selection.Row, T_LossGainStart + i).Formula = CompressorSPL(i)
-    Next i
+    End If
+Next i
 
 SetDescription "Compressor (small) - SPL Estimate"
+InsertComment "Biess & Hansen Table 11.4", T_Description
 
 'move down one row
 SelectNextRow
@@ -465,7 +474,10 @@ MotorEqn = Right(MotorEqn, Len(MotorEqn) - 3) 'trim 'Lw='
 MotorEqn = Replace(MotorEqn, "kW", T_ParamRng(0), 1, Len(MotorEqn), vbTextCompare)
 MotorEqn = Replace(MotorEqn, "RPM", MotorSpeed, 1, Len(MotorEqn), vbTextCompare)
 BuildFormula "" & MotorEqn
-    For i = 0 To 8
+
+'corrections
+For i = 0 To 8
+    If Right(Cells(T_FreqRow, T_LossGainStart + i).Value, 1) <> "*" Then
         If Motor_Correction(i) >= 0 Then 'add a plus to the formula
         Cells(Selection.Row, T_LossGainStart + i).Formula = _
             Cells(Selection.Row, T_LossGainStart + i).Formula & _
@@ -475,7 +487,8 @@ BuildFormula "" & MotorEqn
             Cells(Selection.Row, T_LossGainStart + i).Formula & _
             Motor_Correction(i)
         End If
-    Next i
+    End If
+Next i
     
 SetTraceStyle "Input", True
     
@@ -520,7 +533,10 @@ TurbineEqn = Right(TurbineEqn, Len(TurbineEqn) - 3) 'trim 'Lw='
 TurbineEqn = Replace(TurbineEqn, "MW", T_ParamRng(0), 1, Len(TurbineEqn), _
     vbTextCompare)
 BuildFormula "" & TurbineEqn
-    For i = 0 To 8
+
+'corrections
+For i = 0 To 8
+    If Right(Cells(T_FreqRow, T_LossGainStart + i).Value, 1) <> "*" Then
         If TurbineCorrection(i) >= 0 Then 'add a plus to the formula
         Cells(Selection.Row, T_LossGainStart + i).Formula = _
             Cells(Selection.Row, T_LossGainStart + i).Formula & "+" & _
@@ -531,7 +547,8 @@ BuildFormula "" & TurbineEqn
         TurbineCorrection(i)
         End If
     Cells(Selection.Row + 1, T_LossGainStart + i).Value = TurbineEnclosure(i)
-    Next i
+    End If
+Next i
     
 SetTraceStyle "Input", True
 
@@ -565,21 +582,25 @@ Cells(Selection.Row, T_ParamStart).Value = TurbinePower
 SetUnits "kW", T_ParamStart
 'build formula
 TurbineEqn = Right(TurbineEqn, Len(TurbineEqn) - 3) 'trim 'Lw='
-TurbineEqn = Replace(TurbineEqn, "kW", T_ParamRng(o), 1, Len(TurbineEqn), _
+TurbineEqn = Replace(TurbineEqn, "kW", T_ParamRng(0), 1, Len(TurbineEqn), _
     vbTextCompare)
 BuildFormula TurbineEqn
-    For i = 0 To 8
+
+'corrections
+For i = 0 To 8
+    If Right(Cells(T_FreqRow, T_LossGainStart + i).Value, 1) <> "*" Then
         If TurbineCorrection(i) >= 0 Then 'add a plus to the formula
-        Cells(Selection.Row, T_ParamStart + i).Formula = _
+        Cells(Selection.Row, T_LossGainStart + i).Formula = _
             Cells(Selection.Row, T_LossGainStart + i).Formula & "+" _
             & TurbineCorrection(i)
         Else 'minus already in there
-        Cells(Selection.Row, T_ParamStart + i).Formula = _
+        Cells(Selection.Row, T_LossGainStart + i).Formula = _
             Cells(Selection.Row, T_LossGainStart + i).Formula _
             & TurbineCorrection(i)
         End If
-    Cells(Selection.Row + 1, T_ParamStart + i).Value = TurbineEnclosure(i)
-    Next i
+    Cells(Selection.Row + 1, T_LossGainStart + i).Value = TurbineEnclosure(i)
+    End If
+Next i
 
     
 SetTraceStyle "Input", True
@@ -629,7 +650,8 @@ End If
 
 BuildFormula "" & BoilerEqn
 
-    For i = 0 To 8
+For i = 0 To 8
+    If Right(Cells(T_FreqRow, T_LossGainStart + i).Value, 1) <> "*" Then
         If BoilerCorrection(i) >= 0 Then 'add a plus to the formula
         Cells(Selection.Row, T_LossGainStart + i).Formula = _
             Cells(Selection.Row, T_LossGainStart + i).Formula & _
@@ -639,7 +661,8 @@ BuildFormula "" & BoilerEqn
             Cells(Selection.Row, T_LossGainStart + i).Formula & _
             BoilerCorrection(i)
         End If
-    Next i
+    End If
+Next i
     
 SetTraceStyle "Input", True
 
@@ -658,8 +681,8 @@ Sub DieselEngine()
 
 frmEstDieselEngine.Show
 
-If btnOkPressed = False Then End
-If T_BandType <> "oct" Then ErrorOctOnly
+    If btnOkPressed = False Then End
+    If T_BandType <> "oct" Then ErrorOctOnly
 
 Cells(Selection.Row, T_ParamStart).Value = DieselPower
 Cells(Selection.Row, T_ParamStart + 1).Value = DieselInExLength
@@ -680,31 +703,37 @@ Else 'no K
         vbTextCompare) 'remove K
 End If
 
-Debug.Print DieselEqn
+'Debug.Print DieselEqn
 BuildFormula DieselEqn
 
-    For i = 0 To 8
+'adjust formula for spectrum and add enclosure corrections
+For i = 0 To 8
+    If Right(Cells(T_FreqRow, T_LossGainStart + i).Value, 1) <> "*" Then
         If DieselCorrection(i) >= 0 Then 'add a plus to the formula
-        Cells(Selection.Row, T_LossGainStart + i).Formula = _
-            Cells(Selection.Row, T_LossGainStart + i).Formula & "+" _
-            & DieselCorrection(i)
+            Cells(Selection.Row, T_LossGainStart + i).Formula = _
+                Cells(Selection.Row, T_LossGainStart + i).Formula & "+" _
+                & DieselCorrection(i)
         Else 'minus already in there
-        Cells(Selection.Row, T_LossGainStart + i).Formula = _
-            Cells(Selection.Row, T_LossGainStart + i).Formula _
-            & DieselCorrection(i)
+            Cells(Selection.Row, T_LossGainStart + i).Formula = _
+                Cells(Selection.Row, T_LossGainStart + i).Formula _
+                & DieselCorrection(i)
         End If
-    Cells(Selection.Row + 1, T_ParamStart + i).Value = DieselEnclosure(i)
-    Next i
-
     
+    'next row has muffler
+    Cells(Selection.Row + 1, T_LossGainStart + i).Value = EngineMuffler(i)
+    End If
+Next i
+
 SetTraceStyle "Input", True
+SetUnits "kW", T_ParamStart
+SetUnits "m", T_ParamStart + 1
+'set descriptions for all three rows
+SetDescription ("Diesel Engine SWL"), Selection.Row
+SetDescription ("Muffler - " & MufflerDescription), Selection.Row + 1
 
-SetDescription "SWL Estimate - Diesel Engine"
-SetDescription ("Diesel Engine Enclosure - " & EnclosureDescription), Selection.Row + 1
-'move down and sum
-Cells(Selection.Row + 1, 2).Select
+'move down two rows and sum
+Cells(Selection.Row + 2, 2).Select
 AutoSum
-SetDescription "SWL Estimate - Diesel Engine"
-
+SetDescription "SWL Estimate - Diesel Engine", Selection.Row, True
                 
 End Sub

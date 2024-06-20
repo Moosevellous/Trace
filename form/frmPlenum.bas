@@ -14,12 +14,12 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Dim SOS As Single
-Dim b As Single
+Dim B As Single
 Dim n As Single
 Dim Vol As Single
 Dim InletArea As Single
 Dim OutletArea As Single
-Dim R As Single
+Dim r As Single
 Dim Theta As Single
 'Dim PlenumL As Long 'not requried as already public variables
 'Dim PlenumW As Long
@@ -229,7 +229,7 @@ End Sub
 Private Sub UserForm_Activate()
 btnOkPressed = False
     With Me
-    .Left = Application.Left + (0.5 * Application.Width) - (0.5 * .Width)
+    .Left = Application.Left + (0.5 * Application.width) - (0.5 * .width)
     .Top = Application.Top + (0.5 * Application.Height) - (0.5 * .Height)
     End With
 Me.lblTheta.Caption = Me.lblTheta.Caption & ChrW(952)
@@ -302,12 +302,12 @@ End Sub
 
 Sub Calc_R_and_Theta()
 
-Dim R As Single
+Dim r As Single
 Dim Theta As Long
 
     If Me.txtHorizontalOffset.Value <> "" And Me.txtVerticalOffset.Value <> "" Then
-    R = PlenumDistanceR(Me.txtHorizontalOffset.Value, Me.txtVerticalOffset.Value, Me.txtL.Value)
-    Theta = PlenumAngleTheta(Me.txtL.Value, R)
+    r = PlenumDistanceR(Me.txtHorizontalOffset.Value, Me.txtVerticalOffset.Value, Me.txtL.Value)
+    Theta = PlenumAngleTheta(Me.txtL.Value, r)
     
         'warning for >45 degrees
         If Theta > 45 Then
@@ -315,7 +315,7 @@ Dim Theta As Long
         & "Consider using the End In -> Side out (90 degree) option.", vbOKOnly, "Warning: ASHRAE Plenum Method")
         End If
     
-    Me.txtR.Value = Round(R, 1)
+    Me.txtR.Value = Round(r, 1)
     Me.txtTheta.Value = Theta
     End If
     

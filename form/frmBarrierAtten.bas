@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmBarrierAtten 
    Caption         =   "Barrier Attenuation"
-   ClientHeight    =   10095
+   ClientHeight    =   8220
    ClientLeft      =   120
    ClientTop       =   465
-   ClientWidth     =   7110
+   ClientWidth     =   16260
    OleObjectBlob   =   "frmBarrierAtten.frx":0000
    StartUpPosition =   1  'CenterOwner
 End
@@ -13,7 +13,6 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-
 '-----------------------------------------------------------------------
 'If all input is numeric and line of sight condition
 '-----------------------------------------------------------------------
@@ -66,6 +65,18 @@ Function SpreadingType() As String
         
 End Function
 
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Private Sub UserForm_Activate()
+btnOkPressed = False
+    With Me
+        .Left = Application.Left + (0.5 * Application.width) - (0.5 * .width)
+        .Top = Application.Top + (0.5 * Application.Height) - (0.5 * .Height)
+    End With
+    
+UpdatePreview
+    
+End Sub
 
 Private Sub btnCancel_Click()
 btnOkPressed = False
@@ -230,24 +241,65 @@ Private Sub txtSrcHeight_Change()
 UpdatePreview
 End Sub
 
-
 Private Sub txtSrcToBarrierEdge_Change()
 UpdatePreview
 End Sub
 
-Private Sub UserForm_Activate()
-btnOkPressed = False
-    With Me
-        .Left = Application.Left + (0.5 * Application.Width) - (0.5 * .Width)
-        .Top = Application.Top + (0.5 * Application.Height) - (0.5 * .Height)
-    End With
-    
-UpdatePreview
-    
+'move pointer to the right place on the diagram
+Private Sub txtRecHeight_Enter()
+Me.lblPointer.Visible = True
+Me.lblPointer.Left = 672
+Me.lblPointer.Top = 72
+End Sub
+
+Private Sub txtSrcGroundHeight_Enter()
+Me.lblPointer.Visible = True
+Me.lblPointer.Left = 378
+Me.lblPointer.Top = 154
 End Sub
 
 
+Private Sub txtRecGroundHeight_Enter()
+Me.lblPointer.Visible = True
+Me.lblPointer.Left = 642
+Me.lblPointer.Top = 138
+End Sub
 
+Private Sub txtBarrierHeight_Enter()
+Me.lblPointer.Visible = True
+Me.lblPointer.Left = 582
+Me.lblPointer.Top = 38
+End Sub
+
+Private Sub txtSrcHeight_Enter()
+Me.lblPointer.Visible = True
+Me.lblPointer.Left = 444
+Me.lblPointer.Top = 132
+End Sub
+
+Private Sub txtRectoBarrier_Enter()
+Me.lblPointer.Visible = False
+End Sub
+
+Private Sub txtSourceToBarrier_Enter()
+Me.lblPointer.Visible = False
+End Sub
+
+Private Sub txtSrcToBarrierEdge_Enter()
+Me.lblPointer.Visible = False
+End Sub
+
+Private Sub txtRecToBarrierEdge_Enter()
+Me.lblPointer.Visible = False
+End Sub
+
+Private Sub txtBarrierHeightRec_Enter()
+Me.lblPointer.Visible = False
+End Sub
+
+Private Sub txtBarrierThickness_Enter()
+Me.lblPointer.Visible = False
+End Sub
 
 '-----------------------------------------------------------------------
 'Switch buttons on and off

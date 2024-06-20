@@ -24,7 +24,12 @@ GetClipBoardText = DataObj.GetText(1)
 
 Exit Function
 Whoa:
-   If Err <> 0 Then MsgBox "Data on clipboard is not text or is empty"
+   
+If Err <> 0 Then
+   MsgBox "Data on clipboard is not text or is empty"
+   End
+End If
+
 End Function
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -74,7 +79,7 @@ Dim PasteCol As Integer
 Dim WriteRw As Integer
 Dim WriteCol As Integer
 
-If Left(T_BandType, 2) = "TO" Then 'TO or TOA
+If Left(T_BandType, 2) = "to" Then 'TO or TOA
     ErrorOctOnly
     msg = MsgBox("Fantech import is not available for one-third octave band sheets", _
     vbOKOnly, "Import: Impossible")
@@ -85,10 +90,10 @@ Application.DefaultFilePath = ActiveWorkbook.Path
 HomeWorkbookName = ActiveWorkbook.Name
 WriteRw = Selection.Row
 WriteCol = 2
-donefiles = 0
+doneFiles = 0
 runonce = False
 
-    'select where to put sound power
+'select where to put sound power
 If T_SheetType = "MECH" Then
     PasteCol = T_RegenStart + 1
 Else
@@ -96,7 +101,7 @@ Else
 End If
 
 'Open Raw File
-File = Application.GetOpenFilename(FileFilter:="Excel Files (*.xlsx),*.xlsx", _
+File = Application.GetOpenFilename(Filefilter:="Excel Files (*.xlsx),*.xlsx", _
 ButtonText:="Please select file (in XLSX format)...", _
 MultiSelect:=True)
 
@@ -112,7 +117,7 @@ For fnumber = 1 To numFiles
     Workbooks.Open File(fnumber)
     DoEvents
     RawBookName = ActiveWorkbook.Name
-    frmLoading.lblFilename.Caption = RawBookName
+    frmLoading.lblFileName.Caption = RawBookName
     
     'Inlet
     FanType = Cells(7, 2).Value
@@ -154,9 +159,9 @@ For fnumber = 1 To numFiles
     Workbooks(RawBookName).Close (False)
     
     'Status
-    donefiles = donefiles + 1
-    PercentDone = (donefiles / numFiles)
-    frmLoading.lblStatus.Caption = "(" & donefiles & "/" & numFiles & ") " & _
+    doneFiles = doneFiles + 1
+    PercentDone = (doneFiles / numFiles)
+    frmLoading.lblStatus.Caption = "(" & doneFiles & "/" & numFiles & ") " & _
         Round(PercentDone * 100, 1) & "%"
     WriteRw = WriteRw + 1
 Next fnumber
@@ -281,4 +286,70 @@ Cells(Selection.Row, T_ParamStart).NumberFormat = """NRC ""0.00"
 'sparkline
 CreateSparkline Selection.Row, 0
     
+End Sub
+
+
+'==============================================================================
+' Name:     ConvertNGARAcsv2stats
+' Author:   PS
+' Desc:     Takes raw NGARA data and converts into statistics at the desired interval
+' Args:
+' Comments: (1)
+'==============================================================================
+Sub ConvertNGARAcsv2stats()
+Dim folderPath As String
+Dim csvFileName As String
+Dim csvFilePath As String
+Dim textFile As Object
+Dim textStream As Object
+Dim lineText As String
+Dim lineNumber As Integer
+
+' Prompt the user to select a folder
+With Application.FileDialog(msoFileDialogFolderPicker)
+    .Title = "Select a NGARA session"
+    .Show
+    If .SelectedItems.Count <> 0 Then
+        folderPath = .SelectedItems(1) & "\"
+    Else
+        MsgBox "No folder selected. Exiting the macro.", vbExclamation
+        Exit Sub
+    End If
+End With
+
+' Check if the selected folder contains CSV files
+If Right(folderPath, 1) <> "\" Then folderPath = folderPath & "\"
+If Dir(folderPath & "*.csv") = "" Then
+    MsgBox "No CSV files found in the selected folder. Exiting the macro.", vbExclamation
+    Exit Sub
+End If
+
+' Loop through all CSV files in the selected folder
+csvFileName = Dir(folderPath & "*.csv")
+Do While csvFileName <> ""
+    csvFilePath = folderPath & csvFileName
+    
+    ' Open the CSV file as a text file
+    Set textFile = CreateObject("Scripting.FileSystemObject")
+    Set textStream = textFile.OpenTextFile(csvFilePath)
+    
+    ' Loop through each line in the text file
+    lineNumber = 1
+    Do While Not textStream.AtEndOfStream
+        lineText = textStream.ReadLine
+        
+        ' Place your code to process each line here
+        ' Example: Debug.Print "Line " & lineNumber & ": " & lineText
+        
+        lineNumber = lineNumber + 1
+    Loop
+    
+    ' Close the text file
+    textStream.Close
+    
+    ' Get the next CSV file in the folder
+    csvFileName = Dir
+Loop
+
+MsgBox "All CSV files in the folder have been processed as text files.", vbInformation
 End Sub

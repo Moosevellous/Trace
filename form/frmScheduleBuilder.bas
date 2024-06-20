@@ -23,8 +23,11 @@ GotoWikiPage "Sheet-Functions#schedule-builder"
 End Sub
 
 Private Sub chkCreateHeading_Click()
+Me.txtScheduleHeading.Visible = Me.chkCreateHeading.Value
+SetCustomScheduleHeading
 CountMarkersAllSheets
 End Sub
+
 
 Private Sub UserForm_Initialize()
 Me.cBoxApplyStyle.AddItem ("None")
@@ -97,29 +100,34 @@ End If
 
 End Sub
 
+Sub SetCustomScheduleHeading()
+Me.txtScheduleHeading.Value = SearchGroupName & " Schedule"
+End Sub
+
+
 Private Sub btnOK_Click()
 
-Dim StartRw As Integer
+Dim startRw As Integer
 
 If Me.RefTargetRng.Value = "" Then
     MsgBox "No destination range selected.", vbOKOnly, "Error - Destination Range"
     Exit Sub
 Else
-    StartRw = ExtractAddressElement(Me.RefTargetRng.Value, 2)
+    startRw = ExtractAddressElement(Me.RefTargetRng.Value, 2)
 End If
 
 SetSymbol
 
     'set heading
     If Me.chkCreateHeading.Value = True Then
-    SetDescription SearchGroupName & " Schedule", StartRw, True
+    SetDescription Me.txtScheduleHeading.Value, startRw, True
     SetTraceStyle ("Title")
-    StartRw = StartRw + 1
+    startRw = startRw + 1
     End If
 
 HomeSheetName = ActiveSheet.Name '<- ok for now but may need to update to get from destination sheet name
 
-BuildSchedule StartRw
+BuildSchedule startRw
 
 btnOkPressed = True
 Me.Hide
@@ -152,21 +160,24 @@ End Sub
 
 Private Sub optLouvre_Click()
 CountMarkersAllSheets
+SetCustomScheduleHeading
 End Sub
 
 Private Sub optResult_Click()
 CountMarkersAllSheets
+SetCustomScheduleHeading
 End Sub
 
 Private Sub optSilencer_Click()
 CountMarkersAllSheets
+SetCustomScheduleHeading
 End Sub
 
 Private Sub UserForm_Activate()
 Dim s As Integer
 btnOkPressed = False
     With Me
-    .Left = Application.Left + (0.5 * Application.Width) - (0.5 * .Width)
+    .Left = Application.Left + (0.5 * Application.width) - (0.5 * .width)
     .Top = Application.Top + (0.5 * Application.Height) - (0.5 * .Height)
     End With
 
@@ -186,7 +197,7 @@ End Sub
 '==============================================================================
 Sub BuildSchedule(WriteRw As Integer)
 Dim overflow As Integer
-Dim c As Integer
+Dim C As Integer
 Dim ShNm As String
 Dim ScanRw As Integer
 Dim TargetLGCol As Integer
@@ -195,46 +206,59 @@ Dim TargetDescCol As Integer
 'loop over all sheets
 For s = 1 To Me.lstSheets.ListCount
     If Me.lstSheets.Selected(s - 1) = True Then
-    Sheets(s).Activate
-    ShNm = "'" & Sheets(s).Name & "'!"
-    overflow = 0
-    ScanRw = 8
-    SetSheetTypeControls ScanRw 'from the first line
+        Sheets(s).Activate
+        ShNm = "'" & Sheets(s).Name & "'!"
+        overflow = 0
+        ScanRw = 8
+        SetSheetTypeControls ScanRw 'from the first line
     
         While overflow < 100 'exit on 100 blank rows
-            If Cells(ScanRw, T_Description).Value = "" And Cells(ScanRw, 1).Value = "" Then
-                overflow = overflow + 1
-            Else
-                overflow = 0 'reset to 0
-                If Cells(ScanRw, 1).Value = SearchForSymbol Then
+           If IsError(Cells(ScanRw, T_Description).Value) = False Then
+           
+                If Cells(ScanRw, T_Description).Value = "" And Cells(ScanRw, 1).Value = "" Then
+                    overflow = overflow + 1
+                Else
                 
-                TargetLGCol = T_LossGainStart
-                TargetDescCol = T_Description
-                
-                Sheets(HomeSheetName).Activate
-                SetSheetTypeControls ScanRw
-                
-                'insert references
-                Cells(WriteRw, T_Description).Select 'move top row so ExtendFunction works
-                Cells(WriteRw, T_Description).Value = "=" & ShNm & _
-                    Cells(ScanRw, TargetDescCol).Address(False, False)
-                Cells(WriteRw, T_LossGainStart).Value = "=" & ShNm & _
-                    Cells(ScanRw, TargetLGCol).Address(True, False)
-                ExtendFunction
-                
-                    'style/marker/comment
-                    If Me.cBoxApplyStyle.Value <> "" Then
-                    SetTraceStyle Me.cBoxApplyStyle.Value
+                    overflow = 0 'reset to 0
+                    
+                    If Cells(ScanRw, 1).Value = SearchForSymbol Then
+                    
+                        TargetLGCol = T_LossGainStart
+                        TargetDescCol = T_Description
+                        
+                        Sheets(HomeSheetName).Activate
+                        SetSheetTypeControls ScanRw
+                        
+                        'insert references
+                        Cells(WriteRw, T_Description).Select 'move top row so ExtendFunction works
+                        Cells(WriteRw, T_Description).Value = "=" & ShNm & _
+                            Cells(ScanRw, TargetDescCol).Address(False, False)
+                        Cells(WriteRw, T_LossGainStart).Value = "=" & ShNm & _
+                            Cells(ScanRw, TargetLGCol).Address(True, False)
+                        ExtendFunction
+                        
+                            'style/marker/comment
+                            If Me.cBoxApplyStyle.Value <> "" Then
+                            SetTraceStyle Me.cBoxApplyStyle.Value
+                            End If
+                        ApplyTraceMarker "Schedule"
+                        InsertComment ShNm & Cells(ScanRw, TargetDescCol).Address(False, False), T_Description, False
+                        
+                        'go back to sheet
+                        Sheets(s).Activate
+                        WriteRw = WriteRw + 1
                     End If
-                ApplyTraceMarker "Schedule"
-                InsertComment ShNm, T_Description, False
+                    
+                End If
                 
-                'go back to sheet
-                Sheets(s).Activate
-                WriteRw = WriteRw + 1
+            Else 'value error
+                If Cells(ScanRw, 1).Value = SearchForSymbol Then 'this one matters
+                    msg = MsgBox("Error in description cell at: " & ShNm & Cells(ScanRw, T_Description).Address, vbOKOnly, "Unexpected value")
                 End If
             End If
-        ScanRw = ScanRw + 1
+            
+            ScanRw = ScanRw + 1
+            
         Wend 'end of loop: overflow
     End If
 Next s
@@ -250,25 +274,27 @@ End Sub
 '==============================================================================
 Function CountMarkers(Symbol As String)
 Dim overflow As Integer
-Dim c As Integer
+Dim C As Integer
 Dim rw As Integer
 
-c = 0
+C = 0
 rw = 7
 
 While overflow < 100 'exit on 100 blank rows
+    If IsError(Cells(rw, T_Description)) = False Then
     If Cells(rw, T_Description).Value = "" And Cells(rw, 1).Value = "" Then
         overflow = overflow + 1
     Else
         overflow = 0 'reset to 0
         If Cells(rw, 1).Value = Symbol Then
-            c = c + 1
+            C = C + 1
         End If
+    End If
     End If
 rw = rw + 1
 Wend
 
-CountMarkers = c
+CountMarkers = C
 
 End Function
 

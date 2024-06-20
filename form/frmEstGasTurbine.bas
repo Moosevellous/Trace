@@ -79,7 +79,7 @@ Dim SplitEnclosureString() As String
     ReDim SplitEnclosureString(1)
     'SplitEnclosureString(0) = "0"
     Else
-    SplitEnclosureString = Split(Me.cboxEnclosure.Text)
+    SplitEnclosureString = Split(Me.cboxEnclosure.text)
     End If
     
     'assign corrections for casing noise reduction, from 31.5Hz
@@ -134,7 +134,7 @@ End Sub
 Private Sub UserForm_Activate()
 btnOkPressed = False
     With Me
-        .Left = Application.Left + (0.5 * Application.Width) - (0.5 * .Width)
+        .Left = Application.Left + (0.5 * Application.width) - (0.5 * .width)
         .Top = Application.Top + (0.5 * Application.Height) - (0.5 * .Height)
     End With
 EnclosureTypes

@@ -14,11 +14,13 @@ Public Description() As String
 ' Comments: (1) Appropriated from the internet
 '==============================================================================
 Private Function SheetExists(WS_Name As String) As Boolean
-    Dim WS As Worksheet
+    Dim ws As Worksheet
     On Error Resume Next
-    Set WS = Worksheets(WS_Name)
-    If Not WS Is Nothing Then SheetExists = True
+    Set ws = Worksheets(WS_Name)
+    If Not ws Is Nothing Then SheetExists = True
 End Function
+
+
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -46,11 +48,8 @@ Dim NumSheets As Long
 Dim i As Integer
 
 On Error GoTo errors:
-
 OpenLoadingDialog (ImportName)
-
 GetSettings 'get all variable information
-
 frmLoading.lblStatus.Caption = "Finding path to template..."
 
 Set CurrentBook = ActiveWorkbook
@@ -62,10 +61,10 @@ If CurrentBook Is Nothing Then
 End If
 
 'fix for when the worksheet doesn't have focus and crashes.
-    If Cells(1, 1).Value = "" Then
+If Cells(1, 1).Value = "" Then
     Cells(1, 1).Value = "x"
     Cells(1, 1).ClearContents
-    End If
+End If
 DoEvents
 
 NumSheets = ActiveWorkbook.Sheets.Count
@@ -86,7 +85,6 @@ Application.AskToUpdateLinks = False
 Application.ScreenUpdating = False
 
 frmLoading.lblStatus.Caption = "Opening file..."
-
 'open file
 Workbooks.Open fileName:=TemplatePath, ReadOnly:=True, Notify:=False
 Application.DisplayAlerts = True
@@ -102,7 +100,7 @@ Set TemplateBook = ActiveWorkbook
     TemplateSheet.Copy After:=CurrentBook.Sheets(NumSheets)
     DoEvents
     Next sh
-    
+
 'resume normal error messages
 Application.DisplayAlerts = False
 Workbooks(CurrentBook.Name).Styles.Merge (TemplateBook.Name) 'merge styles
@@ -259,11 +257,12 @@ Dim FilterIndexValue As Integer
 'for user form
 Dim CheckBoxSpacer As Integer
 Dim DefaultCurrentTop As Integer
-Dim DefaultCheckboxWidth As Integer
+Dim DefaultCheckboxWidth, DefaultCheckboxHeight As Integer
 Dim CurrentTop As Integer
 Dim CurrentCol As Integer
 Dim BottomBuffer As Integer
 Dim optControl As control
+
 
 GetSettings 'get all variable information
 
@@ -278,6 +277,7 @@ CurrentBookName = CurrentBook.Name
 
 Application.StatusBar = "Generating list of templates..."
 Set fso = CreateObject("Scripting.FileSystemObject")
+
 
     'select type of import
     If ImportSheetType = "Standard" Then
@@ -295,10 +295,11 @@ Set fso = CreateObject("Scripting.FileSystemObject")
     End If
 
 'set layout variables
-CheckBoxSpacer = 20 'px
+CheckBoxSpacer = 2 'px
 DefaultCurrentTop = 10 'px: space at top of each column
+DefaultCheckboxHeight = 17 'px
 CurrentTop = DefaultCurrentTop 'gets reset throughout
-DefaultCheckboxWidth = frmStandardCalc.mPageSheets.Width / 2 'two columns
+DefaultCheckboxWidth = (frmStandardCalc.mPageSheets.width / 2) - (15 * CheckBoxSpacer) 'two columns
 numbookmarks = 1
 CurrentCol = 0
 CurrentPage = 0
@@ -311,14 +312,17 @@ BottomBuffer = 50 'px: space at the bottom
         'CheckColumn
         Set optControl = frmStandardCalc.mPageSheets.Pages(CurrentPage) _
                         .Controls.Add("Forms.OptionButton.1")
+        'txtWidth = GetTextWidth(standardSheet.Name, "Tahoma", 8)
+        
             With optControl
             .Caption = standardSheet.Name
             .Top = CurrentTop
             .Left = 5 + (CurrentCol * DefaultCheckboxWidth)
-            .Width = DefaultCheckboxWidth
+            .width = DefaultCheckboxWidth
+            .AutoSize = True 'added this for long file names
             End With
-            
-        CurrentTop = CurrentTop + CheckBoxSpacer
+
+            CurrentTop = CurrentTop + optControl.Height + CheckBoxSpacer 'now dynamic
         
             'check for second column
             If CurrentTop > frmStandardCalc.mPageSheets.Height - BottomBuffer Then
@@ -405,7 +409,7 @@ Sub SaveSheetAs_DateStamped(SaveAsName As String, FilterIndex As Integer)
 FileNameStr = Format(CStr(Now), "yyyymmdd") & " " & SaveAsName
 
     Ret = Application.GetSaveAsFilename(InitialFileName:=FileNameStr, _
-            FileFilter:="Excel Macro Free Workbook (*.xlsx), *.xlsx," & _
+            Filefilter:="Excel Macro Free Workbook (*.xlsx), *.xlsx," & _
             "Excel Macro Enabled Workbook (*.xlsm), *.xlsm,", _
             FilterIndex:=FilterIndex, _
             Title:="Save As")
@@ -424,11 +428,12 @@ End Sub
 ' Comments: (1)
 '==============================================================================
 Sub OpenLoadingDialog(Name As String)
-frmLoading.lblFilename.Caption = Name
+frmLoading.lblFileName.Caption = Name
 frmLoading.lblStartTime.Caption = Format(Now, "dd/mm/yyyy hh:mm:ss")
 frmLoading.lblStatus.Caption = "Loading..."
 Application.ScreenUpdating = False
 frmLoading.Show (False)
+frmLoading.Repaint
 End Sub
 
 '==============================================================================
@@ -443,3 +448,4 @@ frmLoading.lblStatus.Caption = "Import done"
 frmLoading.Hide
 Application.ScreenUpdating = True
 End Sub
+

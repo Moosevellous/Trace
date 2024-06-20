@@ -47,7 +47,7 @@ End Sub
 Private Sub UserForm_Activate()
 btnOkPressed = False
     With Me
-    .Left = Application.Left + (0.5 * Application.Width) - (0.5 * .Width)
+    .Left = Application.Left + (0.5 * Application.width) - (0.5 * .width)
     .Top = Application.Top + (0.5 * Application.Height) - (0.5 * .Height)
     End With
 build_cBox
@@ -56,7 +56,7 @@ End Sub
 
 Sub PreviewValues()
 Dim V As Double
-Dim l As Double
+Dim L As Double
 Dim W As Double
 Dim H As Double
 Dim S_total As Double
@@ -77,24 +77,24 @@ Me.txt4k.Value = alphaValues(7)
 Me.txt8k.Value = alphaValues(8)
 
 'Calc volume & S_total
-l = CDbl(Me.txtL.Value)
+L = CDbl(Me.txtL.Value)
 W = CDbl(Me.txtW.Value)
 H = CDbl(Me.txtH.Value)
-V = l * W * H
+V = L * W * H
 Me.txtV.Value = V
-S_total = (l * W * 2) + (l * H * 2) + (W * H * 2)
+S_total = (L * W * 2) + (L * H * 2) + (W * H * 2)
 Me.txtStotal.Value = S_total
 
 'Room Loss
-Me.txtSA31.Value = Round(RoomLossTypical("31.5", l, W, H, Me.cBoxRoomType.Value), 1)
-Me.txtSA63.Value = Round(RoomLossTypical("63", l, W, H, Me.cBoxRoomType.Value), 1)
-Me.txtSA125.Value = Round(RoomLossTypical("125", l, W, H, Me.cBoxRoomType.Value), 1)
-Me.txtSA250.Value = Round(RoomLossTypical("250", l, W, H, Me.cBoxRoomType.Value), 1)
-Me.txtSA500.Value = Round(RoomLossTypical("500", l, W, H, Me.cBoxRoomType.Value), 1)
-Me.txtSA1k.Value = Round(RoomLossTypical("1k", l, W, H, Me.cBoxRoomType.Value), 1)
-Me.txtSA2k.Value = Round(RoomLossTypical("2k", l, W, H, Me.cBoxRoomType.Value), 1)
-Me.txtSA4k.Value = Round(RoomLossTypical("4k", l, W, H, Me.cBoxRoomType.Value), 1)
-Me.txtSA8k.Value = Round(RoomLossTypical("8k", l, W, H, Me.cBoxRoomType.Value), 1)
+Me.txtSA31.Value = Round(RoomLossTypical("31.5", L, W, H, Me.cBoxRoomType.Value), 1)
+Me.txtSA63.Value = Round(RoomLossTypical("63", L, W, H, Me.cBoxRoomType.Value), 1)
+Me.txtSA125.Value = Round(RoomLossTypical("125", L, W, H, Me.cBoxRoomType.Value), 1)
+Me.txtSA250.Value = Round(RoomLossTypical("250", L, W, H, Me.cBoxRoomType.Value), 1)
+Me.txtSA500.Value = Round(RoomLossTypical("500", L, W, H, Me.cBoxRoomType.Value), 1)
+Me.txtSA1k.Value = Round(RoomLossTypical("1k", L, W, H, Me.cBoxRoomType.Value), 1)
+Me.txtSA2k.Value = Round(RoomLossTypical("2k", L, W, H, Me.cBoxRoomType.Value), 1)
+Me.txtSA4k.Value = Round(RoomLossTypical("4k", L, W, H, Me.cBoxRoomType.Value), 1)
+Me.txtSA8k.Value = Round(RoomLossTypical("8k", L, W, H, Me.cBoxRoomType.Value), 1)
 
 errorCatch:
 End Sub
@@ -114,7 +114,7 @@ btnOkPressed = True
 '    End If
 
 PreviewValues
-roomType = Me.cBoxRoomType.Text
+RoomType = Me.cBoxRoomType.text
 roomL = CDbl(Me.txtL.Value)
 roomW = CDbl(Me.txtW.Value)
 roomH = CDbl(Me.txtH.Value)
@@ -154,8 +154,8 @@ End Sub
 
 
 Sub PrePopulateForm() 'InputVol As Long, InputRoomType As String)
-Me.txtL.Text = roomL
-Me.txtW.Text = roomW
-Me.txtH.Text = roomH
-Me.cBoxRoomType.Text = roomType
+Me.txtL.text = roomL
+Me.txtW.text = roomW
+Me.txtH.text = roomH
+Me.cBoxRoomType.text = RoomType
 End Sub

@@ -162,7 +162,7 @@ End Sub
 
 
 Private Sub CompliantColourBox_Change()
-Me.CompliantColourBox.Text = ""
+Me.CompliantColourBox.text = ""
 End Sub
 
 Private Sub CompliantColourBox_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
@@ -172,7 +172,7 @@ Me.CompliantColourBox.BackColor = FullColourCode
 End Sub
 
 Private Sub LimitColourBox_Change()
-Me.LimitColourBox.Text = ""
+Me.LimitColourBox.text = ""
 End Sub
 
 Private Sub LimitColourBox_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
@@ -182,7 +182,7 @@ Me.LimitColourBox.BackColor = FullColourCode
 End Sub
 
 Private Sub MarginColourBox_Change()
-Me.MarginColourBox.Text = ""
+Me.MarginColourBox.text = ""
 End Sub
 
 Private Sub MarginColourBox_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
@@ -194,7 +194,7 @@ End Sub
 Private Sub UserForm_Activate()
 btnOkPressed = False
     With Me
-    .Left = Application.Left + (0.5 * Application.Width) - (0.5 * .Width)
+    .Left = Application.Left + (0.5 * Application.width) - (0.5 * .width)
     .Top = Application.Top + (0.5 * Application.Height) - (0.5 * .Height)
     End With
     

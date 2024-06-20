@@ -21,19 +21,19 @@ Unload Me
 End Sub
 
 Private Sub btnLoadTemplate_Click()
-ImportSheetName = cBoxSelectTemplate.Text
+ImportSheetName = cBoxSelectTemplate.text
 Me.Hide
 Unload Me
 End Sub
 
 Private Sub cBoxSelectTemplate_Change()
-tBoxDescription.Text = Description(cBoxSelectTemplate.ListIndex + 1)
+tBoxDescription.text = Description(cBoxSelectTemplate.ListIndex + 1)
 End Sub
 
 Private Sub UserForm_Activate()
 btnOkPressed = False
     With Me
-    .Left = Application.Left + (0.5 * Application.Width) - (0.5 * .Width)
+    .Left = Application.Left + (0.5 * Application.width) - (0.5 * .width)
     .Top = Application.Top + (0.5 * Application.Height) - (0.5 * .Height)
     End With
 'select first item

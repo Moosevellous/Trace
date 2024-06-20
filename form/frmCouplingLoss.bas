@@ -38,7 +38,7 @@ TwoToFourStoreyMasonryOnSpreadFootings = Array(5, 6, 6, 7, 9, 11, 11, 12, 13, 13
 OneToTwoStoreyCommercial = Array(4, 5, 5, 6, 7, 8, 8, 9, 9, 9, 9, 9, 9, 8, 8, 8, 7, 6, 5)
 SingleResidential = Array(3, 3, 4, 4, 5, 5, 6, 6, 6, 6, 6, 6, 6, 5, 5, 5, 4, 4, 4)
     
-    Select Case Me.cBoxType.Text
+    Select Case Me.cBoxType.text
     Case Is = "CRL"
     SelectedLoss = CRL
     Case Is = "Large Masonry On Piles"
@@ -80,7 +80,7 @@ End Sub
 Private Sub UserForm_Activate()
 btnOkPressed = False
     With Me
-        .Left = Application.Left + (0.5 * Application.Width) - (0.5 * .Width)
+        .Left = Application.Left + (0.5 * Application.width) - (0.5 * .width)
         .Top = Application.Top + (0.5 * Application.Height) - (0.5 * .Height)
     End With
 End Sub

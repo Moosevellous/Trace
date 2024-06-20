@@ -20,7 +20,7 @@ End Sub
 Private Sub UserForm_Activate()
 btnOkPressed = False
     With Me
-        .Left = Application.Left + (0.5 * Application.Width) - (0.5 * .Width)
+        .Left = Application.Left + (0.5 * Application.width) - (0.5 * .width)
         .Top = Application.Top + (0.5 * Application.Height) - (0.5 * .Height)
     End With
 btnGetSettings_Click
@@ -41,6 +41,7 @@ PrintText "***"
 PrintText "Central folders"
 PrintText "***"
 PrintText ROOTPATH
+PrintText TRACELOGFOLDER
 PrintText TEMPLATELOCATION
 PrintText STANDARDCALCLOCATION
 PrintText FIELDSHEETLOCATION
@@ -50,6 +51,7 @@ PrintText ""
 PrintText "***"
 PrintText "Central text files...."
 PrintText "***"
+PrintText TRACELOGFILE
 PrintText ASHRAE_DUCT
 PrintText ASHRAE_FLEX
 PrintText ASHRAE_REGEN
@@ -95,8 +97,8 @@ Sub PrintText(inputStr As String, Optional InputStr2 As String)
     
         
     With Me.txtSettings
-    .Text = Me.txtSettings.Text & chr(10) & inputStr & " " & InputStr2
-    .SelStart = Len(Me.txtSettings.Text) - 1
+    .text = Me.txtSettings.text & chr(10) & inputStr & " " & InputStr2
+    .SelStart = Len(Me.txtSettings.text) - 1
     .SetFocus
     End With
 End Sub

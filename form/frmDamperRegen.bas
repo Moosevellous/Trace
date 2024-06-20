@@ -1,6 +1,6 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmDamperRegen 
-   Caption         =   "Damper Regen."
+   Caption         =   "Regenerated noise - Dampers"
    ClientHeight    =   6345
    ClientLeft      =   120
    ClientTop       =   465
@@ -212,7 +212,7 @@ End Sub
 Private Sub UserForm_Activate()
 btnOkPressed = False
     With Me
-    .Left = Application.Left + (0.5 * Application.Width) - (0.5 * .Width)
+    .Left = Application.Left + (0.5 * Application.width) - (0.5 * .width)
     .Top = Application.Top + (0.5 * Application.Height) - (0.5 * .Height)
     End With
 PreviewDamperLw

@@ -25,13 +25,22 @@ Public ApplyHeatMap As Boolean
 ' Args:     InputRw - row number
 '           isParamCol - set to TRUE to return Parameter range
 ' Comments: (1) Called by ApplyTraceStyle
+'           (2) Changed to apply to more columns in a Mech noise template, by
+'               finding the rightmost column
 '==============================================================================
 Function GetStyleRange(InputRw As Integer, Optional isParamCol As Boolean) As String
+Dim HighestCol As Long
 
     If isParamCol Then
     GetStyleRange = Range(Cells(InputRw, T_ParamStart), _
         Cells(InputRw, T_ParamEnd)).Address
     Else 'isParamCol defaults to false
+    
+    'TODO: Finish this logic
+    'apply to the highest (rightmost) column
+    HighestCol = Application.WorksheetFunction.Max(T_LossGainEnd, T_RegenEnd)
+    'GetStyleRange = Range(Cells(InputRw, T_Description), _
+        Cells(InputRw, HighestCol)).Address
     GetStyleRange = Range(Cells(InputRw, T_Description), _
         Cells(InputRw, T_LossGainEnd)).Address
     End If
@@ -355,6 +364,8 @@ For rw = Selection.Row To Selection.Row + Selection.Rows.Count - 1
     Cells(rw, 1) = ChrW(T_MrkResult)
     Case Is = "Schedule"
     Cells(rw, 1) = ChrW(T_MrkSchedule)
+    Case Is = "Minus"
+    Cells(rw, 1) = ChrW(T_MrkMinus)
     Case Else
     MsgBox "Error: Symbol 'Mrk" & MarkerType & "' not found.", vbOKOnly, _
         "Function: ApplyTraceMarker()"
@@ -420,7 +431,7 @@ End Sub
 '==============================================================================
 Sub Plot()
 
-Dim StartRw As Integer
+Dim startRw As Integer
 Dim endRw As Integer
 Dim TraceChartObj As ChartObject
 Dim XaxisTitle As String
@@ -444,7 +455,7 @@ Dim DefaultHeight As Integer
         End If
     
     'set plot ranges
-    StartRw = Selection.Row
+    startRw = Selection.Row
     endRw = Selection.Row + Selection.Rows.Count - 1
     
         'set X-axis title
@@ -471,13 +482,13 @@ Dim DefaultHeight As Integer
         'create chart
     '    Left, Top,                Width, Height
     Set TraceChartObj = ActiveSheet.ChartObjects.Add _
-        (600, Cells(StartRw, 1).Top + 5, DefaultWidth, DefaultHeight)
+        (600, Cells(startRw, 1).Top + 5, DefaultWidth, DefaultHeight)
     TraceChartObj.Chart.ChartType = xlLine
     TraceChartObj.Placement = xlFreeFloating 'don't resize with cells
     TraceChartObj.ShapeRange.Line.Visible = msoFalse
     'add series
     SeriesNo = 1
-        For plotrw = StartRw To endRw
+        For plotrw = startRw To endRw
             'set name and values
             With TraceChartObj.Chart.SeriesCollection.NewSeries
             .Name = "=" & SheetName & Cells(plotrw, 2).Address
@@ -517,8 +528,8 @@ Dim DefaultHeight As Integer
             
         
         'variable YaxisTitle is set earlier in the code
-        .Axes(xlValue, xlPrimary).AxisTitle.Text = YaxisTitle
-        .Axes(xlCategory, xlPrimary).AxisTitle.Text = XaxisTitle
+        .Axes(xlValue, xlPrimary).AxisTitle.text = YaxisTitle
+        .Axes(xlCategory, xlPrimary).AxisTitle.text = XaxisTitle
         End With
     
     'Call graph formatter
@@ -543,17 +554,17 @@ End Sub
 '==============================================================================
 Sub HeatMap(Optional SkipCheck As Boolean)
 Dim RowByRow As Boolean
-Dim StartRw As Integer
+Dim startRw As Integer
 Dim endRw As Integer
 Dim SelectRw As Integer
 Dim InitialSelection As String
 
 InitialSelection = Selection.Address
 
-StartRw = Selection.Row
-endRw = StartRw + Selection.Rows.Count - 1
+startRw = Selection.Row
+endRw = startRw + Selection.Rows.Count - 1
 
-    If StartRw = endRw Then 'only one row
+    If startRw = endRw Then 'only one row
     RowByRow = False
     ElseIf SkipCheck = True Then
     RowByRow = False
@@ -574,11 +585,11 @@ endRw = StartRw + Selection.Rows.Count - 1
 
 
 'clear any existing formatting
-Range(Cells(StartRw, T_Description), Cells(endRw, T_LossGainEnd)).Select
+Range(Cells(startRw, T_Description), Cells(endRw, T_LossGainEnd)).Select
 Selection.FormatConditions.Delete
     
     If RowByRow = True Then
-        For SelectRw = StartRw To endRw 'loop for each row
+        For SelectRw = startRw To endRw 'loop for each row
         'select one row
         Range(Cells(SelectRw, T_LossGainStart), _
             Cells(SelectRw, T_LossGainEnd)).Select
@@ -586,7 +597,7 @@ Selection.FormatConditions.Delete
         GreenYellowRed
         Next SelectRw
     Else
-    Range(Cells(StartRw, T_LossGainStart), _
+    Range(Cells(startRw, T_LossGainStart), _
             Cells(endRw, T_LossGainEnd)).Select
         GreenYellowRed
     End If
@@ -604,12 +615,12 @@ End Sub
 ' Comments: (1)
 '==============================================================================
 Sub ClearHeatMap()
-Dim StartRw As Integer
+Dim startRw As Integer
 Dim endRw As Integer
-StartRw = Selection.Row
-endRw = StartRw + Selection.Rows.Count - 1
+startRw = Selection.Row
+endRw = startRw + Selection.Rows.Count - 1
 'remove heatmap
-Range(Cells(StartRw, T_Description), Cells(endRw, T_LossGainEnd)).FormatConditions.Delete
+Range(Cells(startRw, T_Description), Cells(endRw, T_LossGainEnd)).FormatConditions.Delete
 End Sub
 
 '==============================================================================

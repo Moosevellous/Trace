@@ -33,7 +33,7 @@ Private Sub cBoxType_Change()
 FloorVibration = Array(10, 10, 10, 10, 10, 10, 10, 11, 11, 11, 10, 9, 9, 0, 0, 0, 0, 0, 0)
 GBN = Array(0, 0, 0, 0, 0, 0, 6, 7, 7, 7, 6, 6, 5, 5, 4, 3, 2, 1, 1)
     
-    Select Case Me.cBoxType.Text
+    Select Case Me.cBoxType.text
     Case Is = "Ground-borne Noise"
     SelectedLoss = GBN
     Case Is = "Floor Vibration"
@@ -66,7 +66,7 @@ End Sub
 
 Private Sub UserForm_Initialize()
     With Me
-        .Left = Application.Left + (0.5 * Application.Width) - (0.5 * .Width)
+        .Left = Application.Left + (0.5 * Application.width) - (0.5 * .width)
         .Top = Application.Top + (0.5 * Application.Height) - (0.5 * .Height)
     End With
 

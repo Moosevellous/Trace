@@ -3,17 +3,22 @@ Attribute VB_Name = "VARS"
 'PUBLIC VARIABLES
 '==============================================================================
 'variables for centrally accessed text files
-Public Const T_VersionNo As String = "3.09"
-Public ROOTPATH As String
+Public Const T_VersionNo As String = "3.10"
+Public rbTraceUI As IRibbonUI 'object for the Trace ribbon
+
+Public ROOTPATH As String '<-location of Trace Add-in, used for many other elements
 Public TEMPLATELOCATION As String
 Public STANDARDCALCLOCATION As String
 Public FIELDSHEETLOCATION As String
 Public EQUIPMENTSHEETLOCATION As String
+Global TRACELOGFOLDER As String
+Global TRACELOGFILE As String
+Public PROJECTINFODIRECTORY As String
+'variables for mech element tex files (mostly)
 Public ASHRAE_DUCT As String
 Public ASHRAE_DUCT_2019 As String
 Public ASHRAE_FLEX As String
 Public ASHRAE_REGEN As String
-Public PROJECTINFODIRECTORY As String
 Public FANTECH_SILENCERS As String
 Public FANTECH_DUCTS As String
 Public ACOUSTIC_LOUVRES As String
@@ -38,6 +43,8 @@ Public T_Comment As Integer
 'variables for row numbers
 Public T_FreqRow As Integer
 Public T_FirstRow As Integer
+Public T_FirstSelectedRow As Long
+Public T_LastSelectedRow As Long
 'variables for Range addresses
 Public T_ParamRng(3) As String
 Public T_FreqStartRng As String
@@ -58,6 +65,8 @@ Public Const T_MrkSum As String = "931" 'Letter sigma
 Public Const T_MrkAverage As String = "956" 'Letter mu
 Public Const T_MrkResult As String = "&H2192" 'Right Arrow
 Public Const T_MrkSchedule As String = "11045" 'Black diamond
+Public Const T_MrkMinus As String = "9644" 'black rectangle
+
 
 '==============================================================================
 'MASTER SET OF RANGES FOR SHEET TYPES
@@ -99,32 +108,32 @@ Public Function CurrentSheetColumns(Optional InputSheetType As String) As Varian
 
 Dim SheetType As String
 
-    If InputSheetType = "" Then
-    SheetType = T_SheetType
-    Else
-    SheetType = InputSheetType
-    End If
+If InputSheetType = "" Then
+SheetType = T_SheetType
+Else
+SheetType = InputSheetType
+End If
 
-    If Left(SheetType, 3) = "OCT" Then 'OCT OR OCTA
+If Left(SheetType, 3) = "OCT" Then 'OCT OR OCTA
     CurrentSheetColumns = OCT_cols
-    ElseIf Left(SheetType, 2) = "TO" Then 'TO OR TOA
+ElseIf Left(SheetType, 2) = "TO" Then 'TO OR TOA
     CurrentSheetColumns = TO_cols
-    ElseIf SheetType = "LF" Then
+ElseIf SheetType = "LF" Then
     CurrentSheetColumns = LF_Cols
-    ElseIf SheetType = "MECH" Then
+ElseIf SheetType = "MECH" Then
     CurrentSheetColumns = MECH_cols
-    ElseIf SheetType = "CVT" Then
+ElseIf SheetType = "CVT" Then
     CurrentSheetColumns = CVT_cols
-    ElseIf SheetType = "LF_TO" Then
+ElseIf SheetType = "LF_TO" Then
     CurrentSheetColumns = LF_TO_cols
-    ElseIf SheetType = "LF_OCT" Then
+ElseIf SheetType = "LF_OCT" Then
     CurrentSheetColumns = LF_OCT_cols
-    ElseIf SheetType = "FS" Then 'full spectrum
+ElseIf SheetType = "FS" Then 'full spectrum
     CurrentSheetColumns = FS_cols
-    '<---------------------------------TODO: exception for standard calc sheets
-    Else
-    ErrorTypeCode
-    End If
+'<---------------------------------TODO: exception for standard calc sheets
+Else
+ErrorTypeCode
+End If
     
 End Function
 
@@ -136,88 +145,29 @@ End Function
 ' Comments: (1)
 '==============================================================================
 Public Function CurrentSheetBands() As Variant
-    If Left(T_SheetType, 3) = "OCT" Then 'OCT OR OCTA
+
+If Left(T_SheetType, 3) = "OCT" Then 'OCT OR OCTA
     CurrentSheetBands = "oct"
-    ElseIf Left(T_SheetType, 2) = "TO" Then 'TO OR TOA
+ElseIf Left(T_SheetType, 2) = "TO" Then 'TO OR TOA
     CurrentSheetBands = "to"
-    ElseIf T_SheetType = "LF" Then 'low frequency
+ElseIf T_SheetType = "LF" Then 'low frequency
     CurrentSheetBands = "to"
-    ElseIf T_SheetType = "MECH" Then 'mechanical
+ElseIf T_SheetType = "MECH" Then 'mechanical
     CurrentSheetBands = "oct"
-    ElseIf T_SheetType = "CVT" Then 'convert
+ElseIf T_SheetType = "CVT" Then 'convert
     CurrentSheetBands = "cvt"
-    ElseIf T_SheetType = "LF_TO" Then 'low frequency third octave
+ElseIf T_SheetType = "LF_TO" Then 'low frequency third octave
     CurrentSheetBands = "to"
-    ElseIf T_SheetType = "LF_OCT" Then 'low frequency octave
+ElseIf T_SheetType = "LF_OCT" Then 'low frequency octave
     CurrentSheetBands = "oct"
-    ElseIf T_SheetType = "FS" Then 'full spectrum, third octave
+ElseIf T_SheetType = "FS" Then 'full spectrum, third octave
     CurrentSheetBands = "to"
-    Else
+Else
     ErrorTypeCode
-    End If
+End If
+
 End Function
 
-'==============================================================================
-' Name:     GetSettings
-' Author:   PS
-' Desc:     Sets central variables for control of elements
-' Args:     None
-' Comments: (1) Points to the path where Trace is installed. Sometimes this
-'           doesn't work, but I can't figure out why.
-'==============================================================================
-Public Sub GetSettings()
-
-On Error Resume Next
-
-frmLoading.lblStatus.Caption = "Getting global settings..."
-
-    'catches the error where excel doesn't know how to do its job
-    If Application.AddIns.Count = 0 Then
-    'hard coded location of AddIn as a fallback
-    ROOTPATH = "U:\SectionData\Property\Specialist Services\Acoustics\1 - Technical Library\Excel Add-in\Trace"
-    Else
-    frmLoading.lblStatus.Caption = "Finding path..."
-    ROOTPATH = Application.AddIns("Trace").Path
-    End If
-
-'Debug.Print RootPath
-
-TEMPLATELOCATION = ROOTPATH & "\Template Sheets"
-STANDARDCALCLOCATION = ROOTPATH & "\Standard Calc Sheets"
-FIELDSHEETLOCATION = ROOTPATH & "\Field Sheets"
-EQUIPMENTSHEETLOCATION = ROOTPATH & "\Equipment Import Sheets"
-ASHRAE_DUCT = ROOTPATH & "\DATA\ASHRAE_DUCTS.txt"
-ASHRAE_DUCT_2019 = ROOTPATH & "\DATA\ASHRAE_DUCTS_2019.txt"
-ASHRAE_FLEX = ROOTPATH & "\DATA\ASHRAE_FLEX.txt"
-ASHRAE_REGEN = ROOTPATH & "\DATA\ASHRAE_REGEN.txt"
-FANTECH_SILENCERS = ROOTPATH & "\DATA\Silencers.txt"
-FANTECH_DUCTS = ROOTPATH & "\DATA\FANTECH_DUCTS.txt"
-ACOUSTIC_LOUVRES = ROOTPATH & "\DATA\Louvres.txt"
-DUCT_DIRLOSS = ROOTPATH & "\DATA\DuctDir.txt"
-SRL_LG_DIRECTIVITY = ROOTPATH & "\DATA\SRL_LouvreGrilleDirectivity.txt"
-SRL_DUCTS = ROOTPATH & "\DATA\SRL_Ducts.txt"
-
-frmLoading.lblStatus.Caption = "Testing locations..."
-
-TestLocation TEMPLATELOCATION, vbDirectory
-TestLocation STANDARDCALCLOCATION, vbDirectory
-TestLocation FIELDSHEETLOCATION, vbDirectory
-TestLocation EQUIPMENTSHEETLOCATION, vbDirectory
-TestLocation (ASHRAE_DUCT)
-TestLocation (ASHRAE_DUCT_2019)
-TestLocation (ASHRAE_FLEX)
-TestLocation (ASHRAE_REGEN)
-TestLocation (FANTECH_SILENCERS)
-TestLocation (FANTECH_DUCTS)
-TestLocation (ACOUSTIC_LOUVRES)
-TestLocation (DUCT_DIRLOSS)
-TestLocation (SRL_LG_DIRECTIVITY)
-TestLocation (SRL_DUCTS)
-
-'SQLite 3DLL
-'SQLite3Initialize (ROOTPATH & "\DATA")
-
-End Sub
 
 '==============================================================================
 ' Name:     GetSheetTypeColumns
@@ -235,7 +185,7 @@ Dim i As Integer
 Dim SheetCols() As Variant
 SheetCols = CurrentSheetColumns(SheetType)
 
-    Select Case ColumnType
+Select Case ColumnType
     Case Is = "Description"
     i = 0
     Case Is = "LossGainStart"
@@ -254,7 +204,7 @@ SheetCols = CurrentSheetColumns(SheetType)
     i = 7
     Case Is = "FreqRow"
     i = 8
-    End Select
+End Select
     
 GetSheetTypeColumns = SheetCols(i)
 
@@ -284,31 +234,24 @@ End Function
 '==============================================================================
 Function TestLocation(PathStr As String, Optional SearchType)
 
-If IsMissing(SearchType) Then SearchType = vbNormal
+    If IsMissing(SearchType) Then SearchType = vbNormal
 
 frmLoading.lblStatus.Caption = "Testing location: " & PathStr
 
     If Dir(PathStr, SearchType) = "" Then
-    TestLocation = False
-        If SearchType = vbDirectory Then
-        msg = MsgBox("Directory '" & PathStr & " not found!", _
-            vbOKOnly, "Trace Error - Missing data file!")
-        Else
-        msg = MsgBox("File '" & PathStr & " not found!", _
-            vbOKOnly, "Trace Error - Missing data file!")
-        End If
+    
+        TestLocation = False
         
-'    '***********
-'    End '<-Escape!
-'    '***********
+        If SearchType = vbDirectory Then
+            msg = MsgBox("Directory '" & PathStr & " not found!", _
+                vbOKOnly, "Trace Error - Missing data file!")
+        Else
+            msg = MsgBox("File '" & PathStr & " not found!", _
+                vbOKOnly, "Trace Error - Missing data file!")
+        End If
     
     Else
-    TestLocation = True
-'        If SearchType = vbDirectory Then
-'        Debug.Print "Directory Found!    "; PathStr
-'        Else
-'        Debug.Print "File Found!         "; PathStr
-'        End If
+        TestLocation = True
     End If
     
 End Function
@@ -323,17 +266,134 @@ End Function
 '           (3) changed to return an dash character to make it clear it's working
 '==============================================================================
 Function CheckNumericValue(x As Variant, Optional NumDigits As Variant)
-    If IsNumeric(x) Then
-        If IsMissing(NumDigits) Then
+
+If IsNumeric(x) Then
+
+    If IsMissing(NumDigits) Then
         CheckNumericValue = CDbl(x)
-        Else
-        CheckNumericValue = Round(CDbl(x), NumDigits)
-        End If
     Else
-    CheckNumericValue = "-" 'returns a dash
+        CheckNumericValue = Round(CDbl(x), NumDigits)
     End If
+    
+Else
+    CheckNumericValue = "-" 'returns a dash
+End If
+
 End Function
 
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'BELOW HERE BE SUBS
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'==============================================================================
+' Name:     onLoadTrace
+' Author:   PS
+' Desc:     Preloads a bunch of variables
+' Args:     ribbon - from the UI element
+' Comments: (1)
+'==============================================================================
+Sub onLoadTrace(ribbon As IRibbonUI)
+
+    Set rbTraceUI = ribbon
+
+End Sub
+
+'Sub GetRootPath()
+'    Debug.Print Now & " looking for add-ins"
+'    If (Application.AddIns2.Count > 0) Then
+'        frmLoading.lblStatus.Caption = "Finding path..."
+'        ROOTPATH = Application.AddIns("Trace").Path
+'    Else
+'        'hard coded location of AddIn as a fallback
+'        ROOTPATH = "U:\SectionData\Property\Specialist Services\Acoustics\1 - Technical Library\Excel Add-in\Trace"
+'    End If
+'    Debug.Print Now & " done"
+'End Sub
+
+'==============================================================================
+' Name:     GetSettings
+' Author:   PS
+' Desc:     Sets central variables for control of elements
+' Args:     None
+' Comments: (1) Points to the path where Trace is installed. Sometimes this
+'           doesn't work, but I can't figure out why.
+'==============================================================================
+Public Sub GetSettings()
+
+On Error Resume Next
+
+frmLoading.lblStatus.Caption = "Getting global settings..."
+
+'Debug.Print Now & " Looking for path to add-ins"
+frmLoading.lblStatus.Caption = "Finding AddIn path..."
+frmLoading.Repaint
+'
+'If (Application.AddIns2.Count > 0) Then 'add-in list is working
+'    Debug.Print Now & " Count done"
+'    ROOTPATH = Application.AddIns("Trace").Path
+'Else 'hard coded location of AddIn as a fallback
+'    Debug.Print "PATH NOT FOUND DEFAULTING TO U:/ DRIVE"
+'    ROOTPATH = "U:\SectionData\Property\Specialist Services\Acoustics\1 - Technical Library\Excel Add-in\Trace"
+'End If
+
+Application.EnableEvents = False
+
+For Each AddIn In Application.AddIns2
+'Debug.Print Now & " Found " & AddIn.Name
+    If AddIn.Name = "Trace.xlam" Then
+        'Debug.Print Now & " Trace found"
+        ROOTPATH = AddIn.Path
+    End If
+Next AddIn
+
+Application.EnableEvents = True
+
+'Debug.Print RootPath
+TEMPLATELOCATION = ROOTPATH & "\Template Sheets"
+STANDARDCALCLOCATION = ROOTPATH & "\Standard Calc Sheets"
+FIELDSHEETLOCATION = ROOTPATH & "\Field Sheets"
+EQUIPMENTSHEETLOCATION = ROOTPATH & "\Equipment Import Sheets"
+TRACELOGFOLDER = ROOTPATH & "\Logs\" ' & Format(Now, "yyyymm") & ".txt"
+TRACELOGFILE = TRACELOGFOLDER & Format(Now, "yyyymm") & ".txt"
+ASHRAE_DUCT = ROOTPATH & "\DATA\ASHRAE_DUCTS.txt"
+ASHRAE_DUCT_2019 = ROOTPATH & "\DATA\ASHRAE_DUCTS_2019.txt"
+ASHRAE_FLEX = ROOTPATH & "\DATA\ASHRAE_FLEX.txt"
+ASHRAE_REGEN = ROOTPATH & "\DATA\ASHRAE_REGEN.txt"
+FANTECH_SILENCERS = ROOTPATH & "\DATA\Silencers.txt"
+FANTECH_DUCTS = ROOTPATH & "\DATA\FANTECH_DUCTS.txt"
+ACOUSTIC_LOUVRES = ROOTPATH & "\DATA\Louvres.txt"
+DUCT_DIRLOSS = ROOTPATH & "\DATA\DuctDir.txt"
+SRL_LG_DIRECTIVITY = ROOTPATH & "\DATA\SRL_LouvreGrilleDirectivity.txt"
+SRL_DUCTS = ROOTPATH & "\DATA\SRL_Ducts.txt"
+
+frmLoading.lblStatus.Caption = "Testing locations..."
+
+TestLocation TEMPLATELOCATION, vbDirectory
+TestLocation STANDARDCALCLOCATION, vbDirectory
+TestLocation FIELDSHEETLOCATION, vbDirectory
+TestLocation EQUIPMENTSHEETLOCATION, vbDirectory
+TestLocation TRACELOGFOLDER
+'todo: test for log file path?
+TestLocation (ASHRAE_DUCT)
+TestLocation (ASHRAE_DUCT_2019)
+TestLocation (ASHRAE_FLEX)
+TestLocation (ASHRAE_REGEN)
+TestLocation (FANTECH_SILENCERS)
+TestLocation (FANTECH_DUCTS)
+TestLocation (ACOUSTIC_LOUVRES)
+TestLocation (DUCT_DIRLOSS)
+TestLocation (SRL_LG_DIRECTIVITY)
+TestLocation (SRL_DUCTS)
+TestLocation (TRACELOGFILE)
+
+'SQLite 3DLL
+'SQLite3Initialize (ROOTPATH & "\DATA")
+
+End Sub
 
 '==============================================================================
 ' Name:     SetSheetTypeControls
@@ -420,7 +480,7 @@ Dim FirstRow As Integer
         Cells(8, Selection.Column).Select
         Else
         '********************
-        End 'stop everything!
+        'End 'stop everything! '<-edit: no need to stop, the user said it was ok
         '********************
         End If
 
@@ -457,7 +517,6 @@ i = -1
     End If
 
 End Function
-
 
 
 

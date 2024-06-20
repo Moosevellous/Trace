@@ -59,6 +59,58 @@ End Function
 'NOTE:
 'The shorthand for the types is: % -integer; & -long; @ -currency; # -double; ! -single; $ -string
 
+Function AppendToLogFile(inputText As String) As Boolean
+    On Error GoTo ErrorHandler
+    
+    ' Declare variables
+    Dim fileNum As Integer
+    Dim userName As String
+    Dim currentDateTime As String
+    Dim logLine As String
+    
+    ' Get the current username
+    userName = Environ("Username")
+    
+    ' Get the current date and time
+    currentDateTime = Now()
+    
+    ' Construct the log line
+    logLine = userName & vbTab & currentDateTime & vbTab & inputText
+    
+    ' Get the next available file number
+    fileNum = FreeFile
+    
+    ' Check if the file exists
+    If Dir(TRACELOGFOLDER, vbDirectory) = "" Then
+        'MsgBox "File does not exist: " & filePath, vbCritical
+'        AppendToLogFile = False
+'        Exit Function
+        MkDir TRACELOGFOLDER
+        Open TRACELOGFILE For Output As #fileNum ' Create the file
+        Close #fileNum
+    End If
+    
+    ' Open the file for appending
+    Open TRACELOGFILE For Append As #fileNum
+    
+    ' Write the log line to the file
+    Print #fileNum, logLine
+    
+    ' Close the file
+    Close #fileNum
+    
+    ' Indicate success
+    AppendToLogFile = True
+    Exit Function
+
+ErrorHandler:
+    ' Handle errors
+    Debug.Print "TRACE LOG ERROR: " & Err.Description & _
+        " Path: """ & TRACELOGFILE & """", vbCritical
+    On Error Resume Next
+    Close #fileNum ' Ensure the file is closed if an error occurs
+    AppendToLogFile = False
+End Function
 
 '==============================================================================
 '==============================================================================
@@ -84,6 +136,7 @@ Dim FuncName As String
     If Len(control.id) > 0 Then
     FuncName = CheckFunctionName(control.Tag)
     Application.Run FuncName, control.id
+    AppendToLogFile (FuncName & " | " & control.id)
     End If
     
 End Sub
@@ -116,6 +169,7 @@ On Error GoTo errorCatch
     End If
 
 Application.Run FuncName
+AppendToLogFile (FuncName)
 Exit Sub
 
 'ERRORS GO HERE
@@ -250,5 +304,12 @@ Sub ErrorFrequencyBandMissing()
 MsgBox "Start or end bands are missing or may be switched off. " & chr(10) & _
     "Check the active range in the dropdown menu in Basics Group on the ribbon", _
     vbOKOnly, "Error - frequency bands"
+End
+End Sub
+
+Sub ErrorNotEnoughInputs()
+MsgBox "Not enough inputs to calculate " & chr(10) & _
+    "Try again with more values provided.", _
+    vbOKOnly, "Error - not enough inputs"
 End
 End Sub

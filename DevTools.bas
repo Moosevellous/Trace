@@ -95,7 +95,7 @@ frmExport.lblFolder.Caption = fldr
     
         'only export modules and forms
         If TraceComponent.Type = 1 Or TraceComponent.Type = 3 Then
-        frmExport.lblFilename.Caption = TraceComponent.Name
+        frmExport.lblFileName.Caption = TraceComponent.Name
         frmExport.Repaint
         
             If Left(TraceComponent.Name, 3) = "frm" Then 'put in forms subfolder

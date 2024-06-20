@@ -169,7 +169,7 @@ End Sub
 Private Sub UserForm_Activate()
 btnOkPressed = False
     With Me
-    .Left = Application.Left + (0.5 * Application.Width) - (0.5 * .Width)
+    .Left = Application.Left + (0.5 * Application.width) - (0.5 * .width)
     .Top = Application.Top + (0.5 * Application.Height) - (0.5 * .Height)
     End With
     
@@ -364,11 +364,11 @@ Application.Calculation = xlCalculationManual
 
         For rw = 2 To UBound(SilNameArray) 'loop through name list only         'OLD:    For Rw = 2 To UBound(SilencerArray)
         SilCols = 0
-            For col = T_LossGainStart + 1 To T_LossGainEnd '63Hz to 8kHz
+            For Col = T_LossGainStart + 1 To T_LossGainEnd '63Hz to 8kHz
             'Debug.Print SilencerArray(rw, Col - 4)
-            Cells(SilRw, col).Value = SilencerArray(rw, 2 + SilCols) 'start from element 2
+            Cells(SilRw, Col).Value = SilencerArray(rw, 2 + SilCols) 'start from element 2
             SilCols = SilCols + 1 'index write row
-            Next col
+            Next Col
             
         'Debug.Print UBound(SilNameArray)
             If UBound(SilNameArray) >= rw Then

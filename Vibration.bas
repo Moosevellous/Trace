@@ -136,23 +136,23 @@ MapValue = Array("VC-H", "VC-G", "VC-F", "VC-E", "VC-D", "VC-C", "VC-B", "VC-A",
 
         Select Case DataTable.Cells(1, i + 1)
         
-        Case Is > VCcurve("VC-OR", freqTable.Cells(1, i + 1))
+        Case Is > VCcurve("VC-OR", freqTable.Cells(1, i + 1), Mode)
         CurrentCurve = 9
-        Case Is > VCcurve("VC-A", freqTable.Cells(1, i + 1))
+        Case Is > VCcurve("VC-A", freqTable.Cells(1, i + 1), Mode)
         CurrentCurve = 8
-        Case Is > VCcurve("VC-B", freqTable.Cells(1, i + 1))
+        Case Is > VCcurve("VC-B", freqTable.Cells(1, i + 1), Mode)
         CurrentCurve = 7
-        Case Is > VCcurve("VC-C", freqTable.Cells(1, i + 1))
+        Case Is > VCcurve("VC-C", freqTable.Cells(1, i + 1), Mode)
         CurrentCurve = 6
-        Case Is > VCcurve("VC-D", freqTable.Cells(1, i + 1))
+        Case Is > VCcurve("VC-D", freqTable.Cells(1, i + 1), Mode)
         CurrentCurve = 5
-        Case Is > VCcurve("VC-E", freqTable.Cells(1, i + 1))
+        Case Is > VCcurve("VC-E", freqTable.Cells(1, i + 1), Mode)
         CurrentCurve = 4
-        Case Is > VCcurve("VC-F", freqTable.Cells(1, i + 1))
+        Case Is > VCcurve("VC-F", freqTable.Cells(1, i + 1), Mode)
         CurrentCurve = 3
-        Case Is > VCcurve("VC-G", freqTable.Cells(1, i + 1))
+        Case Is > VCcurve("VC-G", freqTable.Cells(1, i + 1), Mode)
         CurrentCurve = 2
-        Case Is > VCcurve("VC-H", freqTable.Cells(1, i + 1))
+        Case Is > VCcurve("VC-H", freqTable.Cells(1, i + 1), Mode)
         CurrentCurve = 1
         Case Else
         
@@ -186,10 +186,10 @@ End Function
 '               {"Accel", "Vel"}.
 '           Mode = Optional, specified dB result, can be left out to return
 '               linear value i.e. inputs are either of {"", "dB"}.
-' Comments:
+' Comments:(1) Updated conversion factor for dB Mode.
+'              Note that:   dB(Vel)=20*log(v/e-9)
+'              and:         dB(Acc)=20*log(a/e-6)
 '==============================================================================
-' GENERAL SETUP
-
 Function AS2670_Curve(Axis As String, Multiplier As Variant, freq As String, _
     AccelVel As String, Optional Mode As String)
     
@@ -264,18 +264,24 @@ AS2670_Curve = "-"
 
 ' Find vibration corresponding to freq to display
 f = freqStr2Num(freq)
-i = GetArrayIndex_TO(f, 17) '17 bands offset from 50Hz to 1Hzo
+i = GetArrayIndex_TO(f, 17) '17 bands offset from 50Hz to 1Hz
     If i >= 0 And i < UBound(ChosenCurve) + 1 Then
     AS2670_Curve = ChosenCurve(i)
     End If
 
     'Converts to dB units if Mode is "dB"
     If AS2670_Curve <> "-" And Mode = "dB" And AccelVel = "Accel" Then
+    
         AS2670_Curve = _
-            20 * Application.WorksheetFunction.Log10(AS2670_Curve / 0.001)
+            20 * Application.WorksheetFunction.Log10(AS2670_Curve / _
+            0.000001) '<-updated
+            
     ElseIf AS2670_Curve <> "-" And Mode = "dB" And AccelVel = "Vel" Then
+    
         AS2670_Curve = _
-            20 * Application.WorksheetFunction.Log10(AS2670_Curve / 0.000001)
+            20 * Application.WorksheetFunction.Log10(AS2670_Curve / _
+            0.000000001) '<-updated
+            
     End If
 
 End Function
@@ -338,6 +344,163 @@ MapValue = Array(1, 1.4, 2, 4, 8, "NONE")
 ' Return curve that is met
 AS2670_Rate = MapValue(MaxCurve)
 
+End Function
+
+'==============================================================================
+' Name:     DIN4150_Curve
+' Author:   PS
+' Desc:     Returns DIN4150 criterion curve for each group at a given frequency
+' Args:     Group - 1, 2 or 3
+'           f - frequency, Hz
+' Comments: (1) note: result is in mm/s
+'==============================================================================
+Function DIN4150_Curve(Group As Integer, f As Double)
+
+Select Case Group
+    Case Is = 1
+        If f <= 10 Then
+        DIN4150_Curve = 20
+        ElseIf f > 10 And f <= 50 Then
+        DIN4150_Curve = (f / 2) + 15
+        ElseIf f > 50 And f <= 100 Then
+        DIN4150_Curve = (f / 5) + 30
+        Else
+        DIN4150_Curve = "-"
+        End If
+    Case Is = 2
+        If f <= 10 Then
+        DIN4150_Curve = 5
+        ElseIf f > 10 And f <= 50 Then
+        DIN4150_Curve = (f / 4) + 2.5
+        ElseIf f > 50 And f <= 100 Then
+        DIN4150_Curve = (f / 10) + 10
+        Else
+        DIN4150_Curve = "-"
+        End If
+    Case Is = 3
+        If f <= 10 Then
+        DIN4150_Curve = 3
+        ElseIf f > 10 And f <= 50 Then
+        DIN4150_Curve = (f / 8) + 1.75
+        ElseIf f > 50 And f <= 100 Then
+        DIN4150_Curve = (f / 25) + 6
+        Else
+        DIN4150_Curve = "-"
+        End If
+    Case Else
+        DIN4150_Curve = "-"
+End Select
+
+End Function
+
+
+'==============================================================================
+' Name:     BS7385_Curve
+' Author:   PS
+' Desc:     Returns criterion curve for each group at a given frequency for
+'           BS7385: Evaluation and measurement for vibration in buildings -
+'               Guide to damage levels from groundborne vibration
+' Args:     Group - T1 / T2 / C1 / C2 for transient and continuous lines
+'           f - frequency, Hz
+' Comments: (1) note result is in mm/s
+'==============================================================================
+Function BS7385_Curve(Group As String, f As Double)
+
+Select Case Group
+    Case Is = "T1"
+        BS7385_Curve = 50
+    Case Is = "T2"
+        If f >= 1 And f <= 4 Then
+        BS7385_Curve = (3.767 * f) - 0.067
+        ElseIf f > 4 And f <= 15 Then
+        BS7385_Curve = (0.455 * f) + 13.182
+        ElseIf f > 15 And f <= 40 Then
+        BS7385_Curve = (1.2 * f) + 2
+        ElseIf f > 40 And f <= 250 Then
+        BS7385_Curve = 50
+        Else
+        BS7385_Curve = "-"
+        End If
+    Case Is = "C1"
+        BS7385_Curve = 25
+    Case Is = "C2"
+        If f >= 1 And f <= 4 Then
+        BS7385_Curve = (1.883 * f) - 0.033
+        ElseIf f > 4 And f <= 15 Then
+        BS7385_Curve = (0.227 * f) + 6.591
+        ElseIf f > 15 And f <= 40 Then
+        BS7385_Curve = (0.6 * f) + 1
+        ElseIf f > 40 And f <= 250 Then
+        BS7385_Curve = 25
+        Else
+        BS7385_Curve = "-"
+        End If
+    Case Else
+        BS7385_Curve = "-"
+End Select
+
+End Function
+
+'==============================================================================
+' Name:     VibPrediction_RayleighWave
+' Author:   PS
+' Desc:     Adjusts PPV levels from Rayleigh wave spreading
+' Args:     MeasPPV - the measured Peak Particle Velocity level in mm/s
+'           DistToSource & DistToRec - Distances to source and receiver in m
+' Comments: (1)
+'==============================================================================
+Function VibPrediction_RayleighWave(MeasPPV As Double, DistToSource As Double, _
+    DistToRec As Double)
+'PPV at r2 = PPV at r1 x SQRT(r1 / r2)
+VibPrediction_RayleighWave = MeasPPV * ((DistToSource / DistToRec) ^ 0.5) 'square root
+End Function
+
+'==============================================================================
+' Name:     VibPrediction_BS5228
+' Author:   PS
+' Desc:     Returns the multiplier to adjust PPV using method from BS5228
+' Args:     MeasPPV - the measured Peak Particle Velocity level in mm/s
+'           DistToSource & DistToRec - Distances to source and receiver
+' Comments: (1) Based on method for percussive piling in BS 5228 Part 4, where
+'               Wo is the source energy per blow (or per cycle) (in J) and
+'               determined by r1 x (PPV at r1 / 0.75)
+'           (2) Should this be Attewell and Farmer's method?????
+'==============================================================================
+Function VibPrediction_BS5228(MeasPPV As Double, DistToSource As Double, _
+    DistToRec As Double, VibratoryDiven As Boolean)
+Dim Wo As Double
+Wo = MeasPPV / 0.75 * DistToSource
+
+If VibratoryDiven = True Then
+    VibPrediction_BS5228 = 0.75 * ((Wo / DistToRec) ^ 0.5)
+Else
+    VibPrediction_BS5228 = 1# * ((Wo / DistToRec) ^ 0.5)
+End If
+
+End Function
+
+'==============================================================================
+' Name:     VibPrediction_Amick
+' Author:   PS
+' Desc:     Adjusts PPV levels from Amick's method
+' Args:     MeasPPV - the measured Peak Particle Velocity level in mm/s
+'           DistToSource & DistToRec - Distances to source and receiver in m
+'           SoilDampCoef - (rho) Coefficient of soil damping
+'                           soft soils              0.0004
+'                           average soils           0.00013
+'                           hard or stiff soils     0.000033
+'                           hard, competent rock    0.000006
+'           GeometricAttenCoef: 0.5 for Rayleigh Waves
+'                               2 for Surface > Body waves > Surface
+'                               1 for Depth > Body waves > Surface
+'                               1 for Depth > Body waves > Depth
+' Comments: (1)
+'==============================================================================
+Function VibPrediction_Amick(MeasPPV As Double, DistToSource As Double, _
+    DistToRec As Double, SoilDampCoef As Double, GeometricAttenCoef As Double)
+'PPV at d2 = PPV at d1 x ((d1 / d2)^0.5) x (EXP(y x (d1-d2)))
+VibPrediction_Amick = MeasPPV * ((DistToSource / DistToRec) ^ GeometricAttenCoef) * _
+    (Exp(SoilDampCoef * (DistToSource - DistToRec)))
 End Function
 
 
@@ -510,14 +673,20 @@ End Sub
 ' Author:   PS
 ' Desc:     Inserts rating formula and presents VC curve
 ' Args:     None
-' Comments: (1) updated to include the VCrate function in the parameter column
+' Comments: (1) Updated to include the VCrate function in the parameter column
+'               so data validation isn't needed
 '==============================================================================
 Sub PutVCcurve()
 Dim StartBandCol As Integer
 Dim EndBandCol As Integer
 Dim Unit As String
 Dim rw As Integer
+Dim strFreqAddr As String
+Dim strRateAddr As String
 
+'Low frequency third-octave sheet check
+    If T_SheetType <> "LF_TO" Then ErrorLFTOOnly
+    
 msg = MsgBox("Linear values (mm/s)? " & chr(10) & _
     "[Note that 'No' will choose dB mode.]", vbYesNoCancel, "Lin/Log mode")
 
@@ -532,9 +701,6 @@ End If
 
 ParameterMerge (Selection.Row)
 
-'Low frequency third-octave sheet check
-    If T_SheetType <> "LF_TO" Then ErrorLFTOOnly
-
 SetDescription "=CONCAT(" & T_ParamRng(0) & ","" curve, " & Unit & """)"
 
 'set bands for VCrate
@@ -542,12 +708,15 @@ StartBandCol = FindFrequencyBand("2.5") 'lowest ASHRAE curve freq
 EndBandCol = FindFrequencyBand("80") ' highest ASHRAE curve freq
 rw = Selection.Row - 1 'one before this one
 
+'get some addresses
+strFreqAddr = Range(Cells(rw, StartBandCol), _
+    Cells(rw, EndBandCol)).Address(False, False)
+strRateAddr = Range(Cells(T_FreqRow, StartBandCol), _
+    Cells(T_FreqRow, EndBandCol)).Address(True, False)
 'build rating
-Cells(Selection.Row, T_ParamStart).Value = "=VCRate(" & Range( _
-    Cells(rw, StartBandCol), Cells(rw, EndBandCol)) _
-    .Address(False, False) & "," & Range( _
-    Cells(T_FreqRow, StartBandCol), Cells(T_FreqRow, EndBandCol)) _
-    .Address(True, False) & ")"
+'note that 'Unit' only changes on a value 'dB' and defaults to mm/s in all other cases
+Cells(Selection.Row, T_ParamStart).Value = "=VCRate(" & strFreqAddr & "," & _
+    strRateAddr & ",""" & Unit & """)"
     
 'build formula
     If msg = vbYes Then
@@ -561,7 +730,8 @@ Cells(Selection.Row, T_ParamStart).Value = "=VCRate(" & Range( _
 'format parameter columns
 SetTraceStyle "Input", True
 
-SetDataValidation T_ParamStart, "VC-OR,VC-A,VC-B,VC-C,VC-D,VC-E"
+'validation now not needed because there's a rating function in there
+'SetDataValidation T_ParamStart, "VC-OR,VC-A,VC-B,VC-C,VC-D,VC-E,VC-F,VC-G,VC-H"
 
 End Sub
 
@@ -706,4 +876,45 @@ SetDescription RowTitle & RowTitleUnit
 
 End Sub
 
+'==============================================================================
+' Name:     PutDIN4150Curve
+' Author:   PS
+' Desc:     Inserts values for DIN4150
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub PutDIN4150curve()
+
+ParameterMerge Selection.Row
+SetTraceStyle "Input", True
+SetDataValidation T_ParamStart, "1,2,3"
+Cells(Selection.Row, T_ParamStart).Value = 1 'default to group 1
+Cells(Selection.Row, T_ParamStart).NumberFormat = """Group "" 0"
+
+BuildFormula "DIN4150_Curve(" _
+    & T_ParamRng(0) & "," & Cells(T_FreqRow, T_LossGainStart).Address(True, False) & ")"
+    
+SetDescription "DIN 4150 curve, mm/s"
+End Sub
+
+'==============================================================================
+' Name:     PutDIN4150Curve
+' Author:   PS
+' Desc:     Inserts values for DIN4150
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub PutBS7385curve()
+
+ParameterMerge Selection.Row
+SetTraceStyle "Input", True
+SetDataValidation T_ParamStart, "T1,T2,C1,C2"
+Cells(Selection.Row, T_ParamStart).Value = "T1" 'default to group T1
+
+
+BuildFormula "BS7385_Curve(" _
+    & T_ParamRng(0) & "," & Cells(T_FreqRow, T_LossGainStart).Address(True, False) & ")"
+    
+SetDescription "BS 7385 curve, mm/s"
+End Sub
 

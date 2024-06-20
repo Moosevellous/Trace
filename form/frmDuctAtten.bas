@@ -119,7 +119,7 @@ End Sub
 Private Sub UserForm_Activate()
 btnOkPressed = False
     With Me
-    .Left = Application.Left + (0.5 * Application.Width) - (0.5 * .Width)
+    .Left = Application.Left + (0.5 * Application.width) - (0.5 * .width)
     .Top = Application.Top + (0.5 * Application.Height) - (0.5 * .Height)
     End With
 PreviewInsertionLoss
@@ -141,8 +141,7 @@ Private Sub btnOK_Click()
     Else
     ductMethod = ""
     End If
-    
-'<---TODO check isnumeric on controls
+
 ductH = CSng(Me.txtH.Value)
 ductW = CSng(Me.txtW.Value)
 ductL = CSng(Me.txtL.Value)
@@ -308,6 +307,11 @@ MaxArea = 3.66 * 1.02   'max dimension in metres from ASHRAE Tables
     DuctArea = Me.txtW.Value * Me.txtH.Value / 100000
         If DuctArea > MaxArea Then
         msg = MsgBox("Warning, ASHRAE tables only go up to a total duct area of 3.7332m" & chr(178), vbOKOnly, "Error - ASHRAE duct size")
+        End If
+    ElseIf Me.optReynolds.Value = True And IsNumeric(Me.txtH.Value) Then
+        If CDbl(Me.txtH.Value) > 1524 Then
+        msg = MsgBox("Warning, Reynolds is based on interpolated data, which does not go beyond diameters of 1524mm" & chr(178), vbOKOnly, "Error - Reynolds duct diameter size")
+        Me.txtH.Value = 1524
         End If
     End If
 End Sub

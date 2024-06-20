@@ -34,12 +34,12 @@ UpdatePicture ("img\Star_filled.gif")
 End Sub
 
 '''''''''''''''''''''
-Sub UpdatePicture(FilePath As String)
+Sub UpdatePicture(filePath As String)
 Dim objPic As Image
 GetSettings
 'set objpic =me.Controls(
-    If TestLocation(ROOTPATH & "\" & FilePath) = True Then
-    Me.imgStar1.Picture = LoadPicture(ROOTPATH & "\" & FilePath)
+    If TestLocation(ROOTPATH & "\" & filePath) = True Then
+    Me.imgStar1.Picture = LoadPicture(ROOTPATH & "\" & filePath)
     End If
 End Sub
 
@@ -47,7 +47,7 @@ End Sub
 Private Sub frameSearchProduct_MouseMove(ByVal Button As Integer, ByVal Shift As Integer, ByVal x As Single, ByVal y As Single)
 'Debug.Print "x"; X; "y"; Y
 'check if is within one of the stars, then fill
-    If x >= Me.imgStar1.Left And x <= Me.imgStar1.Left + Me.imgStar1.Width And _
+    If x >= Me.imgStar1.Left And x <= Me.imgStar1.Left + Me.imgStar1.width And _
     y >= Me.imgStar1.Top And x <= Me.imgStar1.Top + Me.imgStar1.Height Then
     UpdatePicture ("img/star_filled.gif")
     Else

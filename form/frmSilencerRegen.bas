@@ -1,6 +1,6 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmSilencerRegen 
-   Caption         =   "Silencer Regenerated Noise"
+   Caption         =   "Regenerated noise - Silencer"
    ClientHeight    =   5970
    ClientLeft      =   120
    ClientTop       =   465
@@ -77,10 +77,10 @@ Private Sub optMetresCubed_Click()
 PreviewRegen
 End Sub
 
-Sub UpdatePicture(FilePath As String)
+Sub UpdatePicture(filePath As String)
 GetSettings
-    If TestLocation(ROOTPATH & "\" & FilePath) = True Then
-    Me.imgFigure.Picture = LoadPicture(ROOTPATH & "\" & FilePath)
+    If TestLocation(ROOTPATH & "\" & filePath) = True Then
+    Me.imgFigure.Picture = LoadPicture(ROOTPATH & "\" & filePath)
     End If
 End Sub
 
@@ -195,6 +195,7 @@ Model = Me.txtTypeCode.Value
     DuctAreaMsq = (Me.txtW.Value * Me.txtH.Value) / 1000000 'area in m^2
     Me.txtDuctArea.Value = Round(DuctAreaMsq, 3)
         If IsNumeric(Me.txtFlowRate.Value) And IsNumeric(Me.txtFA.Value) And DuctAreaMsq > 0 Then
+        
             'RegenNoise
             If Me.optLitres.Value = True Then
             FlowrateM3ps = CDbl(Me.txtFlowRate.Value) / 1000
@@ -203,6 +204,9 @@ Model = Me.txtTypeCode.Value
             FlowrateM3ps = Me.txtFlowRate.Value
             Me.txtVelocity.Value = Round(Me.txtFlowRate.Value / DuctAreaMsq, 2)
             End If
+            
+        'calculate passage velocity
+        Me.txtPassageVelocity.Value = Round(Me.txtVelocity.Value / (Me.txtFA.Value / 100), 2)
         
             'preview sound power values
             If Me.optFantech.Value = True Then
@@ -237,5 +241,13 @@ Model = Me.txtTypeCode.Value
     Else
     Me.txtDuctArea.Value = "-"
     End If
+End Sub
+
+Private Sub UserForm_Activate()
+With Me
+    .Left = Application.Left + (0.5 * Application.width) - (0.5 * .width)
+    .Top = Application.Top + (0.5 * Application.Height) - (0.5 * .Height)
+End With
+PreviewRegen
 End Sub
 

@@ -95,7 +95,19 @@ End Function
 '           ReceiverHeight (in metres), SourceHeight (in metres), Grec,Gsrc,Gmid
 '           (Ground hardness of the source, reciever and middle zones, which is
 '           between 0 And 1), q (defined for the purpose of adding to the Am)
+'
+'           Hard ground, which includes paving, water, ice, concrete and all
+'           other ground surfaces having a low porosity. Tamped ground, for
+'           example, as often occurs around industrial sites, can be
+'           considered hard. For hard ground G = 0.
+'
+'           Porous ground, which includes ground covered by grass, trees or
+'           other vegetation, and all other ground surfaces suitable for the
+'           growth of vegetation, such as farming land. For porous ground G = 1.
+'
 ' Comments: (1) As implemented in the standard.
+'           (2) Updated for 2024 version of the standard, with Kgeo and
+'               A_prime_gr terms added
 '==============================================================================
 Function ISO9613_Agr(fstr As String, SourceHeight As Double, ReceiverHeight As Double, _
 dP As Double, Gsrc As Double, Grec As Double, Optional Gmid As Double)
@@ -113,26 +125,33 @@ Dim dhr As Double
 Dim elem As Integer
 
 Dim Q As Double
+Dim Kgeo As Double
+Dim A_prime_gr
 
-    If dP < 30 * (SourceHeight + ReceiverHeight) Then
-      Q = 0
-    Else
-      Q = 1 - ((30 * (SourceHeight + ReceiverHeight)) / dP)
-    End If
+'Does this only apply to the 63Hz band? The note is on the table.
+'No it can't be because otherwise q is undefined.
+If dP < 30 * (SourceHeight + ReceiverHeight) Then
+  Q = 0
+Else
+  Q = 1 - ((30 * (SourceHeight + ReceiverHeight)) / dP)
+End If
+
+Kgeo = (dP ^ 2 + ((SourceHeight - ReceiverHeight) ^ 2)) / _
+        (dP ^ 2 + ((SourceHeight + ReceiverHeight) ^ 2))
     
     If IsMissing(Gmid) Then Gmid = 0
 
 'Source polynomials
 ahs = 1.5 + (3 * Exp(-0.12 * ((SourceHeight - 5) ^ 2)) * (1 - Exp(-dP / 50))) + _
-(5.7 * Exp(-0.09 * SourceHeight ^ 2) * (1 - Exp(-2.8 * dP ^ 2 * (10 ^ -6))))
+    (5.7 * Exp(-0.09 * SourceHeight ^ 2) * (1 - Exp(-2.8 * dP ^ 2 * (10 ^ -6))))
 bhs = 1.5 + ((8.6 * Exp(-0.09 * SourceHeight ^ 2)) * (1 - Exp(-dP / 50)))
 chs = 1.5 + ((14 * Exp(-0.46 * SourceHeight ^ 2)) * (1 - Exp(-dP / 50)))
 dhs = 1.5 + ((5 * Exp(-0.9 * SourceHeight ^ 2)) * (1 - Exp(-dP / 50)))
 
 'Receiver polynomials
 ahr = 1.5 + (3 * Exp(-0.12 * (ReceiverHeight - 5) * (ReceiverHeight - 5)) * _
-(1 - Exp(-dP / 50))) + (5.7 * Exp(-0.09 * ReceiverHeight * ReceiverHeight) * _
-(1 - Exp(-2.8 * dP * dP * (10 ^ -6))))
+    (1 - Exp(-dP / 50))) + (5.7 * Exp(-0.09 * ReceiverHeight * ReceiverHeight) * _
+    (1 - Exp(-2.8 * dP * dP * (10 ^ -6))))
 bhr = 1.5 + ((8.6 * Exp(-0.09 * ReceiverHeight ^ 2)) * (1 - Exp(-dP / 50)))
 chr = 1.5 + ((14 * Exp(-0.46 * ReceiverHeight ^ 2)) * (1 - Exp(-dP / 50)))
 dhr = 1.5 + ((5 * Exp(-0.9 * ReceiverHeight ^ 2)) * (1 - Exp(-dP / 50)))
@@ -142,36 +161,45 @@ elem = GetArrayIndex_OCT(fstr)
 'Debug.Print "Gsrc: "; Gsrc
 'Debug.Print "Gmid: "; Gmid
 'Debug.Print "Grec: "; Grec
-    If elem = 999 Or elem = -1 Then
+If elem = 999 Or elem = -1 Then
     ISO9613_Agr = "-"
-    Else
-        Select Case elem
+    Exit Function
+Else
+    'Debug.Print fstr & "Hz    Element=" & elem
+    Select Case elem
         Case 0 '63Hz
-        ISO9613_Agr = -1.5 + -1.5 + (-3 * Q)
+        A_prime_gr = -1.5 + -1.5 + (-3 * Q)
         Case 1 '125Hz
-        ISO9613_Agr = (-1.5 + Gsrc * ahs) + (-1.5 + Grec * ahr) + (-3 * Q * (1 - Gmid))
+        A_prime_gr = (-1.5 + Gsrc * ahs) + (-1.5 + Grec * ahr) + (-3 * Q * (1 - Gmid))
         Case 2 '250Hz
-        ISO9613_Agr = (-1.5 + Gsrc * bhs) + (-1.5 + Grec * bhr) + (-3 * Q * (1 - Gmid))
+        A_prime_gr = (-1.5 + Gsrc * bhs) + (-1.5 + Grec * bhr) + (-3 * Q * (1 - Gmid))
         Case 3 '500Hz
-        ISO9613_Agr = (-1.5 + Gsrc * chs) + (-1.5 + Grec * chr) + (-3 * Q * (1 - Gmid))
+        A_prime_gr = (-1.5 + Gsrc * chs) + (-1.5 + Grec * chr) + (-3 * Q * (1 - Gmid))
         Case 4 '1kHz
-        ISO9613_Agr = (-1.5 + Gsrc * dhs) + (-1.5 + Grec * dhr) + (-3 * Q * (1 - Gmid))
+        A_prime_gr = (-1.5 + Gsrc * dhs) + (-1.5 + Grec * dhr) + (-3 * Q * (1 - Gmid))
         Case 5 '2kHz
-        ISO9613_Agr = (-1.5 * (1 - Gsrc)) + (-1.5 * (1 - Grec)) + (-3 * Q * (1 - Gmid))
+        A_prime_gr = (-1.5 * (1 - Gsrc)) + (-1.5 * (1 - Grec)) + (-3 * Q * (1 - Gmid))
         Case 6 '4kHz
-        ISO9613_Agr = (-1.5 * (1 - Gsrc)) + (-1.5 * (1 - Grec)) + (-3 * Q * (1 - Gmid))
+        A_prime_gr = (-1.5 * (1 - Gsrc)) + (-1.5 * (1 - Grec)) + (-3 * Q * (1 - Gmid))
         Case 7 '8kHz
-        ISO9613_Agr = (-1.5 * (1 - Gsrc)) + (-1.5 * (1 - Grec)) + (-3 * Q * (1 - Gmid))
+        A_prime_gr = (-1.5 * (1 - Gsrc)) + (-1.5 * (1 - Grec)) + (-3 * Q * (1 - Gmid))
         Case 999 'catch error
         ISO9613_Agr = "-"
-        End Select
-    End If
+        Exit Function
+    End Select
+End If
+
+ISO9613_Agr = -10 * Application.WorksheetFunction.Log((1 + (10 ^ (-1 * A_prime_gr / 10)) - 1) * Kgeo)
+
+'Debug.Print fstr & "Hz " & ISO9613_Agr
 
 'NOTES The Ground Effect formulae return positive values for attenuation
 '(as formula is "....-A").
-    If IsNumeric(ISO9613_Agr) Then
+If IsNumeric(ISO9613_Agr) Then
     ISO9613_Agr = ISO9613_Agr * -1
-    End If
+Else
+    ISO9613_Agr = "-"
+End If
 
 End Function
 
@@ -197,19 +225,22 @@ End Function
 '           GroundEffect - Agr from earlier step
 ' Comments: (1) distances are input as horizontal distances, with the
 '           hypotenuse calculated during the function
+'           (2) updating this for 2024 version of the standard.
+'           (3) Note sign difference in last step due to Trace convention of
+'               all losses being negative
 '==============================================================================
 Function ISO9613_Abar(fstr As String, SourceHeight As Double, ReceiverHeight As Double, _
 SourceReceiverDistance As Double, SourceBarrierDistance As Double, _
 SrcDistanceEdge As Double, RecDistanceEdge As Double, HeightBarrierSource As Double, _
 Optional DoubleDiffraction As Boolean, Optional BarrierThickness As Double, _
-Optional HeightBarrierReceiver As Double, Optional multisource As Boolean, _
+Optional HeightBarrierReceiver As Double, Optional MultiSource As Boolean, _
 Optional GroundEffect As Variant)
 
 Dim Ctwo As Double
 Dim Cthree As Single
 Dim topEdge As Single
 Dim verticalEdge As Single
-Dim Dz As Double
+
 Dim f As Double
 Dim dss As Double 'distance from source to the first diffraction edge
 Dim dsr As Double 'distance from the (second) diffraction edge to the receiver
@@ -217,6 +248,8 @@ Dim DistanceRecBarrier As Double 'distance from Receiver to the barrier (near si
 Dim A As Double 'a is the horizontal offset distance between the source and the receivers
 Dim lambda As Double 'wavelength
 Dim z As Double 'difference in path lengths of diffracted and direct sound in metres
+Dim Dz As Double
+Dim Zmin As Double
 Dim Kmet As Double
 Dim d_standard As Double 'includes vertical component
 
@@ -226,17 +259,17 @@ f = freqStr2Num(fstr)
 lambda = (343) / f 'as defined in the method
 A = Abs(SrcDistanceEdge - RecDistanceEdge)
     
-    If IsNumeric(GroundEffect) = False Then
+If IsNumeric(GroundEffect) = False Then
     ISO9613_Abar = "-"
     Exit Function
-    End If
+End If
 
     'If the double diffraction is set as FALSE then there's only 1 top edge
-    If DoubleDiffraction = False Then
-      If HeightBarrierReceiver <> HeightBarrierSource Then
-      HeightBarrierReceiver = HeightBarrierSource
-      End If
+If DoubleDiffraction = False Then
+    If HeightBarrierReceiver <> HeightBarrierSource Then
+        HeightBarrierReceiver = HeightBarrierSource
     End If
+End If
     
 DistanceRecBarrier = SourceReceiverDistance - SourceBarrierDistance - BarrierThickness
 
@@ -245,28 +278,28 @@ dss = ((SourceBarrierDistance ^ 2) + ((HeightBarrierSource - SourceHeight) ^ 2))
 dsr = ((DistanceRecBarrier ^ 2) + ((HeightBarrierReceiver - ReceiverHeight) ^ 2)) ^ (1 / 2)
 d_standard = (((SourceReceiverDistance ^ 2) + ((ReceiverHeight - SourceHeight) ^ 2)) ^ (1 / 2))
 
-
-    If DoubleDiffraction = True And BarrierThickness > 0 Then
+'check for double diffraction, multiple barriers or large objects
+If DoubleDiffraction = True And BarrierThickness > 0 Then
     Cthree = (1 + ((5 * lambda / BarrierThickness) * (5 * lambda / BarrierThickness))) / _
             (1 / 3 + ((5 * lambda / BarrierThickness) * (5 * lambda / BarrierThickness)))
     z = ((((dss + dsr + BarrierThickness) ^ 2) + (A ^ 2)) ^ (1 / 2)) - d_standard
     
     'Here the case of double diffraction is considered it actually says if lambda is << e
     'so here we have considered half of the value
-        If lambda < (BarrierThickness / 2) Then
+    If lambda < (BarrierThickness / 2) Then
         Cthree = 3
-        End If
-    Else 'double diffraction is false
+    End If
+Else 'double diffraction is false
     Cthree = 1
     z = ((((dss + dsr) ^ 2) + (A ^ 2)) ^ (1 / 2)) - d_standard
-    End If
+End If
 
 'calculate the Kmet: the meteorological correction
-    If z < 0 Or d_standard < 100 Then
+If z < 0 Or d_standard < 100 Then
     Kmet = 1
-    Else
-    Kmet = Exp((-1 / 2000) * (((dss * dsr * d_standard) / (2 * z)) ^ (1 / 2)))
-    End If
+Else
+    Kmet = Exp((-1 / 2000) * (((dss * dsr * d_standard) / (2 * z)) ^ (1 / 2))) '<--1996 version
+End If
 
 ''Print values for checking
 'Debug.Print "dss: "; dss
@@ -277,28 +310,38 @@ d_standard = (((SourceReceiverDistance ^ 2) + ((ReceiverHeight - SourceHeight) ^
 'Debug.Print "----------------- ";
 
     'Difference values for multiple sources correction
-    If multisource = True Then
+If MultiSource = True Then
     Ctwo = 40
-    Else
+Else
     Ctwo = 20
-    End If
+End If
+
+'calculate Zmin
+Zmin = (-2 * lambda) / (Ctwo * Cthree)
 
 'calculate barrier loss
-Dz = 10 * Application.WorksheetFunction.Log(3 + ((Ctwo / lambda) * Cthree * Abs(z) * Kmet))
+'Dz = 10 * Application.WorksheetFunction.Log(3 + ((Ctwo / lambda) * Cthree * Abs(z) * Kmet)) '<--1996 version
+If z <= Zmin Then
+    Dz = 0
+Else
+    Dz = 10 * Application.WorksheetFunction.Log(1 + (2 + ((Ctwo / lambda) * Cthree * Abs(z)) * Kmet)) '<--2024 version
+End If
 
-    'check for maximum value of Dz
-    If DoubleDiffraction = True Then
-        If Dz > 20 Then Dz = 20
-    Else
-        If Dz > 25 Then Dz = 25
-    End If
+'check for maximum value of Dz
+If DoubleDiffraction = True Then
+    If Dz > 20 Then Dz = 20
+Else
+    If Dz > 25 Then Dz = 25
+End If
 
     'Calculate final value
-    If multisource = True Then
+If MultiSource = True Then
     ISO9613_Abar = Dz * -1 'trace convention is negative!
-    Else
-    ISO9613_Abar = (Dz - GroundEffect) * -1
-    End If
+Else
+    'note that becaues GroundEffect is as input, the signs are reversed,
+    'which changes this equation!
+    ISO9613_Abar = (Dz + GroundEffect) * -1
+End If
     
 End Function
 

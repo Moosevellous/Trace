@@ -80,7 +80,7 @@ Dim SplitEnclosureString() As String
     ReDim SplitEnclosureString(1)
     'SplitEnclosureString(0) = "0"
     Else
-    SplitEnclosureString = Split(Me.cboxEnclosure.Text)
+    SplitEnclosureString = Split(Me.cboxEnclosure.text)
     End If
 
     'assign corrections for casing noise reduction, from 31.5Hz
@@ -124,7 +124,7 @@ Private Sub UserForm_Activate()
 btnOkPressed = False
     With Me
         .Top = (Application.Height - Me.Height) / 2
-        .Left = (Application.Width - Me.Width) / 2
+        .Left = (Application.width - Me.width) / 2
     End With
     
 EnclosureTypes
@@ -134,22 +134,22 @@ End Sub
 Sub CalcSpectrum()
 Dim Lw As Single
 
-    If IsNumeric(Me.txtPower.Value) Then
-    
-    Lw = 93 + 4 * Application.WorksheetFunction.Log(Me.txtPower.Value)
-    Me.txtLw.Text = Round(Lw, 1)
-    
-    Me.txt31.Value = Round(Lw + CSng(Me.txt31_st_cor) + CSng(Me.txt31enc), 1)
-    Me.txt63.Value = Round(Lw + CSng(Me.txt63_st_cor) + CSng(Me.txt63enc), 1)
-    Me.txt125.Value = Round(Lw + CSng(Me.txt125_st_cor) + CSng(Me.txt125enc), 1)
-    Me.txt250.Value = Round(Lw + CSng(Me.txt250_st_cor) + CSng(Me.txt250enc), 1)
-    Me.txt500.Value = Round(Lw + CSng(Me.txt500_st_cor) + CSng(Me.txt500enc), 1)
-    Me.txt1k.Value = Round(Lw + CSng(Me.txt1k_st_cor) + CSng(Me.txt1kenc), 1)
-    Me.txt2k.Value = Round(Lw + CSng(Me.txt2k_st_cor) + CSng(Me.txt2kenc), 1)
-    Me.txt4k.Value = Round(Lw + CSng(Me.txt4k_st_cor) + CSng(Me.txt4kenc), 1)
-    Me.txt8k.Value = Round(Lw + CSng(Me.txt8k_st_cor) + CSng(Me.txt8kenc), 1)
-    
-    Else 'no power, no values
+If IsNumeric(Me.txtPower.Value) Then
+    If Me.txtPower.Value > 0 Then
+        Lw = 93 + 4 * Application.WorksheetFunction.Log(Me.txtPower.Value)
+        Me.txtLw.text = Round(Lw, 1)
+        
+        Me.txt31.Value = Round(Lw + CSng(Me.txt31_st_cor) + CSng(Me.txt31enc), 1)
+        Me.txt63.Value = Round(Lw + CSng(Me.txt63_st_cor) + CSng(Me.txt63enc), 1)
+        Me.txt125.Value = Round(Lw + CSng(Me.txt125_st_cor) + CSng(Me.txt125enc), 1)
+        Me.txt250.Value = Round(Lw + CSng(Me.txt250_st_cor) + CSng(Me.txt250enc), 1)
+        Me.txt500.Value = Round(Lw + CSng(Me.txt500_st_cor) + CSng(Me.txt500enc), 1)
+        Me.txt1k.Value = Round(Lw + CSng(Me.txt1k_st_cor) + CSng(Me.txt1kenc), 1)
+        Me.txt2k.Value = Round(Lw + CSng(Me.txt2k_st_cor) + CSng(Me.txt2kenc), 1)
+        Me.txt4k.Value = Round(Lw + CSng(Me.txt4k_st_cor) + CSng(Me.txt4kenc), 1)
+        Me.txt8k.Value = Round(Lw + CSng(Me.txt8k_st_cor) + CSng(Me.txt8kenc), 1)
+    End If
+Else 'no power, no values
     
     Me.txt31.Value = "-"
     Me.txt63.Value = "-"
@@ -161,7 +161,7 @@ Dim Lw As Single
     Me.txt4k.Value = "-"
     Me.txt8k.Value = "-"
     
-    End If
+End If
 End Sub
 
 

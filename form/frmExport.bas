@@ -20,7 +20,7 @@ End Sub
 
 Private Sub UserForm_Activate()
     With Me
-    .Left = Application.Left + (0.9 * Application.Width) - (0.9 * .Width)
+    .Left = Application.Left + (0.9 * Application.width) - (0.9 * .width)
     .Top = Application.Top + 25 '+ (0.9 * Application.Height) - (0.9 * .Height)
     End With
 End Sub

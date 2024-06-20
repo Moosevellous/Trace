@@ -59,12 +59,12 @@ UpdatePicture (ImagePath)
 
 End Sub
 
-Sub UpdatePicture(FilePath As String)
+Sub UpdatePicture(filePath As String)
 Dim PathStr As String
 GetSettings
-PathStr = ROOTPATH & "\" & FilePath
+PathStr = ROOTPATH & "\" & filePath
     If Dir(PathStr, vbNormal) <> "" Then
-    Me.imgCurves.Picture = LoadPicture(ROOTPATH & "\" & FilePath)
+    Me.imgCurves.Picture = LoadPicture(ROOTPATH & "\" & filePath)
     End If
 End Sub
 
@@ -73,7 +73,7 @@ btnOkPressed = False
 
 ' Position - centre of screen
 With Me
-    .Left = Application.Left + (0.5 * Application.Width) - (0.5 * .Width)
+    .Left = Application.Left + (0.5 * Application.width) - (0.5 * .width)
     .Top = Application.Top + (0.5 * Application.Height) - (0.5 * .Height)
 End With
 btnOkPressed = False
@@ -84,10 +84,10 @@ PopulatecBoxMult
 PopulatecBoxOrder
 
 ' Populate default values
-Me.cBoxAxis.Text = "Z"
-Me.cBoxMult.Text = "Critical Working Areas"
-Me.txtMult.Text = 1
-Me.cBoxOrder.Text = "Acceleration (m/s/s)"
+Me.cBoxAxis.text = "Z"
+Me.cBoxMult.text = "Critical Working Areas"
+Me.txtMult.text = 1
+Me.cBoxOrder.text = "Acceleration (m/s/s)"
 
 
 ' Default values for toggle variables
@@ -104,7 +104,7 @@ Dim SelectedOrder As String
 btnOkPressed = True
 
 ' Assign value to variable for Axis drop down box
-Select Case Me.cBoxAxis.Text
+Select Case Me.cBoxAxis.text
 Case Is = "Z"
     SelectedAxis = "z"
 Case Is = "XY"
@@ -114,7 +114,7 @@ Case Is = "Combined (XYZ)"
 End Select
 
 ' Assign value to variable for Order drop down box
-Select Case Me.cBoxOrder.Text
+Select Case Me.cBoxOrder.text
 Case Is = "Acceleration (m/s/s)"
     SelectedOrder = "Accel"
 Case Is = "Velocity (m/s)"
@@ -146,7 +146,7 @@ End Sub
 
 Private Sub cBoxMult_Change()
     
-    Select Case Me.cBoxMult.Text
+    Select Case Me.cBoxMult.text
     Case Is = "Critical Working Areas"
         Me.txtMult.Value = 1
     Case Is = "Residential - Night"
@@ -245,7 +245,7 @@ Dim SelectedOrder As String
     End If
     
     ' Assign value to variable for Axis drop down box
-Select Case Me.cBoxAxis.Text
+Select Case Me.cBoxAxis.text
 Case Is = "Z"
     SelectedAxis = "z"
 Case Is = "XY"
@@ -255,7 +255,7 @@ Case Is = "Combined (XYZ)"
 End Select
     
     ' Assign value to variable for Order drop down box
-Select Case Me.cBoxOrder.Text
+Select Case Me.cBoxOrder.text
 Case Is = "Acceleration (m/s/s)"
     SelectedOrder = "Accel"
 Case Is = "Velocity (m/s)"

@@ -1,6 +1,6 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmElbowRegen 
-   Caption         =   "Elbow Regen."
+   Caption         =   "Regenerated noise - Elbows"
    ClientHeight    =   7935
    ClientLeft      =   120
    ClientTop       =   465
@@ -383,8 +383,9 @@ End Sub
 
 Private Sub UserForm_Activate()
 btnOkPressed = False
+PreviewValues
     With Me
-    .Left = Application.Left + (0.5 * Application.Width) - (0.5 * .Width)
+    .Left = Application.Left + (0.5 * Application.width) - (0.5 * .width)
     .Top = Application.Top + (0.5 * Application.Height) - (0.5 * .Height)
     End With
 End Sub

@@ -50,7 +50,7 @@ End Sub
 Private Sub UserForm_Activate()
 btnOkPressed = False
     With Me
-    .Left = Application.Left + (0.5 * Application.Width) - (0.5 * .Width)
+    .Left = Application.Left + (0.5 * Application.width) - (0.5 * .width)
     .Top = Application.Top + (0.5 * Application.Height) - (0.5 * .Height)
     End With
 FanTypes
@@ -79,7 +79,7 @@ Sub CalcLw()
 End Sub
 
 Sub CalcSpectrum()
-    Select Case Me.cBoxFanType.Text
+    Select Case Me.cBoxFanType.text
     Case Is = "Forward curved centrifugal"
     Correction = Array(-5, -10, -15, -20, -25, -28, -31) 'SRL
     Case Is = "Backward curved centrifugal"
@@ -103,7 +103,7 @@ Sub CalcSpectrum()
     Correction = Array(3, 2, 1, 0, 0, 0, 1) 'RICHDS
     End Select
     
-    If Me.cBoxFanType.Text <> "" Then
+    If Me.cBoxFanType.text <> "" Then
     'Corrections
     txtC63.Value = Correction(0)
     txtC125.Value = Correction(1)

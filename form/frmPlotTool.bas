@@ -4,7 +4,7 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmPlotTool
    ClientHeight    =   9285
    ClientLeft      =   120
    ClientTop       =   465
-   ClientWidth     =   11205
+   ClientWidth     =   11265
    OleObjectBlob   =   "frmPlotTool.frx":0000
    StartUpPosition =   1  'CenterOwner
 End
@@ -19,179 +19,282 @@ Attribute VB_Exposed = False
 '''''''''''''''
 
 Dim FirstRun As Boolean 'switch for initialising form, set to false after initial setup
+Dim ShowAdvancedSettings As Boolean
+
+
+
+Function MarkerListBoxIndex(MarkerType As Long)
+Dim SelectedValue As Long
+'Dim MarkerFormatList() As Long
+
+MarkerFormatList = Array(1, 2, 3, 4, 5, 8, 8, 10, 7, 6)
+
+SelectedValue = -1 'catch errors
+    Select Case MarkerType
+    Case 1 'square
+    SelectedValue = 1
+    Case 2 'diamond
+    SelectedValue = 2
+    Case 3 'triangle
+    SelectedValue = 3
+    Case -4168 'square markers with X
+    SelectedValue = 4
+    Case 5 'square with asterisk
+    SelectedValue = 5
+    Case 8 'circle
+    SelectedValue = 8
+    Case 9 'square with plus
+    SelectedValue = 8
+'    Case 10
+'        If SelectedValue = UBound(MarkerFormatList) Then 'next one will fall off
+'        SelectedValue = 0
+'        Else
+'        SelectedValue = SelectedValue + 1
+'        End If
+    Case -4105 'automatic
+    SelectedValue = 10
+    Case -4115 'long bar
+    SelectedValue = 7
+    Case -4118 'short bar markers
+    SelectedValue = 6
+    Case -4142 'none
+    SelectedValue = 0
+    Case -4147 'picture markers
+    SelectedValue = -1
+
+    End Select
+MarkerListBoxIndex = SelectedValue - 1 'stupid list indices
+End Function
+
+'Me.cBoxMarkerStyle.AddItem ("1 - Square")
+'Me.cBoxMarkerStyle.AddItem ("2 - Diamond")
+'Me.cBoxMarkerStyle.AddItem ("3 - Triangle")
+'Me.cBoxMarkerStyle.AddItem ("4 - Cross")
+'Me.cBoxMarkerStyle.AddItem ("5 - Asterisk")
+'Me.cBoxMarkerStyle.AddItem ("6 - Dash")
+'Me.cBoxMarkerStyle.AddItem ("7 - Big Dash")
+'Me.cBoxMarkerStyle.AddItem ("8 - Circle")
+'Me.cBoxMarkerStyle.AddItem ("9 - Plus")
+
+
+Function IsSeriesNameActivated(SeriesName As String)
+Dim i As Integer
+IsSeriesNameActivated = False ' Initialize the function to return False
+
+' Loop through each item in the ListBox
+For i = 0 To Me.lstSeries.ListCount - 1
+    If Me.lstSeries.List(i) = SeriesName And Me.lstSeries.Selected(i) Then
+        IsSeriesNameActivated = True ' Set to True if SeriesName is found
+        Exit Function ' Exit the function early as the SeriesName is found
+    End If
+Next i
+
+End Function
+
 
 Sub GetCurrentChartValues()
 
 Dim YAxisStandardValues As Boolean
 Dim XAxisStandardValues As Boolean
 
-    'catch error
-    If ActiveChart Is Nothing Then
+'catch error
+If ActiveChart Is Nothing Then
     msg = MsgBox("No chart selected", vbOKOnly, "Error")
     End
-    End If
+End If
 
 FirstRun = True
 
 'Debug.Print ActiveChart.ChartType
     
-    'only certain chart types allowed
-    If ActiveChart.ChartType <> xlLineMarkers And ActiveChart.ChartType <> xlLine Then
+'only certain chart types allowed
+If ActiveChart.ChartType <> xlLineMarkers And ActiveChart.ChartType <> xlLine Then
     msg = MsgBox("Chart Type: " & ActiveChart.ChartType & chr(10) & "Sorry, only line charts allowed.", vbOKOnly, "Error")
     End
-    End If
-    
-    'markers
-    If ActiveChart.FullSeriesCollection(1).MarkerStyle = -4142 Then 'no markers
+End If
+
+'markers
+If ActiveChart.FullSeriesCollection(1).MarkerStyle = -4142 Then 'no markers
     Me.chkShowMarkers.Value = False
-    Else
-    'Me.cBoxMarkerStyle.ListIndex = ActiveChart.FullSeriesCollection(1).MarkerStyle - 1 'list item number 1 is marker style 0?
+Else
+'Me.cBoxMarkerStyle.ListIndex = ActiveChart.FullSeriesCollection(1).MarkerStyle - 1 'list item number 1 is marker style 0?
     Me.chkShowMarkers.Value = True
     Me.cBoxMarkerStyle.ListIndex = MarkerListBoxIndex(ActiveChart.FullSeriesCollection(1).MarkerStyle) 'TODO: will have to update this for multi-markers
     Me.txtMarkerSize.Value = ActiveChart.FullSeriesCollection(1).MarkerSize
-    
-    End If
-    
-    'lines
-    If ActiveChart.FullSeriesCollection(1).Format.Line.Visible = msoFalse Then 'no line
+
+End If
+
+'lines
+If ActiveChart.FullSeriesCollection(1).Format.Line.Visible = msoFalse Then 'no line
     Me.txtLineThickness.Value = ""
     Me.chkShowLines.Value = False
-    Else
+Else
     Me.txtLineThickness.Value = ActiveChart.FullSeriesCollection(1).Format.Line.Weight
     Me.txtTransparency.Value = ActiveChart.FullSeriesCollection(1).Format.Line.Transparency * 100
-    End If
+End If
     
     
     'y-axis
-    With ActiveChart.Axes(xlValue, xlPrimary)
-        If .HasTitle Then
-        
-            If InStr(1, .AxisTitle.Text, "Sound Pressure Level", vbTextCompare) > 0 Then
+With ActiveChart.Axes(xlValue, xlPrimary)
+    If .HasTitle Then
+    
+        If InStr(1, .AxisTitle.text, "Sound Pressure Level", vbTextCompare) > 0 Then
             Me.optSPL.Value = True
             YAxisStandardValues = True
-            End If
-            
-            If InStr(1, .AxisTitle.Text, "Sound Power Level", vbTextCompare) > 0 Then
+        End If
+        
+        If InStr(1, .AxisTitle.text, "Sound Power Level", vbTextCompare) > 0 Then
             Me.optSWL.Value = True
             YAxisStandardValues = True
-            End If
-            
-            If InStr(1, .AxisTitle.Text, "Transmission Loss", vbTextCompare) > 0 Then
+        End If
+        
+        If InStr(1, .AxisTitle.text, "Transmission Loss", vbTextCompare) > 0 Then
             Me.optTL.Value = True
             YAxisStandardValues = True
-            End If
-            
-            If InStr(1, .AxisTitle.Text, "Insertion Loss", vbTextCompare) > 0 Then
+        End If
+        
+        If InStr(1, .AxisTitle.text, "Insertion Loss", vbTextCompare) > 0 Then
             Me.optIL.Value = True
             YAxisStandardValues = True
-            End If
-            
-            If YAxisStandardValues = False Then
-            Me.optYOther = True
-            End If
-            
-        Me.txtYAxis.Value = .AxisTitle.Text
         End If
-    End With
+        
+        If YAxisStandardValues = False Then
+            Me.optYOther = True
+        End If
+        
+    Me.txtYAxis.Value = .AxisTitle.text
+    End If
+End With
     
-    With ActiveChart.Axes(xlValue)
+With ActiveChart.Axes(xlValue)
     'major y-axis gridlines
-        If .HasMajorGridlines = True Then
+    If .HasMajorGridlines = True Then
         Me.chkMajor.Value = True
-            If .MajorUnit = 10 Then
+        If .MajorUnit = 10 Then
             Me.optMajor10.Value = True
-            ElseIf .MajorUnit = 5 Then
+        ElseIf .MajorUnit = 5 Then
             Me.optMajor5.Value = True
-            ElseIf .MajorUnit = 1 Then
+        ElseIf .MajorUnit = 1 Then
             Me.optMajor1.Value = True
-            Else
+        Else
             Me.optMajorOther.Value = True
             Me.txtMajorGridValue = .MajorUnit
-            End If
-        Else
-        Me.chkMajor.Value = False
         End If
+    Else
+        Me.chkMajor.Value = False
+    End If
 
         
         'minor y-axis gridlines
-        If .HasMinorGridlines = True Then
+    If .HasMinorGridlines = True Then
         Me.chkMinor.Value = True
-            If .MinorUnit = 10 Then
+        If .MinorUnit = 10 Then
             Me.optMinor10.Value = True
-            ElseIf .MinorUnit = 5 Then
+        ElseIf .MinorUnit = 5 Then
             Me.optMinor5.Value = True
-            ElseIf .MinorUnit = 1 Then
+        ElseIf .MinorUnit = 1 Then
             Me.optMinor1.Value = True
-            Else
+        Else
             Me.optMinorOther.Value = True
             Me.txtMinorGridValue = .MinorUnit
-            End If
-        Else
+        End If
+    Else
         Me.chkMinor.Value = False
+    End If
+        
+    'Y-axis number format
+    numFormat = .TickLabels.NumberFormat
+    numDecimal = Split(numFormat, ".", Len(numFormat), vbTextCompare)
+        If UBound(numDecimal) >= 1 Then
+            Me.txtDecimal.Value = Len(numDecimal(1))
+        Else
+            Me.txtDecimal.Value = 0
         End If
         
-        'Y-axis number format
-        numFormat = .TickLabels.NumberFormat
-        numDecimal = Split(numFormat, ".", Len(numFormat), vbTextCompare)
-            If UBound(numDecimal) >= 1 Then
-            Me.txtDecimal.Value = Len(numDecimal(1))
-            Else
-            Me.txtDecimal.Value = 0
-            End If
+    'get Y-axis ranges
+    Me.txtYRangeMax.Value = .MaximumScale
+    Me.txtYRangeMin.Value = .MinimumScale
+    'Me.txtYRangeMin.Value = .MaximumScale - 60 'Impose a 60dB range by default
         
-        'get Y-axis ranges
-        Me.txtYRangeMax.Value = .MaximumScale
-        Me.txtYRangeMin.Value = .MinimumScale
-        'Me.txtYRangeMin.Value = .MaximumScale - 60 'Impose a 60dB range by default
+    'check if Y-axis is log scale
+    If .ScaleType = xlScaleLogarithmic Then Me.chkLogScale.Value = True
         
-        'check if Y-axis is log scale
-        If .ScaleType = xlScaleLogarithmic Then Me.chkLogScale.Value = True
-        
-    End With
+End With
     
-    'x-axis
-    With ActiveChart.Axes(xlCategory, xlPrimary)
-        If .HasTitle Then
+'x-axis
+With ActiveChart.Axes(xlCategory, xlPrimary)
+    If .HasTitle Then
             
-            If InStr(1, .AxisTitle.Text, "Octave Band Centre Frequency, Hz", vbTextCompare) > 0 Then
+        If InStr(1, .AxisTitle.text, "Octave Band Centre Frequency, Hz", vbTextCompare) > 0 Then
             Me.optOct.Value = True
             XAxisStandardValues = True
-            End If
+        End If
             
-            If InStr(1, .AxisTitle.Text, "One-Third Octave Band Centre Frequency, Hz", vbTextCompare) > 0 Then
+        If InStr(1, .AxisTitle.text, "One-Third Octave Band Centre Frequency, Hz", vbTextCompare) > 0 Then
             Me.optOToct.Value = True
             XAxisStandardValues = True
-            End If
-            
-            If XAxisStandardValues = False Then
-            Me.txtXaxis.Enabled = True
-            End If
-        Me.txtXaxis.Value = .AxisTitle.Text
         End If
+            
+        If XAxisStandardValues = False Then
+            Me.txtXaxis.Enabled = True
+        End If
+        Me.txtXaxis.Value = .AxisTitle.text
+    End If
     'ticks, on values by default
     .AxisBetweenCategories = False
     .MajorTickMark = xlInside
-    End With
+End With
     
     'Chart title
-    If ActiveChart.HasTitle = True Then
-    Me.txtChartTitle.Value = ActiveChart.ChartTitle.Text
+If ActiveChart.HasTitle = True Then
+    Me.txtChartTitle.Value = ActiveChart.ChartTitle.text
     Me.chkChartTitle.Value = True
-    End If
+End If
     
     'legend
-    If ActiveChart.HasLegend Then
-        If ActiveChart.Legend.Position = xlLegendPositionBottom Then
+If ActiveChart.HasLegend Then
+    If ActiveChart.Legend.Position = xlLegendPositionBottom Then
         Me.optLegendBottom.Value = True
-        ElseIf ActiveChart.Legend.Position = xlLegendPositionRight Then
+    ElseIf ActiveChart.Legend.Position = xlLegendPositionRight Then
         Me.optLegendRight.Value = True
-        End If
-    Else
-    Me.optLegendNone.Value = True
     End If
+Else
+    Me.optLegendNone.Value = True
+End If
     
+'lstSeries
+For i = 1 To ActiveChart.FullSeriesCollection.Count
+    Me.lstSeries.AddItem (ActiveChart.FullSeriesCollection(i).Name)
+    Me.lstSeries.Selected(i - 1) = True
+Next i
+
 FirstRun = False 'end of setup
     
+End Sub
+
+'show the advanced panel
+Private Sub btnAdvanced_Click()
+If ShowAdvancedSettings = False Then 'show
+Me.width = 780
+Me.FrameSeries.Visible = True
+Me.btnAdvanced.Caption = "<<<Hide"
+ShowAdvancedSettings = True
+Else 'hide
+Me.width = 575
+Me.FrameSeries.Visible = False
+Me.btnAdvanced.Caption = "Advanced>>>"
+ShowAdvancedSettings = False
+End If
+
+End Sub
+
+Private Sub btnAllSeries_Click()
+Dim r As Integer
+
+For r = 0 To Me.lstSeries.ListCount - 1
+    Me.lstSeries.Selected(r) = True
+Next r
+
 End Sub
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -251,22 +354,24 @@ ActiveChart.ChartArea.Select
     For i = 1 To ActiveChart.FullSeriesCollection.Count
     '.Select
         With ActiveChart.FullSeriesCollection(i).Format.Line
-            Select Case i Mod 7 '7 options of dash
-            Case Is = 0
-            .DashStyle = msoLineLongDashDot
-            Case Is = 1 'note this one happens first, because i=1 and 1 mod 7 is 1
-            .DashStyle = msoLineSolid
-            Case Is = 2
-            .DashStyle = msoLineSysDot
-            Case Is = 3
-            .DashStyle = msoLineSysDash
-            Case Is = 4
-            .DashStyle = msoLineDash
-            Case Is = 5
-            .DashStyle = msoLineDashDot
-            Case Is = 6
-            .DashStyle = msoLineLongDash
-            End Select
+            If IsSeriesNameActivated(ActiveChart.FullSeriesCollection(i).Name) Then
+                Select Case i Mod 7 '7 options of dash
+                Case Is = 0
+                .DashStyle = msoLineLongDashDot
+                Case Is = 1 'note this one happens first, because i=1 and 1 mod 7 is 1
+                .DashStyle = msoLineSolid
+                Case Is = 2
+                .DashStyle = msoLineSysDot
+                Case Is = 3
+                .DashStyle = msoLineSysDash
+                Case Is = 4
+                .DashStyle = msoLineDash
+                Case Is = 5
+                .DashStyle = msoLineDashDot
+                Case Is = 6
+                .DashStyle = msoLineLongDash
+                End Select
+            End If
         End With
      Next i
 
@@ -291,6 +396,14 @@ Private Sub btnMarkPlus1_Click()
     Me.txtMarkerSize.Value = Me.txtMarkerSize.Value + 1
     End If
 ApplyMarkerSize
+End Sub
+
+Private Sub btnNoneSeries_Click()
+Dim r As Integer
+
+For r = 0 To Me.lstSeries.ListCount - 1
+    Me.lstSeries.Selected(r) = False
+Next r
 End Sub
 
 Private Sub btnOpaque_Click()
@@ -715,17 +828,19 @@ End Sub
 
 Sub ApplyMarkerSize()
 
-    If Me.txtMarkerSize.Value <> "" Then
-    s = CInt(Me.txtMarkerSize.Value)
-        If s <> "" And s > 1 And ActiveChart.FullSeriesCollection(1).MarkerStyle <> xlMarkerStyleNone Then
-            ActiveChart.ChartArea.Select
-            For i = 1 To ActiveChart.FullSeriesCollection.Count
+If Me.txtMarkerSize.Value <> "" Then
+s = CInt(Me.txtMarkerSize.Value)
+    If s <> "" And s > 1 And ActiveChart.FullSeriesCollection(1).MarkerStyle <> xlMarkerStyleNone Then
+        ActiveChart.ChartArea.Select
+        For i = 1 To ActiveChart.FullSeriesCollection.Count
+            If IsSeriesNameActivated(ActiveChart.FullSeriesCollection(i).Name) Then
                 With ActiveChart.FullSeriesCollection(i)
-                .MarkerSize = s
+                    .MarkerSize = s
                 End With
-            Next i
-        End If
+            End If
+        Next i
     End If
+End If
 
 End Sub
 
@@ -749,20 +864,25 @@ End If
 If m_style = 10 Then 'multi-marker!
     'set sizes, loop through all series
     For i = 1 To ActiveChart.FullSeriesCollection.Count
-    
-        ActiveChart.FullSeriesCollection(i).MarkerStyle = MultiMarkerNo
+        
+        If IsSeriesNameActivated(ActiveChart.FullSeriesCollection(i).Name) Then
+            ActiveChart.FullSeriesCollection(i).MarkerStyle = MultiMarkerNo
+        End If
         
         If MultiMarkerNo >= 9 Then
-        MultiMarkerNo = 1 'loop around
+            MultiMarkerNo = 1 'loop around
         Else
-        MultiMarkerNo = MultiMarkerNo + 1 'index up
+            MultiMarkerNo = MultiMarkerNo + 1 'index up
         End If
         
     Next i
 Else
     'set sizes, loop through all series
     For i = 1 To ActiveChart.FullSeriesCollection.Count
-        ActiveChart.FullSeriesCollection(i).MarkerStyle = m_style
+    Debug.Print ActiveChart.FullSeriesCollection(i).Name & " " & IsSeriesNameActivated(ActiveChart.FullSeriesCollection(i).Name)
+        If IsSeriesNameActivated(ActiveChart.FullSeriesCollection(i).Name) Then
+            ActiveChart.FullSeriesCollection(i).MarkerStyle = m_style
+        End If
     Next i
 End If
 
@@ -770,16 +890,18 @@ End Sub
 
 Sub ApplyMarkerFill()
 Dim colorIndex As Integer
-    For i = 1 To ActiveChart.FullSeriesCollection.Count
-    c = ActiveChart.FullSeriesCollection(i).Format.Line.ForeColor
+For i = 1 To ActiveChart.FullSeriesCollection.Count
+    If IsSeriesNameActivated(ActiveChart.FullSeriesCollection(i).Name) Then
+        C = ActiveChart.FullSeriesCollection(i).Format.Line.ForeColor
         If Me.optMarkerFill.Value = True Then 'fill markers
-        ActiveChart.FullSeriesCollection(i).MarkerForegroundColorIndex = 0
-        ActiveChart.FullSeriesCollection(i).MarkerBackgroundColor = c
+            ActiveChart.FullSeriesCollection(i).MarkerForegroundColorIndex = 0
+            ActiveChart.FullSeriesCollection(i).MarkerBackgroundColor = C
         Else 'hollow
-        ActiveChart.FullSeriesCollection(i).MarkerForegroundColor = c
-        ActiveChart.FullSeriesCollection(i).MarkerBackgroundColorIndex = 0
+            ActiveChart.FullSeriesCollection(i).MarkerForegroundColor = C
+            ActiveChart.FullSeriesCollection(i).MarkerBackgroundColorIndex = 0
         End If
-    Next i
+    End If
+Next i
     
 End Sub
 
@@ -787,46 +909,56 @@ Sub ApplyChartTitle()
     If ActiveChart.HasTitle = False Then
     ActiveChart.SetElement (msoElementChartTitleAboveChart)
     End If
-ActiveChart.ChartTitle.Text = Me.txtChartTitle.Value
+ActiveChart.ChartTitle.text = Me.txtChartTitle.Value
 End Sub
 
 Sub MarkerBordersOff()
 ActiveChart.ChartArea.Select
-    For i = 1 To ActiveChart.FullSeriesCollection.Count
-    ActiveChart.FullSeriesCollection(i).MarkerForegroundColorIndex = xlColorIndexNone
-    Next i
+For i = 1 To ActiveChart.FullSeriesCollection.Count
+    If IsSeriesNameActivated(ActiveChart.FullSeriesCollection(i).Name) Then
+        ActiveChart.FullSeriesCollection(i).MarkerForegroundColorIndex = xlColorIndexNone
+    End If
+Next i
 End Sub
 
 Sub ApplyLabels()
-    For i = 1 To ActiveChart.FullSeriesCollection.Count
-    ActiveChart.FullSeriesCollection(i).Select
-    ActiveChart.FullSeriesCollection(i).ApplyDataLabels
-        With ActiveChart.FullSeriesCollection(i).DataLabels
-        .ShowSeriesName = True
-        .ShowValue = False
-        .Position = xlLabelPositionAbove
-        .Orientation = xlDownward
-        .Format.TextFrame2.Orientation = msoTextOrientationDownward
-        End With
-    Next i
+For i = 1 To ActiveChart.FullSeriesCollection.Count
+    If IsSeriesNameActivated(ActiveChart.FullSeriesCollection(i).Name) Then
+        ActiveChart.FullSeriesCollection(i).Select
+        ActiveChart.FullSeriesCollection(i).ApplyDataLabels
+            With ActiveChart.FullSeriesCollection(i).DataLabels
+            .ShowSeriesName = True
+            .ShowValue = False
+            .Position = xlLabelPositionAbove
+            .Orientation = xlDownward
+            .Format.TextFrame2.Orientation = msoTextOrientationDownward
+            End With
+    End If
+Next i
 End Sub
 
 Sub ApplyLineWeight(s)
-    If IsNumeric(s) And s > 0.5 Then
-        ActiveChart.ChartArea.Select
-        For i = 1 To ActiveChart.FullSeriesCollection.Count
-        ActiveChart.FullSeriesCollection(i).Format.Line.Weight = s
-        Next i
-    End If
+
+If IsNumeric(s) And s > 0.5 Then
+    ActiveChart.ChartArea.Select
+    For i = 1 To ActiveChart.FullSeriesCollection.Count
+        If IsSeriesNameActivated(ActiveChart.FullSeriesCollection(i).Name) Then
+            ActiveChart.FullSeriesCollection(i).Format.Line.Weight = s
+        End If
+    Next i
+End If
+
 End Sub
 
 Sub ApplyLineTransparency(tVal)
-    If tVal <> "" And tVal <= 100 And tVal > 0 Then
+    If tVal <> "" And tVal <= 100 And tVal >= 0 Then
         For i = 1 To ActiveChart.FullSeriesCollection.Count
-            With ActiveChart.FullSeriesCollection(i)
-            .Format.Line.DashStyle = 1
-            .Format.Line.Transparency = tVal / 100
-            End With
+            If IsSeriesNameActivated(ActiveChart.FullSeriesCollection(i).Name) Then
+                With ActiveChart.FullSeriesCollection(i)
+                .Format.Line.DashStyle = 1
+                .Format.Line.Transparency = tVal / 100
+                End With
+            End If
         Next i
     End If
 End Sub
@@ -880,20 +1012,20 @@ If FirstRun = True Then Exit Sub
         If Me.optYOther.Value = False Then 'only if not 'other'
             If Me.optSPL.Value = True Then
                 If Me.optdB.Value = True Then
-                Me.txtYAxis.Text = "Sound Pressure Level, dB"
+                Me.txtYAxis.text = "Sound Pressure Level, dB"
                 Else
-                Me.txtYAxis.Text = "Sound Pressure Level, dBA"
+                Me.txtYAxis.text = "Sound Pressure Level, dBA"
                 End If
             ElseIf Me.optSWL.Value Then
                 If Me.optdB.Value = True Then
-                Me.txtYAxis.Text = "Sound Power Level, dB"
+                Me.txtYAxis.text = "Sound Power Level, dB"
                 Else
-                Me.txtYAxis.Text = "Sound Power Level, dBA"
+                Me.txtYAxis.text = "Sound Power Level, dBA"
                 End If
             ElseIf Me.optTL.Value = True Then
-            Me.txtYAxis.Text = "Transmission Loss, dB"
+            Me.txtYAxis.text = "Transmission Loss, dB"
             ElseIf Me.optIL.Value = True Then
-            Me.txtYAxis.Text = "Insertion Loss, dB"
+            Me.txtYAxis.text = "Insertion Loss, dB"
             End If
         End If
         
@@ -902,7 +1034,7 @@ If FirstRun = True Then Exit Sub
             If .HasTitle = False Then
             .HasTitle = True
             End If
-        .AxisTitle.Text = Me.txtYAxis.Text 'this line is problematic
+        .AxisTitle.text = Me.txtYAxis.text 'this line is problematic
         End With
 
     Else
@@ -921,15 +1053,15 @@ If Me.optXNone.Value = False Then
         If .HasTitle = False Then
         .HasTitle = True
         End If
-    .AxisTitle.Text = Me.txtXaxis.Text
+    .AxisTitle.text = Me.txtXaxis.text
     End With
         
     'Put labels in textbox
     If Me.optXOther.Value = False Then 'only if not 'other'
         If Me.optOct.Value = True Then
-        Me.txtXaxis.Text = "Octave Band Centre Frequency, Hz"
+        Me.txtXaxis.text = "Octave Band Centre Frequency, Hz"
         Else
-        Me.txtXaxis.Text = "One-Third Octave Band Centre Frequency, Hz"
+        Me.txtXaxis.text = "One-Third Octave Band Centre Frequency, Hz"
         End If
     End If
         
@@ -939,56 +1071,3 @@ End If
 
 End Sub
 
-
-Function MarkerListBoxIndex(MarkerType As Long)
-Dim SelectedValue As Long
-'Dim MarkerFormatList() As Long
-
-MarkerFormatList = Array(1, 2, 3, 4, 5, 8, 8, 10, 7, 6)
-
-SelectedValue = -1 'catch errors
-    Select Case MarkerType
-    Case 1 'square
-    SelectedValue = 1
-    Case 2 'diamond
-    SelectedValue = 2
-    Case 3 'triangle
-    SelectedValue = 3
-    Case -4168 'square markers with X
-    SelectedValue = 4
-    Case 5 'square with asterisk
-    SelectedValue = 5
-    Case 8 'circle
-    SelectedValue = 8
-    Case 9 'square with plus
-    SelectedValue = 8
-'    Case 10
-'        If SelectedValue = UBound(MarkerFormatList) Then 'next one will fall off
-'        SelectedValue = 0
-'        Else
-'        SelectedValue = SelectedValue + 1
-'        End If
-    Case -4105 'automatic
-    SelectedValue = 10
-    Case -4115 'long bar
-    SelectedValue = 7
-    Case -4118 'short bar markers
-    SelectedValue = 6
-    Case -4142 'none
-    SelectedValue = 0
-    Case -4147 'picture markers
-    SelectedValue = -1
-
-    End Select
-MarkerListBoxIndex = SelectedValue - 1 'stupid list indices
-End Function
-
-'Me.cBoxMarkerStyle.AddItem ("1 - Square")
-'Me.cBoxMarkerStyle.AddItem ("2 - Diamond")
-'Me.cBoxMarkerStyle.AddItem ("3 - Triangle")
-'Me.cBoxMarkerStyle.AddItem ("4 - Cross")
-'Me.cBoxMarkerStyle.AddItem ("5 - Asterisk")
-'Me.cBoxMarkerStyle.AddItem ("6 - Dash")
-'Me.cBoxMarkerStyle.AddItem ("7 - Big Dash")
-'Me.cBoxMarkerStyle.AddItem ("8 - Circle")
-'Me.cBoxMarkerStyle.AddItem ("9 - Plus")

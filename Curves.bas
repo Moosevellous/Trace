@@ -102,6 +102,7 @@ End Function
 ' Args:     fStr (frequency band)
 ' Comments: (1) From 0.25Hz to 100Hz
 '           (2) Reference to ISO 7196-1995
+'           (3) Updated freqTitles array, was missing one value (!)
 '==============================================================================
 Function GWeightCorrections(fstr As String)
 Dim dBGAdjustment As Variant
@@ -114,13 +115,12 @@ freq = freqStr2Num(fstr)
 ArrayIndex = 999 'for error catching
 
 '                     Corrections for 1/3 octave band centre frequencies
-'                     10     12.5   16     20     25     31.5   40     50     63
-'   80     100    125    160    200    250   315   400   500   630   800 1000
-'   1250 1600 2000 2500 3150 4000 5000 6300 8000  10000 12500 16000 20000)
+'                    0.25 0.315  0.4    0.5    0.63   0.8   1.0  1.25   1.63    2
+'   2.5   3.15  4.0  5.0 6.3  8  10 12.5 16 20  25  31.5  40   50   63   80   100
 dBGAdjustment = Array(-88, -80, -72.1, -64.3, -56.6, -49.5, -43, -37.5, -32.6, -28.3, _
     -24.1, -20, -16, -12, -8, -4, 0, 4, 7.7, 9, 3.7, -4, -12, -20, -28, -36, -44)
-freqTitles = Array(0.25, 0.315, 0.4, 0.63, 0.8, 1#, 1.25, 1.6, 2, 2.5, 3.15, 4, _
-    5, 6.3, 8, 10, 12.5, 16, 20, 25, 31.5, 40, 50, 63, 80, 100)
+freqTitles = Array(0.25, 0.315, 0.4, 0.5, 0.63, 0.8, 1#, 1.25, 1.6, 2, _
+    2.5, 3.15, 4, 5, 6.3, 8, 10, 12.5, 16, 20, 25, 31.5, 40, 50, 63, 80, 100)
 
     For i = LBound(freqTitles) To UBound(freqTitles)
         If freq = freqTitles(i) Then
@@ -262,7 +262,7 @@ Dim A_f As Variant
 Dim B_f As Variant
 Dim NR_f, NR As Double
 Dim NRTemp As Double
-Dim IStart, col As Integer
+Dim IStart, Col As Integer
 
     If DataTable.Rows.Count <> 1 Then
         NR_rate = "ERROR!"
@@ -283,15 +283,15 @@ B_f = Array(0.681, 0.79, 0.87, 0.93, 0.974, 1, 1.015, 1.025, 1.03)
 IStart = GetArrayIndex_OCT(fstr, 1)
     
     'Debug.Print DataTable.Columns.Count
-    For col = 1 To DataTable.Columns.Count
-        If IsNumeric(DataTable(1, col)) Then
-            NR_f = (DataTable(1, col) - A_f(IStart + col - 1)) / _
-                B_f(IStart + col - 1) 'get the NR for that octave band
+    For Col = 1 To DataTable.Columns.Count
+        If IsNumeric(DataTable(1, Col)) Then
+            NR_f = (DataTable(1, Col) - A_f(IStart + Col - 1)) / _
+                B_f(IStart + Col - 1)  'get the NR for that octave band
             If NR_f > NR Then 'if greater than highest NR found so far
                 NR = NR_f
             End If
         End If
-    Next col
+    Next Col
     
     If NR > 100 Then
         NR_rate = "OVER 100!"
@@ -420,7 +420,7 @@ Function NCrate(DataTable As Variant, Optional fstr As String)
 Dim NC As Double
 Dim freq As Double
 Dim IStart As Integer
-Dim col As Integer
+Dim Col As Integer
 Dim NCtemp As Integer
    
    If DataTable.Rows.Count <> 1 Then
@@ -446,17 +446,17 @@ IStart = GetArrayIndex_OCT(fstr, 2)
     While found = False
     'Debug.Print "Checking NC"; i
     test_freq = octaveBands(IStart)
-        For col = 1 To DataTable.Columns.Count 'all input value
-        test_freq = octaveBands(IStart + col - 1) 'DataTable is indexed from 1, not 0
-            If IsNumeric(DataTable(1, col)) Then
+        For Col = 1 To DataTable.Columns.Count 'all input value
+        test_freq = octaveBands(IStart + Col - 1) 'DataTable is indexed from 1, not 0
+            If IsNumeric(DataTable(1, Col)) Then
             'get value of curve at that band
             NC_curve_value = NCcurve(NCtemp, CStr(test_freq))
             'Debug.Print DataTable(1, Col + 1).Value; "    NCvalue: "; NC_curve_value
-                If DataTable(1, col).Value > NC_curve_value Then
-                SumExceedances = SumExceedances + (DataTable(1, col) - NC_curve_value)
+                If DataTable(1, Col).Value > NC_curve_value Then
+                SumExceedances = SumExceedances + (DataTable(1, Col) - NC_curve_value)
                 End If
             End If
-        Next col
+        Next Col
     
         'catch error
         If NCtemp > 70 Then
@@ -637,9 +637,23 @@ Dim A As Double
 'curves from ISO717.1
 'band             100  125  160  200  250  315  400  500  630  800 1k  1.2k 1.6k 2k 2.5k 3.15k
 Ctr_ThOct = Array(-20, -20, -18, -16, -15, -14, -13, -12, -11, -9, -8, -9, -10, -11, -13, -15) 'as per ISO717-1
+'band                    50   63    80  100  125  160  200  250  315  400  500  630  800  1k  1.2k 1.6k 2k 2.5k 3.15k 4k  5k
+Ctr_Oct_50to5000 = Array(-25, -23, -21, -20, -20, -18, -16, -15, -14, -13, -12, -11, -9, -8, -9, -10, -11, -13, -15, -16, -18)
 'band           125  250  500 1k  2k
 Ctr_Oct = Array(-14, -10, -7, -4, -6) 'as per ISO717-1
+'band                     63  125  250  500 1k  2k  4k
+Ctr_Oct_50to5000 = Array(-18, -14, -10, -7, -4, -6 - 11) 'as per ISO717-1
+
+'initialise
 PartialSum = 0
+
+'<-Todo: update for extended frequency range
+'  50  63  80 ... 4k 5k
+' -25 -23 -21 ...-16 -18
+
+If IsNumeric(DataTable(0)) = False Then
+Exit Function
+End If
 
     'Octave Band mode
     If Mode = "oct" Or Mode = "Oct" Or Mode = "OCT" Then
@@ -674,9 +688,22 @@ Dim A As Double
 'curves from ISO717.1
 'band             100  125  160  200  250  315  400  500  630  800 1k  1.2k 1.6k 2k 2.5k 3.15k
 C_ThOct = Array(-29, -26, -23, -21, -19, -17, -15, -13, -12, -11, -10, -9, -9, -9, -9, -9) 'as per ISO717-1
+'band                    50  63    80   100  125  160  200  250  315  400  500  630  800 1k  1.2k 1.6k 2k 2.5k 3.15k
+C_ThOct_50to3150 = Array(-40, -36, -33, -29, -26, -23, -21, -19, -17, -15, -13, -12, -11, -10, -9, -9, -9, -9, -9)
+'band                    50  63    80   100  125  160  200  250  315  400  500  630  800  1k  1.2k 1.6k  2k  2.5k 3.15k 4k   5k
+C_ThOct_50to5000 = Array(-41, -37, -34, -30, -27, -24, -22, -20, -18, -16, -14, -13, -12, -11, -10, -10, -10, -10, -10, -10, -10)
 'band           125  250  500 1k  2k
 C_Oct = Array(-21, -14, -8, -5, -4) 'as per ISO717-1
+'band                   63  125  250  500 1k  2k
+C_Oct_50to3150 = Array(-31, -21, -14, -8, -5, -4)
+'band                   63  125  250  500 1k  2k  4k
+C_Oct_50to5000 = Array(-32, -22, -15, -9, -6, -5, -5)
+
+'initialise
 PartialSum = 0
+
+'<-Todo: update method for extended frequency range
+'NOTE: completely different spectrum!??!!??!
 
     'Octave Band mode
     If Mode = "oct" Or Mode = "Oct" Or Mode = "OCT" Then
@@ -1125,24 +1152,103 @@ End Function
 ' Args:     CurveNo, fStr
 ' Comments: (1) First cut
 '==============================================================================
-Function RCcurve(CurveNo As Integer, fstr As String)
+Function RCcurve(CurveStr As String, fstr As String)
 Dim Delta As Integer
 Dim i As Integer
+Dim CurveNo As Integer
 
-'Reference curve
-'bands  16 31.5 63 125 250 500 1k 2k 4k 8k
+'Reference curve: RC50
+'bands            16 31.5 63 125 250 500 *1k* 2k  4k  8k
 BaseCurve = Array(75, 75, 70, 65, 60, 55, 50, 45, 40, 35) 'element 6 is 1k
+If InStr(1, CurveStr, "(", vbTextCompare) > 0 Then
+    CurveNo = CInt(Left(CurveStr, Len(CurveStr) - 4))
+Else
+    CurveNo = CInt(CurveStr)
+End If
 
 Delta = CurveNo - 50
 
 'get array index, from 16Hz band
 i = GetArrayIndex_OCT(fstr, 2)
 
-    If CurveNo < 30 And i < 1 Then 'flatline below 31Hz
+If CurveNo < 30 And i <= 1 Then 'flatline below 31Hz
     RCcurve = 55
-    Else
+Else
     RCcurve = BaseCurve(i) + Delta
+End If
+
+End Function
+
+
+'==============================================================================
+' Name:     RCrate
+' Author:   PS
+' Desc:     Returns the value of the RC (MarkII) curve at frequency band fStr
+' Args:     DataTable - table of noise values
+'           FirstFreq - first frequency band of data, assumed to be 16Hz
+' Comments: (1) Cut
+'==============================================================================
+Function RCrate(DataTable As Variant, Optional FirstFreq As String)
+Dim arrDeviations(9) As Double '16 to 8k
+'Dim arrBands(10) As String
+Dim i As Integer
+Dim PSIL As Integer
+Dim CurrentOct As String
+Dim inputRange As Range
+'Dim rngLF, rngMF, rngHF As Range
+Dim QAI As Double
+'Dim arrBands() As String
+
+'<- Todo: write this
+arrBands = Array("16", "31.5", "63", "125", "250", "500", "1k", "2k", "4k", "8k")
+'find array index of the 500Hz band
+
+'average the 500Hz to 2kHz band to get the PSIL
+PSIL = Round((DataTable(6) + DataTable(7) + DataTable(8)) / 3, 0)
+
+'octBandIndex = GetArrayIndex_OCT(FirstFreq, 2) 'start at 16Hz=0
+'Set rngLF = Range("A1").Resize(3, 1)
+'Set rngMF = Range("A2").Resize(3, 1)
+'Set rngHF = Range("A3").Resize(3, 1)
+
+'calculate the deviations from the curve
+For i = 1 To 9
+CurrentOct = arrBands(i - 1)
+    arrDeviations(i) = DataTable(i) - RCcurve(CStr(PSIL), CurrentOct)
+Next i
+
+
+LF = 10 * Application.WorksheetFunction.Log((10 ^ (arrDeviations(1) / 10)) + _
+    (10 ^ (arrDeviations(2) / 10)) + (10 ^ (arrDeviations(3) / 10))) _
+    - 10 * Application.WorksheetFunction.Log(3)
+MF = 10 * Application.WorksheetFunction.Log((10 ^ (arrDeviations(4) / 10)) + _
+    (10 ^ (arrDeviations(5) / 10)) + (10 ^ (arrDeviations(6) / 10))) _
+    - 10 * Application.WorksheetFunction.Log(3)
+HF = 10 * Application.WorksheetFunction.Log((10 ^ (arrDeviations(7) / 10)) + _
+    (10 ^ (arrDeviations(8) / 10)) + (10 ^ (arrDeviations(9) / 10))) _
+    - 10 * Application.WorksheetFunction.Log(3)
+    
+    
+QAI = Application.WorksheetFunction.Max(LF, MF, HF) - Application.WorksheetFunction.Min(LF, MF, HF)
+
+'Debug.Print LF; MF; HF
+If QAI <= 5 Then
+    RCrate = PSIL & "N"
+ElseIf QAI > 5 Then
+
+    If LF = Application.WorksheetFunction.Max(LF, MF, HF) Then
+        RCrate = PSIL & "(LF)"
+    ElseIf MF = Application.WorksheetFunction.Max(LF, MF, HF) Then
+        RCrate = PSIL & "(MF)"
+    ElseIf HF = Application.WorksheetFunction.Max(LF, MF, HF) Then
+        RCrate = PSIL & "(HF)"
+    Else
+        RCrate = PSIL
     End If
+    
+Else
+    RCrate = "-"
+End If
 
 End Function
 
@@ -1318,6 +1424,59 @@ ISO_226 = (10 / a_f_i) * Application.WorksheetFunction.Log(Af) - Lu_i + 94
 End Function
 
 
+'==============================================================================
+' Name:     ISO23591_RTtargets
+' Author:   PS
+' Desc:     Returns the constants for target range lines from the standard
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Function ISO23591_RTtargets(RoomVolume As Double, RoomType As String, UseCase As String)
+Dim A, B As Double
+Dim i, ArrayIndex As Integer
+'Dim MaxVolume(), MinVolume() As Double
+'Dim A_Array(), B_Array() As Double
+
+MinVolume = Array(35, 35, 50, 50, 35, 35, 200, 200, 1500, 1500, 600, 600)
+MaxVolume = Array(1000, 1000, 6500, 6500, 3000, 3000, 6500, 6500, 6500, 6500, 6500, 6500)
+A_Array = Array(0.325, 0.415, 0.415, 0.6, 0.55, 0.72, 0.345, 0.415, 0.525, 0.675, 0.6, 0.83)
+B_Array = Array(0.335, 0.335, 0.335, 0.5, 0.45, 0.65, 0.335, 0.335, 0.425, 0.575, 0.5, 0.73)
+
+UseArray = Array("Amplified music - lower limit", _
+    "Amplified music - upper limit", _
+    "Loud acoustic music - lower limit", _
+    "Loud acoustic music - upper limit", _
+    "Quiet acoustic music - lower limit", _
+    "Quiet acoustic music - upper limit")
+
+'match to element number
+For i = LBound(UseArray) To UBound(UseArray)
+    If UseArray(i) = UseCase Then ArrayIndex = i
+Next i
+
+'set array index based on matching names
+If RoomType = "Rehearsal rooms" Then
+    ArrayIndex = ArrayIndex + 0
+ElseIf RoomType = "Rehearsal use of recital rooms" Then
+    ArrayIndex = ArrayIndex + 6
+Else
+    ISO23591_RTtargets = "-"
+    Exit Function
+End If
+
+If RoomVolume < MinVolume(ArrayIndex) Or RoomVolume > MaxVolume(ArrayIndex) Then
+    ISO23591_RTtargets = "-"
+    Exit Function
+End If
+
+'set constants
+A = A_Array(ArrayIndex)
+B = B_Array(ArrayIndex)
+
+'return values
+ISO23591_RTtargets = A * Application.WorksheetFunction.Log10(RoomVolume) - B
+
+End Function
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -1335,26 +1494,56 @@ End Function
 ' Comments: (1) only enabled for octave band sheets - how to do mech?
 '           (2) now does mech!
 '==============================================================================
-Sub PutNR()
-SetDescription "=CONCAT(""NR ""," & T_ParamRng(0) & ","" Curve"")", Selection.Row, True
-'SetDescription "=concat(" & T_ParamRng(0) & ","" phon"")"
+Sub PutNRInline()
+PutNR True
+End Sub
 
+'==============================================================================
+' Name:     PutNR
+' Author:   PS
+' Desc:     Builds the NR rating and curve formulas for the row above
+' Args:     SkipReferenceCurve - for inline ratings
+' Comments: (1) only enabled for octave band sheets - how to do mech?
+'           (2) now does mech!
+'==============================================================================
+Sub PutNR(Optional SkipReferenceCurve As Boolean)
+Dim RowToCheck As Integer
     If T_BandType <> "oct" Then ErrorOctOnly
+    
+'set which row to do
+If SkipReferenceCurve = True Then
+    RowToCheck = Selection.Row
+Else
+    RowToCheck = Selection.Row - 1
+End If
 
 'rate function
-Range(T_ParamRng(0)) = "=NR_rate(" & Range(Cells(Selection.Row - 1, T_LossGainStart), _
-    Cells(Selection.Row - 1, T_LossGainEnd)).Address(False, False) & "," & T_FreqStartRng & ")"
-    
-    'Curve function
-    If T_SheetType <> "MECH" Then
-    BuildFormula "NRcurve(" & T_ParamRng(0) & _
-        "," & T_FreqStartRng & ")"
-    End If
-    
-'formatting
+ParameterMerge Selection.Row
+Range(T_ParamRng(0)) = "=NR_rate(" & Range(Cells(RowToCheck, T_LossGainStart), _
+    Cells(RowToCheck, T_LossGainEnd)).Address(False, False) & "," & T_FreqStartRng & ")"
 Range(T_ParamRng(0)).NumberFormat = """NR = ""0"
-Call ParameterMerge(Selection.Row)
-SetTraceStyle "Input", True
+
+'Curve function
+If SkipReferenceCurve = False And T_SheetType <> "MECH" Then 'show ref curve
+    BuildFormula "NRcurve(" & T_ParamRng(0) & "," & T_FreqStartRng & ")"
+    SetDescription "=CONCAT(""NR ""," & T_ParamRng(0) & ","" Curve"")", Selection.Row, True
+    SetTraceStyle "Curve" 'style on 8ve band cols
+    SetTraceStyle "Input", True 'style on parameter cols
+End If
+
+End Sub
+
+
+'==============================================================================
+' Name:     PutNCInline
+' Author:   PS
+' Desc:     Builds the NC rating and curve formulas for the row above
+' Args:     None
+' Comments: (1) only enabled for octave band sheets - how to do mech?
+'           (2) now does mech!
+'==============================================================================
+Sub PutNCInline()
+PutNC True
 End Sub
 
 '==============================================================================
@@ -1364,23 +1553,32 @@ End Sub
 ' Args:     None
 ' Comments: (1) only enabled for octave band sheets - how to do mech?
 '==============================================================================
-Sub PutNC()
-
-SetDescription "NC Curve"
+Sub PutNC(Optional SkipReferenceCurve As Boolean)
+Dim RowToCheck As Integer
 
 If T_BandType <> "oct" Then ErrorOctOnly
-'rate function
-Range(T_ParamRng(0)) = "=NCrate(" & Range(Cells(Selection.Row - 1, T_LossGainStart), _
-    Cells(Selection.Row - 1, T_LossGainEnd)).Address(False, False) & "," & T_FreqStartRng & ")"
-    'Curve function
-    If T_SheetType <> "MECH" Then
-    BuildFormula "NCcurve(" & T_ParamRng(0) & _
-        "," & T_FreqStartRng & ")"
-    End If
-'formatting
+
+'set which row to do
+If SkipReferenceCurve = True Then
+    RowToCheck = Selection.Row
+Else
+    RowToCheck = Selection.Row - 1
+End If
+
+'rating curve
+ParameterMerge Selection.Row
+Range(T_ParamRng(0)) = "=NCrate(" & Range(Cells(RowToCheck, T_LossGainStart), _
+    Cells(RowToCheck, T_LossGainEnd)).Address(False, False) & "," & T_FreqStartRng & ")"
 Range(T_ParamRng(0)).NumberFormat = """NC = ""0"
-Call ParameterMerge(Selection.Row)
-SetTraceStyle "Input", True
+
+'Ref. Curve
+If SkipReferenceCurve = False Then 'rate function and T_SheetType <> "MECH" Then
+    BuildFormula "NCcurve(" & T_ParamRng(0) & "," & T_FreqStartRng & ")"
+    SetDescription "=CONCAT(""NC ""," & T_ParamRng(0) & ","" Curve"")", Selection.Row, True
+    SetTraceStyle "Curve" 'style on 8ve band cols
+    SetTraceStyle "Input", True 'style on parameter cols
+End If
+
 End Sub
 
 '==============================================================================
@@ -1392,19 +1590,46 @@ End Sub
 '==============================================================================
 Sub PutPNC()
 
-BuildFormula "PNCcurve($N" & Selection.Row & _
+BuildFormula "PNCcurve(" & Cells(Selection.Row, T_ParamStart).Address(False, True) & _
     "," & Cells(T_FreqRow, 5).Address(True, False) & ")"
 ParameterMerge (Selection.Row)
 Cells(Selection.Row, T_ParamStart) = 40 '<default to 40
 Cells(Selection.Row, T_ParamStart).NumberFormat = """PNC = ""0"
 
-SetDescription "PNC Curve"
-
+SetDescription "=CONCAT(""PNC ""," & T_ParamRng(0) & ","" Curve"")", Selection.Row, True
 
 SetDataValidation T_ParamStart, "15,20,25,30,35,40,45,50,55,60,65,70"
 
-'parameter column styles
-SetTraceStyle "Input", True
+SetTraceStyle "Curve" 'style on 8ve band cols
+SetTraceStyle "Input", True 'style on parameter cols
+
+End Sub
+
+'==============================================================================
+' Name:     PutRC
+' Author:   PS
+' Desc:     Builds the RC rating and curve formulas for the row above
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub PutRC()
+
+BuildFormula "RCcurve(" & Cells(Selection.Row, T_ParamStart).Address(False, True) & _
+    "," & Cells(T_FreqRow, 5).Address(True, False) & ")"
+
+'formatting and labels
+ParameterMerge (Selection.Row)
+Cells(Selection.Row, T_ParamStart).NumberFormat = """RC = ""0"
+Cells(Selection.Row, T_ParamStart) = 50 '<default to 50 (ref curve)
+SetDescription "=CONCAT(""RC ""," & T_ParamRng(0) & ","" Curve"")", Selection.Row, True
+
+'TODO: rating function
+'rate function
+'Cells(Selection.Row, T_ParamStart) = "=RCrate(" & Range(Cells(Selection.Row - 1, T_LossGainStart), _
+'    Cells(Selection.Row - 1, T_LossGainEnd)).Address(False, False) & "," & T_FreqStartRng & ")"
+
+SetTraceStyle "Curve" 'style on 8ve band cols
+SetTraceStyle "Input", True 'style on parameter cols
 
 End Sub
 
@@ -1422,34 +1647,36 @@ Sub PutRw(Optional SkipReferenceCurve As Boolean)
 Dim StartBandCol As Integer
 Dim EndBandCol As Integer
 Dim strBandMode As String 'only used when in octave band mode
+Dim RowToCheck As Integer
 
 SetDescription "=CONCAT(""Rw ""," & T_ParamRng(0) & ","" curve"")"
 
-    'set which row to do
-    If SkipReferenceCurve = True Then
+'set which row to do
+If SkipReferenceCurve = True Then
     RowToCheck = Selection.Row
-    Else
+Else
     RowToCheck = Selection.Row - 1
-    End If
+End If
 
     'set switches for octave band mode
-    If T_BandType = "oct" Then
+If T_BandType = "oct" Then
     strBandMode = ",""oct"")" 'formula needs extra input
     StartBandCol = FindFrequencyBand("125")
     EndBandCol = FindFrequencyBand("2k")
-    ElseIf T_BandType = "to" Then
+ElseIf T_BandType = "to" Then
     strBandMode = ")" 'nothing, no extra input
     StartBandCol = FindFrequencyBand("100")
     EndBandCol = FindFrequencyBand("3.15k")
-    End If
+End If
     
     'check the frequency bands were found
     If StartBandCol = 0 Or EndBandCol = 0 Then ErrorFrequencyBandMissing
     
-    'insert reference curve
-    If SkipReferenceCurve = False Then
+If SkipReferenceCurve = False Then 'insert reference curve and style
     BuildFormula "RwCurve(" & T_ParamRng(0) & "," & T_FreqStartRng & strBandMode
-    End If
+    SetTraceStyle "Input", True
+    SetTraceStyle "Curve" 'style on 8ve band cols
+End If
 
 'Rw Rate
 Cells(Selection.Row, T_ParamStart).Value = "=RwRate(" & Range( _
@@ -1464,8 +1691,17 @@ Cells(Selection.Row, T_ParamStart + 1).Value = "=CtrRate(" & Range( _
 Cells(Selection.Row, T_ParamStart).NumberFormat = """Rw ""0"
 Cells(Selection.Row, T_ParamStart + 1).NumberFormat = """Ctr"" 0;""Ctr -""0"
 
-SetTraceStyle "Input", True
+End Sub
 
+'==============================================================================
+' Name:     PutCtrInline
+' Author:   PS
+' Desc:     Rates the current row for the Ctr correction
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub PutCtrInline()
+PutCtr True
 End Sub
 
 '==============================================================================
@@ -1479,17 +1715,17 @@ Sub PutCtr(Optional SkipReferenceCurve As Boolean)
 Dim StartBandCol As Integer
 Dim EndBandCol As Integer
 
-    'set which row to do
-    If SkipReferenceCurve = True Then
+'set which row to do
+If SkipReferenceCurve = True Then
     RowToCheck = Selection.Row
-    Else
+Else
     RowToCheck = Selection.Row - 1
-    End If
+End If
     
-    ''''''''''''''''''''''''''''''''''''''''''''''''''
-    'octave bands
-    ''''''''''''''''''''''''''''''''''''''''''''''''''
-    If T_BandType = "oct" Then
+''''''''''''''''''''''''''''''''''''''''''''''''''
+'octave bands
+''''''''''''''''''''''''''''''''''''''''''''''''''
+If T_BandType = "oct" Then
     StartBandCol = FindFrequencyBand("125")
     EndBandCol = FindFrequencyBand("2k")
     
@@ -1503,7 +1739,7 @@ Dim EndBandCol As Integer
     ''''''''''''''''''''''''''''''''''''''''''''''''''
     'one-third octave bands
     ''''''''''''''''''''''''''''''''''''''''''''''''''
-    ElseIf T_BandType = "to" Then
+ElseIf T_BandType = "to" Then
     StartBandCol = FindFrequencyBand("100")
     EndBandCol = FindFrequencyBand("3.15k")
     
@@ -1512,9 +1748,8 @@ Dim EndBandCol As Integer
     'Ctr rate
     Cells(Selection.Row, T_ParamStart + 1).Value = "=CtrRate(" & Range( _
         Cells(RowToCheck, StartBandCol), Cells(RowToCheck, EndBandCol)) _
-        .Address(False, False) & "," & _
-    T_ParamRng(0) & ")"
-    End If
+        .Address(False, False) & "," & T_ParamRng(0) & ")"
+End If
 
 'formatting
 Cells(Selection.Row, T_ParamStart + 1).NumberFormat = """Ctr"" 0;""Ctr -""0"
@@ -1531,8 +1766,31 @@ End Sub
 ' Comments: (1)
 '==============================================================================
 Sub PutRwCtrInline()
-PutRw (True)
-PutCtr (True)
+PutRw True
+PutCtr True
+End Sub
+
+
+'==============================================================================
+' Name:     PutSTCInline
+' Author:   PS
+' Desc:     Rates current row with STC
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub PutSTCInline()
+PutSTC True
+End Sub
+
+'==============================================================================
+' Name:     PutC
+' Author:   PS
+' Desc:     Rates the current row for the C correction
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub PutCInline()
+PutC True
 End Sub
 
 '==============================================================================
@@ -1542,28 +1800,28 @@ End Sub
 ' Args:     None
 ' Comments: (1)
 '==============================================================================
-Sub PutC()
+Sub PutC(SkipReferenceCurve As Boolean)
 Dim StartBandCol As Integer
 Dim EndBandCol As Integer
 
-    ''''''''''''''''''''''''''''''''''''''''''''''''''
-    'octave bands
-    ''''''''''''''''''''''''''''''''''''''''''''''''''
-    If T_BandType = "oct" Then
+''''''''''''''''''''''''''''''''''''''''''''''''''
+'octave bands
+''''''''''''''''''''''''''''''''''''''''''''''''''
+If T_BandType = "oct" Then
     StartBandCol = FindFrequencyBand("125")
     EndBandCol = FindFrequencyBand("2k")
     
         If StartBandCol = 0 Or EndBandCol = 0 Then ErrorFrequencyBandMissing
-        
+    
     'Ctr Rate
     Cells(Selection.Row, T_ParamStart + 1).Value = "=CRate(" & Range( _
-        Cells(RowToCheck, StartBandCol), Cells(RowToCheck, EndBandCol)) _
+        Cells(Selection.Row, StartBandCol), Cells(Selection.Row, EndBandCol)) _
         .Address(False, False) & "," & T_ParamRng(0) & ",""oct"")"
         
-    ''''''''''''''''''''''''''''''''''''''''''''''''''
-    'one-third octave bands
-    ''''''''''''''''''''''''''''''''''''''''''''''''''
-    ElseIf T_BandType = "to" Then
+''''''''''''''''''''''''''''''''''''''''''''''''''
+'one-third octave bands
+''''''''''''''''''''''''''''''''''''''''''''''''''
+ElseIf T_BandType = "to" Then
     StartBandCol = FindFrequencyBand("100")
     EndBandCol = FindFrequencyBand("3.15k")
     
@@ -1571,9 +1829,9 @@ Dim EndBandCol As Integer
         
     'Ctr rate
     Cells(Selection.Row, T_ParamStart + 1).Value = "=CRate(" & Range( _
-        Cells(RowToCheck, StartBandCol), Cells(RowToCheck, EndBandCol)) _
+        Cells(Selection.Row, StartBandCol), Cells(Selection.Row, EndBandCol)) _
         .Address(False, False) & "," & T_ParamRng(0) & ")"
-    End If
+End If
 
 'formatting
 Cells(Selection.Row, T_ParamStart + 1).NumberFormat = """C"" 0;""C -""0"
@@ -1581,7 +1839,6 @@ Cells(Selection.Row, T_ParamStart + 1).NumberFormat = """C"" 0;""C -""0"
 SetTraceStyle "Input", True
 
 End Sub
-
 
 
 '==============================================================================
@@ -1592,81 +1849,114 @@ End Sub
 ' Comments: (1) only enabled for third-octave sheets
 '           (2) Updated to include description set from ParamCol
 '==============================================================================
-Sub PutSTC()
+Sub PutSTC(Optional SkipReferenceCurve As Boolean)
 Dim StartBandCol As Integer
 Dim EndBandCol As Integer
+Dim RowToCheck As Integer
 
-    If T_BandType = "oct" Then
-    ErrorThirdOctOnly
-    ElseIf T_BandType = "to" Then
-    StartBandCol = FindFrequencyBand("125")
-    EndBandCol = FindFrequencyBand("4k")
-    
-        If StartBandCol = 0 Or EndBandCol = 0 Then ErrorFrequencyBandMissing
-    
-    SetDescription "=CONCAT(""STC ""," & T_ParamRng(0) & ","" curve"")"
-    ParameterMerge (Selection.Row)
-    'STC curve
-    BuildFormula "STCCurve(" & T_ParamRng(0) _
-        & "," & T_FreqStartRng & ")"
-    'STC rate
-    Cells(Selection.Row, T_ParamStart).Value = "=STCRate(" & Range( _
-        Cells(RowToCheck, StartBandCol), Cells(RowToCheck, EndBandCol)) _
-        .Address(False, False) & ")" '125 hz to 4kHz
-    'Formatting
-    Cells(Selection.Row, T_ParamStart).NumberFormat = """STC""0"
+'set which row to do
+If SkipReferenceCurve = True Then
+    RowToCheck = Selection.Row
+Else
+    RowToCheck = Selection.Row - 1
+End If
+
+    If T_BandType = "oct" Then ErrorThirdOctOnly
+
+StartBandCol = FindFrequencyBand("125")
+EndBandCol = FindFrequencyBand("4k")
+
+    If StartBandCol = 0 Or EndBandCol = 0 Then ErrorFrequencyBandMissing
+
+ParameterMerge (Selection.Row)
+
+'STC rate
+Cells(Selection.Row, T_ParamStart).Value = "=STCRate(" & Range( _
+    Cells(RowToCheck, StartBandCol), Cells(RowToCheck, EndBandCol)) _
+    .Address(False, False) & ")" '125 hz to 4kHz
+Cells(Selection.Row, T_ParamStart).NumberFormat = """STC""0"
+
+If SkipReferenceCurve = False Then 'STC curve
+    BuildFormula "STCCurve(" & T_ParamRng(0) & "," & T_FreqStartRng & ")"
     SetTraceStyle "Input", True
-    End If
+    SetTraceStyle "Curve", False
+    SetDescription "=CONCAT(""STC ""," & T_ParamRng(0) & ","" curve"")"
+End If
 
 End Sub
 
+'==============================================================================
+' Name:     PutLnwInline
+' Author:   PS
+' Desc:     Rates current row with Lnw curve
+' Args:     None
+' Comments: (1) only enabled for third-octave sheets
+'==============================================================================
+Sub PutLnwInline()
+PutLnw True
+End Sub
 
 '==============================================================================
 ' Name:     PutLnw
 ' Author:   PS
 ' Desc:     Builds the Lnw rating and curve formulas for the row above
-' Args:     None
+' Args:     SkipReferenceCurve
 ' Comments: (1) only enabled for third-octave sheets
 '==============================================================================
-Sub PutLnw()
+Sub PutLnw(Optional SkipReferenceCurve As Boolean)
 Dim StartBandCol As Integer
 Dim EndBandCol As Integer
+Dim RowToCheck As Integer
 
 SetDescription "Lnw Curve"
 ParameterMerge (Selection.Row)
+
+'set which row to do
+If SkipReferenceCurve = True Then
+    RowToCheck = Selection.Row
+Else
+    RowToCheck = Selection.Row - 1
+End If
     
-    If T_BandType = "oct" Then 'octave band mode
+If T_BandType = "oct" Then 'octave band mode
     StartBandCol = FindFrequencyBand("125")
     EndBandCol = FindFrequencyBand("2k")
     
         If StartBandCol = 0 Or EndBandCol = 0 Then ErrorFrequencyBandMissing
         
-    'Lnw Curve
-    BuildFormula "LnwCurve(" & T_ParamRng(0) _
-        & "," & T_FreqStartRng & ",""oct"")"
+    If SkipReferenceCurve = False Then 'Lnw Curve
+        BuildFormula "LnwCurve(" & T_ParamRng(0) _
+            & "," & T_FreqStartRng & ",""oct"")"
+        SetTraceStyle "Input", True
+        SetTraceStyle "Curve"
+    End If
+    
     'Lnw Rate
     Cells(Selection.Row, T_ParamStart).Value = "=LnwRate(" & Range( _
         Cells(RowToCheck, StartBandCol), Cells(RowToCheck, EndBandCol)) _
         .Address(False, False) & ",""oct"")"
         
-    ElseIf T_BandType = "to" Then 'one third octave band mode
+ElseIf T_BandType = "to" Then 'one third octave band mode
     StartBandCol = FindFrequencyBand("100")
     EndBandCol = FindFrequencyBand("3.15k")
         
         If StartBandCol = 0 Or EndBandCol = 0 Then ErrorFrequencyBandMissing
         
-    'Lnw Curve
-    BuildFormula "LnwCurve(" & T_ParamRng(0) _
-        & "," & T_FreqStartRng & ")"
+    If SkipReferenceCurve = False Then 'Lnw Curve
+        BuildFormula "LnwCurve(" & T_ParamRng(0) _
+            & "," & T_FreqStartRng & ")"
+        SetTraceStyle "Input", True
+        SetTraceStyle "Curve"
+    End If
+    
     'Lnw Rate
     Cells(Selection.Row, T_ParamStart).Value = "=LnwRate(" & Range( _
         Cells(RowToCheck, StartBandCol), Cells(RowToCheck, EndBandCol)) _
         .Address(False, False) & ")"
-    End If
+End If
     
 'Formatting
 Cells(Selection.Row, T_ParamStart).NumberFormat = """Lnw""0"
-SetTraceStyle "Input", True
 End Sub
 
 
@@ -1758,6 +2048,7 @@ ApplyAsStatic = MsgBox("Insert as static values? " & chr(10) & _
 'A weighting Curve
 BuildFormula "GWeightCorrections(" & T_FreqStartRng & ")"
 SetDescription "G Weighting Curve"
+InsertComment "From ISO 7196-1995, defined at 0.25Hz to 100Hz", T_Description
 
     If ApplyAsStatic = vbYes Then
     Range(Cells(Selection.Row, T_LossGainStart), _
@@ -1786,35 +2077,56 @@ SetTraceStyle "Curve"
 SetTraceStyle "Input", True
 End Sub
 
+'==============================================================================
+' Name:     PutAlphaWInline
+' Author:   PS
+' Desc:     Rates current line for AlphaW
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub PutAlphaWInline()
+PutAlphaW (True)
+End Sub
 
 '==============================================================================
 ' Name:     PutAlphaW
 ' Author:   PS
 ' Desc:     Inserts formula for weighted average absorption
-' Args:     None
+' Args:     SkipReferenceCurve - doesn't rate the line
 ' Comments: (1)
 '==============================================================================
-Sub PutAlphaW()
+Sub PutAlphaW(Optional SkipReferenceCurve As Boolean)
 Dim StartBandCol As Integer
 Dim EndBandCol As Integer
+Dim RowToCheck As Integer
 
-If T_BandType <> "oct" Then ErrorOctOnly
+'set which row to do
+If SkipReferenceCurve = True Then
+    RowToCheck = Selection.Row
+Else
+    RowToCheck = Selection.Row - 1
+End If
 
-ParameterMerge (Selection.Row)
+    If T_BandType <> "oct" Then ErrorOctOnly
 
 StartBandCol = FindFrequencyBand("250")
 EndBandCol = FindFrequencyBand("4k")
 
-'alpha_w Rate
+'rating
+ParameterMerge (Selection.Row)
 Cells(Selection.Row, T_ParamStart).Value = "=AlphaWRate(" & Range( _
     Cells(RowToCheck, StartBandCol), Cells(RowToCheck, EndBandCol)) _
     .Address(False, False) & ")"
-        
-BuildFormula "AlphaWCurve(" & T_ParamRng(0) & "," & T_FreqStartRng & ")"
-SetDescription "Weighted Alpha"
+
+'ref curve
+If SkipReferenceCurve = False Then
+    BuildFormula "AlphaWCurve(" & T_ParamRng(0) & "," & T_FreqStartRng & ")"
+    SetTraceStyle "Curve"
+    SetDescription "Weighted Alpha"
+    SetTraceStyle "Input", True
+End If
 
 'formatting
-SetTraceStyle "Input", True
 Cells(Selection.Row, T_ParamStart).NumberFormat = """alpha_w=""0.0"
 Range(Cells(Selection.Row, T_LossGainStart), Cells(Selection.Row, T_LossGainEnd)) _
     .NumberFormat = "0.0"
@@ -1832,7 +2144,8 @@ Sub EqualLoudness()
     If T_BandType <> "to" Then ErrorThirdOctOnly
 
 
-BuildFormula "ISO_226(" & Cells(T_FreqRow, 5).Address(True, False) & "," & T_ParamRng(0) & ")"
+BuildFormula "ISO_226(" & Cells(T_FreqRow, 5).Address(True, False) & "," & _
+    T_ParamRng(0) & ")"
 ParameterMerge (Selection.Row)
 Cells(Selection.Row, T_ParamStart) = 40 '<default to 40
 Cells(Selection.Row, T_ParamStart).NumberFormat = "0" & """ phon"""
@@ -1844,7 +2157,23 @@ SetTraceStyle "Input", True
 
 End Sub
 
+
 '''''''''''''''''
 'RC curve
 'Eqn 4.45 of Biess and Hansen
 'L_B=RC+ (5/0.3) * log(1000/f)
+
+
+'Function SliceArray(inputArray() As Variant, startIndex As Integer, endIndex As Integer) As Variant()
+'    Dim subsetArray() As Variant
+'    Dim i As Integer
+'
+'    ' Resize and populate the subsetArray with the desired elements
+'    ReDim subsetArray(startIndex To endIndex)
+'    For i = startIndex To endIndex
+'        subsetArray(i) = inputArray(i - 1) ' Adjust index since arrays are zero-based
+'    Next i
+'
+'    ' Return the subsetArray
+'    SliceArray = subsetArray
+'End Function

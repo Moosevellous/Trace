@@ -69,7 +69,7 @@ Me.txtW1.Enabled = True
 Me.txtW2.Enabled = True
 Me.lblEqn.Enabled = True
 Me.lblAtten.Enabled = True
-Me.lbldB.Enabled = True
+Me.lbldb.Enabled = True
 Me.optA1Circular.Enabled = True
 Me.optA1Rectangular.Enabled = True
 Me.optA2Circular.Enabled = True
@@ -95,7 +95,7 @@ Me.txtW1.Enabled = False
 Me.txtW2.Enabled = False
 Me.lblEqn.Enabled = False
 Me.lblAtten.Enabled = False
-Me.lbldB.Enabled = False
+Me.lbldb.Enabled = False
 Me.optA1Circular.Enabled = False
 Me.optA1Rectangular.Enabled = False
 Me.optA2Circular.Enabled = False
@@ -121,7 +121,7 @@ Me.txtW1.Enabled = False
 Me.txtW2.Enabled = False
 Me.lblEqn.Enabled = False
 Me.lblAtten.Enabled = False
-Me.lbldB.Enabled = False
+Me.lbldb.Enabled = False
 Me.optA1Circular.Enabled = False
 Me.optA1Rectangular.Enabled = False
 Me.optA2Circular.Enabled = False
@@ -161,7 +161,7 @@ End Sub
 Private Sub UserForm_Activate()
 btnOkPressed = False
     With Me
-    .Left = Application.Left + (0.5 * Application.Width) - (0.5 * .Width)
+    .Left = Application.Left + (0.5 * Application.width) - (0.5 * .width)
     .Top = Application.Top + (0.5 * Application.Height) - (0.5 * .Height)
     End With
 End Sub

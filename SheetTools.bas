@@ -150,7 +150,7 @@ End Sub
 '==============================================================================
 Sub Update_ENGINEER()
 Dim StrUserName As String
-StrUserName = Application.UserName
+StrUserName = Application.userName
 SplitStr = Split(StrUserName, " ", Len(StrUserName), vbTextCompare)
 ENGINEER = Left(SplitStr(1), 1) & Left(SplitStr(0), 1)
 End Sub
@@ -507,7 +507,7 @@ frmOptionsAnalysis.RefTargetRng = "'" & ActiveSheet.Name & "'!" & Selection.Addr
 'check for previous run
 Set CheckRng = Cells(Selection.Row, T_Description)
     If Not CheckRng.Comment Is Nothing Then
-    PreviousInputs = Split(CheckRng.Comment.Text, ",")
+    PreviousInputs = Split(CheckRng.Comment.text, ",")
         If UBound(PreviousInputs) = 2 Then
             With frmOptionsAnalysis
             .RefVar1Rng = PreviousInputs(0)
@@ -624,7 +624,7 @@ End Sub
 '==============================================================================
 Sub ApplyFreqValidation()
 
-Dim col As Integer
+Dim Col As Integer
 Dim ValidationString As String
 Dim StartAddr As String
 
@@ -632,24 +632,24 @@ StartAddr = Selection.Address 'save where the cursor is
 
 Cells(T_FreqRow, T_LossGainStart).Select
 
-    For col = T_LossGainStart To T_LossGainEnd
-        If HasDataValidation(Cells(T_FreqRow, col)) = False Then
-        ValidationString = Cells(T_FreqRow, col).Value & "," & _
-            Cells(T_FreqRow, col).Value & "*"
-        SetDataValidation col, ValidationString
+    For Col = T_LossGainStart To T_LossGainEnd
+        If HasDataValidation(Cells(T_FreqRow, Col)) = False Then
+        ValidationString = Cells(T_FreqRow, Col).Value & "," & _
+            Cells(T_FreqRow, Col).Value & "*"
+        SetDataValidation Col, ValidationString
         End If
-    Next col
+    Next Col
     
 ApplyFreqConditionalFormat T_LossGainStart, T_LossGainEnd
 
     If T_SheetType = "MECH" Then
-        For col = T_RegenStart To T_RegenEnd
-            If HasDataValidation(Cells(T_FreqRow, col)) = False Then
-            ValidationString = Cells(T_FreqRow, col).Value & "," & _
-                Cells(T_FreqRow, col).Value & "*"
-            SetDataValidation col, ValidationString
+        For Col = T_RegenStart To T_RegenEnd
+            If HasDataValidation(Cells(T_FreqRow, Col)) = False Then
+            ValidationString = Cells(T_FreqRow, Col).Value & "," & _
+                Cells(T_FreqRow, Col).Value & "*"
+            SetDataValidation Col, ValidationString
             End If
-        Next col
+        Next Col
     ApplyFreqConditionalFormat T_RegenStart, T_RegenEnd
     End If
 

@@ -44,18 +44,18 @@ End Sub
 
 Private Sub ValueChange()
 Dim H As Double
-Dim l As Double
-Dim R As Double
+Dim L As Double
+Dim r As Double
 Dim Atten As Double
     If IsNumeric(Me.txtHeight.Value) And IsNumeric(Me.txtWidth.Value) And IsNumeric(Me.txtDistance.Value) Then
     H = CDbl(Me.txtHeight.Value)
-    l = CDbl(Me.txtWidth.Value)
-    R = CDbl(Me.txtDistance.Value)
+    L = CDbl(Me.txtWidth.Value)
+    r = CDbl(Me.txtDistance.Value)
     
-        If H = 0 Or l = 0 Or R = 0 Then
+        If H = 0 Or L = 0 Or r = 0 Then
         Atten = 0
         Else
-        Atten = -10 * Application.WorksheetFunction.Log10(H * l) + 10 * Application.WorksheetFunction.Log10(Atn((H * l) / (2 * R * Sqr((H ^ 2) + (l ^ 2) + (4 * R ^ 2))))) - 2
+        Atten = -10 * Application.WorksheetFunction.Log10(H * L) + 10 * Application.WorksheetFunction.Log10(Atn((H * L) / (2 * r * Sqr((H ^ 2) + (L ^ 2) + (4 * r ^ 2))))) - 2
         Atten = Round(Atten, 1) 'eqn 5.105 of Beiss and Hansen
         End If
         
@@ -68,7 +68,7 @@ End Sub
 Private Sub UserForm_Activate()
 btnOkPressed = False
     With Me
-    .Left = Application.Left + (0.5 * Application.Width) - (0.5 * .Width)
+    .Left = Application.Left + (0.5 * Application.width) - (0.5 * .width)
     .Top = Application.Top + (0.5 * Application.Height) - (0.5 * .Height)
     End With
 End Sub

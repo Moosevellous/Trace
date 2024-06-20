@@ -9,7 +9,7 @@ Public PlaneW As Double
 Public PlaneDist As Double
 
 'rooms
-Public roomType As String
+Public RoomType As String
 Public roomL As Double
 Public roomW As Double
 Public roomH As Double
@@ -79,8 +79,8 @@ End Function
 ' Args:     roomType - String of different room types
 ' Comments: (1)
 '==============================================================================
-Function RoomAlphaDefault(roomType As String)
-    Select Case roomType
+Function RoomAlphaDefault(RoomType As String)
+    Select Case RoomType
     Case Is = "Live"
     'bands                   31.5  63    125   250   500  1k   2k   4k   8k
     RoomAlphaDefault = Array(0.2, 0.18, 0.14, 0.11, 0.1, 0.1, 0.1, 0.1, 0.1)
@@ -146,25 +146,25 @@ End Function
 '           ok for office type spaces, but it would be great to verify where
 '           they apply and where they don't. <--TODO: this
 '==============================================================================
-Function RoomLossTypical(fstr As String, l As Double, W As Double, H As Double, _
-roomType As String)
+Function RoomLossTypical(fstr As String, L As Double, W As Double, H As Double, _
+RoomType As String)
 
 Dim alpha() As Variant
 Dim alpha_av As Double
 Dim Rc As Double
-Dim bandIndex As Integer
+Dim BandIndex As Integer
 
-    alpha = RoomAlphaDefault(roomType)
-    bandIndex = GetArrayIndex_OCT(fstr, 1)
+    alpha = RoomAlphaDefault(RoomType)
+    BandIndex = GetArrayIndex_OCT(fstr, 1)
 
-    If bandIndex = 999 Or bandIndex = -1 Then
+    If BandIndex = 999 Or BandIndex = -1 Then
     RoomLossTypical = "-" 'no band, no result!
     Else
     
-    S_total = (l * W * 2) + (l * H * 2) + (W * H * 2)
-    alpha_av = ((l * W * alpha(bandIndex) * 2) + (l * H * alpha(bandIndex) * 2) _
-        + (W * H * alpha(bandIndex) * 2)) / S_total
-    Rc = (S_total * alpha(bandIndex)) / (1 - alpha_av)
+    S_total = (L * W * 2) + (L * H * 2) + (W * H * 2)
+    alpha_av = ((L * W * alpha(BandIndex) * 2) + (L * H * alpha(BandIndex) * 2) _
+        + (W * H * alpha(BandIndex) * 2)) / S_total
+    Rc = (S_total * alpha(BandIndex)) / (1 - alpha_av)
     
     'Debug.Print "Room Contant " Rc
         If Rc <> 0 Then
@@ -186,24 +186,24 @@ End Function
 '           RT_Type - reverberance length as text descriptor (set in form)
 ' Comments: (1)
 '==============================================================================
-Function RoomLossTypicalRT(fstr As String, l As Double, W As Double, H As Double, _
+Function RoomLossTypicalRT(fstr As String, L As Double, W As Double, H As Double, _
 RT_Type As String)
 
 Dim alpha() As Variant
 Dim alpha_av As Double
 Dim Rc As Double
-Dim bandIndex As Integer
+Dim BandIndex As Integer
 
 alpha = RoomAlphaRTcurves(RT_Type)
 
-bandIndex = GetArrayIndex_OCT(fstr, 1)
+BandIndex = GetArrayIndex_OCT(fstr, 1)
 
-S_total = (l * W * 2) + (l * H * 2) + (W * H * 2)
+S_total = (L * W * 2) + (L * H * 2) + (W * H * 2)
 
-alpha_av = ((l * W * alpha(bandIndex) * 2) + (l * H * alpha(bandIndex) * 2) + _
-    (W * H * alpha(bandIndex) * 2)) / S_total
+alpha_av = ((L * W * alpha(BandIndex) * 2) + (L * H * alpha(BandIndex) * 2) + _
+    (W * H * alpha(BandIndex) * 2)) / S_total
     
-Rc = (S_total * alpha(bandIndex)) / (1 - alpha_av)
+Rc = (S_total * alpha(BandIndex)) / (1 - alpha_av)
 
     If Rc <> 0 Then
     RoomLossTypicalRT = 10 * Application.WorksheetFunction.Log10(4 / Rc)
@@ -224,22 +224,22 @@ End Function
 '           Offset - distance to the surface of the object, in metres
 ' Comments: (1)
 '==============================================================================
-Function ParallelipipedSurfaceArea(l As Double, W As Double, H As Double, _
+Function ParallelipipedSurfaceArea(L As Double, W As Double, H As Double, _
     Offset As Double)
 Dim A As Double
-Dim b As Double
-Dim c As Double
+Dim B As Double
+Dim C As Double
 
-A = (0.5 * l) + Offset
-b = (0.5 * W) + Offset
-c = H + Offset
+A = (0.5 * L) + Offset
+B = (0.5 * W) + Offset
+C = H + Offset
 
 'Area is:
     '2 x sides front/back
     '2 x sides left/right
     '1 x top (ieno bottom)
     
-ParallelipipedSurfaceArea = 4 * ((A * b) + (b * c) + (c * A))
+ParallelipipedSurfaceArea = 4 * ((A * B) + (B * C) + (C * A))
     
 End Function
 
@@ -253,11 +253,11 @@ End Function
 '           Offset - distance to the surface of the object, in metres
 ' Comments: (1)
 '==============================================================================
-Function ConformalSurfaceArea(l As Double, W As Double, H As Double, _
+Function ConformalSurfaceArea(L As Double, W As Double, H As Double, _
     Offset As Double)
     
-ConformalSurfaceArea = (l + W) * ((2 * H) + (Application.WorksheetFunction.Pi * Offset)) _
-    + ((2 * Application.WorksheetFunction.Pi * Offset) * (H + Offset)) + (l * W)
+ConformalSurfaceArea = (L + W) * ((2 * H) + (Application.WorksheetFunction.Pi * Offset)) _
+    + ((2 * Application.WorksheetFunction.Pi * Offset) * (H + Offset)) + (L * W)
     
 End Function
 
@@ -733,8 +733,14 @@ Sub ParallelipipedCorrection()
 frmSoundPowerCalculator.optParallel.Value = True
 frmSoundPowerCalculator.Show
     If btnOkPressed = False Then End
-    
-SetDescription "Parellelipiped Correction"
+
+'user may have changed it so check!
+If frmSoundPowerCalculator.optParallel.Value = True Then
+    SetDescription "Parellelipiped Correction"
+Else
+    SetDescription "Conformal Surface Area Correction"
+End If
+
 BuildFormula "10*LOG(" & T_ParamRng(0) & ")"
     
 ParameterMerge (Selection.Row)
@@ -755,7 +761,13 @@ frmSoundPowerCalculator.optConformal.Value = True
 frmSoundPowerCalculator.Show
     If btnOkPressed = False Then End
     
-SetDescription "Conformal Surface Area Correction"
+'user may have changed it so check!
+If frmSoundPowerCalculator.optParallel.Value = True Then
+    SetDescription "Parellelipiped Correction"
+Else
+    SetDescription "Conformal Surface Area Correction"
+End If
+
 BuildFormula "10*LOG(" & T_ParamRng(0) & ")"
     
 ParameterMerge (Selection.Row)
@@ -808,6 +820,30 @@ SetTraceStyle "Input", True
 End Sub
 
 '==============================================================================
+' Name:     FanSpeedCorrection
+' Author:   PS
+' Desc:     Creates a 50log(RPM1/RPM2) formula
+' Args:     None
+' Comments: (1) Used for fans operating below their maximum duty point
+'==============================================================================
+Sub FanSpeedCorrection()
+
+SetDescription "Fan speed correction: 50log(RPM1/RPM2)"
+
+BuildFormula "50*LOG(" & _
+    T_ParamRng(0) & "/" & _
+    T_ParamRng(1) & ")"
+ParameterUnmerge (Selection.Row)
+Cells(Selection.Row, T_ParamStart) = 1500
+Cells(Selection.Row, T_ParamStart).NumberFormat = "0""RPM"""
+Cells(Selection.Row, T_ParamStart + 1) = 1500
+Cells(Selection.Row, T_ParamStart + 1).NumberFormat = "0""RPM"""
+
+SetTraceStyle "Input", True
+
+End Sub
+
+'==============================================================================
 ' Name:     PutRoomLossTypical
 ' Author:   PS
 ' Desc:     Applies correction to account for difference between sound power and
@@ -827,7 +863,7 @@ Dim SplitStr() As String
     roomL = CLng(SplitStr(1))
     roomW = CLng(SplitStr(2))
     roomH = CLng(SplitStr(3))
-    roomType = Cells(Selection.Row, T_ParamStart).Value
+    RoomType = Cells(Selection.Row, T_ParamStart).Value
     Call frmRoomLossClassic.PrePopulateForm
     End If
 
@@ -841,7 +877,7 @@ BuildFormula "RoomLossTypical(" & T_FreqStartRng & _
     "," & roomL & "," & roomW & "," & roomH & "," & T_ParamRng(0) & ")"
 
 ParameterMerge (Selection.Row)
-Cells(Selection.Row, T_ParamStart) = roomType
+Cells(Selection.Row, T_ParamStart) = RoomType
 SetTraceStyle "Input", True
 SetDataValidation T_ParamStart, "Dead, Av. Dead, Average, Av. Live, Live"
 
@@ -907,7 +943,7 @@ Dim ParamCol As Integer
     roomL = CLng(SplitStr(1))
     roomW = CLng(SplitStr(2))
     roomH = CLng(SplitStr(3))
-    roomType = Cells(Selection.Row, T_ParamStart).Value
+    RoomType = Cells(Selection.Row, T_ParamStart).Value
     Call frmRoomLossRT.PrePopulateForm
     End If
 
@@ -922,7 +958,7 @@ BuildFormula "RoomLossTypicalRT(" & T_FreqStartRng & _
 
 
 ParameterMerge (Selection.Row)
-Cells(Selection.Row, T_ParamStart) = roomType
+Cells(Selection.Row, T_ParamStart) = RoomType
 SetTraceStyle "Input", True
 SetDataValidation T_ParamStart, _
     "<0.2 sec,0.2 to 0.5 sec,0.5 to 1 sec,1.5 to 2 sec,>2 sec"
@@ -984,53 +1020,35 @@ Sub DirectReverberantSum()
 Dim SpareRow As Integer
 Dim SpareCol As Integer
 Dim isSpace As Boolean
-Dim StartRw As Integer
-Dim endRw As Integer
-Dim ScanCol As Integer
+Dim startRw, endRw  As Integer
 Dim TopOfSheet As Boolean
 
 'code requires 6 free rows
 isSpace = True
-    For SpareRow = Selection.Row To Selection.Row + 5
-        For SpareCol = T_LossGainStart To T_LossGainEnd
-            If Cells(SpareRow, SpareCol).Value <> "" Then
-            isSpace = False
-            End If
-        Next SpareCol
-    Next SpareRow
+For SpareRow = Selection.Row To Selection.Row + 5
+    For SpareCol = T_LossGainStart To T_LossGainEnd
+        If Cells(SpareRow, SpareCol).Value <> "" Then
+        isSpace = False
+        End If
+    Next SpareCol
+Next SpareRow
     
-    If isSpace = False Then
+If isSpace = False Then
     msg = MsgBox("Not enough space. Do you wish to overwrite?", _
         vbYesNo, "SQUISH!")
-        
-        If msg = vbYes Then
-        Range(Cells(Selection.Row, Selection.Column), _
-            Cells(Selection.Row + 5, Selection.Column)).Select
-        ClearRow (True) 'skips user input
-        Else
-        End
-        End If
-        
+    
+    If msg = vbYes Then
+    Range(Cells(Selection.Row, Selection.Column), _
+        Cells(Selection.Row + 5, Selection.Column)).Select
+    ClearRow (True) 'skips user input
+    Else
+    End
     End If
+    
+End If
 
-'find sum range
-StartRw = Selection.Row - 1 'one above currently seelcted
-ScanCol = Selection.Column
-    While Cells(StartRw, ScanCol).Value <> "" 'looks for blank cell
-    StartRw = StartRw - 1
-        If StartRw <= 7 Then
-        TopOfSheet = True
-        'msg = MsgBox("AutoSum Error", vbOKOnly, "ERROR")
-        'End
-        End If
-    Wend
-StartRw = StartRw + 1
-'check if selection is in the forbidden zone
-If TopOfSheet = True Then StartRw = 8
-
+startRw = FindTopOfBlock(Selection.Column) 'temporary
 endRw = Selection.Row - 1 'for reveberant sum
-
-'<---------------------------------------TODO: Show form and let the user see the range to be summed
 
 'distance correction
 DistancePoint
@@ -1038,13 +1056,14 @@ Cells(Selection.Row, T_ParamStart).Value = 1  '1m by default
 'move down
 SelectNextRow
 SetSheetTypeControls
+
+'show the user the range to be summed
+AutoSum_UserInput
 'Sum direct
 BuildFormula "SUM(" & _
-    Cells(StartRw, T_LossGainStart).Address(False, False) & ":" & _
-    Cells(endRw + 1, T_LossGainStart).Address(False, False) & ")"
-    
-
-SetDescription "Direct component"
+    Cells(T_FirstSelectedRow, T_LossGainStart).Address(False, False) & ":" & _
+    Cells(T_LastSelectedRow, T_LossGainStart).Address(False, False) & ")"
+SetDescription "Direct component", endRw + 1, True
 SetTraceStyle "Subtotal"
 
 'move cursor
@@ -1065,14 +1084,14 @@ SelectNextRow
 
 'Sum reverb
 BuildFormula "SUM(" & _
-    Cells(StartRw, T_LossGainStart).Address(False, False) & ":" & _
-    Cells(endRw, T_LossGainStart).Address(False, False) & "," & _
+    Cells(T_FirstSelectedRow, T_LossGainStart).Address(False, False) & ":" & _
+    Cells(T_LastSelectedRow, T_LossGainStart).Address(False, False) & "," & _
     Cells(Selection.Row - 2, T_LossGainStart).Address(False, False) & ":" & _
     Cells(Selection.Row - 1, T_LossGainStart).Address(False, False) & ")"
 
 SetDescription "Reverberant component"
 SetTraceStyle "Subtotal"
-
+ApplyTraceMarker ("Sum")
 'move down
 SelectNextRow
 
@@ -1081,8 +1100,15 @@ BuildFormula "SPLSUM(" & _
     Cells(Selection.Row - 1, T_LossGainStart).Address(False, False) & "," & _
     Cells(Selection.Row - 4, T_LossGainStart).Address(False, False) & ")"
 
-SetDescription "Total"
+'description based on the first row above the start of the summed range
+If Cells(T_FirstSelectedRow - 1, T_Description).Value <> "" Then
+    SetDescription "=concat(""Total - ""," & Cells(T_FirstSelectedRow - 1, T_Description).Address(False, False) & ")"
+Else
+    SetDescription "Total"
+End If
+
 SetTraceStyle "Total"
+ApplyTraceMarker ("Result")
 
 End Sub
 
@@ -1092,6 +1118,7 @@ End Sub
 ' Desc:     Calls form and inserts barrier attenuation
 ' Args:     None
 ' Comments: (1) Fixed on 20220920 as 'hot patch' after rollout
+'           (2) Changed to print method in the description, not just a comment
 '==============================================================================
 Sub BarrierAtten()
 
@@ -1100,8 +1127,8 @@ frmBarrierAtten.Show
     If btnOkPressed = False Then End
 
 'description
-SetDescription "Barrier Attenuation"
-InsertComment Barrier_Method, T_Description, False
+SetDescription "Barrier Attenuation - " & Barrier_Method
+'InsertComment Barrier_Method, T_Description, False
 
 'parameter
 ParameterMerge (Selection.Row)

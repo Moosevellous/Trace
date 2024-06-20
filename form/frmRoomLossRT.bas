@@ -47,7 +47,7 @@ End Sub
 Private Sub UserForm_Activate()
 btnOkPressed = False
     With Me
-    .Left = Application.Left + (0.5 * Application.Width) - (0.5 * .Width)
+    .Left = Application.Left + (0.5 * Application.width) - (0.5 * .width)
     .Top = Application.Top + (0.5 * Application.Height) - (0.5 * .Height)
     End With
 build_cBox
@@ -70,7 +70,7 @@ btnOkPressed = True
 '    End If
 
 PreviewValues
-roomType = Me.cBoxRT.Text
+RoomType = Me.cBoxRT.text
 roomL = CDbl(Me.txtL.Value)
 roomW = CDbl(Me.txtW.Value)
 roomH = CDbl(Me.txtH.Value)
@@ -103,16 +103,16 @@ Sub build_cBox()
 End Sub
 
 Sub PrePopulateForm()
-Me.txtL.Text = roomL
-Me.txtW.Text = roomW
-Me.txtH.Text = roomH
-Me.cBoxRT.Text = roomType
+Me.txtL.text = roomL
+Me.txtW.text = roomW
+Me.txtH.text = roomH
+Me.cBoxRT.text = RoomType
 End Sub
 
 Private Sub PreviewValues()
 
 Dim V As Double
-Dim l As Double
+Dim L As Double
 Dim W As Double
 Dim H As Double
 Dim S_total As Double
@@ -132,26 +132,26 @@ Me.txt2k.Value = alphaValues(6)
 Me.txt4k.Value = alphaValues(7)
 Me.txt8k.Value = alphaValues(8)
 
-l = CDbl(Me.txtL.Value)
+L = CDbl(Me.txtL.Value)
 W = CDbl(Me.txtW.Value)
 H = CDbl(Me.txtH.Value)
 'volume
-V = l * W * H
+V = L * W * H
 Me.txtV.Value = Round(V, 1)
 'surface area
-S_total = (l * W * 2) + (l * H * 2) + (W * H * 2)
+S_total = (L * W * 2) + (L * H * 2) + (W * H * 2)
 Me.txtStotal = Round(S_total, 1)
 
 'Room Loss
-Me.txtSA31.Value = Round(RoomLossTypicalRT("31.5", l, W, H, Me.cBoxRT.Value), 1)
-Me.txtSA63.Value = Round(RoomLossTypicalRT("63", l, W, H, Me.cBoxRT.Value), 1)
-Me.txtSA125.Value = Round(RoomLossTypicalRT("125", l, W, H, Me.cBoxRT.Value), 1)
-Me.txtSA250.Value = Round(RoomLossTypicalRT("250", l, W, H, Me.cBoxRT.Value), 1)
-Me.txtSA500.Value = Round(RoomLossTypicalRT("500", l, W, H, Me.cBoxRT.Value), 1)
-Me.txtSA1k.Value = Round(RoomLossTypicalRT("1k", l, W, H, Me.cBoxRT.Value), 1)
-Me.txtSA2k.Value = Round(RoomLossTypicalRT("2k", l, W, H, Me.cBoxRT.Value), 1)
-Me.txtSA4k.Value = Round(RoomLossTypicalRT("4k", l, W, H, Me.cBoxRT.Value), 1)
-Me.txtSA8k.Value = Round(RoomLossTypicalRT("8k", l, W, H, Me.cBoxRT.Value), 1)
+Me.txtSA31.Value = Round(RoomLossTypicalRT("31.5", L, W, H, Me.cBoxRT.Value), 1)
+Me.txtSA63.Value = Round(RoomLossTypicalRT("63", L, W, H, Me.cBoxRT.Value), 1)
+Me.txtSA125.Value = Round(RoomLossTypicalRT("125", L, W, H, Me.cBoxRT.Value), 1)
+Me.txtSA250.Value = Round(RoomLossTypicalRT("250", L, W, H, Me.cBoxRT.Value), 1)
+Me.txtSA500.Value = Round(RoomLossTypicalRT("500", L, W, H, Me.cBoxRT.Value), 1)
+Me.txtSA1k.Value = Round(RoomLossTypicalRT("1k", L, W, H, Me.cBoxRT.Value), 1)
+Me.txtSA2k.Value = Round(RoomLossTypicalRT("2k", L, W, H, Me.cBoxRT.Value), 1)
+Me.txtSA4k.Value = Round(RoomLossTypicalRT("4k", L, W, H, Me.cBoxRT.Value), 1)
+Me.txtSA8k.Value = Round(RoomLossTypicalRT("8k", L, W, H, Me.cBoxRT.Value), 1)
 
 errorCatch:
 End Sub

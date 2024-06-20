@@ -131,7 +131,7 @@ Dim CurrentType As String 'same rules as DuctType, set at lines which contain '*
 Dim InputArea As Double 'cross sectional area of duct in mm^2
 Dim ReadArea As Double 'cross sectional area of duct from file in mm^2
 Dim found As Boolean 'trigger to escape the read loop
-Dim col As Integer 'index for each column
+Dim Col As Integer 'index for each column
 Dim bandNo As Integer 'which column is the frequency band in
 Dim f As Double 'holds number
 
@@ -172,15 +172,15 @@ fstr = CStr(f)
         Else
             
             'convert SplitString from Strings to Values
-            For col = 0 To UBound(SplitStr)
-                If SplitStr(col) <> "" And IsNumeric(SplitStr(col)) Then
-                ReDim Preserve SplitVal(col)
-                SplitVal(col) = CDbl(SplitStr(col))
+            For Col = 0 To UBound(SplitStr)
+                If SplitStr(Col) <> "" And IsNumeric(SplitStr(Col)) Then
+                ReDim Preserve SplitVal(Col)
+                SplitVal(Col) = CDbl(SplitStr(Col))
                 End If
-            Next col
+            Next Col
             
             'resize array
-            ReDim Preserve SplitVal(col + 1)
+            ReDim Preserve SplitVal(Col + 1)
             
                 If Right(DuctType, 1) = "R" Then 'RECTANGULAR DUCT
                 ReadArea = SplitVal(0) * SplitVal(1)
@@ -233,7 +233,7 @@ End Function
 ' Comments: (1) For rectangular ducts only!
 '==============================================================================
 Function DuctAtten_Reynolds(fstr As String, H As Double, W As Double, _
-thickness As Double, l As Double)
+thickness As Double, L As Double)
 
 Dim PonA As Double 'Perimeter divided by area
 Dim Attn As Double 'Attenuation in dB, up to 250Hz
@@ -244,8 +244,8 @@ Dim P As Double 'perimeter in metres
 
 'Static Values from NEBB book for various coefficients
 'bands:    63      125     250    500     1k    2k     4k     8k
-b = Array(0.0133, 0.0574, 0.271, 1.0147, 1.77, 1.392, 1.518, 1.581)
-c = Array(1.959, 1.41, 0.824, 0.5, 0.695, 0.802, 0.451, 0.219)
+B = Array(0.0133, 0.0574, 0.271, 1.0147, 1.77, 1.392, 1.518, 1.581)
+C = Array(1.959, 1.41, 0.824, 0.5, 0.695, 0.802, 0.451, 0.219)
 D = Array(0.917, 0.941, 1.079, 1.087, 0, 0, 0, 0)
 
 'convert to millimetres to metres
@@ -272,22 +272,22 @@ i = GetArrayIndex_OCT(fstr)
         If thickness = 0 Then 'don't apply this correction
         IL = 0
         Else
-        IL = (3.281 * b(i)) * ((0.305 * PonA) ^ c(i)) * _
-            ((0.039 * thickness) ^ D(i)) * l
+        IL = (3.281 * B(i)) * ((0.305 * PonA) ^ C(i)) * _
+            ((0.039 * thickness) ^ D(i)) * L
         End If
     
         'applies from 500Hz octave band and up
         If f <= 250 Then
             If PonA >= 10 Then
             'equation 5.13
-            Attn = 55.8 * ((0.305 * PonA) ^ -0.25) * (f ^ -0.85) * l
+            Attn = 55.8 * ((0.305 * PonA) ^ -0.25) * (f ^ -0.85) * L
             Else
             'equation 5.14
-            Attn = 5.38 * ((0.305 * PonA) ^ 0.73) * (f ^ -0.58) * l
+            Attn = 5.38 * ((0.305 * PonA) ^ 0.73) * (f ^ -0.58) * L
             End If
         Else
         'equation 5.15
-        Attn = 0.066 * ((0.305 * PonA) ^ 0.8) * l
+        Attn = 0.066 * ((0.305 * PonA) ^ 0.8) * L
         End If
         
         'Top out at 40dB attenuation
@@ -314,7 +314,7 @@ End Function
 '           (2) Updated for unliend ducts, there's a different table for that!
 '==============================================================================
 Function DuctAttenCircular_Reynolds(fstr As String, dia As Double, _
-thickness As Double, l As Double)
+thickness As Double, length As Double)
 
 'declare Arrays from Table 5.7 of NEBB book
 d1 = Array(0.1, 0.1, 0.16, 0.16, 0.33, 0.33, 0.33)
@@ -325,8 +325,8 @@ d4 = Array(0.03, 0.03, 0.03, 0.07, 0.07, 0.07, 0.07)
 'declare Arrays from Table 5.8 of NEBB book
 'bands     63      125     250     500     1k     2k    4k   8k
 A = Array(0.2825, 0.5237, 0.3652, 0.1333, 1.933, 2.73, 2.8, 1.545)
-b = Array(0.3447, 0.2234, 0.79, 1.845, 0, 0, 0, 0)
-c = Array(-0.05251, -0.004936, -0.1157, -0.3735, 0, 0, 0, 0)
+B = Array(0.3447, 0.2234, 0.79, 1.845, 0, 0, 0, 0)
+C = Array(-0.05251, -0.004936, -0.1157, -0.3735, 0, 0, 0, 0)
 D = Array(-0.03837, -0.02724, -0.01834, -0.01293, 0.06135, -0.07341, -0.1467, -0.05452)
 e = Array(0.00091315, 0.0003377, -0.0001211, 0.00008624, -0.003891, 0.0004428, 0.003404, 0.00129)
 f = Array(-0.000008294, -0.00000249, 0.000002681, -0.000004986, 0.00003934, 0.000001006, -0.00002851, -0.00001318)
@@ -343,13 +343,13 @@ i = GetArrayIndex_OCT(fstr) '63Hz is element 0
         'choose diameter in mm
         Select Case dia
         Case Is <= 180
-        DuctAttenCircular_Reynolds = d1(i) * l * -1
+        DuctAttenCircular_Reynolds = d1(i) * length * -1
         Case Is <= 381
-        DuctAttenCircular_Reynolds = d2(i) * l * -1
+        DuctAttenCircular_Reynolds = d2(i) * length * -1
         Case Is <= 762
-        DuctAttenCircular_Reynolds = d3(i) * l * -1
+        DuctAttenCircular_Reynolds = d3(i) * length * -1
         Case Is <= 1524
-        DuctAttenCircular_Reynolds = d4(i) * l * -1
+        DuctAttenCircular_Reynolds = d4(i) * length * -1
         Case Is > 1524
         DuctAttenCircular_Reynolds = "-"
         End Select
@@ -369,9 +369,9 @@ i = GetArrayIndex_OCT(fstr) '63Hz is element 0
         DuctAttenCircular_Reynolds = ""
         Else
     
-        DuctAttenCircular_Reynolds = 3.281 * (A(i) + (b(i) * thickness) + _
-        (c(i) * thickness ^ 2) + (D(i) * dia) + (e(i) * dia ^ 2) + _
-        (f(i) * dia ^ 3)) * l
+        DuctAttenCircular_Reynolds = 3.281 * (A(i) + (B(i) * thickness) + _
+        (C(i) * thickness ^ 2) + (D(i) * dia) + (e(i) * dia ^ 2) + _
+        (f(i) * dia ^ 3)) * length
         
             'top out at 40dB
             If DuctAttenCircular_Reynolds > 40 Then
@@ -408,7 +408,7 @@ Dim SplitVal() As Double 'holds data converted into numbers
 Dim InputArea As Double 'cross sectional area of duct in mm^2
 Dim ReadArea As Double 'cross sectional area of duct from file in mm^2
 Dim found As Boolean 'trigger to escape the read loop
-Dim col As Integer 'index for each column
+Dim Col As Integer 'index for each column
 
 'Get Array from text
 Close #1
@@ -498,7 +498,7 @@ End Function
 '           DuctWallThickness - thickness of wall in mm
 ' Comments: (1) NEBB method
 '==============================================================================
-Function DuctBreakOut_NEBB(fstr As String, H As Single, W As Single, l As Single, _
+Function DuctBreakOut_NEBB(fstr As String, H As Single, W As Single, L As Single, _
 MaterialDensity As Single, DuctWallThickness As Single)
 
 Dim SurfaceMass As Single 'Surface mass of duct wall in kg/m^2
@@ -513,7 +513,7 @@ fL = 613000# / ((W * H) ^ 0.5)
 SurfaceMass = MaterialDensity * DuctWallThickness / 1000 'convert to metres
 
 'convert length to millimetres, works out the same!
-TLoutMin = 10 * Application.WorksheetFunction.Log10(2 * l * 1000 * ((1 / W) + (1 / H)))
+TLoutMin = 10 * Application.WorksheetFunction.Log10(2 * L * 1000 * ((1 / W) + (1 / H)))
 
     If SurfaceMass <> 0 And W <> 0 And H <> 0 Then
         If f < fL Then
@@ -547,14 +547,14 @@ End Function
 '           DuctWallThickness - thickness of wall in mm
 ' Comments: (1)
 '==============================================================================
-Function DuctBreakIn_NEBB(fstr As String, H As Single, W As Single, l As Single, _
+Function DuctBreakIn_NEBB(fstr As String, H As Single, W As Single, L As Single, _
 MaterialDensity As Single, DuctWallThickness As Single)
 
 Dim SurfaceMass As Single 'Surface mass of duct wall in kg/m^2
 Dim f As Double 'octave band centre frequency band
 Dim F1 As Double 'octave band centre frequency band
 Dim A As Single 'Larger duct dimensions in mm
-Dim b As Single 'Smaller duct dimensions in mm
+Dim B As Single 'Smaller duct dimensions in mm
 Dim TLin_A As Single 'TL_in for larger dimension
 Dim TLin_B As Single 'TL_in for smaller dimension
 Dim TLin1 As Single 'larger of the two TL_in values
@@ -565,25 +565,25 @@ f = freqStr2Num(fstr) 'convert to values
     'set A as the larger dimension
     If H > W Then
     A = H
-    b = W
+    B = W
     Else
     A = W
-    b = H
+    B = H
     End If
 
 F1 = (1.718 * 10 ^ 5) / A
 
 'Method relies on breakout number
 'call trace function for breakout, but make it positive
-TLout = DuctBreakOut_NEBB(fstr, H, W, l, MaterialDensity, DuctWallThickness) * -1 + _
-    10 * Application.WorksheetFunction.Log(2 * (l * 1000) * ((H + W) / (H * W)))
+TLout = DuctBreakOut_NEBB(fstr, H, W, L, MaterialDensity, DuctWallThickness) * -1 + _
+    10 * Application.WorksheetFunction.Log(2 * (L * 1000) * ((H + W) / (H * W)))
 
     If F1 > f Then
     'equation 6.15a
-    TLin_A = TLout - 4 - (10 * Application.WorksheetFunction.Log(A / b)) + _
+    TLin_A = TLout - 4 - (10 * Application.WorksheetFunction.Log(A / B)) + _
         (20 * Application.WorksheetFunction.Log(f / F1))
     'equation 6.15b
-    TLin_B = 10 * Application.WorksheetFunction.Log((l * 1000) * ((1 / A) + (1 / b)))
+    TLin_B = 10 * Application.WorksheetFunction.Log((L * 1000) * ((1 / A) + (1 / B)))
         
         If TLin_A > TLin_B Then
         TLin1 = TLin_A
@@ -640,7 +640,7 @@ End Function
 ' Comments: (1) locked to values in text file, no interpolation
 '           (2) added found=true after a value is matched
 '==============================================================================
-Function FlexDuctAtten_ASHRAE(freq As String, dia As Integer, l As Double)
+Function FlexDuctAtten_ASHRAE(freq As String, dia As Integer, L As Double)
 
 On Error GoTo closefile
 
@@ -648,7 +648,7 @@ Dim ReadStr() As String 'array for holding daat from text file
 Dim i As Integer 'counter for each line
 Dim SplitStr() As String 'splits text file into substrings
 Dim SplitVal() As Double 'converted to values
-Dim col As Integer 'counter for each column
+Dim Col As Integer 'counter for each column
 Dim found As Boolean 'switch for when match found
 
 Call GetSettings
@@ -667,16 +667,16 @@ i = 0 '<-line number
         If Left(SplitStr(0), 1) <> "*" Then 'asterisk detotes titles
         
             'convert to values
-            For col = 0 To UBound(SplitStr)
-                If SplitStr(col) <> "" Then
-                ReDim Preserve SplitVal(col)
-                SplitVal(col) = CDbl(SplitStr(col))
+            For Col = 0 To UBound(SplitStr)
+                If SplitStr(Col) <> "" Then
+                ReDim Preserve SplitVal(Col)
+                SplitVal(Col) = CDbl(SplitStr(Col))
                 End If
-            Next col
+            Next Col
             
-            ReDim Preserve SplitVal(col + 1)
+            ReDim Preserve SplitVal(Col + 1)
             
-                If SplitVal(0) = dia And SplitVal(1) = l Then
+                If SplitVal(0) = dia And SplitVal(1) = L Then
                     Select Case freq
                     Case Is = "63"
                     FlexDuctAtten_ASHRAE = -SplitVal(2)
@@ -843,7 +843,7 @@ On Error GoTo closefile
 Dim ReadStr() As String 'string for holding data from text file
 Dim SplitStr() As String 'Array for holding sub strings from text file
 Dim SplitVal() As Double 'converted to values
-Dim col As Integer 'counter for each column of data
+Dim Col As Integer 'counter for each column of data
 Dim found As Boolean 'switch for matching data
 Dim i As Integer 'counter for each line of text file
 
@@ -868,12 +868,12 @@ Open ASHRAE_REGEN For Input As #1  'public variable
                 If SplitStr(0) = Condition And CDbl(SplitStr(1)) = Velocity Then
                 
                     'convert to values
-                    For col = 1 To UBound(SplitStr)
-                        If SplitStr(col) <> "" Then
-                        ReDim Preserve SplitVal(col)
-                        SplitVal(col) = CDbl(SplitStr(col))
+                    For Col = 1 To UBound(SplitStr)
+                        If SplitStr(Col) <> "" Then
+                        ReDim Preserve SplitVal(Col)
+                        SplitVal(Col) = CDbl(SplitStr(Col))
                         End If
-                    Next col
+                    Next Col
                 
                     Select Case freq
                     Case Is = "63"
@@ -1068,7 +1068,7 @@ End Function
 Function ElbowLoss_NEBB(fstr As String, dia As Double, ductLiningThickness As Integer)
 Dim IL_DonRsquared As Double
 Dim IL As Double
-Dim R As Double
+Dim r As Double
 
 f = freqStr2Num(fstr)
 f = 0.039 * f 'imperial unit correction
@@ -1094,8 +1094,8 @@ f = 0.039 * f 'imperial unit correction
         IL_DonRsquared = "-"
     End Select
     
-R = dia / 2
-IL = IL_DonRsquared / ((dia / R) ^ 2)
+r = dia / 2
+IL = IL_DonRsquared / ((dia / r) ^ 2)
 
     If IL < 0 Then 'just make it 0
     ElbowLoss_NEBB = 0
@@ -1128,7 +1128,7 @@ End Function
 '           OneThirdsMode - Optional switch for single one-third band
 ' Comments: (1)
 '==============================================================================
-Function PlenumLoss_ASHRAE(fstr As String, l As Long, W As Long, H As Long, _
+Function PlenumLoss_ASHRAE(fstr As String, L As Long, W As Long, H As Long, _
     DuctInL As Single, DuctInW As Single, DuctOutL As Single, DuctOutW As Single, _
     Q As Integer, R_H As Long, r_v As Long, PlenumLiningType As String, _
     UnlinedType As String, WallEffect As String, applyElbowEffect As Boolean, _
@@ -1153,20 +1153,20 @@ If IsMissing(OneThirdsMode) Then OneThirdsMode = False
 
     'Switches between a single one-third octave band and a full octave band
     If OneThirdsMode = True Then
-    PlenumLoss_ASHRAE = PlenumLossOneThirdOctave_ASHRAE(f, l, W, H, DuctInL, _
+    PlenumLoss_ASHRAE = PlenumLossOneThirdOctave_ASHRAE(f, L, W, H, DuctInL, _
         DuctInW, DuctOutL, DuctOutW, Q, R_H, r_v, PlenumLiningType, UnlinedType, _
         WallEffect, applyElbowEffect, UnlinedPercent)
     Else 'octave bands!
     f_OneUp = GetAdjacentFrequency(f, "Up")
     f_OneDown = GetAdjacentFrequency(f, "Down")
     'get for each one third octave and then Tl average them
-    Loss1 = PlenumLossOneThirdOctave_ASHRAE(f_OneDown, l, W, H, DuctInL, _
+    Loss1 = PlenumLossOneThirdOctave_ASHRAE(f_OneDown, L, W, H, DuctInL, _
         DuctInW, DuctOutL, DuctOutW, Q, R_H, r_v, PlenumLiningType, UnlinedType, _
         WallEffect, applyElbowEffect, UnlinedPercent)
-    Loss2 = PlenumLossOneThirdOctave_ASHRAE(f, l, W, H, DuctInL, _
+    Loss2 = PlenumLossOneThirdOctave_ASHRAE(f, L, W, H, DuctInL, _
         DuctInW, DuctOutL, DuctOutW, Q, R_H, r_v, PlenumLiningType, UnlinedType, _
         WallEffect, applyElbowEffect, UnlinedPercent)
-    Loss3 = PlenumLossOneThirdOctave_ASHRAE(f_OneUp, l, W, H, DuctInL, _
+    Loss3 = PlenumLossOneThirdOctave_ASHRAE(f_OneUp, L, W, H, DuctInL, _
         DuctInW, DuctOutL, DuctOutW, Q, R_H, r_v, PlenumLiningType, UnlinedType, _
         WallEffect, applyElbowEffect, UnlinedPercent)
     'Note: losses are negative already so no need for negatives sign in formula
@@ -1199,7 +1199,7 @@ End Function
 '           PercentUnlined - Percent of surface area that's unlined
 ' Comments: (1)
 '==============================================================================
-Function PlenumLossOneThirdOctave_ASHRAE(f As Double, l As Long, W As Long, _
+Function PlenumLossOneThirdOctave_ASHRAE(f As Double, L As Long, W As Long, _
 H As Long, DuctInL As Single, DuctInW As Single, DuctOutL As Single, _
 DuctOutW As Single, Q As Integer, R_H As Long, r_v As Long, _
 PlenumLiningType As String, UnlinedType As String, WallEffect As String, _
@@ -1209,11 +1209,11 @@ Dim Stotal As Single 'Total internal surface area of plenum in m^2
 Dim InletArea As Single 'area of inlet duct in m^2
 Dim OutletArea As Single 'area of outlet duct in m^2
 Dim PlenumVolume As Single 'total volume of plenum in m^3
-Dim R As Single 'inlet to outlet offset distance
+Dim r As Single 'inlet to outlet offset distance
 Dim alphaTotal(7) As Single 'absorption coefficient of each octave band
 Dim AbsorptionArea(7) As Single 'S*alpha for each octave band
 Dim offsetAngle As Single 'angle betweeen inlet and outlet ducts
-Dim b As Single 'Constant from ASHRAE
+Dim B As Single 'Constant from ASHRAE
 Dim n As Single 'Constant from ASHRAE
 Dim f_co As Double 'cutoff frequency
 Dim OAE As Single 'offset angle effect
@@ -1232,12 +1232,12 @@ Dim SA_Unlined As Single
 '''''''''''''''''''''''''''''''''''''''''''''''''
 
 'Values from ASHRAE equation 5
-b = 3.505
+B = 3.505
 n = -0.359
 'If IsMissing(OneThirdsMode) Then OneThirdsMode = False
 
 'Lining Materials, from ASHRAE table 12
-Concrete = Array(0.01, 0.01, 0.01, 0.02, 0.02, 0.02, 0.03)
+concrete = Array(0.01, 0.01, 0.01, 0.02, 0.02, 0.02, 0.03)
 Bare_Sheet_Metal = Array(0.04, 0.04, 0.04, 0.05, 0.05, 0.05, 0.07)
 FG25 = Array(0.05, 0.11, 0.28, 0.68, 0.9, 0.93, 0.96)
 FG50 = Array(0.1, 0.17, 0.86, 1, 1, 1, 1)
@@ -1265,17 +1265,17 @@ f_co = PlenumCutoffFrequency(DuctInL_m, DuctInW_m)
 'Areas and Volumes
 InletArea = DuctInL_m * DuctInW_m
 OutletArea = DuctOutL_m * DuctOutW_m
-PlenumVolume = (l / 1000) * (W / 1000) * (H / 1000) 'note: input in mm
+PlenumVolume = (L / 1000) * (W / 1000) * (H / 1000) 'note: input in mm
 
 'Surface area
 'Stotal doesn't include inlet and outlet area
-Stotal = PlenumSurfaceArea(l, W, H, InletArea, OutletArea)
+Stotal = PlenumSurfaceArea(L, W, H, InletArea, OutletArea)
 'Debug.Print "S_total = " & Stotal
 
     'Linings - selected from static tables as array variables
     Select Case PlenumLiningType
     Case Is = "Concrete"
-    PlenumLining = Concrete
+    PlenumLining = concrete
     Case Is = "Bare Sheet Metal"
     PlenumLining = Bare_Sheet_Metal
     Case Is = "25mm fibreglass"
@@ -1293,7 +1293,7 @@ Stotal = PlenumSurfaceArea(l, W, H, InletArea, OutletArea)
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
     Select Case UnlinedType
     Case Is = "Concrete"
-    Unlined = Concrete
+    Unlined = concrete
     Case Is = "Bare Sheet Metal"
     Unlined = Bare_Sheet_Metal
     End Select
@@ -1307,7 +1307,7 @@ SA_Lined = Stotal - SA_Unlined 'm2
     Next i
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 'Distance from inlet to outlet
-R = PlenumDistanceR(R_H, r_v, l)
+r = PlenumDistanceR(R_H, r_v, L)
 'Debug.Print "Offset Distance, R = " & Round(r, 1)
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
     '90-degree bend selected, use the elbow effect method in ASHRAE
@@ -1315,7 +1315,7 @@ R = PlenumDistanceR(R_H, r_v, l)
     AngleEffect = PlenumElbowEffect(f, f_co)
     Else
     'Offset Angle
-    offsetAngle = PlenumAngleTheta(l, R)
+    offsetAngle = PlenumAngleTheta(L, r)
     'Debug.Print "Offset Angle = " & Round(OffsetAngle, 2)
     'Offset Angle Effect
     AngleEffect = PlenumOAE(f, f_co, offsetAngle)
@@ -1352,8 +1352,8 @@ R = PlenumDistanceR(R_H, r_v, l)
         PlenumLossOneThirdOctave_ASHRAE = 0
         Else
         'big formula! Eqn 10 from Chapter 48 of ASHRAE
-        PlenumLossOneThirdOctave_ASHRAE = -1 * (b * (((OutletArea * Q / _
-            (4 * Application.WorksheetFunction.Pi() * (R ^ 2))) _
+        PlenumLossOneThirdOctave_ASHRAE = -1 * (B * (((OutletArea * Q / _
+            (4 * Application.WorksheetFunction.Pi() * (r ^ 2))) _
             + AbsorptionArea(A_index)) ^ n) + AngleEffect)
         End If
     End If
@@ -1372,9 +1372,9 @@ End Function
 ' Comments: (1) Pythagoras would be proud
 '           (2) Output is in metres
 '==============================================================================
-Function PlenumDistanceR(R_H As Long, r_v As Long, l As Long) As Single
+Function PlenumDistanceR(R_H As Long, r_v As Long, L As Long) As Single
 PlenumDistanceR = (((r_v / 1000) ^ 2) + ((R_H / 1000) ^ 2) + _
-                    ((l / 1000) ^ 2)) ^ 0.5
+                    ((L / 1000) ^ 2)) ^ 0.5
 End Function
 
 '==============================================================================
@@ -1385,12 +1385,12 @@ End Function
 '           R - Radial distance in metres
 ' Comments: (1) Output in degrees
 '==============================================================================
-Function PlenumAngleTheta(l As Long, R As Single)
+Function PlenumAngleTheta(L As Long, r As Single)
 Dim PlenumL As Single
-PlenumL = l / 1000 'convert to metres
-    If PlenumL / R >= -1 And PlenumL / R <= 1 Then 'between -1 and 1
+PlenumL = L / 1000 'convert to metres
+    If PlenumL / r >= -1 And PlenumL / r <= 1 Then 'between -1 and 1
     PlenumAngleTheta = Application.WorksheetFunction.Degrees( _
-        Application.WorksheetFunction.Acos(PlenumL / R))
+        Application.WorksheetFunction.Acos(PlenumL / r))
     Else
     PlenumAngleTheta = 0
     End If
@@ -1406,12 +1406,12 @@ End Function
 '           SpeedOfSound - in m/s, defaults to 343
 ' Comments: (1) Assumes speed of sound is 343m/s
 '==============================================================================
-Function PlenumCutoffFrequency(l As Single, W As Single, _
+Function PlenumCutoffFrequency(L As Single, W As Single, _
     Optional SpeedOfSound As Double) As Single
     
     If SpeedOfSound = 0 Then SpeedOfSound = 343
 
-PlenumCutoffFrequency = SpeedOfSound / (2 * Application.Max(l, W))
+PlenumCutoffFrequency = SpeedOfSound / (2 * Application.Max(L, W))
 End Function
 
 '==============================================================================
@@ -1426,10 +1426,10 @@ End Function
 ' Comments: (1) inputs are in mm, which are squared
 '           => correction is 1000x1000 = 1million
 '==============================================================================
-Function PlenumSurfaceArea(l As Long, W As Long, H As Long, _
+Function PlenumSurfaceArea(L As Long, W As Long, H As Long, _
 InletArea As Single, OutletArea As Single) As Single
-PlenumSurfaceArea = (2 * l * W / 1000000) + (2 * W * H / 1000000) + _
-    (2 * H * l / 1000000) - InletArea - OutletArea
+PlenumSurfaceArea = (2 * L * W / 1000000) + (2 * W * H / 1000000) + _
+    (2 * H * L / 1000000) - InletArea - OutletArea
 End Function
 
 
@@ -1714,12 +1714,12 @@ End Function
 '==============================================================================
 Function GetDuctArea(inputStr As String)
 Dim SplitStr() As String
-Dim l As Double
+Dim L As Double
 Dim W As Double
 SplitStr = Split(inputStr, ",", Len(inputStr), vbTextCompare)
-l = CDbl(SplitStr(1))
+L = CDbl(SplitStr(1))
 W = CDbl(SplitStr(2))
-GetDuctArea = (l / 1000) * (W / 1000) 'because millimetres
+GetDuctArea = (L / 1000) * (W / 1000) 'because millimetres
 End Function
 
 '==============================================================================
@@ -1734,19 +1734,19 @@ End Function
 '==============================================================================
 Function GetDuctParameter(inputStr As String, Parameter As String)
 Dim SplitStr() As String
-Dim l As Single
+Dim L As Single
 Dim W As Single
 Dim Area As Single
 On Error GoTo errCatch
 SplitStr = Split(inputStr, ",", Len(inputStr), vbTextCompare)
-l = CSng(SplitStr(1))
+L = CSng(SplitStr(1))
 W = CSng(SplitStr(2))
-Area = (l / 1000) * (W / 1000) 'because millimetres
+Area = (L / 1000) * (W / 1000) 'because millimetres
     Select Case Parameter
     Case Is = "Area"
     GetDuctParameter = Area
     Case Is = "L"
-    GetDuctParameter = l
+    GetDuctParameter = L
     Case Is = "W"
     GetDuctParameter = W
     End Select
@@ -1769,7 +1769,7 @@ End Function
 '           underlying formulas with simultaneous equations!
 '==============================================================================
 Function FantechAttenRegen(fstr As String, airflow As Double, _
-percentage_free_area As Double, Width As Double, SplitterHeight As Double, _
+percentage_free_area As Double, width As Double, SplitterHeight As Double, _
 numModules As Integer, Optional litresPerSecond As Boolean)
 
 Dim airwayVelocity As Single 'in m/s
@@ -1779,7 +1779,7 @@ Dim AV_correction As Integer 'velocity correction
 
     'Check for errors
     If freqStr2Num(fstr) < 63 Or freqStr2Num(fstr) > 8000 Or _
-    percentage_free_area <= 0 Or airflow = 0 Or Width = 0 Or SplitterHeight = 0 Then
+    percentage_free_area <= 0 Or airflow = 0 Or width = 0 Or SplitterHeight = 0 Then
     FantechAttenRegen = "-"
     Exit Function
     End If
@@ -1788,7 +1788,7 @@ Dim AV_correction As Integer 'velocity correction
 If litresPerSecond = True Then airflow = airflow / 1000
 
 'Main working
-airwayVelocity = (airflow * 100) / ((Width / 1000) * (SplitterHeight / 1000) * _
+airwayVelocity = (airflow * 100) / ((width / 1000) * (SplitterHeight / 1000) * _
     percentage_free_area)
                 
 base_sound_power_level = (50.6 * Application.WorksheetFunction.Log(airwayVelocity)) + _
@@ -1818,7 +1818,7 @@ End Function
 '           underlying formulas with simultaneous equations!
 '==============================================================================
 Function NAPAttenRegen(fstr As String, airflow As Double, _
-percentage_free_area As Double, Width As Double, Height As Double, _
+percentage_free_area As Double, width As Double, Height As Double, _
 Model As String, Optional litresPerSecond As Boolean)
 
 Dim airwayVelocity As Single 'in m/s
@@ -1830,7 +1830,7 @@ Dim FaceArea As Double
     'Check for errors
     If freqStr2Num(fstr) < 63 Or freqStr2Num(fstr) > 8000 Or _
         percentage_free_area <= 0 Or percentage_free_area > 100 Or airflow = 0 Or _
-        Width = 0 Or Height = 0 Then
+        width = 0 Or Height = 0 Then
     NAPAttenRegen = "-"
     Exit Function
     End If
@@ -1838,7 +1838,7 @@ Dim FaceArea As Double
 'optional switch for L/s
 If litresPerSecond = True Then airflow = airflow / 1000
 
-FaceArea = Width * Height / 1000000
+FaceArea = width * Height / 1000000
 
 airwayVelocity = (airflow) / _
     (FaceArea * (percentage_free_area / 100))
@@ -2062,7 +2062,7 @@ Dim ReadStr() As String 'for holding values from text file
 Dim SplitStr() As String 'for splitting into array
 Dim SplitVal() As Double 'for holding array as values
 Dim i As Integer 'counter for text line number
-Dim col As Integer 'counter for each column of results
+Dim Col As Integer 'counter for each column of results
 Dim found As Boolean 'switch for matching inputs to values from text file
 
 Call GetSettings 'set public variables, including text file location
@@ -2082,14 +2082,14 @@ Open DUCT_DIRLOSS For Input As #1
         If Left(SplitStr(0), 1) <> "*" Then
         
             'convert to values
-            For col = 0 To UBound(SplitStr)
-                If SplitStr(col) <> "" Then
-                ReDim Preserve SplitVal(col)
-                SplitVal(col) = CDbl(SplitStr(col))
+            For Col = 0 To UBound(SplitStr)
+                If SplitStr(Col) <> "" Then
+                ReDim Preserve SplitVal(Col)
+                SplitVal(Col) = CDbl(SplitStr(Col))
                 End If
-            Next col
+            Next Col
             
-            ReDim Preserve SplitVal(col + 1)
+            ReDim Preserve SplitVal(Col + 1)
             '<-TODO, simplify this lookup with the getoctindex function
                If SplitVal(0) = diameter And SplitVal(1) = Angle Then
                 Select Case freq 'catch for both kinds of header
@@ -2238,7 +2238,7 @@ Function ElbowWithVanesRegen_NEBB(fstr As String, FlowRate As Double, _
 
 Dim f As Single 'frequency band (Hz)
 Dim DuctArea As Double 'duct cross-sectional area (m^2)
-Dim c As Double 'pressure loss Coefficient
+Dim C As Double 'pressure loss Coefficient
 Dim BF As Double 'Blockage Factor
 Dim Uc As Double 'flow velocity in damper constriction
 Dim St As Double 'Strouhal number
@@ -2259,13 +2259,13 @@ DuctArea = DuctWidth * DuctHeight 'calc duct cross-sectional area
     If mCubedPerSecond = True Then FlowRate = FlowRate * 1000
 
 'Step 1: Calculate pressure loss coefficient, C
-c = 16.4 * 100000 * dP * (1 / ((FlowRate / DuctArea) ^ 2))
+C = 16.4 * 100000 * dP * (1 / ((FlowRate / DuctArea) ^ 2))
     
     ' Step 2: Calculate Blockage Factor, BF
-    If c = 1 Then
+    If C = 1 Then
     BF = 0.5
     Else
-    BF = ((Sqr(c)) - 1) / (c - 1)
+    BF = ((Sqr(C)) - 1) / (C - 1)
     End If
 
 'Step 3: Calculate flow velocity in damper constriction, Uc
@@ -2466,7 +2466,7 @@ Dim fp As Double    'peak frequency (Hz)
 Dim F1 As Double    'spectrum parameter
 Dim F2 As Double    'spectrum parameter
 Dim A As Double     'spectrum parameter
-Dim c As Double     'shape of octave band sound spectrum
+Dim C As Double     'shape of octave band sound spectrum
 
 ' GENERAL SETUP
 f = freqStr2Num(fstr)
@@ -2526,16 +2526,92 @@ A = F1 - F2
 
 'Calculate octave band sound spectrum, C
 If Shape = 1 Then
-    c = -11.82 - 0.15 * A - 1.13 * A ^ 2
+    C = -11.82 - 0.15 * A - 1.13 * A ^ 2
 ElseIf Shape = 2 Then
-    c = -5.82 - 0.15 * A - 1.13 * A ^ 2
+    C = -5.82 - 0.15 * A - 1.13 * A ^ 2
 Else
     Debug.Print "IF error at calc of C"
     Exit Function
 End If
 
 'Calculate octave band Sound Power Level
-RegenDiffuser_NEBB = Lw + c
+RegenDiffuser_NEBB = Lw + C
+
+End Function
+
+'==============================================================================
+' Name:     RegenGrille_CIBSE
+' Author:   PS
+' Desc:     Calculates diffuser regenerated noise according to the NEBB method.
+' Args:     fStr - Octave band centre frequency (Hz, string)
+'           ductW - width (mm)
+'           ductH - height (mm)
+'           dP - pressure drop across a grille(Pa)
+'           m3PerSecond - set to true if it's a lot of air, otherwise assume L/s
+' Comments: (1)
+'==============================================================================
+Function RegenGrille_CIBSE(fstr As String, ductW As Double, ductH As Double, _
+    dP As Double, FlowRate As Double, Optional mCubedPerSecond As Boolean)
+
+Dim DuctArea As Double 'in m^2
+Dim f As Double
+Dim PeakFrequency As Double
+Dim PeakBand As Double
+Dim dB_per_band, numBands As Integer
+
+f = freqStr2Num(fstr)
+
+DuctArea = (ductW * ductH) / 1000000 'area in m^2
+    If mCubedPerSecond = True Then FlowRate = FlowRate * 1000 'convert to m3/s
+DuctVelocity = (FlowRate / 1000) / DuctArea
+PeakFrequency = 160 * DuctVelocity
+
+PeakBand = NearestOctaveBand(PeakFrequency)
+
+'Lw,overall=10+10log(A_d)+30log(p)+5
+PeakLw = 10 + 10 * Application.WorksheetFunction.Log(DuctArea) _
+    + 30 * Application.WorksheetFunction.Log(dP)
+
+'Debug.Print PeakBand & "     " & fstr
+numBands = GetArrayIndex_OCT(fstr) - GetArrayIndex_OCT(CStr(PeakBand))
+'Debug.Print numBands & " bands"
+
+'-3db per octave below the peak frequency
+'-5dB per octave above the peak frequency
+If numBands < 0 Then
+    RegenGrille_CIBSE = PeakLw + (3 * numBands) 'numBands is already negative here
+ElseIf numBands > 0 Then
+    RegenGrille_CIBSE = PeakLw + (-5 * numBands)
+Else 'numbands=0
+    RegenGrille_CIBSE = PeakLw
+End If
+
+End Function
+
+'==============================================================================
+' Name:     NearestOctaveBand
+' Author:   PS
+' Desc:     Returns the nearest octave band to the input frequency
+' Args:     f - frequency value
+' Comments: (1)
+'==============================================================================
+Function NearestOctaveBand(f As Double)
+Dim i As Integer
+Dim DistArray(9) As Long
+Dim SmallestDifference
+Dim BandIndex As Integer
+'Dim octBandsArray(9) As Long
+SmallestDifference = 999999
+octBandsArray = Array(31.5, 63, 125, 250, 500, 1000, 2000, 4000, 8000)
+For i = LBound(octBandsArray) To UBound(octBandsArray)
+    DistArray(i) = octBandsArray(i) - f
+    If Abs(DistArray(i)) < SmallestDifference Then
+        SmallestDifference = Abs(DistArray(i))
+        BandIndex = i
+    End If
+Next i
+
+NearestOctaveBand = octBandsArray(BandIndex)
 
 End Function
 
@@ -2590,7 +2666,7 @@ ThetaCol = 999 'for checking
     
     'read in line from text file
     Line Input #1, ReadStr
-    Debug.Print ReadStr
+    'Debug.Print ReadStr
     
     'split into elements
     SplitStr = Split(ReadStr, vbTab, Len(ReadStr), vbTextCompare)
@@ -2659,7 +2735,7 @@ Dim CurrentType As String 'same rules as DuctType, set at lines which contain '*
 Dim InputArea As Double 'cross sectional area of duct in mm^2
 Dim ReadArea As Double 'cross sectional area of duct from file in mm^2
 Dim found As Boolean 'trigger to escape the read loop
-Dim col As Integer 'index for each column
+Dim Col As Integer 'index for each column
 Dim bandNo As Integer 'which column is the frequency band in
 Dim f As Double 'holds number
 
@@ -2697,7 +2773,7 @@ fstr = CStr(f)
     Loop
     
 Close #1
-IL_up = (A1 * PonA ^ 2 + A2 * PonA + a3) + (b1 * PonA ^ 2 + b2 * PonA + b3) * l
+IL_up = (A1 * PonA ^ 2 + A2 * PonA + a3) + (b1 * PonA ^ 2 + b2 * PonA + b3) * L
 End Function
 
 
@@ -2997,9 +3073,9 @@ Cells(SolverRow, T_LossGainStart).ClearContents 'clear 31.5Hz octave band
     'check first frequency band
     If freqStr2Num(Range(T_FreqStartRng).Value) <> 31.5 Then ErrorFrequencyBand
 
-    For col = 0 To 7 '8 columns
-    Cells(SolverRow, T_LossGainStart + 1 + col).Value = SilencerIL(col)
-    Next col
+    For Col = 0 To 7 '8 columns
+    Cells(SolverRow, T_LossGainStart + 1 + Col).Value = SilencerIL(Col)
+    Next Col
     
 'parameter column
 ParameterMerge (Selection.Row)
@@ -3046,9 +3122,9 @@ ApplyTraceMarker ("Louvre")
 
 If T_BandType <> "oct" Then ErrorOctOnly
 
-    For col = 0 To 7 '8 columns
-    Cells(Selection.Row, T_LossGainStart + 1 + col).Value = LouvreIL(col)
-    Next col
+    For Col = 0 To 7 '8 columns
+    Cells(Selection.Row, T_LossGainStart + 1 + Col).Value = LouvreIL(Col)
+    Next Col
     
 'parameter cells
 ParameterMerge (Selection.Row)
@@ -3063,7 +3139,77 @@ SetTraceStyle "Silencer"
 
 End Sub
 
+'==============================================================================
+' Name:     PopulatePlenumForm
+' Author:   PS
+' Desc:     Put all the values back in the form before opening
+' Args:     FormulaStr - the original formula
+' Comments: (1)
+'==============================================================================
+Sub PopulatePlenumForm(FormulaStr As String)
 
+'custom function structure
+'                       1 2 3  4        5       6           7   8  9  10
+'PlenumLoss_ASHRAE(fstr,L,W,H,DuctInL,DuctInW,DuctOutL,DuctOutW,Q,R_H,r_v,
+'                   11              12         13           14              15              16
+'            PlenumLiningType,UnlinedType,WallEffect,applyElbowEffect,UnlinedPercent,OneThirdsMode)
+
+'values are separated by commas, split 'em up!
+FormulaArray = Split(FormulaStr, ",", Len(FormulaStr), vbTextCompare)
+
+    With frmPlenum
+    .txtL.Value = FormulaArray(1)
+    .txtW.Value = FormulaArray(2)
+    .txtH.Value = FormulaArray(3)
+    .txtInL.Value = FormulaArray(4)
+    .txtInW.Value = FormulaArray(5)
+    .txtOutL.Value = FormulaArray(6)
+    .txtOutW.Value = FormulaArray(7)
+    'Q
+    .txtHorizontalOffset.Value = FormulaArray(9)
+    .txtVerticalOffset.Value = FormulaArray(10)
+    'Lining type
+    'unlinedtype
+    .cBoxWallEffect.Value = FormulaArray(13)
+        If FormulaArray(14) = "TRUE" Then
+        
+        Else
+        End If
+        
+        
+    End With
+
+' 'set public variables
+'    PlenumL = Me.txtL.Value
+'    PlenumW = Me.txtW.Value
+'    PlenumH = Me.txtH.Value
+'    DuctInL = Me.txtInL.Value
+'    DuctInW = Me.txtInW.Value
+'    DuctOutL = Me.txtOutL.Value
+'    DuctOutW = Me.txtOutW.Value
+'    R_H = Me.txtHorizontalOffset.Value
+'    r_v = Me.txtVerticalOffset.Value
+'    UnlinedType = Me.cBoxUnlinedMaterial.Value
+'    SplitStr = Split(Me.cBoxLining.Value, ",", Len(Me.cBoxLining.Value), vbTextCompare)
+'    PlenumLiningType = SplitStr(0) 'first element, before the comma
+'    PlenumWallEffectStr = Me.cBoxWallEffect.Value
+'    PlenumPercentUnlined = Me.sbUnlinedPercent.Value
+'
+'        'Q factor
+'        If Me.optInletCorner.Value = True Then
+'        PlenumQ = 4
+'        Else
+'        PlenumQ = 2 'default value
+'        End If
+'
+'
+'        'Elbow Effect
+'        If Me.optEndSide.Value = True Then 'CHECK THIS
+'        ApplyPlenumElbowEffect = True
+'        ElseIf Me.optEndEnd.Value = True Then
+'        ApplyPlenumElbowEffect = False
+
+End Sub
 
 '==============================================================================
 ' Name:     PutPlenumLoss
@@ -3079,6 +3225,10 @@ Sub PutPlenumLoss()
 'InStr(1, Cells(Selection.Row - 1, T_LossGainStart + 5).Formula, _
         "DuctAtten_ASHRAE", vbTextCompare) > 0
 'maybe put in its own function???
+
+    If InStr(1, Cells(Selection.Row, 10).Value, "PlenumLoss_ASHRAE", vbTextCompare) > 0 Then
+    PopulatePlenumForm (Cells(Selection.Row, 10).Formula)
+    End If
 
 frmPlenum.Show
 
@@ -3286,11 +3436,15 @@ Cells(Selection.Row, T_ParamStart + 1).Value = numModules
 Cells(Selection.Row, T_ParamStart + 1).NumberFormat = """n = ""0"
 Cells(Selection.Row, T_ParamStart).Value = FlowRate
 
-    If FlowUnitsM3ps = True Then
-    SetUnits "m3ps", T_ParamStart, 1
-    Else 'Litres per second
-    SetUnits "lps", T_ParamStart, 0
+If FlowUnitsM3ps = True Then
+    If FlowRate < 10 Then
+        SetUnits "m3ps", T_ParamStart, 1
+    Else
+        SetUnits "m3ps", T_ParamStart, 0
     End If
+Else 'Litres per second
+    SetUnits "lps", T_ParamStart, 0
+End If
 
     'build formula
     If RegenMode = "Fantech" Then
@@ -3425,6 +3579,48 @@ SetTraceStyle "Input", True
     End If
 
 
+End Sub
+
+'==============================================================================
+' Name:     PutGrilleRegen
+' Author:   PS
+' Desc:     Inserts regenerated noise for Grilles (CIBSE only for now)
+' Args:     None
+' Comments: (1)
+'==============================================================================
+Sub PutGrilleRegen()
+
+frmGrilleRegen.Show
+    
+    If btnOkPressed = False Then End
+
+'styling
+SetTraceStyle "Regen"
+
+'parameter columns
+ParameterUnmerge (Selection.Row)
+SetTraceStyle "Input", True
+
+'description
+SetDescription "Regen. noise - Grille (CIBSE)"
+
+'pressure loss
+Cells(Selection.Row, T_ParamStart).Value = PressureLoss
+SetUnits "Pa", T_ParamStart, 0
+'flowrate
+    If FlowUnitsM3ps = True Then
+    SetUnits "m3ps", T_ParamStart + 1, 1
+    Else 'litres
+    SetUnits "lps", T_ParamStart + 1, 0
+    End If
+Cells(Selection.Row, T_ParamStart + 1).Value = FlowRate
+
+'for elbows with vanes
+BuildFormula "RegenGrille_CIBSE(" & T_FreqStartRng & "," & _
+    ElementW & "," & ElementH & "," & T_ParamRng(0) & "," & T_ParamRng(1) & _
+    "," & FlowUnitsM3ps & ")", True
+
+    
 End Sub
 
 
