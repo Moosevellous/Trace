@@ -272,6 +272,7 @@ Open FANTECH_SILENCERS For Input As #1
             'Free area
             If SplitStr(10) <> "" Then
             FA(Me.lstOptions.ListCount - 1) = CDbl(SplitStr(10))
+            Debug.Print FA(Me.lstOptions.ListCount - 1)
             Else
             FA(Me.lstOptions.ListCount - 1) = 0
             End If

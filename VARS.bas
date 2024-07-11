@@ -3,7 +3,7 @@ Attribute VB_Name = "VARS"
 'PUBLIC VARIABLES
 '==============================================================================
 'variables for centrally accessed text files
-Public Const T_VersionNo As String = "3.10"
+Public Const T_VersionNo As String = "3.10.2"
 Public rbTraceUI As IRibbonUI 'object for the Trace ribbon
 
 Public ROOTPATH As String '<-location of Trace Add-in, used for many other elements
@@ -331,24 +331,37 @@ frmLoading.lblStatus.Caption = "Getting global settings..."
 'Debug.Print Now & " Looking for path to add-ins"
 frmLoading.lblStatus.Caption = "Finding AddIn path..."
 frmLoading.Repaint
-'
-'If (Application.AddIns2.Count > 0) Then 'add-in list is working
-'    Debug.Print Now & " Count done"
-'    ROOTPATH = Application.AddIns("Trace").Path
-'Else 'hard coded location of AddIn as a fallback
-'    Debug.Print "PATH NOT FOUND DEFAULTING TO U:/ DRIVE"
-'    ROOTPATH = "U:\SectionData\Property\Specialist Services\Acoustics\1 - Technical Library\Excel Add-in\Trace"
-'End If
 
 Application.EnableEvents = False
 
-For Each AddIn In Application.AddIns2
-'Debug.Print Now & " Found " & AddIn.Name
-    If AddIn.Name = "Trace.xlam" Then
-        'Debug.Print Now & " Trace found"
-        ROOTPATH = AddIn.Path
-    End If
-Next AddIn
+If (Application.AddIns2.Count > 0) Then 'add-in list is working
+    Debug.Print Now & " Count done"
+    ROOTPATH = Application.AddIns("Trace").Path
+Else 'hard coded location of AddIn as a fallback
+    Debug.Print "PATH NOT FOUND DEFAULTING TO U:/ DRIVE"
+    ROOTPATH = "U:\SectionData\Property\Specialist Services\Acoustics\1 - Technical Library\Excel Add-in\Trace"
+End If
+
+
+'For Each AddIn In Application.AddIns2
+''Debug.Print Now & " Found " & AddIn.Name
+'    If AddIn.Name = "Trace.xlam" Then
+'        'Debug.Print Now & " Trace found"
+'        ROOTPATH = AddIn.Path
+'    End If
+'Next AddIn
+
+'path to settings
+Debug.Print Environ("AppData") & "\Trace\settings.txt"
+
+'catch error where Application.AddIns2 doesn't return any result
+If ROOTPATH = "" Then
+    msg = MsgBox("Path to .xlam file not found! Attempting fix...", vbOKOnly, "Application.AddIn2 Error")
+    'Todo: try and force excel to refresh the list of AddIns
+    ' "Do you want to try re-linking the XLAM file?"
+    'for now it's a hacky fix
+    ROOTPATH = "U:\SectionData\Property\Specialist Services\Acoustics\1 - Technical Library\Excel Add-in\Trace"
+End If
 
 Application.EnableEvents = True
 

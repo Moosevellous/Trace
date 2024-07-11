@@ -1063,7 +1063,7 @@ AutoSum_UserInput
 BuildFormula "SUM(" & _
     Cells(T_FirstSelectedRow, T_LossGainStart).Address(False, False) & ":" & _
     Cells(T_LastSelectedRow, T_LossGainStart).Address(False, False) & ")"
-SetDescription "Direct component", endRw + 1, True
+SetDescription "Direct component", endRw + 2, True
 SetTraceStyle "Subtotal"
 
 'move cursor
@@ -1083,11 +1083,14 @@ Cells(Selection.Row, T_ParamStart).Value = 1 'default to 1 source ie 10log(n)=0
 SelectNextRow
 
 'Sum reverb
+'NOTE: this line of code was corrected to not include the distance correction
+' in the reverberant path
 BuildFormula "SUM(" & _
     Cells(T_FirstSelectedRow, T_LossGainStart).Address(False, False) & ":" & _
-    Cells(T_LastSelectedRow, T_LossGainStart).Address(False, False) & "," & _
+    Cells(T_LastSelectedRow - 1, T_LossGainStart).Address(False, False) & "," & _
     Cells(Selection.Row - 2, T_LossGainStart).Address(False, False) & ":" & _
     Cells(Selection.Row - 1, T_LossGainStart).Address(False, False) & ")"
+
 
 SetDescription "Reverberant component"
 SetTraceStyle "Subtotal"
