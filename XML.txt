@@ -1,8 +1,8 @@
 <customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui" onLoad="onLoadTrace">
 	<ribbon>
 		<tabs>
-			<tab id="customTab" label="Trace v3.10" insertAfterMso="TabView" keytip="X">
-<!--EDIT DATE 20240620 -->
+			<tab id="customTab" label="Trace v3.10.2" insertAfterMso="TabView" keytip="X">
+<!--EDIT DATE 20240711 -->
 <!--'tag' is used for the function called by the Universal Builder, the 'id' used for is the function input, if required -->
     
 <!-- _________________________________________________________________________________________________________________________________________________________________ -->
